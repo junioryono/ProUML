@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "react-scripts start",
-    "build": "npm run update-supabase-types && cross-env GENERATE_SOURCEMAP=false react-scripts build",
+    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
     "update-supabase-types": "dotenv -- cross-var npx openapi-typescript %REACT_APP_SUPABASE_URL%/rest/v1/?apikey=%REACT_APP_SUPABASE_ANON_KEY% --output ./src/types/supabase.ts"
   },
   "eslintConfig": {
