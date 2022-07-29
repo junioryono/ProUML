@@ -5,9 +5,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "craco start",
-    "build": "cross-env GENERATE_SOURCEMAP=false craco build",
-    "test": "craco test",
+    "start": "react-scripts start",
+    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
+    "test": "react-scripts test",
     "update-supabase-types": "dotenv -- cross-var npx openapi-typescript %REACT_APP_SUPABASE_URL%/rest/v1/?apikey=%REACT_APP_SUPABASE_ANON_KEY% --output ./src/types/supabase.ts"
   },
   "eslintConfig": {
@@ -39,6 +39,7 @@
     "@mui/material": "^5.2.4",
     "@supabase/supabase-js": "^1.35.4",
     "@types/jest": "^28.1.6",
+    "antd": "^4.22.2",
     "aos": "^2.3.4",
     "babel-plugin-transform-runtime": "^6.23.0",
     "craco-less": "^2.0.0",
