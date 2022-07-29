@@ -5,8 +5,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
+    "start": "craco start",
+    "build": "cross-env GENERATE_SOURCEMAP=false craco build",
+    "test": "craco test",
     "update-supabase-types": "dotenv -- cross-var npx openapi-typescript %REACT_APP_SUPABASE_URL%/rest/v1/?apikey=%REACT_APP_SUPABASE_ANON_KEY% --output ./src/types/supabase.ts"
   },
   "eslintConfig": {
@@ -31,6 +32,7 @@
     "@antv/x6-react-components": "^1.1.15",
     "@antv/x6-react-shape": "^1.6.1",
     "@antv/x6-vector": "^1.4.0",
+    "@craco/craco": "^6.4.5",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^5.2.4",
@@ -39,6 +41,7 @@
     "@types/jest": "^28.1.6",
     "aos": "^2.3.4",
     "babel-plugin-transform-runtime": "^6.23.0",
+    "craco-less": "^2.0.0",
     "date-fns": "^2.19.0",
     "formik": "^2.2.6",
     "history": "^5.0.0",
