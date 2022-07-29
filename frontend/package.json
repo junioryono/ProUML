@@ -1,0 +1,72 @@
+{
+  "name": "prouml",
+  "author": "junioryono",
+  "email": "jryono123@gmail.com",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "npm run update-supabase-types && cross-env GENERATE_SOURCEMAP=false react-scripts build",
+    "update-supabase-types": "dotenv -- cross-var npx openapi-typescript %REACT_APP_SUPABASE_URL%/rest/v1/?apikey=%REACT_APP_SUPABASE_ANON_KEY% --output src/types/supabase.ts"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@antv/x6": "^1.32.10",
+    "@antv/x6-react-components": "^1.1.15",
+    "@antv/x6-react-shape": "^1.6.1",
+    "@antv/x6-vector": "^1.4.0",
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@mui/icons-material": "^5.2.4",
+    "@mui/material": "^5.2.4",
+    "@supabase/supabase-js": "^1.35.4",
+    "@types/jest": "^28.1.6",
+    "aos": "^2.3.4",
+    "date-fns": "^2.19.0",
+    "formik": "^2.2.6",
+    "history": "^5.0.0",
+    "prop-types": "^15.8.1",
+    "react": "^18.1.0",
+    "react-countup": "^6.2.0",
+    "react-dom": "^18.1.0",
+    "react-image-lightbox": "^5.1.4",
+    "react-lazy-load-image-component": "^1.5.4",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "react-slick": "^0.29.0",
+    "react-supabase": "^0.2.0",
+    "react-syntax-highlighter": "^15.5.0",
+    "react-visibility-sensor": "^5.1.1",
+    "slick-carousel": "^1.8.1",
+    "web-vitals": "^2.1.4",
+    "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@types/node": "^18.6.1",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "@types/uuid": "^8.3.4",
+    "babel-plugin-styled-components": "^2.0.7",
+    "cross-env": "^7.0.2",
+    "cross-var": "^1.1.0",
+    "dotenv-cli": "^6.0.0",
+    "prettier": "^2.6.2",
+    "typescript": "^4.7.4"
+  }
+}
