@@ -4,7 +4,6 @@ import { Parser } from "JavaToJSON/javatojson";
 import type { Graph, Cell } from "@antv/x6";
 import type { Dnd } from "@antv/x6/es/addon/dnd";
 import files from "JavaToJSON/TestProject";
-import "antd/dist/antd.css";
 import "./Graph.css";
 
 function GraphView() {
