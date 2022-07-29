@@ -7,7 +7,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "npm run update-supabase-types && cross-env GENERATE_SOURCEMAP=false react-scripts build",
-    "update-supabase-types": "dotenv -- cross-var npx openapi-typescript %REACT_APP_SUPABASE_URL%/rest/v1/?apikey=%REACT_APP_SUPABASE_ANON_KEY% --output src/types/supabase.ts"
+    "update-supabase-types": "dotenv -- cross-var npx openapi-typescript %REACT_APP_SUPABASE_URL%/rest/v1/?apikey=%REACT_APP_SUPABASE_ANON_KEY% --output ./src/types/supabase.ts"
   },
   "eslintConfig": {
     "extends": [
@@ -38,6 +38,7 @@
     "@supabase/supabase-js": "^1.35.4",
     "@types/jest": "^28.1.6",
     "aos": "^2.3.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "date-fns": "^2.19.0",
     "formik": "^2.2.6",
     "history": "^5.0.0",
