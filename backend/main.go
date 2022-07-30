@@ -103,6 +103,8 @@ func HandleDefaultRoutes(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendFile(ReactBuildPath + c.Path())
 	}
 
+	log.Printf("going to send index.html %s", ReactBuildPath+c.Path())
+
 	// Otherwise return React's index html
 	return SendIndexHTML(c)
 }
