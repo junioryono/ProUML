@@ -192,51 +192,25 @@ const Topbar = ({ themeMode, themeToggler }) => {
         </Link>
       </Box>
       <Box display="flex" alignItems={"center"}>
-        <Box sx={{ display: { xs: "none", md: "flex" } }} alignItems={"center"} marginRight={1}>
-          <Box>
-            <Button
-              variant="text"
-              color={themeMode === "light" ? "primary" : "inherit"}
-              size="large"
-              style={{ fontSize: "1rem" }}
-              component="a"
-              target="_blank"
-              rel="noreferrer"
-              href="https://github.com/"
-            >
+        <Box sx={{ display: { xs: "none", md: "flex" } }} alignItems={"center"} marginRight={2}>
+          <Box style={{ fontSize: "1rem" }} size="large" marginRight={2}>
+            <Link underline="none" component="a" target="_blank" rel="noreferrer" href="https://github.com/junioryono/ProUML" color="textPrimary" variant={"subtitle2"}>
               GitHub
-            </Button>
+            </Link>
           </Box>
-          <Box>
-            {/* <OAuth2Login
-              authorizationUrl="https://jhqfwqgqujcoxrdlrydf.supabase.co/auth/v1/authorize"
-              responseType="code"
-              clientId="&provider=google"
-              redirectUri="https://jhqfwqgqujcoxrdlrydf.supabase.co/auth/v1/callback"
-              onSuccess={() => console.log("onSuccess")}
-              onFailure={() => console.log("onFailure")}
-              onRequest={(request) => {
-                console.log(request);
-              }}
-              isCrossOrigin={true}
-            > */}
-            <Button
-              variant="text"
-              color={themeMode === "light" ? "primary" : "inherit"}
-              size="large"
-              style={{ fontSize: "1rem" }}
-              onClick={() => {
-                if (!auth.session) {
-                  auth.signIn({ provider: "google" }, { redirectTo: "https://prouml.com/dashboard" });
-                } else {
-                  auth.signOut();
-                }
-              }}
+          <Box style={{ fontSize: "1rem" }} size="large">
+            <Link
+              underline="none"
+              component={RouterLink}
+              to={() => (!auth.session ? auth.signIn({ provider: "google" }, { redirectTo: "https://prouml.com/dashboard" }) : auth.signOut())}
+              color="textPrimary"
+              variant={"subtitle2"}
+              style={{ display: "flex", alignItems: "flex-end" }}
             >
               {!auth.session ? (
                 <>
                   Login
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="25px" height="25px" style={{ marginLeft: 5 }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" style={{ marginLeft: 5 }}>
                     <path
                       fill="#FFC107"
                       d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
@@ -258,7 +232,7 @@ const Topbar = ({ themeMode, themeToggler }) => {
               ) : (
                 "Logout"
               )}
-            </Button>
+            </Link>
           </Box>
         </Box>
         <Box>
