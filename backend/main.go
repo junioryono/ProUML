@@ -29,7 +29,7 @@ var (
 
 var (
 	SupabaseClient *supabase.Client
-	ReactBuildPath = "../frontend/build/"
+	ReactBuildPath = "./frontend/build/"
 	Production     = os.Getenv("production") == "true"
 )
 
@@ -153,6 +153,7 @@ func main() {
 
 	if !Production {
 		htmlEngine.Reload(true)
+		ReactBuildPath = "../frontend/build/"
 	}
 
 	MainRouter.Use("/ws", func(c *fiber.Ctx) error {
