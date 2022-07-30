@@ -29,7 +29,7 @@ var (
 
 var (
 	SupabaseClient *supabase.Client
-	ReactBuildPath = "./frontend/build/"
+	ReactBuildPath = "./frontend/build"
 	Production     = os.Getenv("production") == "true"
 )
 
@@ -103,8 +103,6 @@ func HandleDefaultRoutes(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendFile(ReactBuildPath + c.Path())
 	}
 
-	log.Printf("going to send index.html %s", ReactBuildPath+c.Path())
-
 	// Otherwise return React's index html
 	return SendIndexHTML(c)
 }
@@ -117,13 +115,21 @@ func main() {
 		port = "8080"
 	}
 
-	htmlEngine := html.New(ReactBuildPath, ".html")
+	if !Production {
+		ReactBuildPath = "../frontend/build"
+	}
+
+	htmlEngine := html.New(ReactBuildPath+"/", ".html")
 	htmlEngine.AddFunc(
 		// add unescape function
 		"unescape", func(s string) template.HTML {
 			return template.HTML(s)
 		},
 	)
+
+	if !Production {
+		htmlEngine.Reload(true)
+	}
 
 	MainRouter := fiber.New(fiber.Config{
 		AppName:                 "ProUML",
@@ -152,11 +158,6 @@ func main() {
 	}))
 	APIRouter.Use(recover.New())
 	APIRouter.Use(ConfigureCors())
-
-	if !Production {
-		htmlEngine.Reload(true)
-		ReactBuildPath = "../frontend/build/"
-	}
 
 	MainRouter.Use("/ws", func(c *fiber.Ctx) error {
 		// IsWebSocketUpgrade returns true if the client
