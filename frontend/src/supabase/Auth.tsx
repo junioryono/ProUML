@@ -49,14 +49,40 @@ function useAuth() {
 
 function AuthProvider({ children }: any) {
   const [session, setSession] = useState<AuthSession | null | undefined>(undefined);
-  const [realtimeClient, setRealtimeClient] = useState<RealtimeClient | null | undefined>(undefined);
+  const realtimeClient = new RealtimeClient("wss://jhqfwqgqujcoxrdlrydf.supabase.co/realtime/v1");
 
   useEffect(() => {
+    if (session === null) {
+      realtimeClient.setAuth(null);
+      return;
+    }
+
+    if (session !== undefined) {
+      console.log("session.access_token", session.access_token);
+      realtimeClient.setAuth(session.access_token);
+      realtimeClient.connect();
+      realtimeClient.onOpen(() => {
+        console.log("Socket opened.");
+      });
+      realtimeClient.onClose(() => {
+        console.log("Socket closed.");
+      });
+      realtimeClient.onError((e: { message: any }) => {
+        console.log("Socket error.");
+      });
+
+      return () => {
+        console.log("closing");
+        realtimeClient.setAuth(null);
+        realtimeClient.disconnect();
+      };
+    }
+
     const authSession = supabase.auth.session();
 
     console.log("authSession", authSession);
     if (authSession === null) {
-      // supabase.auth.signIn({ refreshToken: "fW1w-FHhinSJkV7facLwQA" });
+      // supabase.auth.signIn({ refreshToken: "Vw_D_DpoofHRPzEW240U_A" });
       setSession(authSession);
     } else if (authSession !== undefined) {
       setSession(authSession);
@@ -70,48 +96,7 @@ function AuthProvider({ children }: any) {
     return () => {
       listener?.unsubscribe();
     };
-  }, []);
-
-  useEffect(() => {
-    // if (realtimeClient === undefined && session) {
-    //   console.log("session", session);
-    //   let rtClient: RealtimeClient | undefined = undefined;
-    //   rtClient = new RealtimeClient("wss://jhqfwqgqujcoxrdlrydf.supabase.co/realtime/v1");
-    //   rtClient.onOpen(() => {
-    //     console.log("Socket opened.");
-    //     setRealtimeClient(rtClient);
-    //   });
-    //   rtClient.onClose(() => {
-    //     console.log("Socket closed.");
-    //     setRealtimeClient(null);
-    //   });
-    //   rtClient.onError((e: { message: any }) => {
-    //     console.log("Socket error", e.message);
-    //     setRealtimeClient(null);
-    //   });
-    //   rtClient.connect();
-    // }
-    // return () => {
-    //   if (realtimeClient instanceof RealtimeClient) {
-    //     realtimeClient.disconnect();
-    //     setRealtimeClient(null);
-    //   }
-    // };
-  }, [realtimeClient, session]);
-  useEffect(() => {
-    if (session) {
-      supabase
-        .from("profile")
-        .select("*")
-        .then((response) => {
-          console.log("response", response);
-        });
-    }
   }, [session]);
-
-  useEffect(() => {
-    console.log("realtimeClient", realtimeClient);
-  }, [realtimeClient]);
 
   const value: AuthContextInterface = {
     signUp: (credentials, options) => supabase.auth.signUp(credentials, options),

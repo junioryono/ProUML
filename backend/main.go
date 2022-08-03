@@ -21,9 +21,9 @@ var (
 	supabaseUrl    string
 	supabaseKey    string
 	htmlProperties = map[string]map[string]string{
-		"Invalid URL": {"Title": "<title>ProUML - Not Found</title>"},
-		"/":           {"Title": "<title>ProUML - Home</title>"},
-		"/dashboard":  {"Title": "<title>ProUML - Dashboard</title>"},
+		"Invalid URL": {"Title": "ProUML - Not Found"},
+		"/":           {"Title": "ProUML - Home"},
+		"/dashboard":  {"Title": "ProUML - Dashboard"},
 	}
 )
 
@@ -68,7 +68,7 @@ exit:
 
 func SendIndexHTML(c *fiber.Ctx) error {
 	fiberMap := fiber.Map{
-		"Title": getInnerHtmlProperty(c.Path(), "Title"),
+		"Title": "<title>" + getInnerHtmlProperty(c.Path(), "Title") + "</title>",
 	}
 
 	return c.Status(fiber.StatusOK).Render("index", fiberMap)
