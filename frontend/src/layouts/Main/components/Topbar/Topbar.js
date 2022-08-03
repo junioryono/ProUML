@@ -201,8 +201,8 @@ const Topbar = ({ themeMode, themeToggler }) => {
           <Box style={{ fontSize: "1rem" }} size="large">
             <Link
               underline="none"
-              component={RouterLink}
-              to={() => (!auth.session ? auth.signIn({ provider: "google" }, { redirectTo: "https://prouml.com/dashboard" }) : auth.signOut())}
+              component="a"
+              onClick={() => (!auth.session ? auth.signIn({ provider: "google" }, { redirectTo: "https://prouml.com/dashboard" }) : auth.signOut())}
               color="textPrimary"
               variant={"subtitle2"}
               style={{ display: "flex", alignItems: "flex-end" }}

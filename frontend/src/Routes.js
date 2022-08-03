@@ -1,9 +1,10 @@
 import { Routes as ReactRoutes, Route } from "react-router-dom";
 import WithLayout from "./WithLayout";
 // Available layouts
-import { Main as MainLayout, Fluid as FluidLayout, Fixed as FixedLayout } from "./layouts";
+import { Main as MainLayout, Fluid as FluidLayout, Fixed as FixedLayout, Graph as GraphLayout } from "./layouts";
 
 import GraphView from "./views/graph/Graph";
+import DashboardView from "./views/dashboard/Dashboard";
 
 // Landing pages
 import {
@@ -77,9 +78,16 @@ const Routes = () => {
         />
         <Route
           exact
+          path="/dashboard"
+          element={((matchProps) => (
+            <WithLayout {...matchProps} component={DashboardView} layout={MainLayout} />
+          ))()}
+        />
+        <Route
+          exact
           path="/document/:id"
           element={((matchProps) => (
-            <WithLayout {...matchProps} component={GraphView} layout={MainLayout} />
+            <WithLayout {...matchProps} component={GraphView} layout={GraphLayout} />
           ))()}
         />
         <Route

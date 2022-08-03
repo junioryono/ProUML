@@ -41,7 +41,7 @@ const Main = ({ children, themeToggler, themeMode, paletteType }) => {
         </AppBar>
       </HideOnScroll>
       <main>
-        <Box height={{ xs: 56, sm: 64 }} />
+        <Box height={{ xs: 56 }} />
         {children}
         <Divider />
       </main>

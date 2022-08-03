@@ -24,7 +24,7 @@ const Fixed = ({ children, themeToggler, themeMode, paletteType }) => {
         <Divider />
       </AppBar>
       <main>
-        <Box height={{ xs: 56, sm: 64 }} />
+        <Box height={{ xs: 56 }} />
         <Box display="flex" flex="1 1 auto" overflow="hidden" paddingLeft={{ md: "256px" }}>
           <Box display="flex" flex="1 1 auto" overflow="hidden">
             <Box flex="1 1 auto" height="100%" overflow="auto">

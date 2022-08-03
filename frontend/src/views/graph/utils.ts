@@ -40,10 +40,7 @@ class SimpleNodeView extends NodeView {
   }
 }
 
-export function initGraph(
-  container: HTMLDivElement,
-  minimapContainer: HTMLDivElement,
-) {
+export function initGraph(container: HTMLDivElement, minimapContainer: HTMLDivElement) {
   return new Graph({
     container: container,
     history: {
@@ -91,7 +88,7 @@ export function initGraph(
     scroller: {
       enabled: true,
       width: window.innerWidth - 500,
-      height: window.innerHeight - 100,
+      height: window.innerHeight - 106,
       pageVisible: true,
     },
     minimap: {
@@ -153,11 +150,7 @@ export function initListeners(
   graph: Graph,
   container: HTMLDivElement,
   forceRender: () => void,
-  setSelectedCells: React.Dispatch<
-    React.SetStateAction<
-      Cell<Cell.Properties> | Cell<Cell.Properties>[] | undefined
-    >
-  >,
+  setSelectedCells: React.Dispatch<React.SetStateAction<Cell<Cell.Properties> | Cell<Cell.Properties>[] | undefined>>,
 ) {
   graph.bindKey("delete", () => onErase(graph));
   graph.bindKey("backspace", () => onErase(graph));
@@ -166,40 +159,24 @@ export function initListeners(
   graph.bindKey("ctrl+z", () => onCtrlZ(graph));
   graph.bindKey("ctrl+shift+z", () => onCtrlShiftZ(graph));
 
-  graph.on("blank:contextmenu", (position) =>
-    onBlankContextMenu(graph, container, position),
-  );
+  graph.on("blank:contextmenu", (position) => onBlankContextMenu(graph, container, position));
 
-  graph.on("node:contextmenu", (handler) =>
-    onContextMenu(graph, setSelectedCells, handler),
-  );
+  graph.on("node:contextmenu", (handler) => onContextMenu(graph, setSelectedCells, handler));
 
   graph.on("node:added", (handler) => onAdded(graph, handler));
-  graph.on("node:removed", (handler) =>
-    onRemoved(graph, setSelectedCells, handler),
-  );
-  graph.on("node:selected", (handler) =>
-    onSelected(graph, setSelectedCells, handler),
-  );
+  graph.on("node:removed", (handler) => onRemoved(graph, setSelectedCells, handler));
+  graph.on("node:selected", (handler) => onSelected(graph, setSelectedCells, handler));
 
   graph.on("node:move", (handler) => onMove(graph, setSelectedCells, handler));
-  graph.on("node:moved", (handler) =>
-    onMoved(graph, forceRender, setSelectedCells, handler),
-  );
+  graph.on("node:moved", (handler) => onMoved(graph, forceRender, setSelectedCells, handler));
 
-  graph.on("node:change:position", (handler) =>
-    onChangePosition(graph, handler),
-  );
+  graph.on("node:change:position", (handler) => onChangePosition(graph, handler));
 
   // graph.on("node:change:size", (handler) => {});
-  graph.on("node:resize", (handler) =>
-    onResize(graph, setSelectedCells, handler),
-  );
+  graph.on("node:resize", (handler) => onResize(graph, setSelectedCells, handler));
   graph.on("node:resized", (handler) => onResized(graph, forceRender, handler));
 
-  graph.on("node:rotate", (handler) =>
-    onRotate(graph, setSelectedCells, handler),
-  );
+  graph.on("node:rotate", (handler) => onRotate(graph, setSelectedCells, handler));
   graph.on("node:rotated", (_handler) => onRotated(graph, forceRender));
 }
 
@@ -237,11 +214,7 @@ export function initDragAndDrop(graph: Graph) {
   });
 }
 
-export function startDrag(
-  graph: Graph | undefined,
-  dnd: Dnd | undefined,
-  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-) {
+export function startDrag(graph: Graph | undefined, dnd: Dnd | undefined, e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
   if (!graph || !dnd) {
     return;
   }
@@ -303,18 +276,12 @@ export function deleteOneCellGroup(graph: Graph, group: string): void {
   }
 
   const currentCells = graph.getCells();
-  const indexOfFirstElementInGroup = currentCells.findIndex(
-    (insideCell) => insideCell.getProp("group") === group,
-  );
+  const indexOfFirstElementInGroup = currentCells.findIndex((insideCell) => insideCell.getProp("group") === group);
   if (indexOfFirstElementInGroup === -1) {
     return;
   }
 
-  const indexOfSecondElementInGroup = currentCells.findIndex(
-    (insideCell, index) =>
-      index !== indexOfFirstElementInGroup &&
-      insideCell.getProp("group") === group,
-  );
+  const indexOfSecondElementInGroup = currentCells.findIndex((insideCell, index) => index !== indexOfFirstElementInGroup && insideCell.getProp("group") === group);
   if (indexOfSecondElementInGroup === -1) {
     currentCells[indexOfFirstElementInGroup].removeProp("group");
   }
@@ -409,12 +376,8 @@ Graph.registerNode(
         return meta;
       }
 
-      const variableStrings = variables?.map(
-        (variable: any) => variable.string,
-      ) || [""];
-      const methodStrings = methods?.map((method: any) => method.string) || [
-        "",
-      ];
+      const variableStrings = variables?.map((variable: any) => variable.string) || [""];
+      const methodStrings = methods?.map((method: any) => method.string) || [""];
       const rects = [
         { type: "name", text: name },
         { type: "variables", text: variableStrings },
@@ -424,8 +387,7 @@ Graph.registerNode(
       let highestTextLength = 0;
       for (const rect of rects) {
         for (const textString of rect.text) {
-          if (textString && textString.length > highestTextLength)
-            highestTextLength = textString.length;
+          if (textString && textString.length > highestTextLength) highestTextLength = textString.length;
         }
       }
 
@@ -433,18 +395,10 @@ Graph.registerNode(
       let offsetY = 0;
       rects.forEach((rect) => {
         const height = rect.text.length * 15 + 16;
-        ObjectExt.setByPath(
-          others,
-          `attrs/${rect.type}-text/text`,
-          rect.text.join("\n"),
-        );
+        ObjectExt.setByPath(others, `attrs/${rect.type}-text/text`, rect.text.join("\n"));
         ObjectExt.setByPath(others, `attrs/${rect.type}-rect/width`, offsetX);
         ObjectExt.setByPath(others, `attrs/${rect.type}-rect/height`, height);
-        ObjectExt.setByPath(
-          others,
-          `attrs/${rect.type}-rect/transform`,
-          "translate(0," + offsetY + ")",
-        );
+        ObjectExt.setByPath(others, `attrs/${rect.type}-rect/transform`, "translate(0," + offsetY + ")");
         offsetY += height;
       });
 
@@ -453,8 +407,7 @@ Graph.registerNode(
       this.on("change:size", (handler) => {
         console.log("handler", handler);
         const newWidth = handler.current?.width || 0;
-        const heightDifference =
-          (handler.current?.height || 0) - (handler.previous?.height || 0);
+        const heightDifference = (handler.current?.height || 0) - (handler.previous?.height || 0);
 
         const eachRectHeightDifference = heightDifference / rects.length;
 
@@ -473,10 +426,7 @@ Graph.registerNode(
 
           if (newRectHeight > 0 && newOffsetY > 0) {
             this.setAttrByPath(`${rect.type}-rect/height`, newRectHeight);
-            this.setAttrByPath(
-              `${rect.type}-rect/transform`,
-              "translate(0," + newOffsetY + ")",
-            );
+            this.setAttrByPath(`${rect.type}-rect/transform`, "translate(0," + newOffsetY + ")");
           }
 
           // ObjectExt.setByPath(others, `attrs/${rect.type}-rect/width`, 30);
