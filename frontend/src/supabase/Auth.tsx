@@ -56,7 +56,7 @@ function AuthProvider({ children }: any) {
 
     console.log("authSession", authSession);
     if (authSession === null) {
-      supabase.auth.signIn({ refreshToken: "fW1w-FHhinSJkV7facLwQA" });
+      // supabase.auth.signIn({ refreshToken: "fW1w-FHhinSJkV7facLwQA" });
       setSession(authSession);
     } else if (authSession !== undefined) {
       setSession(authSession);
