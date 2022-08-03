@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { initGraph, initListeners, initDragAndDrop, startDrag } from "./utils";
 import { Parser } from "JavaToJSON/javatojson";
-import type { Graph, Cell } from "@antv/x6";
+import { Graph, Cell, Model } from "@antv/x6";
 import type { Dnd } from "@antv/x6/es/addon/dnd";
 import files from "JavaToJSON/TestProject";
 import "./Graph.css";
@@ -124,12 +124,12 @@ function GraphView() {
       // signIn({ provider: "google" }, { redirectTo: window.location.href });
       // also need to check if user even has access, then use state to display Request Access
     } else if (authSession) {
-      supabase
-        .from("document")
-        .insert([{ title: "Hello" }])
-        .then((response) => {
-          console.log("response", response);
-        });
+      // supabase
+      //   .from("document")
+      //   .insert([{ title: "Hello" }])
+      //   .then((response) => {
+      //     console.log("response", response);
+      //   });
     }
   }, [authSession]);
 
@@ -166,6 +166,39 @@ function GraphView() {
     };
   }, []);
 
+  const testImport = () => {
+    const data = {
+      // 节点
+      nodes: [
+        {
+          id: "node1",
+          x: 40,
+          y: 40,
+          width: 80,
+          height: 40,
+          label: "Hello",
+        },
+        {
+          id: "node2",
+          x: 160,
+          y: 180,
+          width: 80,
+          height: 40,
+          label: "World",
+        },
+      ],
+      // 边
+      edges: [
+        {
+          source: "node1",
+          target: "node2",
+        },
+      ],
+    };
+
+    graph.current?.fromJSON(data);
+  };
+
   useEffect(() => {
     if (!container.current || !minimapContainer.current) {
       console.error("Container refs not found.");
@@ -177,68 +210,23 @@ function GraphView() {
 
     initListeners(graph.current, container.current, forceRender, setSelectedCells);
 
+    testImport();
+
     const parser = new Parser(files);
     console.log("files", files);
     const parsedFiles = parser.parseFiles();
     const parsedForUML = parsedFiles.getParsedForUML();
+    graph.current.fromJSON(parsedForUML);
 
-    const cells: Cell[] = [];
-    for (const node of parsedForUML) {
-      if (node.shape === "class") {
-        cells.push(graph.current.createNode(node));
-      } else {
-        cells.push(graph.current.createEdge(node));
-      }
-    }
-    graph.current.resetCells(cells);
-
-    // console.log("parsedFiles", parsedFiles.getParsedFiles());
-    // console.log("getParsedForUML", parsedFiles.getParsedForUML());
-
-    // // TESTING
-    // const source = graph.current.addNode({
-    //   x: 400,
-    //   y: 200,
-    //   width: 200,
-    //   height: 80,
-    //   data: {
-    //     parent: true,
-    //   },
-    //   attrs: {
-    //     label: {
-    //       text: "Hello",
-    //       fill: "#6a6c8a",
-    //     },
-    //     body: {
-    //       magnet: true,
-    //       padding: "90%",
-    //       stroke: "#31d0c6",
-    //       strokeWidth: 2,
-    //     },
-    //   },
-    // });
-
-    // const target = graph.current.addNode({
-    //   x: 320,
-    //   y: 500,
-    //   width: 100,
-    //   height: 40,
-    //   data: {
-    //     parent: true,
-    //   },
-    //   attrs: {
-    //     label: {
-    //       text: "World",
-    //       fill: "#6a6c8a",
-    //     },
-    //     body: {
-    //       stroke: "#31d0c6",
-    //       strokeWidth: 2,
-    //     },
-    //   },
-    // });
-
-    // graph.current.addEdge({ source, target });
+    // const cells: Cell[] = [];
+    // for (const node of parsedForUML) {
+    //   if (node.shape === "class") {
+    //     cells.push(graph.current.createNode(node));
+    //   } else {
+    //     cells.push(graph.current.createEdge(node));
+    //   }
+    // }
+    // graph.current.resetCells(cells);
 
     return () => {
       graph.current?.dispose();

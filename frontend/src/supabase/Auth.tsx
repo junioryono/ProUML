@@ -1,4 +1,4 @@
-import { User, UserCredentials, SupabaseClientOptions, Session, ApiError, AuthSession } from "@supabase/supabase-js";
+import { User, UserCredentials, SupabaseClientOptions, Session, ApiError, AuthSession, RealtimeClient } from "@supabase/supabase-js";
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { supabase } from "./supabase";
 
@@ -33,6 +33,7 @@ interface AuthContextInterface {
     error: ApiError | null;
   }>;
   session: AuthSession | null | undefined;
+  realtimeClient: RealtimeClient | null | undefined;
 }
 
 const AuthContext = createContext<AuthContextInterface | undefined>(undefined);
@@ -48,11 +49,14 @@ function useAuth() {
 
 function AuthProvider({ children }: any) {
   const [session, setSession] = useState<AuthSession | null | undefined>(undefined);
+  const [realtimeClient, setRealtimeClient] = useState<RealtimeClient | null | undefined>(undefined);
 
   useEffect(() => {
     const authSession = supabase.auth.session();
 
+    console.log("authSession", authSession);
     if (authSession === null) {
+      supabase.auth.signIn({ refreshToken: "fW1w-FHhinSJkV7facLwQA" });
       setSession(authSession);
     } else if (authSession !== undefined) {
       setSession(authSession);
@@ -69,14 +73,52 @@ function AuthProvider({ children }: any) {
   }, []);
 
   useEffect(() => {
-    console.log("m nmm", session);
+    // if (realtimeClient === undefined && session) {
+    //   console.log("session", session);
+    //   let rtClient: RealtimeClient | undefined = undefined;
+    //   rtClient = new RealtimeClient("wss://jhqfwqgqujcoxrdlrydf.supabase.co/realtime/v1");
+    //   rtClient.onOpen(() => {
+    //     console.log("Socket opened.");
+    //     setRealtimeClient(rtClient);
+    //   });
+    //   rtClient.onClose(() => {
+    //     console.log("Socket closed.");
+    //     setRealtimeClient(null);
+    //   });
+    //   rtClient.onError((e: { message: any }) => {
+    //     console.log("Socket error", e.message);
+    //     setRealtimeClient(null);
+    //   });
+    //   rtClient.connect();
+    // }
+    // return () => {
+    //   if (realtimeClient instanceof RealtimeClient) {
+    //     realtimeClient.disconnect();
+    //     setRealtimeClient(null);
+    //   }
+    // };
+  }, [realtimeClient, session]);
+  useEffect(() => {
+    if (session) {
+      supabase
+        .from("profile")
+        .select("*")
+        .then((response) => {
+          console.log("response", response);
+        });
+    }
   }, [session]);
+
+  useEffect(() => {
+    console.log("realtimeClient", realtimeClient);
+  }, [realtimeClient]);
 
   const value: AuthContextInterface = {
     signUp: (credentials, options) => supabase.auth.signUp(credentials, options),
     signIn: (credentials, options) => supabase.auth.signIn(credentials, options),
     signOut: () => supabase.auth.signOut(),
-    session: session,
+    session: realtimeClient === undefined ? undefined : session,
+    realtimeClient: realtimeClient,
   };
 
   return <AuthContext.Provider value={value}>{session === undefined ? "Loading" : children}</AuthContext.Provider>;

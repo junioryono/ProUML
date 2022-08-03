@@ -116,8 +116,6 @@ const NewDocument = ({ type, icon }) => {
       >
         <CardActionArea
           onClick={() => {
-            console.log("type", type);
-
             if (type === "import") {
               return;
             }
@@ -154,7 +152,6 @@ const NewDocument = ({ type, icon }) => {
 function ExistingDocument({ image, title, lastOpened, id, renameDocument }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
-  console.log("theme.palette.alternate.main", theme.palette);
 
   const [optionsMenuOpen, setOptionsMenuOpen] = React.useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = React.useState(false);
@@ -283,85 +280,89 @@ function Dashboard() {
 
   const [existingDocuments, setExistingDocuments] = useState(undefined);
 
-  useEffect(() => {
-    if (existingDocuments === undefined) {
-      // Fetch users documents
-      setExistingDocuments([
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id1",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id2",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id3",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id4",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id5",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id6",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id7",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id8",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id9",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id10",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id11",
-        },
-        {
-          image: "https://via.placeholder.com/208x263",
-          title: "Amer Yono Resume",
-          lastOpened: "Opened 12:13 AM",
-          id: "test-id12",
-        },
-      ]);
-    }
-  }, [existingDocuments]);
+  // useEffect(() => {
+  //   if (existingDocuments === undefined) {
+  //     // Fetch users documents
+  //     setExistingDocuments([
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id1",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id2",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id3",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id4",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id5",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id6",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id7",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id8",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id9",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id10",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id11",
+  //       },
+  //       {
+  //         image: "https://via.placeholder.com/208x263",
+  //         title: "Amer Yono Resume",
+  //         lastOpened: "Opened 12:13 AM",
+  //         id: "test-id12",
+  //       },
+  //     ]);
+  //   }
+  // }, [existingDocuments]);
+
+  // useEffect(() => {
+  //   supabase.from("profile").on("*").subscribe(callback);
+  // }, []);
 
   const renameDocument = (documentId, title) => {
     if (!documentId || !title || !Array.isArray(existingDocuments)) {
@@ -440,16 +441,16 @@ function Dashboard() {
           <Box>
             <Grid container columnSpacing={2} rowSpacing={3}>
               <Grid item>
-                <NewDocument type="Import Java Project" icon={<DriveFolderUploadOutlinedIcon sx={{ width: 144, height: 187, padding: 5 }} />} />
+                <NewDocument type="Import Java project" icon={<DriveFolderUploadOutlinedIcon sx={{ width: 144, height: 187, padding: 5 }} />} />
               </Grid>
               <Grid item>
-                <NewDocument type="Empty" icon={<AddSharpIcon sx={{ width: 144, height: 187, padding: 4 }} />} />
+                <NewDocument type="Start from scratch" icon={<AddSharpIcon sx={{ width: 144, height: 187, padding: 4 }} />} />
               </Grid>
               <Grid item>
-                <NewDocument type="Factory Method" icon={<ReportOutlinedIcon sx={{ width: "100%", height: 187 }} />} />
+                <NewDocument type="Factory method" icon={<ReportOutlinedIcon sx={{ width: "100%", height: 187 }} />} />
               </Grid>
               <Grid item>
-                <NewDocument type="Abstract Factory" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} />
+                <NewDocument type="Abstract factory" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} />
               </Grid>
               <Grid item>
                 <NewDocument type="Builder" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} />
