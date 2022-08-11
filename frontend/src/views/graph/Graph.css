@@ -7,6 +7,10 @@
   border-radius: unset;
 }
 
+.x6-widget-selection-box {
+  pointer-events: none !important;
+}
+
 .mainStage {
   overflow: auto;
   height: calc(100vh - 100px);
@@ -62,4 +66,23 @@
   outline: 1px solid orange;
   border-radius: 2px !important;
   width: fit-content !important;
+}
+
+.documentInput,
+.documentInput:active,
+.documentInput:focus-within,
+.documentInput:focus-visible,
+.documentInput:target,
+.documentInput:focus {
+  border: 0;
+  padding: 0;
+  outline: none;
+  background-color: unset;
+  width: -webkit-fill-available !important;
+  overflow: hidden;
+  resize: none;
+}
+
+.documentInput:focus {
+  resize: none;
 }

@@ -17,7 +17,7 @@ const About = () => {
         <Grid item container alignItems={"center"} xs={12} md={6}>
           <Box data-aos={isMd ? "fade-right" : "fade-up"}>
             <Box marginBottom={2}>
-              <Typography variant={"h4"} sx={{ fontWeight: 700 }} gutterBottom>
+              <Typography variant={"h4"} color={"textPrimary"} sx={{ fontWeight: 700 }} gutterBottom>
                 Change the way you build wesites. Forever.
               </Typography>
               <Typography variant={"h6"} component={"p"} color="textSecondary">

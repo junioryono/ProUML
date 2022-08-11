@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from "rea
 import { initGraph, initListeners, initDragAndDrop, startDrag } from "./utils";
 import { Parser } from "JavaToJSON/javatojson";
 import { Graph, Cell, Model } from "@antv/x6";
+import { GridLayout } from "@antv/layout";
 import type { Dnd } from "@antv/x6/es/addon/dnd";
 import files from "JavaToJSON/TestProject";
 import "./Graph.css";
@@ -26,7 +27,7 @@ import SendIcon from "@mui/icons-material/Send";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StarBorder from "@mui/icons-material/StarBorder";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
 import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
@@ -68,6 +69,19 @@ import { useAuth } from "supabase/Auth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "supabase/supabase";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import { Node } from "@antv/x6";
+import Quill from "quill";
+import Editable from "./Editable";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import TextField from "@mui/material/TextField";
+import { Typography } from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   "& .MuiToggleButtonGroup-grouped": {
@@ -86,11 +100,11 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 }));
 
 function GraphView() {
+  const theme = useTheme();
   const { session: authSession, signIn } = useAuth();
   const navigate = useNavigate();
 
   const { id: documentId } = useParams();
-  console.log("location", documentId);
 
   // Check if user has access to this document
   // If they dont, check if it is public
@@ -101,35 +115,272 @@ function GraphView() {
   const minimapContainer = useRef<HTMLDivElement>();
   const [selectedCells, setSelectedCells] = useState<Cell<Cell.Properties> | Cell<Cell.Properties>[]>();
   const [freshRender, forceRender] = useReducer((x) => x + 1, 0);
-  const [title, setTitle] = useState("Untitled");
+  const [title, setTitle] = useState("");
+  const [lastEdit, setLastEdit] = useState("");
   const [titleEditorSelected, setTitleEditorSelected] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
 
   const [alignment, setAlignment] = React.useState("left");
-  const [formats, setFormats] = React.useState(() => ["italic"]);
+  // const [formats, setFormats] = React.useState(() => ["italic"]);
+  const [formats, setFormats] = React.useState<string[]>(() => []);
+
+  const [fileOpen, setFileOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+
+  const [shareDialogOpen, setShareDialogOpen] = React.useState(false);
+  const [shareEmailValue, setShareEmailValue] = useState("");
+  const [shareEmailError, setShareEmailError] = useState<boolean | null | undefined>(false);
+  const [currentlySharedWith, setCurrentlySharedWith] = useState<{ email: string; role: string }[] | null | undefined>(undefined);
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  useEffect(() => {
+    if (!shareDialogOpen) {
+      setShareEmailValue("");
+      setShareEmailError(false);
+    }
+  }, [shareDialogOpen]);
+
+  useEffect(() => {
+    if (shareDialogOpen && currentlySharedWith === undefined) {
+      supabase
+        .from("document")
+        .select("owner, editor, viewer")
+        .eq("id", documentId)
+        .then((response) => {
+          if (!response || !Array.isArray(response.data) || !response.data[0]) {
+            setCurrentlySharedWith(null);
+            throw new Error("Could not access document data.");
+          }
+
+          const allUUIDsString = [...new Set([...response.data[0].owner, ...response.data[0].editor, ...response.data[0].viewer])]
+            .map((uuid) => '"' + uuid + '"')
+            .join(",");
+
+          supabase
+            .from("profile")
+            .select("id, email, full_name")
+            .filter("id", "in", "(" + allUUIDsString + ")")
+            .then((response2) => {
+              if (!response2 || !Array.isArray(response2.data) || !response2.data[0]) {
+                setCurrentlySharedWith(null);
+                throw new Error("Could not access document data.");
+              }
+
+              const owners = response2.data
+                .filter((profile: any) => {
+                  if (!response.data) {
+                    return false;
+                  }
+                  return response.data[0].owner.some((uuid: any) => uuid === profile.id);
+                })
+                .map((profile: any) => {
+                  return {
+                    email: profile.email,
+                    fullName: profile.full_name,
+                    role: "Owner",
+                  };
+                });
+
+              const editors = response2.data
+                .filter((profile: any) => {
+                  if (!response.data) {
+                    return false;
+                  }
+
+                  const isOwner = response.data[0].owner.some((uuid: any) => uuid === profile.id);
+                  if (isOwner) {
+                    return false;
+                  }
+
+                  return response.data[0].editor.some((uuid: any) => uuid === profile.id);
+                })
+                .map((profile: any) => {
+                  return {
+                    email: profile.email,
+                    fullName: profile.full_name,
+                    role: "Editor",
+                  };
+                });
+
+              const viewers = response2.data
+                .filter((profile: any) => {
+                  if (!response.data) {
+                    return false;
+                  }
+
+                  const isOwner = response.data[0].owner.some((uuid: any) => uuid === profile.id);
+                  if (isOwner) {
+                    return false;
+                  }
+
+                  const isEditor = response.data[0].editor.some((uuid: any) => uuid === profile.id);
+                  if (isEditor) {
+                    return false;
+                  }
+
+                  return response.data[0].viewer.some((uuid: any) => uuid === profile.id);
+                })
+                .map((profile: any) => {
+                  return {
+                    email: profile.email,
+                    fullName: profile.full_name,
+                    role: "Viewer",
+                  };
+                });
+
+              const sharedWith = [...owners, ...editors, ...viewers];
+
+              setCurrentlySharedWith(sharedWith);
+            });
+        });
+    }
+  }, [shareDialogOpen, currentlySharedWith]);
+
+  const addEditor = async () => {
+    setShareEmailError(false);
+
+    if (!documentId) {
+      setShareEmailError(true);
+      return;
+    }
+
+    // amerjunioryono@gmail.com
+    if (Array.isArray(currentlySharedWith) && currentlySharedWith.some((profile) => profile.email === shareEmailValue)) {
+      setShareEmailError(null);
+      return;
+    }
+
+    const [profile, editors] = await Promise.all([
+      supabase
+        .from("profile")
+        .select("id, document")
+        .match({ email: shareEmailValue })
+        .then((response) => {
+          if (!response || !Array.isArray(response.data) || !response.data[0]) {
+            return false;
+          }
+
+          return response.data[0];
+        }),
+      supabase
+        .from("document")
+        .select("editor")
+        .match({ id: documentId })
+        .then((response) => {
+          if (!response || !Array.isArray(response.data) || !response.data[0]) {
+            return false;
+          }
+
+          return response.data[0].editor;
+        }),
+    ]);
+
+    if (!profile.id || !Array.isArray(editors)) {
+      setShareEmailError(true);
+      return;
+    }
+
+    editors.push(profile.id);
+
+    supabase
+      .from("document")
+      .update({ editor: editors })
+      .match({ id: documentId })
+      .then(() => {
+        setShareDialogOpen(false);
+      });
+  };
 
   const handleFormat = (event: React.MouseEvent<HTMLElement>, newFormats: string[]) => {
     setFormats(newFormats);
   };
 
+  // editorContext
+
   const handleAlignment = (event: React.MouseEvent<HTMLElement>, newAlignment: string) => {
-    setAlignment(newAlignment);
+    newAlignment !== null && setAlignment(newAlignment);
   };
 
-  const [fileOpen, setFileOpen] = useState(false);
+  const setLastEditFunction = (newTime: number) => {
+    if (newTime < 10) {
+      setLastEdit("Last edit was seconds ago");
+    } else if (newTime < 60) {
+      setLastEdit("Last edit was less than one minute ago");
+    } else if (newTime < 3600) {
+      const minutesAgo = Math.floor(newTime / 60);
+      setLastEdit(`Last edit was ${minutesAgo} ${minutesAgo > 1 ? "minutes" : "minute"} ago`);
+    }
+  };
+
+  useEffect(() => {
+    const updateIntervalSeconds = 60;
+    let intervalId: any = undefined;
+
+    const lastEditFunction = () => {
+      let newTime = updateIntervalSeconds;
+      setLastEditFunction(newTime);
+      newTime += updateIntervalSeconds;
+    };
+
+    supabase
+      .from("document")
+      .select("title, last_modified_at, json")
+      .eq("id", documentId)
+      .then((response) => {
+        if (!response || !Array.isArray(response.data) || !response.data[0]) {
+          navigate(`/document/${documentId}/unauthorized`);
+          throw new Error("Could not access document.");
+        }
+
+        const documentData = response.data[0] as any;
+        setTitle(documentData.title);
+
+        const lastModifiedTime = new Date(documentData.last_modified_at);
+        const now = new Date(new Date().toUTCString());
+        const secondsAgo = Math.abs(now.getTime() - lastModifiedTime.getTime()) / 1000;
+        setLastEditFunction(secondsAgo);
+        intervalId = setInterval(() => lastEditFunction(), updateIntervalSeconds * 1000);
+
+        graph.current?.fromJSON(JSON.parse(documentData.json));
+      });
+
+    const listener = supabase
+      .from(`document:id=eq.${documentId}`)
+      .on("*", (response) => {
+        console.log("listener event", response);
+        if (!response || !response.new) {
+          return;
+        }
+
+        setLastEdit("Last edit was seconds ago");
+        intervalId = setInterval(() => lastEditFunction(), updateIntervalSeconds * 1000);
+
+        if (response.new.title !== title) {
+          setTitle(response.new.title);
+        }
+
+        if (response.new.json) {
+          if (!response.new.json.userEdit || response.new.json.userEdit !== authSession?.user?.id) {
+            console.log("resetting graph from json");
+            graph.current?.fromJSON(response.new.json);
+          }
+        }
+      })
+      .subscribe();
+
+    return () => {
+      console.log("unsubscribing");
+      listener.unsubscribe();
+      supabase.removeSubscription(listener);
+      clearInterval(intervalId);
+    };
+  }, []);
 
   useEffect(() => {
     if (authSession === null) {
       // signIn({ refreshToken: "AzjioUlVhtaSWIysTM_FqQ" });
       // signIn({ provider: "google" }, { redirectTo: window.location.href });
       // also need to check if user even has access, then use state to display Request Access
-    } else if (authSession) {
-      // supabase
-      //   .from("document")
-      //   .insert([{ title: "Hello" }])
-      //   .then((response) => {
-      //     console.log("response", response);
-      //   });
     }
   }, [authSession]);
 
@@ -139,8 +390,12 @@ function GraphView() {
     }
   }, [titleEditorSelected]);
 
+  const submitTitleEdit = useCallback(() => {
+    setTitleEditorSelected(false);
+    supabase.from("document").update({ title }).match({ id: documentId });
+  }, [title]);
+
   useEffect(() => {
-    // console.log("selectedCells", selectedCells);
     if (!graph.current) {
       return;
     }
@@ -200,7 +455,7 @@ function GraphView() {
   };
 
   useEffect(() => {
-    if (!container.current || !minimapContainer.current) {
+    if (!container.current || !minimapContainer.current || !documentId) {
       console.error("Container refs not found.");
       return;
     }
@@ -208,25 +463,27 @@ function GraphView() {
     graph.current = initGraph(container.current, minimapContainer.current);
     dnd.current = initDragAndDrop(graph.current);
 
-    initListeners(graph.current, container.current, forceRender, setSelectedCells);
+    initListeners(graph.current, container.current, documentId, forceRender, setSelectedCells);
 
-    testImport();
+    // testImport();
 
-    const parser = new Parser(files);
-    console.log("files", files);
-    const parsedFiles = parser.parseFiles();
-    const parsedForUML = parsedFiles.getParsedForUML();
-    graph.current.fromJSON(parsedForUML);
+    // const parser = new Parser(files);
+    // console.log("files", files);
+    // const parsedFiles = parser.parseFiles();
+    // const parsedForUML = parsedFiles.getParsedForUML();
+    // console.log("parsedForUML", parsedForUML);
 
-    // const cells: Cell[] = [];
-    // for (const node of parsedForUML) {
-    //   if (node.shape === "class") {
-    //     cells.push(graph.current.createNode(node));
-    //   } else {
-    //     cells.push(graph.current.createEdge(node));
-    //   }
-    // }
-    // graph.current.resetCells(cells);
+    // const layout = new GridLayout({
+    //   type: "grid",
+    //   nodeSize: [1100, 1100],
+    // });
+
+    // const model = layout.layout({
+    //   nodes: parsedForUML as any,
+    // });
+
+    // graph.current.fromJSON(model);
+    // graph.current.zoomToFit();
 
     return () => {
       graph.current?.dispose();
@@ -243,6 +500,68 @@ function GraphView() {
 
   return (
     <Box display="flex" flexDirection="column">
+      <Dialog fullScreen={fullScreen} open={shareDialogOpen} onClose={() => setShareDialogOpen(false)} PaperProps={{ sx: { backgroundImage: "unset" } }}>
+        <DialogTitle color="text.primary">Share "{title}"</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            onFocus={(event) => {
+              event.target.select();
+            }}
+            margin="normal"
+            id="name"
+            placeholder="Add people by email"
+            defaultValue={shareEmailValue}
+            onChange={(e) => setShareEmailValue(e.target.value)}
+            type="email"
+            fullWidth
+            variant="standard"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                addEditor();
+              }
+            }}
+          />
+          {shareEmailError !== false &&
+            (shareEmailError === null ? <Box>User already has access</Box> : undefined ? <Box>Adding user</Box> : <Box>This email is not registered with ProUML</Box>)}
+          <DialogContentText color="textPrimary" fontWeight={500} marginTop={4} marginBottom={1}>
+            People with access
+          </DialogContentText>
+
+          {Array.isArray(currentlySharedWith) ? (
+            currentlySharedWith.map((profile: any) => {
+              const nameLetter = profile.fullName.split(" ");
+
+              return (
+                <Box key={profile.email} display="flex" width={525} marginTop={2}>
+                  <Avatar sx={{ bgcolor: brown[500], fontSize: "1rem", cursor: "pointer" }}>
+                    {nameLetter[0] && nameLetter[0][0] && nameLetter[0][0]}
+                    {nameLetter[1] && nameLetter[1][0] && nameLetter[1][0]}
+                  </Avatar>
+                  <Box display="flex" flexDirection="column" marginLeft={1}>
+                    <Typography fontSize={14} fontWeight={500}>
+                      {profile.fullName} {authSession?.user?.email === profile.email && "(you)"}
+                    </Typography>
+                    <Typography fontSize={12}>{profile.email}</Typography>
+                  </Box>
+                  <Box marginLeft={"auto"} sx={{ cursor: "default" }}>
+                    {profile.role}
+                  </Box>
+                </Box>
+              );
+            })
+          ) : currentlySharedWith === null ? (
+            <Box width={525}>An error occurred</Box>
+          ) : (
+            <Box width={525}>Loading</Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={() => setShareDialogOpen(false)}>
+            Done
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Box display="flex" height={64}>
         <Box width={150} display="flex" justifyContent="center" alignItems="center" paddingBottom={0.5}>
           <Link underline="none" component={RouterLink} to="/" height={{ xs: 28, md: 32 }} fontSize={{ xs: 20, md: 24 }} color="textPrimary">
@@ -426,14 +745,14 @@ function GraphView() {
           <Box display="flex" flexDirection="column">
             <Box display="flex" height={31}>
               {titleEditorSelected ? (
-                <ClickAwayListener onClickAway={() => setTitleEditorSelected(false)}>
+                <ClickAwayListener onClickAway={() => submitTitleEdit()}>
                   <input
                     ref={titleRef}
                     className="documentTitle"
                     value={title}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        setTitleEditorSelected(false);
+                        submitTitleEdit();
                       }
                     }}
                     onChange={(e) => setTitle(e.target.value)}
@@ -460,16 +779,17 @@ function GraphView() {
             >
               <div
                 onClick={() => {
-                  setFileOpen(true);
+                  if (!fileOpen) setFileOpen(true);
                 }}
               >
                 File
-                {fileOpen && <FileMenu hideMenu={() => setFileOpen(false)} />}
+                {fileOpen && <FileMenu graph={graph.current} hideMenu={() => setFileOpen(false)} forceRender={forceRender} />}
               </div>
               <div>Edit</div>
               <div>View</div>
-              <Box fontSize={13} style={{ textDecoration: "underline" }}>
-                Last edit was seconds ago
+              <Box fontSize={13}>
+                {/* <Box fontSize={13} style={{ textDecoration: "underline" }}> */}
+                {lastEdit}
               </Box>
             </Box>
           </Box>
@@ -483,20 +803,46 @@ function GraphView() {
             //   },
             // }}
           >
-            <Button variant="contained" startIcon={false ? <LockIcon /> : <AddLinkIcon />} sx={{ marginRight: 2.5, paddingLeft: 2, paddingRight: 2, fontWeight: 500 }}>
+            <Button
+              variant="contained"
+              startIcon={false ? <LockIcon /> : <AddLinkIcon />}
+              sx={{ marginRight: 2.5, paddingLeft: 2, paddingRight: 2, fontWeight: 500 }}
+              onClick={() => setShareDialogOpen(true)}
+            >
               Share
             </Button>
-            <Avatar sx={{ bgcolor: brown[500] }}>JY</Avatar>
+            <Avatar
+              sx={{ bgcolor: brown[500], fontSize: "1rem", cursor: "pointer" }}
+              onClick={() => {
+                if (!avatarOpen) setAvatarOpen(true);
+              }}
+            >
+              JY
+            </Avatar>
+            {avatarOpen && <AvatarMenu graph={graph.current} hideMenu={() => setAvatarOpen(false)} forceRender={forceRender} />}
           </Box>
         </Box>
       </Box>
       <Box display="flex" flexDirection="column" borderTop="1px solid black">
         <Box display="flex" width="calc(100% - 250px)" height={40}>
+          {/* <div style={{ flex: "1 1 auto", display: "flex" }}>
+            {editablesList.map((editable: any) => (
+              <Editable
+                editable={editable}
+                content={editable.content}
+                onChangeActive={setEditableActive}
+                quillEditorContainer={quillEditorContainer}
+                isActive={activeEditable === editable}
+                key={editable.id}
+              />
+            ))}
+          </div> */}
+
           <StyledToggleButtonGroup size="small" aria-label="zoom">
-            <ToggleButton value="out" aria-label="out" title="Zoom out">
+            <ToggleButton value="out" aria-label="out" title="Zoom out" onClick={() => graph.current?.zoom(-0.2)}>
               <ZoomOutIcon />
             </ToggleButton>
-            <ToggleButton value="in" aria-label="in" title="Zoom in">
+            <ToggleButton value="in" aria-label="in" title="Zoom in" onClick={() => graph.current?.zoom(0.2)}>
               <ZoomInIcon />
             </ToggleButton>
           </StyledToggleButtonGroup>
@@ -526,7 +872,7 @@ function GraphView() {
           <Divider flexItem orientation="vertical" sx={{ mx: 0.5, my: 1 }} />
 
           <StyledToggleButtonGroup size="small" value={alignment} exclusive onChange={handleAlignment} aria-label="text alignment">
-            <ToggleButton value="left" aria-label="left aligned" title="Left align">
+            <ToggleButton value="left" aria-label="left aligned" title="Left align" onMouseDown={(e) => e.preventDefault()}>
               <FormatAlignLeftIcon />
             </ToggleButton>
             <ToggleButton value="center" aria-label="centered" title="Center align">
@@ -543,7 +889,7 @@ function GraphView() {
           <Divider flexItem orientation="vertical" sx={{ mx: 0.5, my: 1 }} />
 
           <StyledToggleButtonGroup size="small" value={formats} onChange={handleFormat} aria-label="text formatting">
-            <ToggleButton value="bold" aria-label="bold" title="Bold">
+            <ToggleButton value="bold" aria-label="bold" title="Bold" className="ql-bold" onClick={(e) => {}}>
               <FormatBoldIcon />
             </ToggleButton>
             <ToggleButton value="italic" aria-label="italic" title="Italic">
@@ -596,7 +942,7 @@ function GraphView() {
                       cursor: "move",
                     }}
                   >
-                    Rect
+                    Class
                   </div>
                   <div
                     data-type="rect"
@@ -666,7 +1012,10 @@ function GraphView() {
   );
 }
 
-function FileMenu({ hideMenu }: { hideMenu: () => void }) {
+function FileMenu({ graph, hideMenu, forceRender }: { graph: Graph | undefined; hideMenu: () => void; forceRender: () => void }) {
+  const { session: authSession } = useAuth();
+  const navigate = useNavigate();
+
   const [open, setOpen] = React.useState(false);
 
   const handleClick = () => {
@@ -674,7 +1023,11 @@ function FileMenu({ hideMenu }: { hideMenu: () => void }) {
   };
 
   return (
-    <ClickAwayListener onClickAway={() => hideMenu()}>
+    <ClickAwayListener
+      onClickAway={() => {
+        hideMenu();
+      }}
+    >
       <List
         sx={{
           marginTop: "7px",
@@ -721,22 +1074,54 @@ function FileMenu({ hideMenu }: { hideMenu: () => void }) {
           </ListItemSecondaryAction>
         </ListItemButton> */}
 
-        <ListItemButton>
+        <ListItemButton
+          onClick={() => {
+            hideMenu();
+
+            if (!authSession || !authSession.user) {
+              return;
+            }
+
+            supabase
+              .from("document")
+              .insert([{ title: "Untitled", owner: [authSession.user.id], editor: [authSession.user.id], viewer: [authSession.user.id] }])
+              .then((response) => {
+                if (!response || !Array.isArray(response.data) || !response.data[0]) {
+                  throw new Error("Could not create new document.");
+                }
+
+                window.open(window.location.origin + "/document/" + response.data[0].id, "_blank");
+              });
+          }}
+        >
           <ListItemIcon>
             <ArticleIcon />
           </ListItemIcon>
           <ListItemText primary="New" />
         </ListItemButton>
 
-        <ListItemButton>
-          <ListItemIcon>
-            <FolderOpenIcon />
-          </ListItemIcon>
-          <ListItemText primary="Open" />
-          <ListItemText secondaryTypographyProps={{ align: "right" }} secondary="Ctrl+O" />
-        </ListItemButton>
+        <ListItemButton
+          onClick={() => {
+            hideMenu();
 
-        <ListItemButton>
+            if (!graph || !authSession || !authSession.user) {
+              return;
+            }
+
+            supabase
+              .from("document")
+              .insert([
+                { title: "Untitled", owner: [authSession.user.id], editor: [authSession.user.id], viewer: [authSession.user.id], json: JSON.stringify(graph.toJSON()) },
+              ])
+              .then((response) => {
+                if (!response || !Array.isArray(response.data) || !response.data[0]) {
+                  throw new Error("Could not create new document.");
+                }
+
+                window.open(window.location.origin + "/document/" + response.data[0].id, "_blank");
+              });
+          }}
+        >
           <ListItemIcon>
             <FileCopyIcon />
           </ListItemIcon>
@@ -826,6 +1211,103 @@ function FileMenu({ hideMenu }: { hideMenu: () => void }) {
         <ListItemButton>
           <ListItemText inset primary="Test inset" />
         </ListItemButton> */}
+      </List>
+    </ClickAwayListener>
+  );
+}
+
+function AvatarMenu({ graph, hideMenu, forceRender }: { graph: Graph | undefined; hideMenu: () => void; forceRender: () => void }) {
+  const { session: authSession, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
+  return (
+    <ClickAwayListener
+      onClickAway={() => {
+        hideMenu();
+      }}
+    >
+      <List
+        sx={{
+          minWidth: 240,
+          maxWidth: 260,
+          padding: 0,
+          bgcolor: "background.paper",
+          // color: "#000",
+          position: "fixed",
+          top: 89,
+          right: 1,
+          zIndex: 9999,
+          border: "1px solid transparent",
+          borderRadius: 1,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          boxShadow: "0 0 0 1px rgb(0 0 0 / 45%)",
+          "& div:not(:first-of-type)": {
+            marginLeft: "unset",
+          },
+          "& > div": {
+            paddingTop: 0.5,
+            paddingBottom: 0.5,
+          },
+          "& span": {
+            fontSize: 14,
+          },
+          "& .MuiListItemIcon-root": {
+            minWidth: 42,
+          },
+          "& .MuiListItemText-inset": {
+            paddingLeft: 5.25,
+          },
+        }}
+        component="nav"
+      >
+        {/* <ListItemButton>
+          <ListItemIcon>
+            <ArticleIcon />
+          </ListItemIcon>
+          <ListItemText primary="Single-line item" />
+          <ListItemSecondaryAction>
+            <IconButton edge="end" aria-label="delete" disableRipple>
+              <ArrowRightIcon />
+            </IconButton>
+          </ListItemSecondaryAction>
+        </ListItemButton> */}
+
+        <ListItemButton
+          onClick={() => {
+            hideMenu();
+            navigate("/dashboard");
+          }}
+        >
+          <ListItemIcon>
+            <DashboardIcon />
+          </ListItemIcon>
+          <ListItemText primary="Dashboard" />
+        </ListItemButton>
+
+        <ListItemButton
+          onClick={() => {
+            hideMenu();
+
+            if (!authSession || !authSession.user) {
+              return;
+            }
+
+            signOut();
+            navigate("/");
+          }}
+        >
+          <ListItemIcon>
+            <LogoutIcon />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </ListItemButton>
       </List>
     </ClickAwayListener>
   );

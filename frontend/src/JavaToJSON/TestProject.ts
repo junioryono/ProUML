@@ -699,7 +699,7 @@ const files: JavaFile[] = [
                * {@code System.nanoTime()}.
                * @return The current time in milliseconds.
                */
-              private static final long getCurrentTime() {
+              private static long getCurrentTime() {
                   return (System.nanoTime() / 1000000L);
               }
           }

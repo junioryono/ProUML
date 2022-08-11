@@ -19,12 +19,12 @@ const Features = () => {
             fontWeight: "medium",
           }}
           gutterBottom
-          color={"secondary"}
+          color={"primary"}
           align={"center"}
         >
-          Features
+          Open Source
         </Typography>
-        <Box component={Typography} fontWeight={700} variant={"h3"} align={"center"} gutterBottom data-aos={"fade-up"}>
+        <Box component={Typography} fontWeight={700} variant={"h3"} color={"text.primary"} align={"center"} gutterBottom data-aos={"fade-up"}>
           We are a small agency
           <br />
           of talented designers & developers.
@@ -34,7 +34,7 @@ const Features = () => {
           <br />
           We will walk you through our smooth and simple process.
         </Typography>
-        <Box marginTop={2} display={"flex"} justifyContent={"center"} data-aos={"fade-up"}>
+        <Box marginTop={4} marginBottom={6} display={"flex"} justifyContent={"center"} data-aos={"fade-up"}>
           <Button color={"primary"} variant={"contained"} size={"large"}>
             Contact us
           </Button>

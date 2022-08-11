@@ -3,16 +3,17 @@ import WithLayout from "./WithLayout";
 // Available layouts
 import { Main as MainLayout, Fluid as FluidLayout, Fixed as FixedLayout, Graph as GraphLayout } from "./layouts";
 
-import GraphView from "./views/graph/Graph";
 import DashboardView from "./views/dashboard/Dashboard";
+import GraphView from "./views/graph/Graph";
+import UnauthorizedView from "./views/unauthorized/Unauthorized";
+import HomeView from "./views/home/Home";
 
 // Landing pages
 import {
-  Home as HomeView,
+  Home as HomeView2,
   Advertisement as AdvertisementView,
   PaymentApp as PaymentAppView,
   Marketing as MarketingView,
-  Software as SoftwareView,
   Course as CourseView,
   Crypto as CryptoView,
   DesignAgency as DesignAgencyView,
@@ -90,6 +91,14 @@ const Routes = () => {
             <WithLayout {...matchProps} component={GraphView} layout={GraphLayout} />
           ))()}
         />
+
+        <Route
+          exact
+          path="/document/:id/unauthorized"
+          element={((matchProps) => (
+            <WithLayout {...matchProps} component={UnauthorizedView} layout={GraphLayout} />
+          ))()}
+        />
         <Route
           exact
           path="/landing-advertisement"
@@ -102,20 +111,6 @@ const Routes = () => {
           path="/landing-payment-app"
           element={((matchProps) => (
             <WithLayout {...matchProps} component={PaymentAppView} layout={MainLayout} />
-          ))()}
-        />
-        <Route
-          exact
-          path="/landing-marketing"
-          element={((matchProps) => (
-            <WithLayout {...matchProps} component={MarketingView} layout={MainLayout} />
-          ))()}
-        />
-        <Route
-          exact
-          path="/landing-software-company"
-          element={((matchProps) => (
-            <WithLayout {...matchProps} component={SoftwareView} layout={MainLayout} />
           ))()}
         />
         <Route

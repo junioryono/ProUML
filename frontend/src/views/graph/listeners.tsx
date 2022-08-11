@@ -279,7 +279,7 @@ export function onChangePosition(graph: Graph, handler: { cell: Cell<Cell.Proper
 export function onResize(
   graph: Graph,
   setSelectedCells: React.Dispatch<React.SetStateAction<Cell<Cell.Properties> | Cell<Cell.Properties>[] | undefined>>,
-  handler: any,
+  handler: NodeView.ResizeEventArgs<JQuery.MouseDownEvent>,
 ) {
   if (!graph) {
     return;
@@ -311,6 +311,81 @@ export function onResized(graph: Graph, forceRender: () => void, handler: any) {
   }
 
   forceRender();
+}
+
+// minWidth(this, cell) {
+//   const minWidth = cell.getAttrByPath("minimum/width") as number | undefined;
+
+//   if (minWidth === undefined) {
+//     return undefined;
+//   }
+
+//   const bbox = cell.getBBox();
+//   if (bbox.width >= minWidth) {
+//     return undefined;
+//   }
+
+//   return minWidth;
+// },
+// minHeight(this, cell) {
+//   const minHeight = cell.getAttrByPath("minimum/height") as number | undefined;
+//   console.log("minHeight", minHeight);
+
+//   if (minHeight === undefined) {
+//     return undefined;
+//   }
+
+//   const bbox = cell.getBBox();
+//   if (bbox.width >= minHeight) {
+//     return undefined;
+//   }
+
+//   return minHeight;
+// },
+
+export function onResizing(graph: Graph, handler: NodeView.ResizeEventArgs<JQuery.MouseDownEvent>) {
+  if (!graph) {
+    return;
+  }
+
+  const minWidth = (handler.cell.getAttrByPath("minimum/width") as number) || 0;
+  const minHeight = (handler.cell.getAttrByPath("minimum/height") as number) || 0;
+
+  const bbox = handler.cell.getBBox();
+  if (bbox.width < minWidth && bbox.height < minHeight) {
+    handler.cell.setProp(
+      {
+        size: {
+          height: minHeight,
+          width: minWidth,
+        },
+      },
+      { deep: false, overwrite: true },
+    );
+    return;
+  } else if (bbox.width < minWidth) {
+    handler.cell.setProp(
+      {
+        size: {
+          height: bbox.height,
+          width: minWidth,
+        },
+      },
+      { deep: false, overwrite: true },
+    );
+    return;
+  } else if (bbox.height < minHeight) {
+    handler.cell.setProp(
+      {
+        size: {
+          height: minHeight,
+          width: bbox.width,
+        },
+      },
+      { deep: false, overwrite: true },
+    );
+    return;
+  }
 }
 
 export function onRotate(

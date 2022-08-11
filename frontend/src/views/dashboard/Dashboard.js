@@ -39,8 +39,10 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useAuth } from "supabase/Auth";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "supabase/supabase";
+import FactoryMethodTemplate from "../designPatternTemplates/FactoryMethod.json";
 
-function DocumentOptions({ hideMenu, openRenameDialog, id }) {
+function DocumentOptions({ hideMenu, openRenameDialog, removeDocument, openDocument, id }) {
   return (
     <ClickAwayListener onClickAway={() => hideMenu()}>
       <List
@@ -79,21 +81,21 @@ function DocumentOptions({ hideMenu, openRenameDialog, id }) {
         }}
         component="nav"
       >
-        <ListItemButton onClick={() => openRenameDialog(id)}>
+        <ListItemButton onClick={() => openRenameDialog()}>
           <ListItemIcon>
             <TextFieldsIcon />
           </ListItemIcon>
           <ListItemText primary="Rename" />
         </ListItemButton>
 
-        <ListItemButton>
+        <ListItemButton onClick={() => removeDocument()}>
           <ListItemIcon>
             <DeleteOutlineIcon />
           </ListItemIcon>
           <ListItemText primary="Remove" />
         </ListItemButton>
 
-        <ListItemButton>
+        <ListItemButton onClick={() => openDocument()}>
           <ListItemIcon>
             <OpenInNewOutlinedIcon />
           </ListItemIcon>
@@ -104,8 +106,9 @@ function DocumentOptions({ hideMenu, openRenameDialog, id }) {
   );
 }
 
-const NewDocument = ({ type, icon }) => {
+const NewDocument = ({ type, icon, openDocument }) => {
   const theme = useTheme();
+  const { session } = useAuth();
 
   return (
     <Box>
@@ -116,9 +119,37 @@ const NewDocument = ({ type, icon }) => {
       >
         <CardActionArea
           onClick={() => {
-            if (type === "import") {
+            if (type === "Import Java Project") {
               return;
             }
+
+            if (type === "Factory method") {
+              supabase
+                .from("document")
+                .insert([
+                  { title: "Untitled", owner: [session.user.id], editor: [session.user.id], viewer: [session.user.id], json: JSON.stringify(FactoryMethodTemplate) },
+                ])
+                .then((response) => {
+                  if (!response || !Array.isArray(response.data) || !response.data[0]) {
+                    throw new Error("Could not create new document.");
+                  }
+
+                  openDocument(response.data[0].id, false);
+                });
+
+              return;
+            }
+
+            supabase
+              .from("document")
+              .insert([{ title: "Untitled", owner: [session.user.id], editor: [session.user.id], viewer: [session.user.id] }])
+              .then((response) => {
+                if (!response || !Array.isArray(response.data) || !response.data[0]) {
+                  throw new Error("Could not create new document.");
+                }
+
+                openDocument(response.data[0].id, false);
+              });
 
             return;
           }}
@@ -149,7 +180,7 @@ const NewDocument = ({ type, icon }) => {
   );
 };
 
-function ExistingDocument({ image, title, lastOpened, id, renameDocument }) {
+function ExistingDocument({ image, title, lastOpened, id, renameDocument, openDocument, removeDocument }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -204,7 +235,7 @@ function ExistingDocument({ image, title, lastOpened, id, renameDocument }) {
       >
         <CardActionArea
           onClick={() => {
-            console.log("Clicked on card");
+            openDocument(id, false);
           }}
           sx={{
             "& .Mui-focusVisible, & .MuiCardActionArea-focusHighlight": {
@@ -222,7 +253,7 @@ function ExistingDocument({ image, title, lastOpened, id, renameDocument }) {
             },
           }}
         >
-          <CardMedia component="img" height="263" image={image} alt="green iguana" />
+          <CardMedia component="img" width={208} height={263} image={image} />
           <CardContent>
             <Typography variant="text" component="div" fontSize={14} fontWeight={500} marginBottom={0.45}>
               {title}
@@ -265,13 +296,22 @@ function ExistingDocument({ image, title, lastOpened, id, renameDocument }) {
           />
         </CardActionArea>
       </Card>
-      {optionsMenuOpen && <DocumentOptions hideMenu={() => setOptionsMenuOpen(false)} openRenameDialog={() => setRenameDialogOpen(true)} id={id} />}
+      {optionsMenuOpen && (
+        <DocumentOptions
+          hideMenu={() => setOptionsMenuOpen(false)}
+          openRenameDialog={() => setRenameDialogOpen(true)}
+          openDocument={() => openDocument(id, true)}
+          removeDocument={() => removeDocument(id)}
+          id={id}
+        />
+      )}
     </>
   );
 }
 
 function Dashboard() {
   const auth = useAuth();
+  const { session: authSession, signIn } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMd = useMediaQuery(theme.breakpoints.up("md"), {
@@ -279,6 +319,25 @@ function Dashboard() {
   });
 
   const [existingDocuments, setExistingDocuments] = useState(undefined);
+
+  useEffect(() => {
+    if (!authSession) {
+      setExistingDocuments(false);
+    }
+
+    supabase
+      .from("document")
+      .select("*")
+      .order("last_modified_at", { ascending: false })
+      .then((response) => {
+        if (!response || !Array.isArray(response.data) || !response.data[0]) {
+          setExistingDocuments(false);
+          return;
+        }
+
+        setExistingDocuments(response.data);
+      });
+  }, [authSession]);
 
   // useEffect(() => {
   //   if (existingDocuments === undefined) {
@@ -376,13 +435,14 @@ function Dashboard() {
 
       return current.map((document) => {
         if (document.id === documentId) {
-          console.log("document", document);
           return { ...document, title };
         }
 
         return document;
       });
     });
+
+    supabase.from("document").update({ title }).match({ id: documentId });
 
     // Update document in database
   };
@@ -405,6 +465,12 @@ function Dashboard() {
         return true;
       });
     });
+
+    supabase
+      .from("document")
+      .delete()
+      .match({ id: documentId })
+      .then((response) => console.log("removed", response));
 
     // Delete document in database
   };
@@ -441,55 +507,67 @@ function Dashboard() {
           <Box>
             <Grid container columnSpacing={2} rowSpacing={3}>
               <Grid item>
-                <NewDocument type="Import Java project" icon={<DriveFolderUploadOutlinedIcon sx={{ width: 144, height: 187, padding: 5 }} />} />
+                <NewDocument
+                  type="Import Java project"
+                  icon={<DriveFolderUploadOutlinedIcon sx={{ width: 144, height: 187, padding: 5 }} />}
+                  openDocument={openDocument}
+                />
               </Grid>
               <Grid item>
-                <NewDocument type="Start from scratch" icon={<AddSharpIcon sx={{ width: 144, height: 187, padding: 4 }} />} />
+                <NewDocument type="Start from scratch" icon={<AddSharpIcon sx={{ width: 144, height: 187, padding: 4 }} />} openDocument={openDocument} />
               </Grid>
               <Grid item>
-                <NewDocument type="Factory method" icon={<ReportOutlinedIcon sx={{ width: "100%", height: 187 }} />} />
+                <NewDocument type="Factory method" icon={<ReportOutlinedIcon sx={{ width: "100%", height: 187 }} />} openDocument={openDocument} />
               </Grid>
               <Grid item>
-                <NewDocument type="Abstract factory" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} />
+                <NewDocument type="Abstract factory" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} openDocument={openDocument} />
               </Grid>
               <Grid item>
-                <NewDocument type="Builder" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} />
+                <NewDocument type="Builder" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} openDocument={openDocument} />
               </Grid>
               <Grid item>
-                <NewDocument type="Prototype" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} />
+                <NewDocument type="Prototype" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} openDocument={openDocument} />
               </Grid>
               <Grid item>
-                <NewDocument type="Singleton" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} />
+                <NewDocument type="Singleton" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} openDocument={openDocument} />
               </Grid>
             </Grid>
           </Box>
         </Box>
       </Box>
 
-      <Box maxWidth={{ sm: 720, md: 1140 }} width={"100%"} margin={"0 auto"} paddingX={2} paddingTop={{ xs: 2, sm: 3, md: 4 }} paddingBottom={{ xs: 3, sm: 4, md: 6 }}>
-        {Array.isArray(existingDocuments) ? (
-          <>
-            <Box display="flex" justifyContent="space-between" paddingBottom={2.5}>
-              <Typography color="textPrimary" fontWeight={500}>
-                Recent documents
-              </Typography>
-            </Box>
-            <Grid container columnSpacing={2} rowSpacing={3}>
-              {existingDocuments.map(({ image, title, lastOpened, id }) => {
-                return (
-                  <Grid key={id} item position="relative">
-                    <ExistingDocument image={image} title={title} lastOpened={lastOpened} id={id} renameDocument={renameDocument} />
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </>
-        ) : existingDocuments === undefined ? (
-          <Box>Loading</Box>
-        ) : (
-          <Box>User does not have any documents.</Box>
-        )}
-      </Box>
+      {((Array.isArray(existingDocuments) && existingDocuments.length > 0) || existingDocuments === undefined) && (
+        <Box maxWidth={{ sm: 720, md: 1140 }} width={"100%"} margin={"0 auto"} paddingX={2} paddingTop={{ xs: 2, sm: 3, md: 4 }} paddingBottom={{ xs: 3, sm: 4, md: 6 }}>
+          {!Array.isArray(existingDocuments) ? (
+            <Box>Loading</Box>
+          ) : (
+            <>
+              <Box display="flex" justifyContent="space-between" paddingBottom={2.5}>
+                <Typography color="textPrimary" fontWeight={500}>
+                  Recent documents
+                </Typography>
+              </Box>
+              <Grid container columnSpacing={2} rowSpacing={3}>
+                {existingDocuments.map(({ image, title, lastOpened, id }) => {
+                  return (
+                    <Grid key={id} item position="relative">
+                      <ExistingDocument
+                        image={image}
+                        title={title}
+                        lastOpened={lastOpened}
+                        id={id}
+                        renameDocument={renameDocument}
+                        openDocument={openDocument}
+                        removeDocument={removeDocument}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </>
+          )}
+        </Box>
+      )}
 
       <Box bgcolor={theme.palette.alternate.main}>
         <Container>

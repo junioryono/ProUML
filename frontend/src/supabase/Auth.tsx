@@ -33,7 +33,6 @@ interface AuthContextInterface {
     error: ApiError | null;
   }>;
   session: AuthSession | null | undefined;
-  realtimeClient: RealtimeClient | null | undefined;
 }
 
 const AuthContext = createContext<AuthContextInterface | undefined>(undefined);
@@ -49,38 +48,14 @@ function useAuth() {
 
 function AuthProvider({ children }: any) {
   const [session, setSession] = useState<AuthSession | null | undefined>(undefined);
-  const realtimeClient = new RealtimeClient("wss://jhqfwqgqujcoxrdlrydf.supabase.co/realtime/v1");
 
   useEffect(() => {
     if (session === null) {
-      realtimeClient.setAuth(null);
       return;
-    }
-
-    if (session !== undefined) {
-      console.log("session.access_token", session.access_token);
-      realtimeClient.setAuth(session.access_token);
-      realtimeClient.connect();
-      realtimeClient.onOpen(() => {
-        console.log("Socket opened.");
-      });
-      realtimeClient.onClose(() => {
-        console.log("Socket closed.");
-      });
-      realtimeClient.onError((e: { message: any }) => {
-        console.log("Socket error.");
-      });
-
-      return () => {
-        console.log("closing");
-        realtimeClient.setAuth(null);
-        realtimeClient.disconnect();
-      };
     }
 
     const authSession = supabase.auth.session();
 
-    console.log("authSession", authSession);
     if (authSession === null) {
       // supabase.auth.signIn({ refreshToken: "Vw_D_DpoofHRPzEW240U_A" });
       setSession(authSession);
@@ -89,7 +64,6 @@ function AuthProvider({ children }: any) {
     }
 
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, listenerSession) => {
-      console.log("session changed", listenerSession);
       setSession(listenerSession ?? null);
     });
 
@@ -102,8 +76,7 @@ function AuthProvider({ children }: any) {
     signUp: (credentials, options) => supabase.auth.signUp(credentials, options),
     signIn: (credentials, options) => supabase.auth.signIn(credentials, options),
     signOut: () => supabase.auth.signOut(),
-    session: realtimeClient === undefined ? undefined : session,
-    realtimeClient: realtimeClient,
+    session: session,
   };
 
   return <AuthContext.Provider value={value}>{session === undefined ? "Loading" : children}</AuthContext.Provider>;

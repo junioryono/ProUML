@@ -99,9 +99,11 @@ type JSONToUML =
   | {
       id: string;
       shape: "class";
-      name: string[];
-      variables: { static: boolean; string: string }[] | undefined;
-      methods: { static: boolean; string: string }[] | undefined;
+      data: {
+        name: string[];
+        variables: { static: boolean; string: string; toString(): string }[] | undefined;
+        methods: { static: boolean; string: string; toString(): string }[] | undefined;
+      };
     }
   | {
       shape: "composition";

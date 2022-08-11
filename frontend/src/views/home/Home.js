@@ -1,8 +1,7 @@
 import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
 import Container from "common/Container";
-import { About, Features, Hero, News, Partners, Pricing, Subscription } from "./components";
+import { About, Features, Hero } from "./components";
 
 const Marketing = () => {
   const theme = useTheme();
@@ -27,33 +26,18 @@ const Marketing = () => {
           viewBox="0 0 1920 100.1"
           sx={{
             width: "100%",
-            marginBottom: theme.spacing(-1),
+            marginBottom: theme.spacing(-5),
           }}
         >
           <path fill={theme.palette.background.paper} d="M0,0c0,0,934.4,93.4,1920,0v100.1H0L0,0z"></path>
         </Box>
       </Box>
-      <Container>
-        <About />
+      <Container sx={{ marginBottom: 5 }}>
+        <Features />
       </Container>
       <Box bgcolor={theme.palette.alternate.main}>
         <Container>
-          <Features />
-        </Container>
-      </Box>
-      <Container>
-        <Pricing />
-      </Container>
-      <Container>
-        <News />
-      </Container>
-      <Box bgcolor={theme.palette.alternate.main}>
-        <Container>
-          <Subscription />
-        </Container>
-        <Divider />
-        <Container>
-          <Partners />
+          <About />
         </Container>
       </Box>
     </Box>

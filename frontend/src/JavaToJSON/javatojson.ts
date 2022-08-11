@@ -56,7 +56,13 @@ export class Parser {
                 string += " {readOnly}";
               }
 
-              return { static: variable.static || false, string };
+              return {
+                static: variable.static || false,
+                string,
+                toString: function () {
+                  return string;
+                },
+              };
             })
           : undefined;
       const methods =
@@ -81,18 +87,27 @@ export class Parser {
 
               string += "): " + method.type;
 
-              return { static: ((method as any).static as boolean) || false, string };
+              return {
+                static: ((method as any).static as boolean) || false,
+                string,
+                toString: function () {
+                  return string;
+                },
+              };
             })
           : undefined;
 
       return {
         id: file.id,
         shape: "class",
-        name: [file.type === "abstract" ? "<<abstract>>" : file.type === "interface" ? "<<interface>>" : file.type === "enum" ? "<<enum>>" : undefined, file.name].filter(
-          (name) => name !== undefined,
-        ),
-        variables: variables,
-        methods: methods,
+        data: {
+          name: [
+            file.type === "abstract" ? "<<abstract>>" : file.type === "interface" ? "<<interface>>" : file.type === "enum" ? "<<enum>>" : undefined,
+            file.name,
+          ].filter((name) => name !== undefined),
+          variables: variables,
+          methods: methods,
+        },
       } as JSONToUML;
     });
 
