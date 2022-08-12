@@ -527,7 +527,7 @@ function ClassComponent({ node }: { node?: Node }) {
   } as React.CSSProperties;
   const methodsStyles = { display: "flex", alignItems: "center", paddingLeft: 8, height: minimumHeight.methods } as React.CSSProperties;
 
-  const unselectOnEndEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>, text: string) => {
+  const unselectOnEndEnter = (e: any, text: string) => {
     if (selectedSection !== undefined && e.key === "Enter" && (e.target.selectionStart !== text.length || (e.target.selectionStart === text.length && e.shiftKey))) {
       setMinimumHeight((current) => {
         const oldLineLength = text.split("\n").length;
