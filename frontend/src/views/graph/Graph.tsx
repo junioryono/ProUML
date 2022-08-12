@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { initGraph, initListeners, initDragAndDrop, startDrag } from "./utils";
-import { Parser } from "JavaToJSON/javatojson";
 import { Graph, Cell, Model } from "@antv/x6";
 import { GridLayout } from "@antv/layout";
 import type { Dnd } from "@antv/x6/es/addon/dnd";
@@ -43,6 +42,12 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import UndoIcon from "@mui/icons-material/UndoRounded";
 import RedoIcon from "@mui/icons-material/RedoRounded";
+import ContentCutIcon from "@mui/icons-material/ContentCut";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import ContentPasteGoIcon from "@mui/icons-material/ContentPasteGo";
+import SelectAllIcon from "@mui/icons-material/SelectAll";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import FlipToFrontIcon from "@mui/icons-material/FlipToFront";
 import FlipToBackIcon from "@mui/icons-material/FlipToBack";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
@@ -59,9 +64,9 @@ import ListItemSecondaryAction from "@mui/material/ListItemSecondaryAction";
 import IconButton from "@mui/material/IconButton";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+import UploadIcon from "@mui/icons-material/Upload";
 import VerticalAlignBottomIcon from "@mui/icons-material/VerticalAlignBottom";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import InfoIcon from "@mui/icons-material/Info";
 import DescriptionIcon from "@mui/icons-material/Description";
 import PrintIcon from "@mui/icons-material/Print";
@@ -79,9 +84,43 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import TextField from "@mui/material/TextField";
-import { Typography } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
+import MuiAccordion, { AccordionProps } from "@mui/material/Accordion";
+import MuiAccordionSummary, { AccordionSummaryProps } from "@mui/material/AccordionSummary";
+import MuiAccordionDetails from "@mui/material/AccordionDetails";
+import Typography from "@mui/material/Typography";
+
+const Accordion = styled((props: AccordionProps) => <MuiAccordion sx={{ width: "-webkit-fill-available" }} disableGutters elevation={0} square {...props} />)(
+  ({ theme }) => ({
+    border: `1px solid ${theme.palette.divider}`,
+    "&:not(:last-child)": {
+      borderBottom: 0,
+    },
+    "&:before": {
+      display: "none",
+    },
+  }),
+);
+
+const AccordionSummary = styled((props: AccordionSummaryProps) => (
+  <MuiAccordionSummary expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />} {...props} />
+))(({ theme }) => ({
+  backgroundColor: theme.palette.mode === "dark" ? "rgba(255, 255, 255, .05)" : "rgba(0, 0, 0, .03)",
+  flexDirection: "row-reverse",
+  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
+    transform: "rotate(90deg)",
+  },
+  "& .MuiAccordionSummary-content": {
+    marginLeft: theme.spacing(1),
+  },
+}));
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderTop: "1px solid rgba(0, 0, 0, .125)",
+}));
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   "& .MuiToggleButtonGroup-grouped": {
@@ -120,11 +159,14 @@ function GraphView() {
   const [titleEditorSelected, setTitleEditorSelected] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
 
-  const [alignment, setAlignment] = React.useState("left");
+  // const [alignment, setAlignment] = React.useState("left");
+  const [alignment, setAlignment] = React.useState("");
   // const [formats, setFormats] = React.useState(() => ["italic"]);
   const [formats, setFormats] = React.useState<string[]>(() => []);
 
   const [fileOpen, setFileOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
 
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false);
@@ -132,6 +174,12 @@ function GraphView() {
   const [shareEmailError, setShareEmailError] = useState<boolean | null | undefined>(false);
   const [currentlySharedWith, setCurrentlySharedWith] = useState<{ email: string; role: string }[] | null | undefined>(undefined);
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  const [expandedShapeSection, setExpandedShapeSection] = React.useState<string | false>("General");
+
+  const handleExpandedSectionChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+    setExpandedShapeSection(newExpanded ? panel : false);
+  };
 
   useEffect(() => {
     if (!shareDialogOpen) {
@@ -253,7 +301,7 @@ function GraphView() {
     const [profile, editors] = await Promise.all([
       supabase
         .from("profile")
-        .select("id, document")
+        .select("id, full_name")
         .match({ email: shareEmailValue })
         .then((response) => {
           if (!response || !Array.isArray(response.data) || !response.data[0]) {
@@ -289,6 +337,21 @@ function GraphView() {
       .then(() => {
         setShareDialogOpen(false);
       });
+
+    //   {
+    //     email: any;
+    //     fullName: any;
+    //     role: string;
+    // }
+
+    setCurrentlySharedWith((current) => {
+      const newUser = { email: shareEmailValue, fullName: profile.full_name, role: "Editor" };
+      if (!current) {
+        return [newUser];
+      }
+
+      return [...current, newUser];
+    });
   };
 
   const handleFormat = (event: React.MouseEvent<HTMLElement>, newFormats: string[]) => {
@@ -341,37 +404,43 @@ function GraphView() {
         setLastEditFunction(secondsAgo);
         intervalId = setInterval(() => lastEditFunction(), updateIntervalSeconds * 1000);
 
-        graph.current?.fromJSON(JSON.parse(documentData.json));
-      });
-
-    const listener = supabase
-      .from(`document:id=eq.${documentId}`)
-      .on("*", (response) => {
-        console.log("listener event", response);
-        if (!response || !response.new) {
-          return;
-        }
-
-        setLastEdit("Last edit was seconds ago");
-        intervalId = setInterval(() => lastEditFunction(), updateIntervalSeconds * 1000);
-
-        if (response.new.title !== title) {
-          setTitle(response.new.title);
-        }
-
-        if (response.new.json) {
-          if (!response.new.json.userEdit || response.new.json.userEdit !== authSession?.user?.id) {
-            console.log("resetting graph from json");
-            graph.current?.fromJSON(response.new.json);
+        if (documentData.json) {
+          try {
+            graph.current?.fromJSON(JSON.parse(documentData.json));
+          } catch {
+            throw new Error("Could not parse graph.");
           }
         }
-      })
-      .subscribe();
+      });
+
+    // const listener = supabase
+    //   .from(`document:id=eq.${documentId}`)
+    //   .on("*", (response) => {
+    //     console.log("listener event", response);
+    //     if (!response || !response.new) {
+    //       return;
+    //     }
+
+    //     setLastEdit("Last edit was seconds ago");
+    //     intervalId = setInterval(() => lastEditFunction(), updateIntervalSeconds * 1000);
+
+    //     if (response.new.title !== title) {
+    //       setTitle(response.new.title);
+    //     }
+
+    //     if (response.new.json) {
+    //       if (!response.new.json.userEdit || response.new.json.userEdit !== authSession?.user?.id) {
+    //         console.log("resetting graph from json");
+    //         graph.current?.fromJSON(response.new.json);
+    //       }
+    //     }
+    //   })
+    //   .subscribe();
 
     return () => {
-      console.log("unsubscribing");
-      listener.unsubscribe();
-      supabase.removeSubscription(listener);
+      // console.log("unsubscribing");
+      // listener.unsubscribe();
+      // supabase.removeSubscription(listener);
       clearInterval(intervalId);
     };
   }, []);
@@ -392,7 +461,11 @@ function GraphView() {
 
   const submitTitleEdit = useCallback(() => {
     setTitleEditorSelected(false);
-    supabase.from("document").update({ title }).match({ id: documentId });
+    supabase
+      .from("document")
+      .update({ title })
+      .match({ id: documentId })
+      .then((response) => console.log("response", response));
   }, [title]);
 
   useEffect(() => {
@@ -421,39 +494,6 @@ function GraphView() {
     };
   }, []);
 
-  const testImport = () => {
-    const data = {
-      // 节点
-      nodes: [
-        {
-          id: "node1",
-          x: 40,
-          y: 40,
-          width: 80,
-          height: 40,
-          label: "Hello",
-        },
-        {
-          id: "node2",
-          x: 160,
-          y: 180,
-          width: 80,
-          height: 40,
-          label: "World",
-        },
-      ],
-      // 边
-      edges: [
-        {
-          source: "node1",
-          target: "node2",
-        },
-      ],
-    };
-
-    graph.current?.fromJSON(data);
-  };
-
   useEffect(() => {
     if (!container.current || !minimapContainer.current || !documentId) {
       console.error("Container refs not found.");
@@ -464,14 +504,6 @@ function GraphView() {
     dnd.current = initDragAndDrop(graph.current);
 
     initListeners(graph.current, container.current, documentId, forceRender, setSelectedCells);
-
-    // testImport();
-
-    // const parser = new Parser(files);
-    // console.log("files", files);
-    // const parsedFiles = parser.parseFiles();
-    // const parsedForUML = parsedFiles.getParsedForUML();
-    // console.log("parsedForUML", parsedForUML);
 
     // const layout = new GridLayout({
     //   type: "grid",
@@ -534,7 +566,7 @@ function GraphView() {
 
               return (
                 <Box key={profile.email} display="flex" width={525} marginTop={2}>
-                  <Avatar sx={{ bgcolor: brown[500], fontSize: "1rem", cursor: "pointer" }}>
+                  <Avatar sx={{ bgcolor: brown[500], fontSize: "1rem" }}>
                     {nameLetter[0] && nameLetter[0][0] && nameLetter[0][0]}
                     {nameLetter[1] && nameLetter[1][0] && nameLetter[1][0]}
                   </Avatar>
@@ -768,7 +800,6 @@ function GraphView() {
             <Box
               display="flex"
               sx={{
-                cursor: "pointer",
                 "& div:not(:first-of-type)": {
                   marginLeft: 2,
                 },
@@ -777,16 +808,54 @@ function GraphView() {
                 },
               }}
             >
-              <div
+              <Box
+                sx={{ cursor: "pointer" }}
                 onClick={() => {
                   if (!fileOpen) setFileOpen(true);
                 }}
               >
                 File
-                {fileOpen && <FileMenu graph={graph.current} hideMenu={() => setFileOpen(false)} forceRender={forceRender} />}
-              </div>
-              <div>Edit</div>
-              <div>View</div>
+                {fileOpen && (
+                  <FileMenu
+                    graph={graph.current}
+                    documentTitle={title}
+                    hideMenu={() => setFileOpen(false)}
+                    openShareDialog={() => {
+                      setFileOpen(false);
+                      setShareDialogOpen(true);
+                    }}
+                    rename={() => {
+                      setFileOpen(false);
+                      setTitleEditorSelected(true);
+                    }}
+                    deleteDocument={() => {
+                      supabase
+                        .from("document")
+                        .delete()
+                        .match({ id: documentId })
+                        .then(() => navigate("/dashboard"));
+                    }}
+                    forceRender={forceRender}
+                  />
+                )}
+              </Box>
+              <Box
+                sx={{ cursor: "pointer" }}
+                onClick={() => {
+                  if (!editOpen) setEditOpen(true);
+                }}
+              >
+                Edit
+                {editOpen && <EditMenu graph={graph.current} documentTitle={title} hideMenu={() => setEditOpen(false)} forceRender={forceRender} />}
+              </Box>
+              <Box
+                sx={{ cursor: "pointer" }}
+                onClick={() => {
+                  if (!viewOpen) setViewOpen(true);
+                }}
+              >
+                View{viewOpen && <ViewMenu graph={graph.current} hideMenu={() => setViewOpen(false)} forceRender={forceRender} />}
+              </Box>
               <Box fontSize={13}>
                 {/* <Box fontSize={13} style={{ textDecoration: "underline" }}> */}
                 {lastEdit}
@@ -850,7 +919,7 @@ function GraphView() {
           <Divider flexItem orientation="vertical" sx={{ mx: 0.5, my: 1 }} />
 
           <StyledToggleButtonGroup size="small" aria-label="history">
-            <ToggleButton value="undo" aria-label="undo" title="Undo">
+            <ToggleButton value="undo" aria-label="undo" title="Undo" onClick={() => {}}>
               <UndoIcon />
             </ToggleButton>
             <ToggleButton value="redo" aria-label="redo" title="Redo">
@@ -861,17 +930,35 @@ function GraphView() {
           <Divider flexItem orientation="vertical" sx={{ mx: 0.5, my: 1 }} />
 
           <StyledToggleButtonGroup size="small" aria-label="placement">
-            <ToggleButton value="front" aria-label="front" title="To front">
+            <ToggleButton
+              value="front"
+              aria-label="front"
+              title="To front"
+              onClick={() => {
+                for (const cell of graph.current?.getSelectedCells() || []) {
+                  cell.toFront();
+                }
+              }}
+            >
               <FlipToFrontIcon />
             </ToggleButton>
-            <ToggleButton value="back" aria-label="back" title="To back">
+            <ToggleButton
+              value="back"
+              aria-label="back"
+              title="To back"
+              onClick={() => {
+                for (const cell of graph.current?.getSelectedCells() || []) {
+                  cell.toBack();
+                }
+              }}
+            >
               <FlipToBackIcon />
             </ToggleButton>
           </StyledToggleButtonGroup>
 
           <Divider flexItem orientation="vertical" sx={{ mx: 0.5, my: 1 }} />
 
-          <StyledToggleButtonGroup size="small" value={alignment} exclusive onChange={handleAlignment} aria-label="text alignment">
+          <StyledToggleButtonGroup size="small" value={alignment} exclusive onChange={handleAlignment} aria-label="text alignment" disabled>
             <ToggleButton value="left" aria-label="left aligned" title="Left align" onMouseDown={(e) => e.preventDefault()}>
               <FormatAlignLeftIcon />
             </ToggleButton>
@@ -888,7 +975,7 @@ function GraphView() {
 
           <Divider flexItem orientation="vertical" sx={{ mx: 0.5, my: 1 }} />
 
-          <StyledToggleButtonGroup size="small" value={formats} onChange={handleFormat} aria-label="text formatting">
+          <StyledToggleButtonGroup size="small" value={formats} onChange={handleFormat} aria-label="text formatting" disabled>
             <ToggleButton value="bold" aria-label="bold" title="Bold" className="ql-bold" onClick={(e) => {}}>
               <FormatBoldIcon />
             </ToggleButton>
@@ -908,7 +995,7 @@ function GraphView() {
 
           <Divider flexItem orientation="vertical" sx={{ mx: 0.5, my: 1 }} />
 
-          <StyledToggleButtonGroup size="small" value={formats} onChange={handleFormat} aria-label="text formatting">
+          <StyledToggleButtonGroup size="small" value={formats} onChange={handleFormat} aria-label="text formatting" disabled>
             <ToggleButton value="background" aria-label="background" title="Background color" selected={false}>
               <FormatColorFillIcon />
             </ToggleButton>
@@ -926,56 +1013,182 @@ function GraphView() {
         <Box width="calc(100% - 250px)" display="flex" borderTop="1px solid black">
           {React.useMemo(() => {
             return (
-              <Box display="flex" flexDirection="column" minWidth={250} paddingTop={1} borderRight="1px solid black">
-                <Box paddingLeft={2} paddingRight={2}>
-                  <div>Shapes here</div>
-                  <div
-                    data-type="class"
-                    onMouseDown={(e) => startDrag(graph.current, dnd.current, e)}
-                    style={{
-                      width: 100,
-                      height: 40,
-                      border: "2px solid #31d0c6",
-                      textAlign: "center",
-                      lineHeight: "40px",
-                      margin: 16,
-                      cursor: "move",
-                    }}
-                  >
-                    Class
-                  </div>
-                  <div
-                    data-type="rect"
-                    onMouseDown={(e) => startDrag(graph.current, dnd.current, e)}
-                    style={{
-                      width: 100,
-                      height: 40,
-                      border: "2px solid #31d0c6",
-                      textAlign: "center",
-                      lineHeight: "40px",
-                      margin: 16,
-                      cursor: "move",
-                    }}
-                  >
-                    Rect
-                  </div>
-                  <div
-                    data-type="circle"
-                    onMouseDown={(e) => startDrag(graph.current, dnd.current, e)}
-                    style={{
-                      width: 60,
-                      height: 60,
-                      borderRadius: "100%",
-                      border: "2px solid #31d0c6",
-                      textAlign: "center",
-                      lineHeight: "60px",
-                      margin: 16,
-                      cursor: "move",
-                    }}
-                  >
-                    Circle
-                  </div>
-                  {/* stage of all shapes width={250} height={100} */}
+              <Box display="flex" flexDirection="column" width={250} borderRight="1px solid black">
+                <Box>
+                  <Accordion expanded={expandedShapeSection === "General"} onChange={handleExpandedSectionChange("General")}>
+                    <AccordionSummary aria-controls="General-content" id="General-header">
+                      <Typography>General</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Box
+                        display={"flex"}
+                        height={40}
+                        sx={{
+                          cursor: "pointer",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <svg
+                          data-type="class"
+                          onMouseDown={(e) => startDrag(graph.current, dnd.current, e)}
+                          style={{
+                            width: "45px",
+                            height: "30px",
+                            overflow: "hidden",
+                            transform: "scale(1.9)",
+                          }}
+                        >
+                          <g transform="translate(0.5,0.5)" style={{ visibility: "visible" }}>
+                            <path
+                              d="M 1.44 11.7 L 1.44 7.02 L 30.24 7.02 L 30.24 11.7"
+                              fill="rgb(255, 255, 255)"
+                              stroke="rgb(0, 0, 0)"
+                              strokeWidth="1.3"
+                              strokeMiterlimit="10"
+                              pointerEvents="all"
+                            ></path>
+                            <path
+                              d="M 1.44 11.7 L 1.44 22.5 L 30.24 22.5 L 30.24 11.7"
+                              fill="none"
+                              stroke="white"
+                              strokeWidth="9.3"
+                              strokeMiterlimit="10"
+                              pointerEvents="stroke"
+                              visibility="hidden"
+                            ></path>
+                            <path
+                              d="M 1.44 11.7 L 1.44 22.5 L 30.24 22.5 L 30.24 11.7"
+                              fill="none"
+                              stroke="rgb(0, 0, 0)"
+                              strokeWidth="1.3"
+                              strokeMiterlimit="10"
+                              pointerEvents="none"
+                            ></path>
+                            <path
+                              d="M 1.44 11.7 L 30.24 11.7"
+                              fill="none"
+                              stroke="white"
+                              strokeWidth="9.3"
+                              strokeMiterlimit="10"
+                              pointerEvents="stroke"
+                              visibility="hidden"
+                            ></path>
+                            <path d="M 1.44 11.7 L 30.24 11.7" fill="none" stroke="rgb(0, 0, 0)" strokeWidth="1.3" strokeMiterlimit="10" pointerEvents="none"></path>
+                          </g>
+                          <g>
+                            <g fill="rgb(0, 0, 0)" fontFamily="Helvetica" fontWeight="bold" textAnchor="middle" fontSize="2.16px">
+                              <text x="15.84" y="10.26">
+                                Classname
+                              </text>
+                            </g>
+                          </g>
+                          <g transform="translate(0.5,0.5)" style={{ visibility: "visible" }}>
+                            <rect
+                              x="1.44"
+                              y="11.7"
+                              width="28.8"
+                              height="4.68"
+                              fill="none"
+                              stroke="white"
+                              pointerEvents="stroke"
+                              visibility="hidden"
+                              strokeWidth="9"
+                            ></rect>
+                            <rect x="1.44" y="11.7" width="28.8" height="4.68" fill="none" stroke="none" pointerEvents="all"></rect>
+                          </g>
+                          <g>
+                            <clipPath id="mx-clip-1-11-31-8-0">
+                              <rect x="1" y="11" width="31" height="8"></rect>
+                            </clipPath>
+                            <g fill="rgb(0, 0, 0)" fontFamily="Helvetica" clipPath="url(https://app.diagrams.net/#mx-clip-1-11-31-8-0)" fontSize="2.16px">
+                              <text x="2.52" y="14.94">
+                                + field: type
+                              </text>
+                            </g>
+                          </g>
+                          <g transform="translate(0.5,0.5)" style={{ visibility: "visible" }}>
+                            <path
+                              d="M 1.44 17.1 L 30.24 17.1"
+                              fill="none"
+                              stroke="white"
+                              strokeWidth="9.3"
+                              strokeMiterlimit="10"
+                              pointerEvents="stroke"
+                              visibility="hidden"
+                            ></path>
+                            <path d="M 1.44 17.1 L 30.24 17.1" fill="none" stroke="rgb(0, 0, 0)" strokeWidth="1.3" strokeMiterlimit="10" pointerEvents="all"></path>
+                          </g>
+                          <g transform="translate(0.5,0.5)" style={{ visibility: "visible" }}>
+                            <rect
+                              x="1.44"
+                              y="17.82"
+                              width="28.8"
+                              height="4.68"
+                              fill="none"
+                              stroke="white"
+                              pointerEvents="stroke"
+                              visibility="hidden"
+                              strokeWidth="9"
+                            ></rect>
+                            <rect x="1.44" y="17.82" width="28.8" height="4.68" fill="none" stroke="none" pointerEvents="all"></rect>
+                          </g>
+                          <g>
+                            <clipPath id="mx-clip-1-17-31-8-0">
+                              <rect x="1" y="17" width="31" height="8"></rect>
+                            </clipPath>
+                            <g fill="rgb(0, 0, 0)" fontFamily="Helvetica" clipPath="url(https://app.diagrams.net/#mx-clip-1-17-31-8-0)" fontSize="2.16px">
+                              <text x="2.52" y="21.06">
+                                + method(type): type
+                              </text>
+                            </g>
+                          </g>
+                        </svg>
+                        {/* <Box
+                          data-type="rect"
+                          onMouseDown={(e) => startDrag(graph.current, dnd.current, e)}
+                          style={{
+                            width: 100,
+                            height: 40,
+                            border: "2px solid #31d0c6",
+                            textAlign: "center",
+                            lineHeight: "40px",
+                            margin: "0 10px",
+                            cursor: "move",
+                          }}
+                        /> */}
+                      </Box>
+                      {/* <Typography>
+                        <div
+                          data-type="circle"
+                          onMouseDown={(e) => startDrag(graph.current, dnd.current, e)}
+                          style={{
+                            width: 60,
+                            height: 60,
+                            borderRadius: "100%",
+                            border: "2px solid #31d0c6",
+                            textAlign: "center",
+                            lineHeight: "60px",
+                            margin: 16,
+                            cursor: "move",
+                          }}
+                        >
+                          Circle
+                        </div>
+                      </Typography> */}
+                    </AccordionDetails>
+                  </Accordion>
+                  <Accordion expanded={expandedShapeSection === "Flowchart"} onChange={handleExpandedSectionChange("Flowchart")}>
+                    <AccordionSummary aria-controls="Flowchart-content" id="Flowchart-header">
+                      <Typography>Flowchart</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Typography>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor sit
+                        amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
+                      </Typography>
+                    </AccordionDetails>
+                  </Accordion>
                 </Box>
               </Box>
             );
@@ -993,7 +1206,6 @@ function GraphView() {
           height="calc(100vh - 89px)"
         >
           <div className="inDepthEditor">
-            <div>In-depth editor here</div>
             {/* {selectedShape && JSON.stringify(selectedShape)} */}
             {Array.isArray(selectedCells) ? (
               "This is a group"
@@ -1002,7 +1214,7 @@ function GraphView() {
                 <SelectedCell cell={selectedCells} freshRender={freshRender} />
               </div>
             ) : (
-              <div>Graph Editor</div>
+              <Box></Box>
             )}
           </div>
           <div ref={refMinimapContainer} className="minimapStage" />
@@ -1012,15 +1224,24 @@ function GraphView() {
   );
 }
 
-function FileMenu({ graph, hideMenu, forceRender }: { graph: Graph | undefined; hideMenu: () => void; forceRender: () => void }) {
+function FileMenu({
+  graph,
+  documentTitle,
+  hideMenu,
+  openShareDialog,
+  rename,
+  deleteDocument,
+  forceRender,
+}: {
+  graph: Graph | undefined;
+  documentTitle: string | undefined;
+  hideMenu: () => void;
+  openShareDialog: () => void;
+  rename: () => void;
+  deleteDocument: () => void;
+  forceRender: () => void;
+}) {
   const { session: authSession } = useAuth();
-  const navigate = useNavigate();
-
-  const [open, setOpen] = React.useState(false);
-
-  const handleClick = () => {
-    setOpen(!open);
-  };
 
   return (
     <ClickAwayListener
@@ -1035,7 +1256,6 @@ function FileMenu({ graph, hideMenu, forceRender }: { graph: Graph | undefined; 
           maxWidth: 360,
           padding: 0,
           bgcolor: "background.paper",
-          // color: "#000",
           position: "absolute",
           zIndex: 9999,
           border: "1px solid transparent",
@@ -1062,18 +1282,6 @@ function FileMenu({ graph, hideMenu, forceRender }: { graph: Graph | undefined; 
         }}
         component="nav"
       >
-        {/* <ListItemButton>
-          <ListItemIcon>
-            <ArticleIcon />
-          </ListItemIcon>
-          <ListItemText primary="Single-line item" />
-          <ListItemSecondaryAction>
-            <IconButton edge="end" aria-label="delete" disableRipple>
-              <ArrowRightIcon />
-            </IconButton>
-          </ListItemSecondaryAction>
-        </ListItemButton> */}
-
         <ListItemButton
           onClick={() => {
             hideMenu();
@@ -1128,37 +1336,195 @@ function FileMenu({ graph, hideMenu, forceRender }: { graph: Graph | undefined; 
           <ListItemText primary="Make a copy" />
         </ListItemButton>
 
+        <ListItemButton disabled>
+          <ListItemIcon>
+            <UploadIcon />
+          </ListItemIcon>
+          <ListItemText primary="Import JSON" />
+        </ListItemButton>
+
+        <ListItemButton
+          onClick={() => {
+            if (!graph || !documentTitle) {
+              return;
+            }
+
+            console.log("hello");
+
+            const test = JSON.stringify(graph.toJSON());
+            console.log("test", test);
+            const blob = new Blob([test], { type: "application/json" });
+            const href = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = href;
+            link.download = documentTitle + ".json";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
+        >
+          <ListItemIcon>
+            <FileDownloadOutlinedIcon />
+          </ListItemIcon>
+          <ListItemText primary="Download JSON" />
+        </ListItemButton>
+
+        <ListItemButton
+          onClick={() => {
+            if (!graph) {
+              return;
+            }
+
+            const json = graph.toJSON();
+
+            const files = [];
+            for (let i = 0; i < json.cells.length; i++) {
+              const cell = json.cells[i];
+              if (!cell || cell.shape !== "class" || !cell.data || !Array.isArray(cell.data.name)) {
+                continue;
+              }
+
+              let fileType = "class";
+              let fileName = "Unnamed";
+              if (cell.data.name.length > 1) {
+                fileType = cell.data.name[0];
+                fileType = fileType.slice(2, fileType.length - 2);
+                fileName = cell.data.name[1];
+              } else if (cell.data.name.length) {
+                fileName = cell.data.name[0];
+              }
+
+              const variablesString =
+                cell.data.variables
+                  ?.map((variable: any) => {
+                    const varSplit = variable.string.split(" ");
+
+                    const accessModifier = varSplit[0] === "-" ? "private" : varSplit[0] === "#" ? "protected" : "public";
+                    const isFinal = varSplit[varSplit.length - 1] === "{readOnly}";
+                    const isStatic = variable.static;
+                    const variableName = varSplit[1].slice(0, -1);
+                    const type = varSplit[2];
+
+                    let returnString = "\t" + accessModifier + " " + (isStatic ? "static " : "") + (isFinal ? "final " : "") + type + " " + variableName;
+
+                    const hasDefaultValue = varSplit[3] === "=";
+                    if (!hasDefaultValue) {
+                      return returnString + ";";
+                    }
+
+                    const defaultValue = varSplit
+                      .map((value: any, index: any) => {
+                        if (index <= 3 || value === "{readOnly}") {
+                          return undefined;
+                        }
+
+                        return value;
+                      })
+                      .filter((value: any) => value !== undefined)
+                      .join(" ");
+                    returnString += " = " + defaultValue;
+                    return returnString + ";";
+                  })
+                  .join("\n") || "";
+
+              const methodsString =
+                cell.data.methods
+                  ?.map((method: any) => {
+                    const methodSplit = method.string.split(" ");
+
+                    const accessModifier = methodSplit[0] === "-" ? "private" : methodSplit[0] === "#" ? "protected" : "public";
+                    const isStatic = method.static;
+
+                    const firstParenthesis = method.string.indexOf("(");
+                    const methodName = method.string.slice(2, firstParenthesis);
+
+                    const type = methodSplit[methodSplit.length - 1];
+
+                    let returnString = "\t" + accessModifier + " " + (isStatic ? "static " : "") + methodName + "(";
+
+                    // returnString += PARAMS
+
+                    return returnString + "): " + type + ";";
+
+                    // const defaultValue = varSplit
+                    //   .map((value: any, index: any) => {
+                    //     if (index <= 3 || value === "{readOnly}") {
+                    //       return undefined;
+                    //     }
+
+                    //     return value;
+                    //   })
+                    //   .filter((value: any) => value !== undefined)
+                    //   .join(" ");
+                    // returnString += " = " + defaultValue;
+                    // return returnString + ";";
+                  })
+                  .join("\n") || "";
+
+              console.log("methodsString", methodsString);
+
+              let text = "public " + fileType + " " + fileName + " {\n";
+              text += variablesString;
+              text += "\n\n";
+              text += methodsString;
+              text += "\n}";
+
+              files.push({
+                fileName: fileName,
+                text: text,
+              });
+            }
+
+            for (let i = 0; i < files.length; i++) {
+              const file = files[i];
+              console.log("files", files);
+              const element = document.createElement("a");
+              element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(file.text));
+              element.setAttribute("download", file.fileName + ".java");
+
+              element.style.display = "none";
+              document.body.appendChild(element);
+
+              element.click();
+
+              document.body.removeChild(element);
+            }
+          }}
+        >
+          <ListItemIcon>
+            <FileDownloadOutlinedIcon />
+          </ListItemIcon>
+          <ListItemText primary="Download Java template" />
+        </ListItemButton>
+
         <Divider flexItem orientation="horizontal" sx={{ my: 1 }} />
 
-        <ListItemButton>
+        <ListItemButton onClick={() => openShareDialog()}>
           <ListItemIcon>
             <PersonAddAltIcon />
           </ListItemIcon>
           <ListItemText primary="Share" />
         </ListItemButton>
 
-        <ListItemButton>
-          <ListItemIcon>
-            <FileDownloadOutlinedIcon />
-          </ListItemIcon>
-          <ListItemText primary="Download" />
-        </ListItemButton>
-
-        <ListItemButton>
+        <ListItemButton onClick={() => rename()}>
           <ListItemIcon>
             <DriveFileRenameOutlineIcon />
           </ListItemIcon>
           <ListItemText primary="Rename" />
         </ListItemButton>
 
-        <ListItemButton>
+        <ListItemButton
+          onClick={() => {
+            deleteDocument();
+          }}
+        >
           <ListItemIcon>
             <DeleteOutlineIcon />
           </ListItemIcon>
           <ListItemText primary="Move to trash" />
         </ListItemButton>
 
-        <Divider flexItem orientation="horizontal" sx={{ my: 1 }} />
+        {/* <Divider flexItem orientation="horizontal" sx={{ my: 1 }} />
 
         <ListItemButton>
           <ListItemIcon>
@@ -1180,37 +1546,202 @@ function FileMenu({ graph, hideMenu, forceRender }: { graph: Graph | undefined; 
           </ListItemIcon>
           <ListItemText primary="Print" />
           <ListItemText secondaryTypographyProps={{ align: "right" }} secondary="Ctrl+P" />
-        </ListItemButton>
-
-        {/* <ListItemButton onClick={handleClick}>
-          <ListItemIcon>
-            <InboxIcon />
-          </ListItemIcon>
-          <ListItemText primary="Inbox" />
-          {open ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-
-        <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <ListItemButton sx={{ pl: 4 }}>
-              <ListItemIcon>
-                <StarBorder />
-              </ListItemIcon>
-              <ListItemText primary="Starred" />
-            </ListItemButton>
-          </List>
-        </Collapse>
-
-        <ListItemButton>
-          <ListItemIcon>
-            <SendIcon />
-          </ListItemIcon>
-          <ListItemText primary="Sent mail" />
-        </ListItemButton>
-
-        <ListItemButton>
-          <ListItemText inset primary="Test inset" />
         </ListItemButton> */}
+      </List>
+    </ClickAwayListener>
+  );
+}
+
+function EditMenu({
+  graph,
+  documentTitle,
+  hideMenu,
+  forceRender,
+}: {
+  graph: Graph | undefined;
+  documentTitle: string | undefined;
+  hideMenu: () => void;
+  forceRender: () => void;
+}) {
+  const { session: authSession } = useAuth();
+
+  return (
+    <ClickAwayListener
+      onClickAway={() => {
+        hideMenu();
+      }}
+    >
+      <List
+        sx={{
+          marginTop: "7px",
+          minWidth: 320,
+          maxWidth: 360,
+          padding: 0,
+          bgcolor: "background.paper",
+          position: "absolute",
+          zIndex: 9999,
+          border: "1px solid transparent",
+          borderRadius: 1,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          boxShadow: "0 0 0 1px rgb(0 0 0 / 45%)",
+          "& div:not(:first-of-type)": {
+            marginLeft: "unset",
+          },
+          "& > div": {
+            paddingTop: 0.5,
+            paddingBottom: 0.5,
+          },
+          "& span": {
+            fontSize: 14,
+          },
+          "& .MuiListItemIcon-root": {
+            minWidth: 42,
+          },
+          "& .MuiListItemText-inset": {
+            paddingLeft: 5.25,
+          },
+        }}
+        component="nav"
+      >
+        <ListItemButton
+          disabled={!graph?.canUndo()}
+          onClick={() => {
+            hideMenu();
+
+            if (!graph) {
+              return;
+            }
+
+            graph.undo();
+          }}
+        >
+          <ListItemIcon>
+            <UndoIcon />
+          </ListItemIcon>
+          <ListItemText primary="Undo" />
+        </ListItemButton>
+
+        <ListItemButton
+          disabled={!graph?.canRedo()}
+          onClick={() => {
+            hideMenu();
+
+            if (!graph || !authSession || !authSession.user) {
+              return;
+            }
+
+            graph.redo();
+          }}
+        >
+          <ListItemIcon>
+            <RedoIcon />
+          </ListItemIcon>
+          <ListItemText primary="Redo" />
+        </ListItemButton>
+
+        <Divider flexItem orientation="horizontal" sx={{ my: 1 }} />
+
+        <ListItemButton
+          disabled
+          onClick={() => {
+            if (!graph || !documentTitle) {
+              return;
+            }
+          }}
+        >
+          <ListItemIcon>
+            <ContentCutIcon />
+          </ListItemIcon>
+          <ListItemText primary="Cut" />
+        </ListItemButton>
+
+        <ListItemButton disabled>
+          <ListItemIcon>
+            <ContentCopyIcon />
+          </ListItemIcon>
+          <ListItemText primary="Copy" />
+        </ListItemButton>
+
+        <ListItemButton disabled>
+          <ListItemIcon>
+            <ContentPasteIcon />
+          </ListItemIcon>
+          <ListItemText primary="Paste" />
+        </ListItemButton>
+
+        <ListItemButton disabled>
+          <ListItemIcon>
+            <ContentPasteGoIcon />
+          </ListItemIcon>
+          <ListItemText primary="Paste without formatting" />
+        </ListItemButton>
+
+        <Divider flexItem orientation="horizontal" sx={{ my: 1 }} />
+
+        <ListItemButton disabled>
+          <ListItemIcon>
+            <SelectAllIcon />
+          </ListItemIcon>
+          <ListItemText primary="Select all" />
+        </ListItemButton>
+
+        <ListItemButton disabled>
+          <ListItemIcon>
+            <DeleteOutlineIcon />
+          </ListItemIcon>
+          <ListItemText primary="Delete" />
+        </ListItemButton>
+      </List>
+    </ClickAwayListener>
+  );
+}
+
+function ViewMenu({ graph, hideMenu, forceRender }: { graph: Graph | undefined; hideMenu: () => void; forceRender: () => void }) {
+  const { session: authSession } = useAuth();
+
+  return (
+    <ClickAwayListener
+      onClickAway={() => {
+        hideMenu();
+      }}
+    >
+      <List
+        sx={{
+          marginTop: "7px",
+          minWidth: 320,
+          maxWidth: 360,
+          padding: 0,
+          bgcolor: "background.paper",
+          position: "absolute",
+          zIndex: 9999,
+          border: "1px solid transparent",
+          borderRadius: 1,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          boxShadow: "0 0 0 1px rgb(0 0 0 / 45%)",
+          "& div:not(:first-of-type)": {
+            marginLeft: "unset",
+          },
+          "& > div": {
+            paddingTop: 0.5,
+            paddingBottom: 0.5,
+          },
+          "& span": {
+            fontSize: 14,
+          },
+          "& .MuiListItemIcon-root": {
+            minWidth: 42,
+          },
+          "& .MuiListItemText-inset": {
+            paddingLeft: 5.25,
+          },
+        }}
+        component="nav"
+      >
+        <ListItemButton sx={{ cursor: "default" }}>
+          <ListItemText primary="Options coming soon" />
+        </ListItemButton>
       </List>
     </ClickAwayListener>
   );

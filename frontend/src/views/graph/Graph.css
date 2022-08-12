@@ -47,6 +47,11 @@
   background-color: transparent;
 }
 
+.minimapStage {
+  display: flex;
+  justify-content: center;
+}
+
 .documentTitle,
 .documentTitle:active,
 .documentTitle:focus-within,

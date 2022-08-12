@@ -1,69 +1,164 @@
 {
   "cells": [
     {
-      "position": { "x": 680, "y": 250 },
-      "size": { "width": 150, "height": 65 },
-      "view": "react-shape-view",
-      "attrs": { "minimum": { "width": 150, "height": 65 } },
-      "shape": "class",
-      "data": { "name": ["ShapeCreator"], "methods": [{ "static": false, "string": "+ draw(): void" }] },
-      "id": "b170adbf-7265-4dd5-8c0e-3bf4d774ad40",
-      "zIndex": 1,
-      "tools": { "items": ["contextmenu"] }
-    },
-    {
-      "position": { "x": 100, "y": 410 },
-      "size": { "width": 150, "height": 65 },
-      "view": "react-shape-view",
-      "attrs": { "minimum": { "width": 150, "height": 65 } },
-      "shape": "class",
-      "data": { "name": ["Circle"], "methods": [{ "static": false, "string": "+ draw(): void" }] },
-      "id": "351015fb-3b81-4ed4-a0a5-93e2dfe581a8",
-      "tools": { "items": ["contextmenu"] },
-      "zIndex": 2
-    },
-    {
-      "position": { "x": 300, "y": 410 },
-      "size": { "width": 150, "height": 65 },
-      "view": "react-shape-view",
-      "attrs": { "minimum": { "width": 150, "height": 65 } },
-      "shape": "class",
-      "data": { "name": ["Square"], "methods": [{ "static": false, "string": "+ draw(): void" }] },
-      "id": "dfba9361-2517-42ee-8143-063ab144a678",
-      "tools": { "items": ["contextmenu"] },
-      "zIndex": 3
-    },
-    {
-      "position": { "x": 490, "y": 410 },
-      "size": { "width": 150, "height": 65 },
-      "view": "react-shape-view",
-      "attrs": { "minimum": { "width": 150, "height": 65 } },
-      "shape": "class",
-      "data": { "name": ["Rectangle"], "methods": [{ "static": false, "string": "+ draw(): void" }] },
-      "id": "b1de2f9b-c00e-4225-86c5-c0737e7c9dfa",
-      "tools": { "items": ["contextmenu"] },
-      "zIndex": 4
-    },
-    {
-      "position": { "x": 655, "y": 70 },
+      "position": { "x": 310, "y": 70 },
       "size": { "width": 200, "height": 70 },
       "view": "react-shape-view",
       "attrs": { "minimum": { "width": 150, "height": 65 } },
       "shape": "class",
-      "data": { "name": ["Client"], "methods": [{ "static": true, "string": "+ main(args: String[]): void" }] },
-      "zIndex": 5,
+      "data": { "name": ["DocumentClient"], "methods": [{ "static": true, "string": "+ main(args: String[]): void" }] },
+      "id": "asdasd-wda2-44f9-9ae4-ef34ae8d020a",
       "tools": { "items": ["contextmenu"] }
     },
     {
-      "position": { "x": 300, "y": 250 },
+      "position": { "x": 800, "y": 70 },
+      "size": { "width": 200, "height": 70 },
+      "view": "react-shape-view",
+      "attrs": { "minimum": { "width": 150, "height": 65 } },
+      "shape": "class",
+      "data": { "name": ["Utility"], "methods": [{ "static": true, "string": "+ createDocumentFactory(factoryType: String): DocumentFactoryIF" }] },
+      "id": "ffzxz-wda2-44f9-9ae4-ef34ae8d020a",
+      "tools": { "items": ["contextmenu"] }
+    },
+    {
+      "position": { "x": 110, "y": 220 },
       "size": { "width": 150, "height": 65 },
       "view": "react-shape-view",
       "attrs": { "minimum": { "width": 150, "height": 65 } },
       "shape": "class",
-      "data": { "name": ["ShapeCreator"], "methods": [{ "static": false, "string": "+ draw(): void" }] },
+      "data": {
+        "name": ["<<interface>>", "DocumentIF"],
+        "methods": [
+          { "static": false, "string": "+ getTitle(): String" },
+          { "static": false, "string": "+ setTitle(title: String): void" }
+        ]
+      },
+      "id": "b170adbf-7265-4dd5-8c0e-3bf4d774ad40",
+      "tools": { "items": ["contextmenu"] }
+    },
+    {
+      "position": { "x": 680, "y": 260 },
+      "size": { "width": 150, "height": 65 },
+      "view": "react-shape-view",
+      "attrs": { "minimum": { "width": 150, "height": 65 } },
+      "shape": "class",
+      "data": { "name": ["<<interface>>", "DocumentFactoryIF"], "methods": [{ "static": false, "string": "+ createDocument(type: String): DocumentIF" }] },
       "id": "43be06d5-4eda-44f9-9ae4-ef34ae8d020a",
-      "tools": { "items": ["contextmenu"] },
-      "zIndex": 6
+      "tools": { "items": ["contextmenu"] }
+    },
+    {
+      "position": { "x": -80, "y": 430 },
+      "size": { "width": 150, "height": 65 },
+      "view": "react-shape-view",
+      "attrs": { "minimum": { "width": 150, "height": 65 } },
+      "shape": "class",
+      "data": {
+        "name": ["ExcelDocument"],
+        "methods": [
+          { "static": false, "string": "+ getTitle(): String" },
+          { "static": false, "string": "+ setTitle(title: String): void" }
+        ]
+      },
+      "id": "351015fb-3b81-4ed4-a0a5-93e2dfe581a8",
+      "tools": { "items": ["contextmenu"] }
+    },
+    {
+      "position": { "x": 300, "y": 430 },
+      "size": { "width": 150, "height": 65 },
+      "view": "react-shape-view",
+      "attrs": { "minimum": { "width": 150, "height": 65 } },
+      "shape": "class",
+      "data": {
+        "name": ["WordDocument"],
+        "methods": [
+          { "static": false, "string": "+ getTitle(): String" },
+          { "static": false, "string": "+ setTitle(title: String): void" }
+        ]
+      },
+      "id": "dfba9361-2517-42ee-8143-063ab144a678",
+      "tools": { "items": ["contextmenu"] }
+    },
+    {
+      "position": { "x": 680, "y": 440.5 },
+      "size": { "width": 150, "height": 65 },
+      "view": "react-shape-view",
+      "attrs": { "minimum": { "width": 150, "height": 65 } },
+      "shape": "class",
+      "data": { "name": ["GoogleDocumentFactory"], "methods": [{ "static": false, "string": "+ createDocument(type: String): DocumentIF" }] },
+      "id": "b1de2f9b-c00e-4225-86c5-c0737e7c9dfa",
+      "tools": { "items": ["contextmenu"] }
+    }
+  ],
+  "edges": [
+    {
+      "id": "qwecf2-4eda-44f9-9ae4-ef34ae8d020a",
+      "shape": "implements",
+      "source": "351015fb-3b81-4ed4-a0a5-93e2dfe581a8",
+      "target": "b170adbf-7265-4dd5-8c0e-3bf4d774ad40",
+      "router": { "name": "manhattan" }
+    },
+    {
+      "id": "vxvd-4eda-44f9-9ae4-ef34ae8d020a",
+      "shape": "implements",
+      "source": "dfba9361-2517-42ee-8143-063ab144a678",
+      "target": "b170adbf-7265-4dd5-8c0e-3bf4d774ad40",
+      "router": { "name": "manhattan" }
+    },
+    {
+      "id": "werwefge-4eda-44f9-9ae4-ef34ae8d020a",
+      "shape": "association-dash",
+      "source": "b1de2f9b-c00e-4225-86c5-c0737e7c9dfa",
+      "target": "351015fb-3b81-4ed4-a0a5-93e2dfe581a8",
+      "connector": { "name": "rounded" },
+      "router": { "name": "manhattan" }
+    },
+    {
+      "id": "vrgwggsd-4eda-44f9-9ae4-ef34ae8d020a",
+      "shape": "association-dash",
+      "source": "b1de2f9b-c00e-4225-86c5-c0737e7c9dfa",
+      "target": "dfba9361-2517-42ee-8143-063ab144a678",
+      "connector": { "name": "rounded" },
+      "router": { "name": "manhattan" }
+    },
+    {
+      "id": "cvhh-4eda-44f9-9ae4-ef34ae8d020a",
+      "shape": "association-dash",
+      "source": "asdasd-wda2-44f9-9ae4-ef34ae8d020a",
+      "target": "b170adbf-7265-4dd5-8c0e-3bf4d774ad40",
+      "connector": { "name": "rounded" },
+      "router": { "name": "manhattan" }
+    },
+    {
+      "id": "hdfhr-4eda-44f9-9ae4-ef34ae8d020a",
+      "shape": "association-dash",
+      "source": "asdasd-wda2-44f9-9ae4-ef34ae8d020a",
+      "target": "43be06d5-4eda-44f9-9ae4-ef34ae8d020a",
+      "connector": { "name": "rounded" },
+      "router": { "name": "manhattan" }
+    },
+    {
+      "id": "aerbeh-4eda-44f9-9ae4-ef34ae8d020a",
+      "shape": "association-dash",
+      "source": "asdasd-wda2-44f9-9ae4-ef34ae8d020a",
+      "target": "ffzxz-wda2-44f9-9ae4-ef34ae8d020a",
+      "connector": { "name": "rounded" },
+      "router": { "name": "manhattan" }
+    },
+    {
+      "id": "gearg-4eda-44f9-9ae4-ef34ae8d020a",
+      "shape": "association-dash",
+      "source": "ffzxz-wda2-44f9-9ae4-ef34ae8d020a",
+      "target": "b1de2f9b-c00e-4225-86c5-c0737e7c9dfa",
+      "connector": { "name": "rounded" },
+      "router": { "name": "manhattan" }
+    },
+    {
+      "id": "hreherh-4eda-44f9-9ae4-ef34ae8d020a",
+      "shape": "implements",
+      "source": "b1de2f9b-c00e-4225-86c5-c0737e7c9dfa",
+      "target": "43be06d5-4eda-44f9-9ae4-ef34ae8d020a",
+      "connector": { "name": "rounded" },
+      "router": { "name": "manhattan" }
     }
   ]
 }

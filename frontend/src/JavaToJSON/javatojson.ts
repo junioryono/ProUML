@@ -31,7 +31,6 @@ export class Parser {
   private parseForUML() {
     if (this.parsedFiles === undefined) throw new Error("Files were not parsed");
 
-    console.log("parsedFiles", this.parsedFiles);
     const classes = this.parsedFiles.map((file) => {
       const variables =
         file.type === "abstract" || file.type === "class" || file.type === "interface"
@@ -183,8 +182,19 @@ export class Parser {
                 continue;
               }
 
+              let isInMethodParams = false;
+              for (const methodProperty of file.methods || []) {
+                if (isInMethodParams === false) {
+                  isInMethodParams = methodProperty.parameters?.some((method) => method.type === property.type) || false;
+                }
+              }
+
+              if (isInMethodParams === true) {
+                continue;
+              }
+
               fileEdges.push({
-                shape: "aggregation",
+                shape: "extends",
                 source: file.id,
                 target: matchingFile.id,
               });
@@ -197,14 +207,13 @@ export class Parser {
               }
 
               fileEdges.push({
-                shape: "aggregation",
+                shape: "extends",
                 source: file.id,
                 target: matchingFile.id,
               });
             }
           }
 
-          console.log("fileEdges", fileEdges);
           return fileEdges;
         })
         .filter((innerEdges) => innerEdges.some((edge, index) => edge.shape !== "class" && !edgeAlreadyConnected(edge.source, edge.target, index)))
@@ -391,7 +400,7 @@ class FileParser {
   };
 
   private getMainClassDeclarations = () => {
-    const match = this.text.match(new RegExp(`[^;}]*${this.name}[^{]*`));
+    const match = this.text.match(new RegExp(`[^;].+?(?=${this.name})[^{]*`));
     if (!match || match.index === undefined || !match.length) throw new Error("File name not found in file.");
     return { text: match[0].trim(), index: match.index + match[0].length };
   };

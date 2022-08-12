@@ -174,6 +174,7 @@ export function initListeners(
   graph.bindKey("ctrl+shift+z", () => onCtrlShiftZ(graph));
 
   graph.on("blank:contextmenu", (position) => onBlankContextMenu(graph, container, position));
+  graph.on("blank:click", () => setSelectedCells(undefined));
 
   graph.on("node:contextmenu", (handler) => onContextMenu(graph, setSelectedCells, handler));
 
@@ -194,17 +195,17 @@ export function initListeners(
   graph.on("node:rotate", (handler) => onRotate(graph, setSelectedCells, handler));
   graph.on("node:rotated", (_handler) => onRotated(graph, forceRender));
 
-  graph.on("node:change:*", (handler) => {
-    const subscriptions = supabase.getSubscriptions();
-    console.log("subscriptions", subscriptions);
+  // graph.on("node:change:*", (handler) => {
+  //   const subscriptions = supabase.getSubscriptions();
+  //   console.log("subscriptions", subscriptions);
 
-    const graphJSON = { ...graph.toJSON(), userEdit: supabase.auth.session()?.user?.id };
-    console.log("graphJSON", graphJSON);
-    supabase
-      .from("document")
-      .update({ json: JSON.stringify(graphJSON) })
-      .match({ id: documentId });
-  });
+  //   const graphJSON = { ...graph.toJSON(), userEdit: supabase.auth.session()?.user?.id };
+  //   console.log("graphJSON", graphJSON);
+  //   supabase
+  //     .from("document")
+  //     .update({ json: JSON.stringify(graphJSON) })
+  //     .match({ id: documentId });
+  // });
 }
 
 export function initDragAndDrop(graph: Graph) {
@@ -241,7 +242,7 @@ export function initDragAndDrop(graph: Graph) {
   });
 }
 
-export function startDrag(graph: Graph | undefined, dnd: Dnd | undefined, e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+export function startDrag(graph: Graph | undefined, dnd: Dnd | undefined, e: React.MouseEvent<any, MouseEvent>) {
   if (!graph || !dnd) {
     return;
   }
@@ -255,9 +256,9 @@ export function startDrag(graph: Graph | undefined, dnd: Dnd | undefined, e: Rea
     node = graph.createNode({
       shape: "class",
       width: 250,
-      height: 100,
+      height: 66,
       data: {
-        name: ["<<Abstract>>", "ClassName"],
+        name: ["ClassName"],
         variables: [
           {
             static: false,
@@ -471,6 +472,11 @@ function ClassComponent({ node }: { node?: Node }) {
         width: highestWidth,
         height: height,
       },
+    });
+
+    node.setSize({
+      width: highestWidth,
+      height: height,
     });
   }, [node, fontSize, borderWidth]);
 
@@ -932,6 +938,26 @@ Graph.registerEdge(
     attrs: {
       line: {
         strokeWidth: 1,
+        targetMarker: {
+          name: "path",
+          d: "M 6 10 L 18 4 C 14.3333 6 10.6667 8 7 10 L 18 16 z",
+          fill: "black",
+          offsetX: -5,
+        },
+      },
+    },
+  },
+  true,
+);
+
+Graph.registerEdge(
+  "association-dash",
+  {
+    inherit: "edge",
+    attrs: {
+      line: {
+        strokeWidth: 1,
+        strokeDasharray: "3,3",
         targetMarker: {
           name: "path",
           d: "M 6 10 L 18 4 C 14.3333 6 10.6667 8 7 10 L 18 16 z",

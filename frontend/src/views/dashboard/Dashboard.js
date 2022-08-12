@@ -41,6 +41,7 @@ import { useAuth } from "supabase/Auth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "supabase/supabase";
 import FactoryMethodTemplate from "../designPatternTemplates/FactoryMethod.json";
+import { Parser } from "JavaToJSON/javatojson";
 
 function DocumentOptions({ hideMenu, openRenameDialog, removeDocument, openDocument, id }) {
   return (
@@ -106,7 +107,7 @@ function DocumentOptions({ hideMenu, openRenameDialog, removeDocument, openDocum
   );
 }
 
-const NewDocument = ({ type, icon, openDocument }) => {
+const NewDocument = ({ type, icon, imageURL, openDocument }) => {
   const theme = useTheme();
   const { session } = useAuth();
 
@@ -119,16 +120,65 @@ const NewDocument = ({ type, icon, openDocument }) => {
       >
         <CardActionArea
           onClick={() => {
-            if (type === "Import Java Project") {
+            if (type === "Import Java project") {
+              const input = document.createElement("input");
+              input.type = "file";
+              input.multiple = true;
+              input.click();
+
+              input.onchange = async (e) => {
+                const getFileDataPromise = [];
+                for (let i = 0; i < input.files.length; i++) {
+                  const file = input.files[i];
+                  if (!file.name.endsWith(".java") || file.size > 500000) {
+                    return undefined;
+                  }
+
+                  const nameWithoutJava = file.name.slice(0, file.name.length - 5);
+                  console.log("nameWithoutJava", nameWithoutJava);
+
+                  const reader = new FileReader();
+                  reader.readAsText(file, "UTF-8");
+
+                  // here we tell the reader what to do when it's done reading...
+                  getFileDataPromise.push(
+                    new Promise((resolve) => {
+                      reader.onload = (readerEvent) => {
+                        resolve({ name: nameWithoutJava, text: readerEvent.target.result });
+                      };
+                    }),
+                  );
+                }
+
+                const files = await Promise.all(getFileDataPromise);
+                const parser = new Parser(files);
+                const parsedFiles = parser.parseFiles();
+                const parsedForUML = parsedFiles.getParsedForUML();
+
+                console.log("parsedFiles", parsedFiles);
+                console.log("parsedForUML", parsedForUML);
+
+                supabase
+                  .from("document")
+                  .insert([
+                    { title: "Imported Project", owner: [session.user.id], editor: [session.user.id], viewer: [session.user.id], json: JSON.stringify(parsedForUML) },
+                  ])
+                  .then((response) => {
+                    if (!response || !Array.isArray(response.data) || !response.data[0]) {
+                      throw new Error("Could not create new document.");
+                    }
+
+                    openDocument(response.data[0].id, false);
+                  });
+              };
+
               return;
             }
 
-            if (type === "Factory method") {
+            if (type === "Factory Method") {
               supabase
                 .from("document")
-                .insert([
-                  { title: "Untitled", owner: [session.user.id], editor: [session.user.id], viewer: [session.user.id], json: JSON.stringify(FactoryMethodTemplate) },
-                ])
+                .insert([{ title: type, owner: [session.user.id], editor: [session.user.id], viewer: [session.user.id], json: JSON.stringify(FactoryMethodTemplate) }])
                 .then((response) => {
                   if (!response || !Array.isArray(response.data) || !response.data[0]) {
                     throw new Error("Could not create new document.");
@@ -155,6 +205,7 @@ const NewDocument = ({ type, icon, openDocument }) => {
           }}
           sx={{
             display: "flex",
+            height: 187,
             "& .Mui-focusVisible, & .MuiCardActionArea-focusHighlight": {
               opacity: "0 !important",
             },
@@ -170,7 +221,7 @@ const NewDocument = ({ type, icon, openDocument }) => {
             },
           }}
         >
-          {icon}
+          {icon ? icon : <img src={imageURL} width={144} style={{ padding: "0 10px" }} />}
         </CardActionArea>
       </Card>
       <Typography variant="text" component="div" fontSize={14} fontWeight={500} marginTop={1.4} marginLeft={0.5}>
@@ -180,7 +231,7 @@ const NewDocument = ({ type, icon, openDocument }) => {
   );
 };
 
-function ExistingDocument({ image, title, lastOpened, id, renameDocument, openDocument, removeDocument }) {
+function ExistingDocument({ title, lastEdited, id, renameDocument, openDocument, removeDocument }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -214,6 +265,11 @@ function ExistingDocument({ image, title, lastOpened, id, renameDocument, openDo
             id="name"
             defaultValue={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleDocumentRename();
+              }
+            }}
             type="text"
             fullWidth
             variant="standard"
@@ -230,7 +286,7 @@ function ExistingDocument({ image, title, lastOpened, id, renameDocument, openDo
       </Dialog>
       <Card
         sx={{
-          maxWidth: 208,
+          width: 265,
         }}
       >
         <CardActionArea
@@ -253,7 +309,6 @@ function ExistingDocument({ image, title, lastOpened, id, renameDocument, openDo
             },
           }}
         >
-          <CardMedia component="img" width={208} height={263} image={image} />
           <CardContent>
             <Typography variant="text" component="div" fontSize={14} fontWeight={500} marginBottom={0.45}>
               {title}
@@ -261,7 +316,7 @@ function ExistingDocument({ image, title, lastOpened, id, renameDocument, openDo
             <Box display="flex" alignItems="center">
               <ArticleIcon color="primary" />
               <Typography variant="body2" color="text.secondary" fontSize={12} letterSpacing={0.2} whiteSpace="nowrap" marginLeft={0.5}>
-                {lastOpened}
+                {lastEdited}
               </Typography>
             </Box>
           </CardContent>
@@ -274,7 +329,8 @@ function ExistingDocument({ image, title, lastOpened, id, renameDocument, openDo
             }}
             onClick={(e) => {
               e.stopPropagation();
-              setOptionsMenuOpen(true);
+              console.log("e", e);
+              setOptionsMenuOpen(!optionsMenuOpen);
             }}
             sx={{
               position: "absolute",
@@ -330,12 +386,34 @@ function Dashboard() {
       .select("*")
       .order("last_modified_at", { ascending: false })
       .then((response) => {
+        console.log("response", response);
         if (!response || !Array.isArray(response.data) || !response.data[0]) {
           setExistingDocuments(false);
           return;
         }
 
-        setExistingDocuments(response.data);
+        setExistingDocuments(
+          response.data.map((document) => {
+            const lastModifiedTime = new Date(document.last_modified_at);
+            const now = new Date(new Date().toUTCString());
+            const secondsAgo = Math.abs(now.getTime() - lastModifiedTime.getTime()) / 1000;
+
+            let lastEdited = undefined;
+            if (secondsAgo < 10) {
+              lastEdited = "Edited seconds ago";
+            } else if (secondsAgo < 60) {
+              lastEdited = "Edited less than a minute ago";
+            } else if (secondsAgo < 3600) {
+              const minutesAgo = Math.floor(secondsAgo / 60);
+              lastEdited = `Edited ${minutesAgo} ${minutesAgo > 1 ? "minutes" : "minute"} ago`;
+            }
+
+            return {
+              ...document,
+              lastEdited,
+            };
+          }),
+        );
       });
   }, [authSession]);
 
@@ -442,7 +520,11 @@ function Dashboard() {
       });
     });
 
-    supabase.from("document").update({ title }).match({ id: documentId });
+    supabase
+      .from("document")
+      .update({ title })
+      .match({ id: documentId })
+      .then((response) => console.log(response));
 
     // Update document in database
   };
@@ -500,9 +582,11 @@ function Dashboard() {
         <Box maxWidth={{ sm: 720, md: 1140 }} width={"100%"} margin={"0 auto"} paddingX={2} paddingTop={{ xs: 2, sm: 3, md: 4 }} paddingBottom={{ xs: 2, sm: 3, md: 4 }}>
           <Box display="flex" justifyContent="space-between" paddingBottom={2.5}>
             <Typography color="textPrimary">Start a new document</Typography>
-            <Typography color="textSecondary" sx={{ cursor: "pointer" }}>
-              Show all
-            </Typography>
+            {false && (
+              <Typography color="textSecondary" sx={{ cursor: "pointer" }}>
+                Show all
+              </Typography>
+            )}
           </Box>
           <Box>
             <Grid container columnSpacing={2} rowSpacing={3}>
@@ -517,19 +601,31 @@ function Dashboard() {
                 <NewDocument type="Start from scratch" icon={<AddSharpIcon sx={{ width: 144, height: 187, padding: 4 }} />} openDocument={openDocument} />
               </Grid>
               <Grid item>
-                <NewDocument type="Factory method" icon={<ReportOutlinedIcon sx={{ width: "100%", height: 187 }} />} openDocument={openDocument} />
+                <NewDocument type="Factory Method" imageURL={"https://refactoring.guru/images/patterns/cards/factory-method-mini-3x.png"} openDocument={openDocument} />
               </Grid>
               <Grid item>
-                <NewDocument type="Abstract factory" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} openDocument={openDocument} />
+                <NewDocument type="Abstract Factory" imageURL={"https://refactoring.guru/images/patterns/cards/abstract-factory-mini.png"} openDocument={openDocument} />
               </Grid>
               <Grid item>
-                <NewDocument type="Builder" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} openDocument={openDocument} />
+                <NewDocument
+                  type="Builder"
+                  imageURL={"https://refactoring.guru/images/patterns/cards/builder-mini.png?id=19b95fd05e6469679752c0554b116815"}
+                  openDocument={openDocument}
+                />
               </Grid>
               <Grid item>
-                <NewDocument type="Prototype" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} openDocument={openDocument} />
+                <NewDocument
+                  type="Prototype"
+                  imageURL={"https://refactoring.guru/images/patterns/cards/prototype-mini.png?id=bc3046bb39ff36574c08d49839fd1c8e"}
+                  openDocument={openDocument}
+                />
               </Grid>
               <Grid item>
-                <NewDocument type="Singleton" icon={<ReportOutlinedIcon sx={{ width: 144, height: 187 }} />} openDocument={openDocument} />
+                <NewDocument
+                  type="Singleton"
+                  imageURL={"https://refactoring.guru/images/patterns/cards/singleton-mini.png?id=914e1565dfdf15f240e766163bd303ec"}
+                  openDocument={openDocument}
+                />
               </Grid>
             </Grid>
           </Box>
@@ -548,13 +644,12 @@ function Dashboard() {
                 </Typography>
               </Box>
               <Grid container columnSpacing={2} rowSpacing={3}>
-                {existingDocuments.map(({ image, title, lastOpened, id }) => {
+                {existingDocuments.map(({ title, lastEdited, id }) => {
                   return (
                     <Grid key={id} item position="relative">
                       <ExistingDocument
-                        image={image}
                         title={title}
-                        lastOpened={lastOpened}
+                        lastEdited={lastEdited}
                         id={id}
                         renameDocument={renameDocument}
                         openDocument={openDocument}
