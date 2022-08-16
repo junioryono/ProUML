@@ -192,6 +192,15 @@ export function onSelected(
   }
 
   if (graph.getSelectedCellCount() === 1) {
+    // const view = handler.cell.findView(graph);
+    // const halo = new Halo({
+    //   view: handler.cell.findView(graph) as any,
+    //   // type: 'toolbar',
+    //   // pie: { sliceAngle: 360 / 7 },
+    // });
+
+    // console.log(halo);
+
     setSelectedCells(handler.cell);
     return;
   }

@@ -207,7 +207,8 @@ const Topbar = ({ themeMode, themeToggler }) => {
               <Link
                 underline="none"
                 component="a"
-                onClick={() => auth.signIn({ provider: "google" }, { redirectTo: "https://prouml.com/dashboard" })}
+                // onClick={() => auth.signIn({ provider: "google" }, { redirectTo: "https://prouml.com/dashboard" })}
+                onClick={() => auth.signIn({ provider: "google" }, { redirectTo: "http://localhost:3000/dashboard" })}
                 color="textPrimary"
                 variant={"subtitle2"}
                 style={{ display: "flex", alignItems: "flex-end" }}

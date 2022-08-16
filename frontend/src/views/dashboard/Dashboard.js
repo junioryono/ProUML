@@ -366,8 +366,10 @@ function ExistingDocument({ title, lastEdited, id, renameDocument, openDocument,
 }
 
 function Dashboard() {
-  const auth = useAuth();
   const { session: authSession, signIn } = useAuth();
+
+  console.log("authSession", authSession);
+
   const navigate = useNavigate();
   const theme = useTheme();
   const isMd = useMediaQuery(theme.breakpoints.up("md"), {
@@ -406,6 +408,11 @@ function Dashboard() {
             } else if (secondsAgo < 3600) {
               const minutesAgo = Math.floor(secondsAgo / 60);
               lastEdited = `Edited ${minutesAgo} ${minutesAgo > 1 ? "minutes" : "minute"} ago`;
+            } else if (secondsAgo < 7200) {
+              const hoursAgo = Math.floor(secondsAgo / 3600);
+              lastEdited = `Edited ${hoursAgo} ${hoursAgo > 1 ? "hours" : "hour"} ago`;
+            } else {
+              lastEdited = `Edited on ${lastModifiedTime.getMonth() + 1}/${lastModifiedTime.getDate()}/${lastModifiedTime.getFullYear()}`;
             }
 
             return {
@@ -570,6 +577,11 @@ function Dashboard() {
       navigate(pathname);
     }
   };
+
+  if (authSession === null) {
+    signIn({ provider: "google" }, { redirectTo: "http://localhost:3000/dashboard" });
+    return null;
+  }
 
   return (
     <Box>

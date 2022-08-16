@@ -485,7 +485,7 @@ function GraphView() {
 
   useEffect(() => {
     const handleResize = () => {
-      graph.current?.size.resizeScroller(window.innerWidth - 500, window.innerHeight - 106);
+      graph.current?.size.resizeScroller(window.innerWidth - 250, window.innerHeight - 106);
     };
     window.addEventListener("resize", handleResize);
 
@@ -919,10 +919,34 @@ function GraphView() {
           <Divider flexItem orientation="vertical" sx={{ mx: 0.5, my: 1 }} />
 
           <StyledToggleButtonGroup size="small" aria-label="history">
-            <ToggleButton value="undo" aria-label="undo" title="Undo" onClick={() => {}}>
+            <ToggleButton
+              value="undo"
+              aria-label="undo"
+              title="Undo"
+              disabled={!graph.current?.canUndo()}
+              onClick={() => {
+                if (!graph.current) {
+                  return;
+                }
+
+                graph.current.undo();
+              }}
+            >
               <UndoIcon />
             </ToggleButton>
-            <ToggleButton value="redo" aria-label="redo" title="Redo">
+            <ToggleButton
+              value="redo"
+              aria-label="redo"
+              title="Redo"
+              disabled={!graph.current?.canRedo()}
+              onClick={() => {
+                if (!graph.current) {
+                  return;
+                }
+
+                graph.current.redo();
+              }}
+            >
               <RedoIcon />
             </ToggleButton>
           </StyledToggleButtonGroup>
@@ -1011,188 +1035,39 @@ function GraphView() {
           </StyledToggleButtonGroup>
         </Box>
         <Box width="calc(100% - 250px)" display="flex" borderTop="1px solid black">
-          {React.useMemo(() => {
-            return (
-              <Box display="flex" flexDirection="column" width={250} borderRight="1px solid black">
-                <Box>
-                  <Accordion expanded={expandedShapeSection === "General"} onChange={handleExpandedSectionChange("General")}>
-                    <AccordionSummary aria-controls="General-content" id="General-header">
-                      <Typography>General</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Box
-                        display={"flex"}
-                        height={40}
-                        sx={{
-                          cursor: "pointer",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <svg
-                          data-type="class"
-                          onMouseDown={(e) => startDrag(graph.current, dnd.current, e)}
-                          style={{
-                            width: "45px",
-                            height: "30px",
-                            overflow: "hidden",
-                            transform: "scale(1.9)",
-                          }}
-                        >
-                          <g transform="translate(0.5,0.5)" style={{ visibility: "visible" }}>
-                            <path
-                              d="M 1.44 11.7 L 1.44 7.02 L 30.24 7.02 L 30.24 11.7"
-                              fill="rgb(255, 255, 255)"
-                              stroke="rgb(0, 0, 0)"
-                              strokeWidth="1.3"
-                              strokeMiterlimit="10"
-                              pointerEvents="all"
-                            ></path>
-                            <path
-                              d="M 1.44 11.7 L 1.44 22.5 L 30.24 22.5 L 30.24 11.7"
-                              fill="none"
-                              stroke="white"
-                              strokeWidth="9.3"
-                              strokeMiterlimit="10"
-                              pointerEvents="stroke"
-                              visibility="hidden"
-                            ></path>
-                            <path
-                              d="M 1.44 11.7 L 1.44 22.5 L 30.24 22.5 L 30.24 11.7"
-                              fill="none"
-                              stroke="rgb(0, 0, 0)"
-                              strokeWidth="1.3"
-                              strokeMiterlimit="10"
-                              pointerEvents="none"
-                            ></path>
-                            <path
-                              d="M 1.44 11.7 L 30.24 11.7"
-                              fill="none"
-                              stroke="white"
-                              strokeWidth="9.3"
-                              strokeMiterlimit="10"
-                              pointerEvents="stroke"
-                              visibility="hidden"
-                            ></path>
-                            <path d="M 1.44 11.7 L 30.24 11.7" fill="none" stroke="rgb(0, 0, 0)" strokeWidth="1.3" strokeMiterlimit="10" pointerEvents="none"></path>
-                          </g>
-                          <g>
-                            <g fill="rgb(0, 0, 0)" fontFamily="Helvetica" fontWeight="bold" textAnchor="middle" fontSize="2.16px">
-                              <text x="15.84" y="10.26">
-                                Classname
-                              </text>
-                            </g>
-                          </g>
-                          <g transform="translate(0.5,0.5)" style={{ visibility: "visible" }}>
-                            <rect
-                              x="1.44"
-                              y="11.7"
-                              width="28.8"
-                              height="4.68"
-                              fill="none"
-                              stroke="white"
-                              pointerEvents="stroke"
-                              visibility="hidden"
-                              strokeWidth="9"
-                            ></rect>
-                            <rect x="1.44" y="11.7" width="28.8" height="4.68" fill="none" stroke="none" pointerEvents="all"></rect>
-                          </g>
-                          <g>
-                            <clipPath id="mx-clip-1-11-31-8-0">
-                              <rect x="1" y="11" width="31" height="8"></rect>
-                            </clipPath>
-                            <g fill="rgb(0, 0, 0)" fontFamily="Helvetica" clipPath="url(https://app.diagrams.net/#mx-clip-1-11-31-8-0)" fontSize="2.16px">
-                              <text x="2.52" y="14.94">
-                                + field: type
-                              </text>
-                            </g>
-                          </g>
-                          <g transform="translate(0.5,0.5)" style={{ visibility: "visible" }}>
-                            <path
-                              d="M 1.44 17.1 L 30.24 17.1"
-                              fill="none"
-                              stroke="white"
-                              strokeWidth="9.3"
-                              strokeMiterlimit="10"
-                              pointerEvents="stroke"
-                              visibility="hidden"
-                            ></path>
-                            <path d="M 1.44 17.1 L 30.24 17.1" fill="none" stroke="rgb(0, 0, 0)" strokeWidth="1.3" strokeMiterlimit="10" pointerEvents="all"></path>
-                          </g>
-                          <g transform="translate(0.5,0.5)" style={{ visibility: "visible" }}>
-                            <rect
-                              x="1.44"
-                              y="17.82"
-                              width="28.8"
-                              height="4.68"
-                              fill="none"
-                              stroke="white"
-                              pointerEvents="stroke"
-                              visibility="hidden"
-                              strokeWidth="9"
-                            ></rect>
-                            <rect x="1.44" y="17.82" width="28.8" height="4.68" fill="none" stroke="none" pointerEvents="all"></rect>
-                          </g>
-                          <g>
-                            <clipPath id="mx-clip-1-17-31-8-0">
-                              <rect x="1" y="17" width="31" height="8"></rect>
-                            </clipPath>
-                            <g fill="rgb(0, 0, 0)" fontFamily="Helvetica" clipPath="url(https://app.diagrams.net/#mx-clip-1-17-31-8-0)" fontSize="2.16px">
-                              <text x="2.52" y="21.06">
-                                + method(type): type
-                              </text>
-                            </g>
-                          </g>
-                        </svg>
-                        {/* <Box
-                          data-type="rect"
-                          onMouseDown={(e) => startDrag(graph.current, dnd.current, e)}
-                          style={{
-                            width: 100,
-                            height: 40,
-                            border: "2px solid #31d0c6",
-                            textAlign: "center",
-                            lineHeight: "40px",
-                            margin: "0 10px",
-                            cursor: "move",
-                          }}
-                        /> */}
-                      </Box>
-                      {/* <Typography>
-                        <div
-                          data-type="circle"
-                          onMouseDown={(e) => startDrag(graph.current, dnd.current, e)}
-                          style={{
-                            width: 60,
-                            height: 60,
-                            borderRadius: "100%",
-                            border: "2px solid #31d0c6",
-                            textAlign: "center",
-                            lineHeight: "60px",
-                            margin: 16,
-                            cursor: "move",
-                          }}
-                        >
-                          Circle
-                        </div>
-                      </Typography> */}
-                    </AccordionDetails>
-                  </Accordion>
-                  <Accordion expanded={expandedShapeSection === "Flowchart"} onChange={handleExpandedSectionChange("Flowchart")}>
-                    <AccordionSummary aria-controls="Flowchart-content" id="Flowchart-header">
-                      <Typography>Flowchart</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Typography>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor sit
-                        amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-                      </Typography>
-                    </AccordionDetails>
-                  </Accordion>
-                </Box>
-              </Box>
-            );
-          }, [])}
+          <Box
+            sx={{
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              zIndex: 1,
+              top: 10,
+              left: 10,
+              backgroundColor: "background.paper",
+              border: "1px solid black",
+              borderRadius: 2.5,
+              height: "fit-content",
+              padding: "10px 2px",
+              "& > div": {
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              },
+              "& > div:not(:first-of-type)": {
+                marginTop: 1.5,
+              },
+            }}
+          >
+            <Box title="Hello">
+              <FormatColorFillIcon />
+            </Box>
+            <Box title="Hello">
+              <FormatColorFillIcon />
+            </Box>
+            <Box title="Hello">
+              <FormatColorFillIcon />
+            </Box>
+          </Box>
           <Box tabIndex={-1} ref={refContainer} className="mainStage" />
         </Box>
         <Box
@@ -1204,20 +1079,25 @@ function GraphView() {
           justifyContent="space-between"
           borderLeft="1px solid black"
           height="calc(100vh - 89px)"
+          sx={{ backgroundColor: "background.paper" }}
         >
-          <div className="inDepthEditor">
+          <Box
+            className="inDepthEditor"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginTop: "10px",
+              overflow: "hidden",
+              "& > div": {
+                width: "calc(100% - 15px)",
+              },
+            }}
+          >
             {/* {selectedShape && JSON.stringify(selectedShape)} */}
-            {Array.isArray(selectedCells) ? (
-              "This is a group"
-            ) : selectedCells ? (
-              <div>
-                <SelectedCell cell={selectedCells} freshRender={freshRender} />
-              </div>
-            ) : (
-              <Box></Box>
-            )}
-          </div>
-          <div ref={refMinimapContainer} className="minimapStage" />
+            {Array.isArray(selectedCells) ? "This is a group" : selectedCells ? <SelectedCell cell={selectedCells} freshRender={freshRender} /> : <Box></Box>}
+          </Box>
+          <Box ref={refMinimapContainer} className="minimapStage" />
         </Box>
       </Box>
     </Box>
@@ -1851,6 +1731,10 @@ function SelectedCell({ cell, freshRender }: { cell: Cell<Cell.Properties>; fres
   const [height, setHeight] = useState(0);
   const [angle, setAngle] = useState(0);
 
+  const [name, setName] = useState("");
+  const [variables, setVariables] = useState([""]);
+  const [methods, setMethods] = useState([""]);
+
   const refreshCell = useCallback(() => {
     const bbox = cell.getBBox();
     setX(bbox.x);
@@ -1858,6 +1742,13 @@ function SelectedCell({ cell, freshRender }: { cell: Cell<Cell.Properties>; fres
     setWidth(bbox.width);
     setHeight(bbox.height);
     setAngle(cell.getProp("angle") || 0);
+
+    const data = cell.getData();
+    console.log("data", data);
+
+    if (Array.isArray(data.name)) {
+      setName(data.name[data.name.length - 1]);
+    }
   }, [cell]);
 
   useEffect(() => {
@@ -1871,45 +1762,97 @@ function SelectedCell({ cell, freshRender }: { cell: Cell<Cell.Properties>; fres
   }, [freshRender]);
 
   return (
-    <div>
-      <div>
-        <div>Width:</div>
+    <>
+      <Box display="flex">
+        <Box sx={{ alignSelf: "center", marginRight: 1 }}>Name</Box>
         <input
-          value={width}
-          onChange={(event) => {
-            const newValue = parseInt(event.target.value) || 0;
-            setWidth(newValue);
-            cell.setProp(
-              {
-                size: {
-                  width: newValue,
-                },
-              },
-              { deep: false, overwrite: true },
-            );
+          style={{
+            width: "inherit",
+          }}
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+            const original = cell.getData().name;
+            original[original.length - 1] = e.target.value;
+            try {
+              cell
+                .setData({
+                  name: original,
+                })
+                .trigger("change:data");
+            } catch {}
           }}
         />
-      </div>
-      <div>
-        <div>Height:</div>
-        <input
-          value={height}
-          onChange={(event) => {
-            const newValue = parseInt(event.target.value) || 0;
-            setHeight(newValue);
-            cell.setProp(
-              {
-                size: {
-                  height: newValue,
-                },
-              },
-              { deep: false, overwrite: true },
-            );
+      </Box>
+      <Box display="flex" marginTop={2}>
+        <Box
+          display="flex"
+          sx={{
+            alignItems: "center",
           }}
-        />
-      </div>
-      <div>
-        <div>Left:</div>
+        >
+          <Box
+            sx={{
+              marginRight: 1,
+            }}
+          >
+            W
+          </Box>
+          <input
+            style={{
+              width: 30,
+            }}
+            value={width}
+            onChange={(event) => {
+              const newValue = parseInt(event.target.value) || 0;
+              setWidth(newValue);
+              cell.setProp(
+                {
+                  size: {
+                    width: newValue,
+                  },
+                },
+                { deep: false, overwrite: true },
+              );
+            }}
+          />
+        </Box>
+        <Box
+          display="flex"
+          sx={{
+            alignItems: "center",
+            marginLeft: 8,
+          }}
+        >
+          <Box
+            sx={{
+              marginRight: 1,
+            }}
+          >
+            H
+          </Box>
+          <input
+            style={{
+              width: 30,
+            }}
+            value={height}
+            onChange={(event) => {
+              const newValue = parseInt(event.target.value) || 0;
+              setHeight(newValue);
+              cell.setProp(
+                {
+                  size: {
+                    height: newValue,
+                  },
+                },
+                { deep: false, overwrite: true },
+              );
+            }}
+          />
+        </Box>
+      </Box>
+      <Box>
+        <Box>Left:</Box>
         <input
           value={x}
           onChange={(event) => {
@@ -1925,9 +1868,9 @@ function SelectedCell({ cell, freshRender }: { cell: Cell<Cell.Properties>; fres
             );
           }}
         />
-      </div>
-      <div>
-        <div>Top:</div>
+      </Box>
+      <Box>
+        <Box>Top:</Box>
         <input
           value={y}
           onChange={(event) => {
@@ -1943,9 +1886,9 @@ function SelectedCell({ cell, freshRender }: { cell: Cell<Cell.Properties>; fres
             );
           }}
         />
-      </div>
-      <div>
-        <div>Angle:</div>
+      </Box>
+      <Box>
+        <Box>Angle:</Box>
         <input
           value={angle}
           onChange={(event) => {
@@ -1959,9 +1902,9 @@ function SelectedCell({ cell, freshRender }: { cell: Cell<Cell.Properties>; fres
             );
           }}
         />
-      </div>
-      <div>Hello {JSON.stringify(cell)}</div>
-    </div>
+      </Box>
+      <Box>Hello {JSON.stringify(cell)}</Box>
+    </>
   );
 }
 

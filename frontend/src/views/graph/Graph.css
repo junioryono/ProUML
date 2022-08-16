@@ -14,7 +14,7 @@
 .mainStage {
   overflow: auto;
   height: calc(100vh - 100px);
-  width: calc(100vw - 521px);
+  width: calc(100vw - 250px);
 }
 
 /* width */

@@ -5,6 +5,7 @@ import Paper from "@mui/material/Paper";
 import CssBaseline from "@mui/material/CssBaseline";
 import getTheme from "theme";
 import AOS from "aos";
+import { useAuth } from "supabase/Auth";
 
 export const useDarkMode = () => {
   const [themeMode, setTheme] = useState("light");
@@ -31,6 +32,8 @@ export const useDarkMode = () => {
 };
 
 export default function WithLayout({ component: Component, layout: Layout, ...rest }) {
+  const { session: authSession } = useAuth();
+
   React.useEffect(() => {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector("#jss-server-side");
@@ -68,4 +71,5 @@ export default function WithLayout({ component: Component, layout: Layout, ...re
 WithLayout.propTypes = {
   component: PropTypes.elementType.isRequired,
   layout: PropTypes.elementType.isRequired,
+  authRequired: PropTypes.bool,
 };

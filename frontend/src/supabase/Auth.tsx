@@ -50,32 +50,43 @@ function AuthProvider({ children }: any) {
   const [session, setSession] = useState<AuthSession | null | undefined>(undefined);
 
   useEffect(() => {
-    if (session === null) {
+    if (session !== undefined) {
       return;
     }
 
-    const authSession = supabase.auth.session();
+    (async () => {
+      const { data: urlSession } = await supabase.auth.getSessionFromUrl();
 
-    if (authSession === null) {
-      // supabase.auth.signIn({ refreshToken: "Vw_D_DpoofHRPzEW240U_A" });
-      setSession(authSession);
-    } else if (authSession !== undefined) {
-      setSession(authSession);
-    }
+      const authSession = supabase.auth.session();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (event, listenerSession) => {
-      setSession(listenerSession ?? null);
-    });
+      if (!urlSession && authSession === null) {
+        // supabase.auth.signIn({ refreshToken: "Vw_D_DpoofHRPzEW240U_A" });
+        setSession(authSession);
+      } else if (authSession !== undefined) {
+        setSession(authSession);
+      }
 
-    return () => {
-      listener?.unsubscribe();
-    };
+      const { data: listener } = supabase.auth.onAuthStateChange(async (event, listenerSession) => {
+        console.log("EVENT OCCURRED", { event, listenerSession });
+        setSession(listenerSession ?? null);
+      });
+
+      return () => {
+        listener?.unsubscribe();
+      };
+    })();
   }, [session]);
 
   const value: AuthContextInterface = {
-    signUp: (credentials, options) => supabase.auth.signUp(credentials, options),
-    signIn: (credentials, options) => supabase.auth.signIn(credentials, options),
-    signOut: () => supabase.auth.signOut(),
+    signUp: function (credentials, options) {
+      return supabase.auth.signUp(credentials, options);
+    },
+    signIn: function (credentials, options) {
+      return supabase.auth.signIn(credentials, options);
+    },
+    signOut: function () {
+      return supabase.auth.signOut();
+    },
     session: session,
   };
 

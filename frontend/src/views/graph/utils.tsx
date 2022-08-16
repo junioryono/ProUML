@@ -28,6 +28,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { useEditor } from "@tiptap/react";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import { supabase } from "supabase/supabase";
+import ContentEditable from "react-contenteditable";
 
 class SimpleNodeView extends NodeView {
   protected renderMarkup() {
@@ -80,6 +81,7 @@ export function initGraph(container: HTMLDivElement, minimapContainer: HTMLDivEl
       rubberband: true,
       multiple: true,
       strict: true,
+
       showNodeSelectionBox: true,
       // selectCellOnMoved: true,
       // selectNodeOnMoved: true,
@@ -95,7 +97,7 @@ export function initGraph(container: HTMLDivElement, minimapContainer: HTMLDivEl
     },
     scroller: {
       enabled: true,
-      width: window.innerWidth - 500,
+      width: window.innerWidth - 250,
       height: window.innerHeight - 106,
       pageVisible: true,
     },
@@ -142,6 +144,7 @@ export function initGraph(container: HTMLDivElement, minimapContainer: HTMLDivEl
     },
     clipboard: {
       enabled: true,
+      useLocalStorage: true,
     },
     keyboard: {
       enabled: true,
@@ -194,6 +197,12 @@ export function initListeners(
 
   graph.on("node:rotate", (handler) => onRotate(graph, setSelectedCells, handler));
   graph.on("node:rotated", (_handler) => onRotated(graph, forceRender));
+
+  // graph.on("node:mouseup", ({ view }) => {
+  //   const halo = new Halo({
+  //     view: view as any,
+  //   });
+  // });
 
   // graph.on("node:change:*", (handler) => {
   //   const subscriptions = supabase.getSubscriptions();
@@ -378,7 +387,7 @@ function ClassComponent({ node }: { node?: Node }) {
   }
 
   const [selectedSection, setSelectedSection] = useState<Section>();
-  const nameInputRef = useRef<HTMLTextAreaElement>(null);
+  const nameInputRef = useRef<HTMLDivElement>(null);
   const variablesInputRef = useRef<HTMLTextAreaElement>(null);
   const methodsInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -388,7 +397,6 @@ function ClassComponent({ node }: { node?: Node }) {
 
   useEffect(() => {
     if (selectedSection === Section.Name) {
-      nameInputRef.current?.select();
     } else if (selectedSection === Section.Variables) {
       variablesInputRef.current?.select();
     } else if (selectedSection === Section.Methods) {
@@ -403,7 +411,7 @@ function ClassComponent({ node }: { node?: Node }) {
   const [methods, setMethods] = useState("");
   const [minimumHeight, setMinimumHeight] = useState({ name: 0, variables: 0, methods: 0 });
 
-  useEffect(() => {
+  const initNode = useCallback(() => {
     if (!node || fontSize === undefined || borderWidth === undefined) {
       return;
     }
@@ -467,17 +475,27 @@ function ClassComponent({ node }: { node?: Node }) {
       setMethods(data.methods.join("\n"));
     }
 
-    node.setAttrs({
-      minimum: {
+    node.setAttrs(
+      {
+        minimum: {
+          width: highestWidth,
+          height: height,
+        },
+      },
+      { ignoreHistory: true },
+    );
+
+    node.setSize(
+      {
         width: highestWidth,
         height: height,
       },
-    });
+      { ignoreHistory: true },
+    );
+  }, [node, fontSize, borderWidth]);
 
-    node.setSize({
-      width: highestWidth,
-      height: height,
-    });
+  useEffect(() => {
+    initNode();
   }, [node, fontSize, borderWidth]);
 
   // useEffect(() => {
@@ -496,6 +514,11 @@ function ClassComponent({ node }: { node?: Node }) {
           variables: current.variables + different / 3,
           methods: current.methods + different / 3,
         }));
+      });
+
+      node.on("change:data", () => {
+        console.log("hello");
+        initNode();
       });
 
       return () => {
@@ -517,23 +540,19 @@ function ClassComponent({ node }: { node?: Node }) {
   } as React.CSSProperties;
 
   const nameStyles = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
     borderBottom: "1px solid black",
     height: minimumHeight.name,
     textAlign: "center",
   } as React.CSSProperties;
   const variablesStyles = {
-    display: "flex",
-    alignItems: "center",
-    borderBottom: "1px solid black",
     paddingLeft: 8,
     height: minimumHeight.variables,
   } as React.CSSProperties;
-  const methodsStyles = { display: "flex", alignItems: "center", paddingLeft: 8, height: minimumHeight.methods } as React.CSSProperties;
+  const methodsStyles = { paddingLeft: 8, height: minimumHeight.methods } as React.CSSProperties;
 
   const unselectOnEndEnter = (e: any, text: string) => {
+    console.log(e);
+    console.log("text.length", text.length);
     if (selectedSection !== undefined && e.key === "Enter" && (e.target.selectionStart !== text.length || (e.target.selectionStart === text.length && e.shiftKey))) {
       setMinimumHeight((current) => {
         const oldLineLength = text.split("\n").length;
@@ -564,37 +583,59 @@ function ClassComponent({ node }: { node?: Node }) {
 
     if (e.key === "Enter") {
       setSelectedSection(undefined);
+
+      if (selectedSection === Section.Name) {
+        nameInputRef.current?.blur();
+      }
     }
   };
 
   return (
     <div style={containerStyles}>
-      <div style={nameStyles} onDoubleClick={() => setSelectedSection(Section.Name)}>
-        {selectedSection === Section.Name ? (
-          <ClickAwayListener onClickAway={() => setSelectedSection(undefined)}>
-            <textarea
-              ref={nameInputRef}
-              style={{ height: nameStyles.height, width: nameDivRef.current?.clientWidth, textAlign: "center" }}
-              className="documentInput"
-              value={name}
-              onChange={(e) => {
-                if (!node) {
-                  return;
-                }
-                node.setData({
-                  name: e.target.value.split("\n"),
-                });
-                setName(e.target.value);
-              }}
-              onKeyDown={(e) => unselectOnEndEnter(e, name)}
-            />
-          </ClickAwayListener>
-        ) : (
-          <div ref={nameDivRef} style={{ height: nameStyles.height }}>
-            {name}
-          </div>
-        )}
-      </div>
+      {/* <ContentEditable
+          style={nameStyles}
+          html={nameText.current}
+          onBlur={handleBlur}
+          onChange={handleChange}
+          onKeyDown[]
+          onDoubleClick={(e) => {
+            console.log("double clicked");
+            setSelectedSection(Section.Name);
+            window.getSelection()?.selectAllChildren(e.target as any);
+          }}
+          disabled={selectedSection !== Section.Name}
+        /> */}
+      <ClickAwayListener
+        onClickAway={() => {
+          nameInputRef.current?.blur();
+          setSelectedSection(undefined);
+        }}
+      >
+        <div
+          ref={nameInputRef}
+          tabIndex={-1}
+          style={{ ...nameStyles, ...(selectedSection === Section.Name ? { cursor: "text" } : {}) }}
+          contentEditable={selectedSection === Section.Name}
+          suppressContentEditableWarning={true}
+          onDoubleClick={(e) => {
+            if (selectedSection !== Section.Name) {
+              window.getSelection()?.selectAllChildren(e.target as any);
+              setSelectedSection(Section.Name);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (selectedSection === Section.Name) {
+              console.log("e", e);
+            }
+          }}
+          onBlur={(e) => {
+            setName(e.target.innerText);
+            console.log("blurred", name);
+          }}
+        >
+          {name}
+        </div>
+      </ClickAwayListener>
       <div style={variablesStyles} onDoubleClick={() => setSelectedSection(Section.Variables)}>
         {selectedSection === Section.Variables ? (
           <ClickAwayListener onClickAway={() => setSelectedSection(undefined)}>
