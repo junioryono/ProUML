@@ -3,7 +3,7 @@ import { initGraph, initListeners, initDragAndDrop, startDrag } from "./utils";
 import { Graph, Cell, Model } from "@antv/x6";
 import { GridLayout } from "@antv/layout";
 import type { Dnd } from "@antv/x6/es/addon/dnd";
-import files from "JavaToJSON/TestProject";
+import files from "JavaToJSON/SnakeGame";
 import "./Graph.css";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
@@ -92,36 +92,6 @@ import MuiAccordionSummary, { AccordionSummaryProps } from "@mui/material/Accord
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 
-const Accordion = styled((props: AccordionProps) => <MuiAccordion sx={{ width: "-webkit-fill-available" }} disableGutters elevation={0} square {...props} />)(
-  ({ theme }) => ({
-    border: `1px solid ${theme.palette.divider}`,
-    "&:not(:last-child)": {
-      borderBottom: 0,
-    },
-    "&:before": {
-      display: "none",
-    },
-  }),
-);
-
-const AccordionSummary = styled((props: AccordionSummaryProps) => (
-  <MuiAccordionSummary expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />} {...props} />
-))(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "rgba(255, 255, 255, .05)" : "rgba(0, 0, 0, .03)",
-  flexDirection: "row-reverse",
-  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-    transform: "rotate(90deg)",
-  },
-  "& .MuiAccordionSummary-content": {
-    marginLeft: theme.spacing(1),
-  },
-}));
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-}));
-
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   "& .MuiToggleButtonGroup-grouped": {
     margin: theme.spacing(0.5),
@@ -173,6 +143,7 @@ function GraphView() {
   const [shareEmailValue, setShareEmailValue] = useState("");
   const [shareEmailError, setShareEmailError] = useState<boolean | null | undefined>(false);
   const [currentlySharedWith, setCurrentlySharedWith] = useState<{ email: string; role: string }[] | null | undefined>(undefined);
+  const [userMetadata, setUserMetadata] = useState<{ fullName: string | undefined; fullNameAbbreviated: string | undefined } | null | undefined>(undefined);
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const [expandedShapeSection, setExpandedShapeSection] = React.useState<string | false>("General");
@@ -189,7 +160,38 @@ function GraphView() {
   }, [shareDialogOpen]);
 
   useEffect(() => {
-    if (shareDialogOpen && currentlySharedWith === undefined) {
+    if (!authSession || !authSession.user) {
+      setUserMetadata(null);
+      return;
+    }
+
+    supabase
+      .from("profile")
+      .select("full_name")
+      .eq("id", authSession.user.id)
+      .then((response) => {
+        if (!response || !Array.isArray(response.data) || !response.data[0]) {
+          setUserMetadata(null);
+          throw new Error("Could not access document data.");
+        }
+
+        const fullNameSplit = response.data[0].full_name && response.data[0].full_name.split(" ");
+        const nameAbbrev =
+          fullNameSplit[0] && fullNameSplit[0][0] ? (fullNameSplit[1] && fullNameSplit[1][0] ? fullNameSplit[0][0] + fullNameSplit[1][0] : undefined) : undefined;
+
+        setUserMetadata({
+          fullName: response.data[0].full_name,
+          fullNameAbbreviated: nameAbbrev,
+        });
+      });
+
+    return () => {
+      setUserMetadata(undefined);
+    };
+  }, [authSession]);
+
+  useEffect(() => {
+    if (documentId && shareDialogOpen && currentlySharedWith === undefined) {
       supabase
         .from("document")
         .select("owner, editor, viewer")
@@ -282,7 +284,7 @@ function GraphView() {
             });
         });
     }
-  }, [shareDialogOpen, currentlySharedWith]);
+  }, [documentId, shareDialogOpen, currentlySharedWith]);
 
   const addEditor = async () => {
     setShareEmailError(false);
@@ -323,7 +325,7 @@ function GraphView() {
         }),
     ]);
 
-    if (!profile.id || !Array.isArray(editors)) {
+    if (!profile || !profile.id || !Array.isArray(editors)) {
       setShareEmailError(true);
       return;
     }
@@ -447,8 +449,6 @@ function GraphView() {
 
   useEffect(() => {
     if (authSession === null) {
-      // signIn({ refreshToken: "AzjioUlVhtaSWIysTM_FqQ" });
-      // signIn({ provider: "google" }, { redirectTo: window.location.href });
       // also need to check if user even has access, then use state to display Request Access
     }
   }, [authSession]);
@@ -880,15 +880,19 @@ function GraphView() {
             >
               Share
             </Button>
-            <Avatar
-              sx={{ bgcolor: brown[500], fontSize: "1rem", cursor: "pointer" }}
-              onClick={() => {
-                if (!avatarOpen) setAvatarOpen(true);
-              }}
-            >
-              JY
-            </Avatar>
-            {avatarOpen && <AvatarMenu graph={graph.current} hideMenu={() => setAvatarOpen(false)} forceRender={forceRender} />}
+            {userMetadata !== null && (
+              <>
+                <Avatar
+                  sx={{ bgcolor: brown[500], fontSize: "1rem", cursor: "pointer" }}
+                  onClick={() => {
+                    if (!avatarOpen) setAvatarOpen(true);
+                  }}
+                >
+                  {userMetadata !== undefined && userMetadata.fullNameAbbreviated}
+                </Avatar>
+                {avatarOpen && <AvatarMenu graph={graph.current} hideMenu={() => setAvatarOpen(false)} forceRender={forceRender} />}
+              </>
+            )}
           </Box>
         </Box>
       </Box>
@@ -1173,7 +1177,7 @@ function FileMenu({
             supabase
               .from("document")
               .insert([{ title: "Untitled", owner: [authSession.user.id], editor: [authSession.user.id], viewer: [authSession.user.id] }])
-              .then((response) => {
+              .then((response: any) => {
                 if (!response || !Array.isArray(response.data) || !response.data[0]) {
                   throw new Error("Could not create new document.");
                 }
@@ -1201,7 +1205,7 @@ function FileMenu({
               .insert([
                 { title: "Untitled", owner: [authSession.user.id], editor: [authSession.user.id], viewer: [authSession.user.id], json: JSON.stringify(graph.toJSON()) },
               ])
-              .then((response) => {
+              .then((response: any) => {
                 if (!response || !Array.isArray(response.data) || !response.data[0]) {
                   throw new Error("Could not create new document.");
                 }

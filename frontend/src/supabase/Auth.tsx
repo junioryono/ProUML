@@ -1,36 +1,16 @@
-import { User, UserCredentials, SupabaseClientOptions, Session, ApiError, AuthSession, RealtimeClient } from "@supabase/supabase-js";
+import { User, SupabaseClientOptions, Session, AuthSession, AuthError, RealtimeClient, SignInWithOAuthCredentials, OAuthResponse } from "@supabase/supabase-js";
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { supabase } from "./supabase";
+import { useNavigate } from "react-router-dom";
 
 //import {definitions} from "types/supabase"
 
 // declare function signUp(): void;
 
 interface AuthContextInterface {
-  signUp(
-    { email, password, phone }: UserCredentials,
-    options?:
-      | {
-          redirectTo?: string | undefined;
-          data?: object | undefined;
-          captchaToken?: string | undefined;
-        }
-      | undefined,
-  ): Promise<{ user: User | null; session: Session | null; error: ApiError | null }>;
-  signIn(
-    { email, phone, password, refreshToken, provider, oidc }: UserCredentials,
-    options?:
-      | {
-          redirectTo?: string | undefined;
-          shouldCreateUser?: boolean | undefined;
-          scopes?: string | undefined;
-          captchaToken?: string | undefined;
-          queryParams?: { [key: string]: string } | undefined;
-        }
-      | undefined,
-  ): Promise<{ user: User | null; session: Session | null; error: ApiError | null }>;
+  signIn(): Promise<OAuthResponse>;
   signOut(): Promise<{
-    error: ApiError | null;
+    error: AuthError | null;
   }>;
   session: AuthSession | null | undefined;
 }
@@ -48,6 +28,7 @@ function useAuth() {
 
 function AuthProvider({ children }: any) {
   const [session, setSession] = useState<AuthSession | null | undefined>(undefined);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (session !== undefined) {
@@ -55,20 +36,22 @@ function AuthProvider({ children }: any) {
     }
 
     (async () => {
-      const { data: urlSession } = await supabase.auth.getSessionFromUrl();
+      const {
+        data: { session: authSession },
+      } = await supabase.auth.getSession();
 
-      const authSession = supabase.auth.session();
-
-      if (!urlSession && authSession === null) {
-        // supabase.auth.signIn({ refreshToken: "Vw_D_DpoofHRPzEW240U_A" });
-        setSession(authSession);
-      } else if (authSession !== undefined) {
-        setSession(authSession);
+      // Remove '#' from end of URL. This happens after signing in with Supabase
+      if (authSession !== null && (window.location.hash || window.location.href.endsWith("#"))) {
+        window.history.pushState("", document.title, window.location.pathname + window.location.search);
       }
 
-      const { data: listener } = supabase.auth.onAuthStateChange(async (event, listenerSession) => {
+      setSession(authSession);
+
+      const {
+        data: { subscription: listener },
+      } = supabase.auth.onAuthStateChange(async (event, listenerSession) => {
         console.log("EVENT OCCURRED", { event, listenerSession });
-        setSession(listenerSession ?? null);
+        setSession(listenerSession);
       });
 
       return () => {
@@ -78,19 +61,28 @@ function AuthProvider({ children }: any) {
   }, [session]);
 
   const value: AuthContextInterface = {
-    signUp: function (credentials, options) {
-      return supabase.auth.signUp(credentials, options);
-    },
-    signIn: function (credentials, options) {
-      return supabase.auth.signIn(credentials, options);
+    signIn: async function () {
+      const response = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: !process.env.REACT_APP_DEV ? "https://prouml.com/dashboard" : "http://localhost:3000/dashboard",
+        },
+      });
+
+      if (response.error) {
+        await supabase.auth.initialize();
+      }
+
+      return response;
     },
     signOut: function () {
+      navigate("/");
       return supabase.auth.signOut();
     },
     session: session,
   };
 
-  return <AuthContext.Provider value={value}>{session === undefined ? "Loading" : children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export { useAuth, AuthProvider };

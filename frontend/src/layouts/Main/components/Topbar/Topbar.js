@@ -197,18 +197,19 @@ const Topbar = ({ themeMode, themeToggler }) => {
               GitHub
             </Link>
           </Box>
-          <Box style={{ fontSize: "1rem" }} size="large" marginRight={2}>
-            <Link underline="none" component={RouterLink} to="/dashboard" color="textPrimary" variant={"subtitle2"}>
-              Dashboard
-            </Link>
-          </Box>
+          {auth.session && (
+            <Box style={{ fontSize: "1rem" }} size="large" marginRight={2}>
+              <Link underline="none" component={RouterLink} to="/dashboard" color="textPrimary" variant={"subtitle2"}>
+                Dashboard
+              </Link>
+            </Box>
+          )}
           <Box style={{ fontSize: "1rem" }} size="large">
             {!auth.session ? (
               <Link
                 underline="none"
                 component="a"
-                // onClick={() => auth.signIn({ provider: "google" }, { redirectTo: "https://prouml.com/dashboard" })}
-                onClick={() => auth.signIn({ provider: "google" }, { redirectTo: "http://localhost:3000/dashboard" })}
+                onClick={() => auth.signIn()}
                 color="textPrimary"
                 variant={"subtitle2"}
                 style={{ display: "flex", alignItems: "flex-end" }}

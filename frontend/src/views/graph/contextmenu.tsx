@@ -2,7 +2,7 @@ import { deleteOneCellGroup } from "./utils";
 import { Menu, Dropdown } from "antd";
 import { Graph, Dom, ToolsView, EdgeView, Cell, Model, Node, Color, Edge, NodeView } from "@antv/x6";
 import { v4 as uuidv4 } from "uuid";
-import ReactDomClient from "react-dom/client";
+// import ReactDomClient from "react-dom/client";
 
 export function FullContextMenu({ overlay }: { overlay: any }) {
   return (
@@ -14,24 +14,24 @@ export function FullContextMenu({ overlay }: { overlay: any }) {
 
 class ContextMenuTool extends ToolsView.ToolItem<EdgeView, ContextMenuToolOptions> {
   private knob: HTMLDivElement | undefined;
-  private knobRoot: ReactDomClient.Root | undefined;
+  // private knobRoot: ReactDomClient.Root | undefined;
 
   render() {
     this.knob = ToolsView.createElement("div", false) as HTMLDivElement;
     this.knob.style.position = "absolute";
     this.container.appendChild(this.knob);
-    this.knobRoot = ReactDomClient.createRoot(this.knob);
+    // this.knobRoot = ReactDomClient.createRoot(this.knob);
     return this;
   }
 
   private toggleContextMenu(visible: boolean) {
-    if (!this.knob || !this.knobRoot) {
-      return;
-    }
+    // if (!this.knob || !this.knobRoot) {
+    //   return;
+    // }
 
     if (!visible) {
-      this.knobRoot.unmount();
-      this.knobRoot = ReactDomClient.createRoot(this.knob);
+      // this.knobRoot.unmount();
+      // this.knobRoot = ReactDomClient.createRoot(this.knob);
       document.removeEventListener("click", this.onMouseDown);
       return;
     }
@@ -169,7 +169,7 @@ class ContextMenuTool extends ToolsView.ToolItem<EdgeView, ContextMenuToolOption
       });
     }
 
-    this.knobRoot.render(<FullContextMenu overlay={<ContextMenu items={contextMenuProps} />} />);
+    // this.knobRoot.render(<FullContextMenu overlay={<ContextMenu items={contextMenuProps} />} />);
     document.addEventListener("click", this.onMouseDown);
   }
 

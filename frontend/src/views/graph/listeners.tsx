@@ -1,6 +1,6 @@
 import { Cell, Graph, JQuery, Model, NodeView, ToolsView } from "@antv/x6";
 import { Halo } from "@antv/x6/es/addon/halo";
-import ReactDomClient from "react-dom/client";
+// import ReactDomClient from "react-dom/client";
 import { ContextMenu, FullContextMenu } from "./contextmenu";
 import { deleteOneCellGroup } from "./utils";
 
@@ -12,7 +12,7 @@ export function onBlankContextMenu(graph: Graph, container: HTMLDivElement, posi
   graph.cleanSelection();
 
   const knob = ToolsView.createElement("div", false) as HTMLDivElement;
-  const knobRoot = ReactDomClient.createRoot(knob);
+  // const knobRoot = ReactDomClient.createRoot(knob);
 
   knob.style.position = "absolute";
   knob.style.left = `${position.x}px`;
@@ -69,10 +69,10 @@ export function onBlankContextMenu(graph: Graph, container: HTMLDivElement, posi
     });
   }
 
-  knobRoot.render(<FullContextMenu overlay={<ContextMenu items={contextMenuProps} />} />);
+  // knobRoot.render(<FullContextMenu overlay={<ContextMenu items={contextMenuProps} />} />);
 
   const onMouseDown = () => {
-    knobRoot.unmount();
+    // knobRoot.unmount();
     document.removeEventListener("click", onMouseDown);
   };
   document.addEventListener("click", onMouseDown);

@@ -1,12 +1,12 @@
-import { responsiveFontSizes } from '@mui/material';
-import { createTheme } from '@mui/material/styles';
-import shadows from './shadows';
-import palette from './palette';
+import { responsiveFontSizes } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
+import { light as lightBlue, dark as darkBlue } from "./palette";
+import shadows from "./shadows";
 
-const getTheme = (mode, paletteType) =>
-  responsiveFontSizes(
+export default function (mode) {
+  return responsiveFontSizes(
     createTheme({
-      palette: palette(mode, paletteType),
+      palette: mode === "dark" ? darkBlue : lightBlue,
       layout: {
         contentWidth: 1236,
       },
@@ -14,8 +14,8 @@ const getTheme = (mode, paletteType) =>
       typography: {
         fontFamily: '"Inter", sans-serif',
         button: {
-          textTransform: 'none',
-          fontWeight: 'medium',
+          textTransform: "none",
+          fontWeight: "medium",
         },
       },
       zIndex: {
@@ -28,11 +28,10 @@ const getTheme = (mode, paletteType) =>
             label: {
               fontWeight: 600,
             },
-            containedSecondary: mode === 'light' ? { color: 'white' } : {},
+            containedSecondary: mode === "light" ? { color: "white" } : {},
           },
         },
       },
     }),
   );
-
-export default getTheme;
+}

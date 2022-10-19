@@ -17,7 +17,7 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "declaration": true,
-    "declarationDir": "./types"
+    "declarationDir": "./types",
   },
   "include": ["src"]
 }

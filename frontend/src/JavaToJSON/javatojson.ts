@@ -1,7 +1,7 @@
 import { AccessModifier, Bracket, Comment, FileType, InnerValueType, PunctuationMark } from "./enums";
 import { v4 as uuidv4 } from "uuid";
 
-export class Parser {
+export default class Parser {
   private files: FileParser[] = [];
   private parsedFiles: JavaToJSONFile[] | undefined = undefined;
   private parsedForUML: JSONToUML[] | undefined = undefined;
