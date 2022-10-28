@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/template/html"
 	"github.com/gofiber/websocket/v2"
 	"github.com/joho/godotenv"
+	"github.com/junioryono/ProUML/backend/transpiler"
 	supabase "github.com/nedpals/supabase-go"
 )
 
@@ -74,20 +75,44 @@ func SendIndexHTML(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).Render("index", fiberMap)
 }
 
+func API_ToJSON() func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		json, err := transpiler.ToJson(SupabaseClient, "", "") // DELETE THIS
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+				"reason":  "Could not transpile.",
+			})
+		}
+
+		return c.Status(fiber.StatusOK).Send(json)
+	}
+}
+
+func HandleAPIRoutes(APIRouter fiber.Router) {
+	APIRouter.Get("/to-json", API_ToJSON())
+}
+
 func HandleDefaultRoutes(c *fiber.Ctx) error {
 	// If it's an API route
+	// fmt.Print(c.Path())
+
 	if strings.HasPrefix(c.Path(), "/api") {
+
+		// /transpile
+		// 	transpiler.ToJson()
+
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   true,
-			"message": "Invalid route",
+			"success": false,
+			"reason":  "Invalid route.",
 		})
 	}
 
 	// If the request method is not GET
 	if c.Method() != "GET" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error":   true,
-			"message": "Invalid request",
+			"success": false,
+			"reason":  "Invalid request.",
 		})
 	}
 
@@ -112,7 +137,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "5000"
 	}
 
 	if !Production {
@@ -138,6 +163,7 @@ func main() {
 	})
 
 	APIRouter := MainRouter.Group("/api")
+	HandleAPIRoutes(APIRouter)
 
 	MainRouter.Use(recover.New())
 	// MainRouter.Use(cache.New(cache.Config{
