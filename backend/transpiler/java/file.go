@@ -1,5 +1,9 @@
-package java
+package transpiler
 
-func Test2(oneFile []byte) {
+func (p *Project) removeCommentsAndSpacing(text []byte) ([]byte, error) {
+	var returnText []byte
 
+	// // Append string to byte slice
+	// returnText = append(returnText, ""...)
+	return returnText, nil
 }

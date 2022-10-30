@@ -2,10 +2,10 @@ package transpiler
 
 import (
 	"context"
-	"os"
 
 	"github.com/google/uuid"
 	jsoniter "github.com/json-iterator/go"
+	java "github.com/junioryono/ProUML/backend/transpiler/java"
 	supabase "github.com/nedpals/supabase-go"
 )
 
@@ -17,9 +17,10 @@ type Status struct {
 
 func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]byte, error) {
 	var (
-		language     string // Project language
-		jsonResponse []byte // Response array of bytes (in JSON)
-		err          error
+		language       string // Project language
+		jsonResponse   []byte // Return value of ToJson (JSON)
+		parserResponse []byte // Return value of specified language's .Parse() method (JSON)
+		err            error
 	)
 
 	// Check if user is authenticated
@@ -32,7 +33,6 @@ func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]by
 		if err != nil {
 			return jsonError()
 		}
-		os.Stdout.Write(jsonResponse)
 		return jsonResponse, nil
 	}
 
@@ -83,12 +83,10 @@ func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]by
 	// Call transpilation of specified language
 	switch language {
 	case "java":
-		jsonResponse, err = jsoniter.Marshal(Status{
-			Success: true,
-		})
-		if err != nil {
-			return jsonError()
+		parser := java.Project{
+			Original: []byte("File"),
 		}
+		parserResponse, err = parser.Parse()
 	case "cpp", "go":
 		jsonResponse, err = jsoniter.Marshal(Status{
 			Success: false,
@@ -97,6 +95,7 @@ func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]by
 		if err != nil {
 			return jsonError()
 		}
+		return jsonResponse, nil
 	default:
 		jsonResponse, err = jsoniter.Marshal(Status{
 			Success: false,
@@ -105,6 +104,20 @@ func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]by
 		if err != nil {
 			return jsonError()
 		}
+		return jsonResponse, nil
+	}
+
+	// Handle .Parse() error
+	if err != nil {
+		return []byte(""), err
+	}
+
+	jsonResponse, err = jsoniter.Marshal(Status{
+		Success:  true,
+		Response: parserResponse,
+	})
+	if err != nil {
+		return jsonError()
 	}
 
 	return jsonResponse, nil
