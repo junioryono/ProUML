@@ -9,7 +9,7 @@ import (
 	types "github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func TestFileParse(t *testing.T) {
+func TestPackageParse(t *testing.T) {
 	var test1 = Test{
 		name:   "empty input string",
 		input:  java.Project{Original: []byte("")},
