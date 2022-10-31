@@ -2,7 +2,7 @@ package transpiler
 
 import "github.com/junioryono/ProUML/backend/transpiler/types"
 
-func (p *Project) Parse() ([]byte, error) {
+func (p *Package) Parse() ([]byte, error) {
 	if len(p.Original) == 0 {
 		return []byte(""), &types.CannotParseText{}
 	}
@@ -11,10 +11,10 @@ func (p *Project) Parse() ([]byte, error) {
 		res []byte
 	)
 
-	res, err := p.removeCommentsAndSpacing(p.Original)
-	if err != nil {
-		return []byte(""), err
-	}
+	// res, err := p.removeCommentsAndSpacing(p.Original)
+	// if err != nil {
+	// 	return []byte(""), err
+	// }
 
 	return res, nil
 }

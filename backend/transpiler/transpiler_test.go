@@ -19,7 +19,7 @@ type Test struct {
 func TestParse(t *testing.T) {
 	var test1 = Test{
 		name:   "empty input string",
-		input:  java.Project{Original: []byte("")},
+		input:  java.Package{Original: []byte("")},
 		output: []byte(""),
 		err:    &types.CannotParseText{},
 	}
@@ -36,7 +36,7 @@ func TestParse(t *testing.T) {
 			)
 
 			switch language := tt.input.(type) {
-			case java.Project:
+			case java.Package:
 				res, err = language.Parse()
 			default:
 				subtest.Errorf("can't detect language")

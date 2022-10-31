@@ -12,7 +12,7 @@ import (
 func TestPackageParse(t *testing.T) {
 	var test1 = Test{
 		name:   "empty input string",
-		input:  java.Project{Original: []byte("")},
+		input:  java.Package{Original: []byte("")},
 		output: []byte(""),
 		err:    &types.CannotParseText{},
 	}

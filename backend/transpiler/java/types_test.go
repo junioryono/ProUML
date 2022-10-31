@@ -6,7 +6,7 @@ import (
 
 type Test struct {
 	name   string
-	input  java.Project
+	input  java.Package
 	output []byte
 	err    error
 }

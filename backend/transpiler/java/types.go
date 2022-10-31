@@ -1,5 +1,8 @@
 package transpiler
 
-type Project struct {
+type Package struct {
 	Original []byte
+}
+
+type File struct {
 }

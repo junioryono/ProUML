@@ -83,7 +83,7 @@ func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]by
 	// Call transpilation of specified language
 	switch language {
 	case "java":
-		parser := java.Project{
+		parser := java.Package{
 			Original: []byte("File"),
 		}
 		parserResponse, err = parser.Parse()
