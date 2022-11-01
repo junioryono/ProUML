@@ -28,7 +28,7 @@ func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]by
 		return handleError(err)
 	}
 
-	files, err := downloadProject(SupabaseClient)
+	files, err := downloadProject(SupabaseClient, projectId)
 	if err != nil {
 		return handleError(err)
 	}
@@ -138,7 +138,7 @@ func projectIdExists(projectId string, queryResults map[string]interface{}) bool
 	return false
 }
 
-func downloadProject(SupabaseClient *supabase.Client) ([]types.File, error) {
+func downloadProject(SupabaseClient *supabase.Client, projectId string) ([]types.File, error) {
 	// Download {projectId}.zip project from "projects" bucket
 	// supabase.Storage.From("").Download("")
 
