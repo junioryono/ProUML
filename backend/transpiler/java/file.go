@@ -5,7 +5,11 @@ import (
 )
 
 func parseFile(file *types.File) ([]byte, error) {
-	return nil, nil
+	var returnText []byte
+
+	// Remo
+
+	return returnText, nil
 }
 
 // func (f *File) removeCommentsAndSpacing(text []byte) ([]byte, error) {

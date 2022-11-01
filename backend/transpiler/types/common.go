@@ -17,7 +17,7 @@ type ParsedPackage struct {
 type File struct {
 	Name      string
 	Extension string
-	Code      string
+	Code      []byte
 }
 
 type ParsedFileData struct {

@@ -14,7 +14,7 @@ func TestFileParse(t *testing.T) {
 		Input: types.File{
 			Name:      "Test",
 			Extension: "java",
-			Code:      "",
+			Code:      []byte(""),
 		},
 		Output: []byte(""),
 		Err:    &types.CannotParseText{},
@@ -25,7 +25,7 @@ func TestFileParse(t *testing.T) {
 		Input: types.File{
 			Name:      "Test",
 			Extension: "java",
-			Code:      "public class Test { public static void main(String args[]){ System.out.println('Hello Java'); } }",
+			Code:      []byte("public class Test { public static void main(String args[]){ System.out.println('Hello Java'); } }"),
 		},
 		Output: []byte(""),
 		Err:    &types.CannotParseText{},
