@@ -20,3 +20,10 @@ type TestFile struct {
 	Output []byte
 	Err    error
 }
+
+type TestByteSlice struct {
+	Name   string
+	Input  []byte
+	Output []byte
+	Err    error
+}

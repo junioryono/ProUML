@@ -1,25 +1,140 @@
 package java
 
 import (
+	"bytes"
+	"regexp"
+
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
 func parseFile(file *types.File) ([]byte, error) {
-	var returnText []byte
+	// Need to remove quotations from code to prevent removeComments() from breaking code
 
-	// Append string to byte slice
-	returnText = append(returnText, ""...)
+	text, err := removeComments(file.Code)
+	if err != nil {
+		return nil, err
+	}
 
-	// Remove all comments
-	removeCommentsAndSpacing(&file.Code)
+	text, err = getPackageName(text)
+	if err != nil {
+		return nil, err
+	}
 
-	// Get package name IF one exists
+	text, err = removeSpacing(text)
+	if err != nil {
+		return nil, err
+	}
 
-	return returnText, nil
+	_ = text
+
+	return text, nil
 }
 
-func removeCommentsAndSpacing(text *[]byte) ([]byte, error) {
-	var returnText []byte
+// Get package name from code if one exists
+func getPackageName(text []byte) ([]byte, error) {
+	if len(text) == 0 {
+		return nil, &types.CannotParseText{}
+	}
 
-	return returnText, nil
+	REGEX_FirstOpenCurly := regexp.MustCompile(`\{`)
+	firstOpenCurlyIndex := REGEX_FirstOpenCurly.FindIndex(text)
+
+	// Find package declaration
+	// Example return: "  package   com.main.prouml  ;       "
+	// Make sure when finding 'package' keyword, we are on the outside scope
+	// If there is no scope increment in the code, return error
+	// If there is a scope increment, but there's no package declaration, return nil byte slice with no error
+	// If there is a scope increment, and there's a package declaration inside the scope, return nil byte slice with no error
+	REGEX_PackageDeclaration := regexp.MustCompile(`[\s\S]*?package[\s\S][^;]*`)
+	packageDeclarationIndex := REGEX_PackageDeclaration.FindIndex(text)
+
+	if len(firstOpenCurlyIndex) == 0 {
+		return nil, &types.CannotParseText{}
+	}
+
+	if len(packageDeclarationIndex) == 0 || packageDeclarationIndex[len(packageDeclarationIndex)-1] > firstOpenCurlyIndex[len(firstOpenCurlyIndex)-1] {
+		return nil, nil
+	}
+
+	text = REGEX_PackageDeclaration.Find(text)
+
+	// Remove package keyword and whitespacing
+	// Example return: "com.main.prouml       "
+	REGEX_PackageRemoval := regexp.MustCompile(`[\s]*package[\s]*`)
+	text = REGEX_PackageRemoval.ReplaceAll(text, nil)
+
+	// Remove package keyword and whitespacing
+	// Example return: "com.main.prouml"
+	REGEX_SemiColonRemoval := regexp.MustCompile(`[\s]*;[\s]*`)
+	text = REGEX_SemiColonRemoval.ReplaceAll(text, nil)
+
+	// Trim left and right spacing
+	text = bytes.TrimSpace(text)
+
+	return text, nil
+}
+
+// Remove all comments from code
+func removeComments(text []byte) ([]byte, error) {
+	if len(text) == 0 {
+		return nil, &types.CannotParseText{}
+	}
+
+	// Replace all single line quotes with an empty string
+	REGEX_SingleLine := regexp.MustCompile(`\/\/.*`)
+	text = REGEX_SingleLine.ReplaceAll(text, nil)
+
+	// Replace all multi line quotes with an empty string
+	REGEX_MultiLine := regexp.MustCompile(`\/\*[\s\S]*?\*\/`)
+	text = REGEX_MultiLine.ReplaceAll(text, nil)
+
+	return text, nil
+}
+
+// Remove all extra spacing from code
+func removeSpacing(text []byte) ([]byte, error) {
+	if len(text) == 0 {
+		return nil, &types.CannotParseText{}
+	}
+
+	// Remove package declaration
+	REGEX_Package := regexp.MustCompile(`[\s\S]*?package[\s\S]*?;[\s]*`)
+	text = REGEX_Package.ReplaceAll(text, nil)
+
+	// Remove all imports
+	REGEX_Imports := regexp.MustCompile(`[\s\S]*?import[\s\S]*?;[\s]*`)
+	text = REGEX_Imports.ReplaceAll(text, []byte(" "))
+
+	// Replace all new lines with a space
+	REGEX_NewLine := regexp.MustCompile(`\r?\n|\r`)
+	text = REGEX_NewLine.ReplaceAll(text, []byte(" "))
+
+	// Replace all double spaces with a single space
+	REGEX_DoubleSpace := regexp.MustCompile(`\s\s+`)
+	text = REGEX_DoubleSpace.ReplaceAll(text, []byte(" "))
+
+	// Remove all spaces before and after ,
+	REGEX_CommaSpace := regexp.MustCompile(`\s*,\s*`)
+	text = REGEX_CommaSpace.ReplaceAll(text, []byte(","))
+
+	// Remove all spaces before and after ;
+	REGEX_SemiColonSpace := regexp.MustCompile(`\s*;\s*`)
+	text = REGEX_SemiColonSpace.ReplaceAll(text, []byte(";"))
+
+	// Remove all spaces before and after {
+	REGEX_OpenCurlySpace := regexp.MustCompile(`\s*{\s*`)
+	text = REGEX_OpenCurlySpace.ReplaceAll(text, []byte("{"))
+
+	// Remove all spaces before and after }
+	REGEX_CloseCurlySpace := regexp.MustCompile(`\s*}\s*`)
+	text = REGEX_CloseCurlySpace.ReplaceAll(text, []byte("}"))
+
+	// Replace all "=", " =", and "= " with " = "
+	REGEX_EqualSpace := regexp.MustCompile(`[\s]*=[\s]*`)
+	text = REGEX_EqualSpace.ReplaceAll(text, []byte(" = "))
+
+	// Trim left and right spacing
+	text = bytes.TrimSpace(text)
+
+	return text, nil
 }
