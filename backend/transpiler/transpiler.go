@@ -121,7 +121,7 @@ func validateProjectId(SupabaseClient *supabase.Client, projectId string, userUU
 	// Loop over DocumentQueryResult to see if projectId is in there
 	exists := projectIdExists(projectId, DocumentQueryResult)
 	if !exists {
-		return "", errors.New("User does not have access to this project.")
+		return "", errors.New("user does not have access to this project")
 	}
 
 	return projectId, nil
@@ -177,8 +177,8 @@ func parseProjectByLanguage(language string, files []types.File) ([]byte, error)
 		return java.ParseProject(&types.Project{Files: files})
 	case "cpp", "go", "js", "ts", "html", "css", "py", "cs", "php", "swift", "vb":
 		// Covers C++, Go, JavaScript, TypeScript, HTML, CSS, Python , C#, PHP, Swift, Visual Basic
-		return nil, errors.New("This is an unsupported language.")
+		return nil, errors.New("this is an unsupported language")
 	default:
-		return nil, errors.New("Could not figure out which language was used.")
+		return nil, errors.New("could not figure out which language was used")
 	}
 }
