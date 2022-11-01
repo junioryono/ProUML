@@ -1,50 +1,36 @@
-package transpiler_test
+package transpiler
 
 import (
 	"bytes"
 	"errors"
 	"testing"
 
-	java "github.com/junioryono/ProUML/backend/transpiler/java"
+	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-type Test struct {
-	name   string
-	input  interface{}
-	output []byte
-	err    error
-}
+func TestProjectParse(t *testing.T) {
+	project1 := getProject1()
 
-func TestParse(t *testing.T) {
-	// var test1 = types.TestProject{
-	// 	name:   "empty input string",
-	// 	input:  java.Project{Original: []byte("")},
-	// 	output: []byte(""),
-	// 	err:    &types.CannotParseText{},
-	// }
-
-	var tests = []Test{}
+	tests := []types.TestProject{project1}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(subtest *testing.T) {
+		t.Run(tt.Name, func(subtest *testing.T) {
 			subtest.Parallel()
 
-			var (
-				res []byte
-				err error
-			)
-
-			switch language := tt.input.(type) {
-			case java.Package:
-				java.ParseProject()
-				res, err = language.Parse()
-			default:
-				subtest.Errorf("can't detect language")
+			language, err := getProjectLanguage(tt.Input.Files)
+			if err != nil {
+				subtest.Errorf("error getting project language %s", err.Error())
 				subtest.Fail()
 			}
 
-			incorrectResponse := !bytes.Equal(res, tt.output)
-			incorrectError := !errors.Is(err, tt.err)
+			parserResponse, err := parseProjectByLanguage(language, tt.Input.Files)
+			if err != nil {
+				subtest.Errorf("error parsing language %s, %s", language, err.Error())
+				subtest.Fail()
+			}
+
+			incorrectResponse := !bytes.Equal(parserResponse, tt.Output)
+			incorrectError := !errors.Is(err, tt.Err)
 
 			if incorrectResponse {
 				subtest.Errorf("incorrect response")
@@ -58,5 +44,26 @@ func TestParse(t *testing.T) {
 				subtest.Fail()
 			}
 		})
+	}
+}
+
+func getProject1() types.TestProject {
+	file1 := types.File{
+		Name:      "Test",
+		Extension: "java",
+		Code:      "public class Test { public static void main(String args[]){ System.out.println('Hello Java'); } }",
+	}
+	file2 := types.File{
+		Name:      "Test2",
+		Extension: "java",
+		Code:      "public class Test2 { public void test(){ System.out.println('test2'); } }",
+	}
+	return types.TestProject{
+		Name: "empty input string",
+		Input: types.Project{
+			Files: []types.File{file1, file2},
+		},
+		Output: []byte(""),
+		Err:    &types.CannotParseText{},
 	}
 }
