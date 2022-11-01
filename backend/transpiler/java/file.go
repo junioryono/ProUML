@@ -1,17 +1,21 @@
-package transpiler
+package java
 
-func (f *File) Parse() {
+import (
+	"github.com/junioryono/ProUML/backend/transpiler/types"
+)
 
+func parseFile(file *types.File) ([]byte, error) {
+	return nil, nil
 }
 
-func (f *File) removeCommentsAndSpacing(text []byte) ([]byte, error) {
-	var returnText []byte
+// func (f *File) removeCommentsAndSpacing(text []byte) ([]byte, error) {
+// 	var returnText []byte
 
-	// // Append string to byte slice
-	// returnText = append(returnText, ""...)
+// 	// // Append string to byte slice
+// 	// returnText = append(returnText, ""...)
 
-	// Remove all comments
+// 	// Remove all comments
 
-	// Get package name IF one exists
-	return returnText, nil
-}
+// 	// Get package name IF one exists
+// 	return returnText, nil
+// }

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	java "github.com/junioryono/ProUML/backend/transpiler/java"
-	types "github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
 type Test struct {
@@ -17,14 +16,14 @@ type Test struct {
 }
 
 func TestParse(t *testing.T) {
-	var test1 = Test{
-		name:   "empty input string",
-		input:  java.Package{Original: []byte("")},
-		output: []byte(""),
-		err:    &types.CannotParseText{},
-	}
+	// var test1 = types.TestProject{
+	// 	name:   "empty input string",
+	// 	input:  java.Project{Original: []byte("")},
+	// 	output: []byte(""),
+	// 	err:    &types.CannotParseText{},
+	// }
 
-	var tests = []Test{test1}
+	var tests = []Test{}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(subtest *testing.T) {
@@ -37,6 +36,7 @@ func TestParse(t *testing.T) {
 
 			switch language := tt.input.(type) {
 			case java.Package:
+				java.ParseProject()
 				res, err = language.Parse()
 			default:
 				subtest.Errorf("can't detect language")

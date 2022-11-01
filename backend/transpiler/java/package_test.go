@@ -1,26 +1,28 @@
-package transpiler_test
+package java
 
 import (
 	"bytes"
 	"errors"
 	"testing"
 
-	java "github.com/junioryono/ProUML/backend/transpiler/java"
 	types "github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
 func TestPackageParse(t *testing.T) {
-	var test1 = Test{
-		name:   "empty input string",
-		input:  java.Package{Original: []byte("")},
-		output: []byte(""),
-		err:    &types.CannotParseText{},
+	var test1Files = []types.File{}
+	var test1 = types.TestPackage{
+		Name: "empty input string",
+		Input: types.Package{
+			Files: test1Files,
+		},
+		Output: []byte(""),
+		Err:    &types.CannotParseText{},
 	}
 
-	var tests = []Test{test1}
+	var tests = []types.TestPackage{test1}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(subtest *testing.T) {
+		t.Run(tt.Name, func(subtest *testing.T) {
 			subtest.Parallel()
 
 			var (
@@ -28,10 +30,10 @@ func TestPackageParse(t *testing.T) {
 				err error
 			)
 
-			res, err = tt.input.Parse()
+			res, err = parsePackage(&tt.Input)
 
-			incorrectResponse := !bytes.Equal(res, tt.output)
-			incorrectError := !errors.Is(err, tt.err)
+			incorrectResponse := !bytes.Equal(res, tt.Output)
+			incorrectError := !errors.Is(err, tt.Err)
 
 			if incorrectResponse {
 				subtest.Errorf("incorrect response")

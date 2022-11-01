@@ -2,10 +2,12 @@ package transpiler
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	jsoniter "github.com/json-iterator/go"
 	java "github.com/junioryono/ProUML/backend/transpiler/java"
+	"github.com/junioryono/ProUML/backend/transpiler/types"
 	supabase "github.com/nedpals/supabase-go"
 )
 
@@ -16,115 +18,58 @@ type Status struct {
 }
 
 func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]byte, error) {
-	var (
-		language       string // Project language
-		jsonResponse   []byte // Return value of ToJson (JSON)
-		parserResponse []byte // Return value of specified language's .Parse() method (JSON)
-		err            error
-	)
-
-	// Check if user is authenticated
-	authenticated, userUUID := getUser(SupabaseClient, jwt)
-	if !authenticated {
-		jsonResponse, err = jsoniter.Marshal(Status{
-			Success: false,
-			Reason:  "User is not authenticated.",
-		})
-		if err != nil {
-			return jsonError()
-		}
-		return jsonResponse, nil
-	}
-
-	if projectId == "" {
-		// Generate projectId
-		projectId := uuid.New().String()
-		_ = projectId // temp - will be deleted later
-
-		// Insert new row into table with this projectId
-		// SupabaseClient.DB.From("document").Insert()
-	} else {
-		_ = userUUID // will delete this later
-
-		// Query projectId and SELECT owner
-		var DocumentQueryResult map[string]interface{}
-		err = SupabaseClient.DB.From("document").Select("id").Eq("owner", userUUID).Execute(&DocumentQueryResult)
-		if err != nil {
-			jsonResponse, err = jsoniter.Marshal(Status{
-				Success: false,
-				Reason:  "Internal error. Could not execute query.",
-			})
-			if err != nil {
-				return jsonError()
-			}
-			return jsonResponse, nil
-		}
-
-		// Loop over DocumentQueryResult to see if projectId is in there
-		exists := projectIdExists(projectId, DocumentQueryResult)
-		if !exists {
-			jsonResponse, err = jsoniter.Marshal(Status{
-				Success: false,
-				Reason:  "User does not have access to this project.",
-			})
-			if err != nil {
-				return jsonError()
-			}
-			return jsonResponse, nil
-		}
-	}
-
-	// Download {projectId}.zip project from "projects" bucket
-	// supabase.Storage.From("").Download("")
-
-	// Figure out which language is being used based on file extension
-	language = "java"
-
-	// Call transpilation of specified language
-	switch language {
-	case "java":
-		parser := java.Package{
-			Original: []byte("File"),
-		}
-		parserResponse, err = parser.Parse()
-	case "cpp", "go":
-		jsonResponse, err = jsoniter.Marshal(Status{
-			Success: false,
-			Reason:  "This is an unsupported language.",
-		})
-		if err != nil {
-			return jsonError()
-		}
-		return jsonResponse, nil
-	default:
-		jsonResponse, err = jsoniter.Marshal(Status{
-			Success: false,
-			Reason:  "Could not figure out which language was used.",
-		})
-		if err != nil {
-			return jsonError()
-		}
-		return jsonResponse, nil
-	}
-
-	// Handle .Parse() error
+	userUUID, err := getUser(SupabaseClient, jwt)
 	if err != nil {
-		return []byte(""), err
+		return handleError(err)
 	}
 
-	jsonResponse, err = jsoniter.Marshal(Status{
+	projectId, err = validateProjectId(SupabaseClient, projectId, userUUID)
+	if err != nil {
+		return handleError(err)
+	}
+
+	files, err := downloadProject(SupabaseClient)
+	if err != nil {
+		return handleError(err)
+	}
+
+	language, err := getProjectLanguage(files)
+	if err != nil {
+		return handleError(err)
+	}
+
+	parserResponse, err := parseProjectByLanguage(language, files)
+	if err != nil {
+		return handleError(err)
+	}
+
+	jsonResponse, err := jsoniter.Marshal(Status{
 		Success:  true,
 		Response: parserResponse,
 	})
 	if err != nil {
-		return jsonError()
+		return handleError(err)
+	}
+
+	return jsonResponse, nil
+}
+
+// Handle all errors inside ToJSON() function
+func handleError(err error) ([]byte, error) {
+	jsonResponse, mErr := jsoniter.Marshal(Status{
+		Success: false,
+		Reason:  err.Error(),
+	})
+
+	if mErr != nil {
+		return jsonMarshalError()
 	}
 
 	return jsonResponse, nil
 }
 
 // Handle JSON Marshal errors
-func jsonError() ([]byte, error) {
+func jsonMarshalError() ([]byte, error) {
 	var (
 		response []byte
 		err      error
@@ -132,7 +77,7 @@ func jsonError() ([]byte, error) {
 
 	response, err = jsoniter.Marshal(Status{
 		Success: false,
-		Reason:  "Internal Error. Could not initialize JSON.",
+		Reason:  "Internal Error. Could not marshal JSON.",
 	})
 
 	if err != nil {
@@ -142,16 +87,47 @@ func jsonError() ([]byte, error) {
 	return response, nil
 }
 
-// Checks if user is authenticated
-func getUser(sb *supabase.Client, jwt string) (bool, string) {
+// Check if user is authenticated
+func getUser(sb *supabase.Client, jwt string) (string, error) {
 	user, err := sb.Auth.User(context.Background(), jwt)
 	if err != nil || user.ID == "" {
-		return false, ""
+		return "", err
 	}
 
-	return true, user.ID
+	return user.ID, nil
 }
 
+// Check if projectId belongs to user.
+// If projectId is not specified, generate a new one and assign it to user.
+func validateProjectId(SupabaseClient *supabase.Client, projectId string, userUUID string) (string, error) {
+	if projectId == "" {
+		// Generate projectId
+		projectId := uuid.New().String()
+		_ = projectId // temp - will be deleted later
+
+		// Insert new row into table with this projectId
+		// SupabaseClient.DB.From("document").Insert()
+
+		return projectId, nil
+	}
+
+	// Query projectId and SELECT owner
+	var DocumentQueryResult map[string]interface{}
+	err := SupabaseClient.DB.From("document").Select("id").Eq("owner", userUUID).Execute(&DocumentQueryResult)
+	if err != nil {
+		return "", err
+	}
+
+	// Loop over DocumentQueryResult to see if projectId is in there
+	exists := projectIdExists(projectId, DocumentQueryResult)
+	if !exists {
+		return "", errors.New("User does not have access to this project.")
+	}
+
+	return projectId, nil
+}
+
+// Check if projectId exists in map
 func projectIdExists(projectId string, queryResults map[string]interface{}) bool {
 	for _, element := range queryResults {
 		if element == projectId {
@@ -160,4 +136,49 @@ func projectIdExists(projectId string, queryResults map[string]interface{}) bool
 	}
 
 	return false
+}
+
+func downloadProject(SupabaseClient *supabase.Client) ([]types.File, error) {
+	// Download {projectId}.zip project from "projects" bucket
+	// supabase.Storage.From("").Download("")
+
+	// DELETE THIS AFTER DOWNLOAD IMPLEMENTATION IS COMPLETE
+	// Test files
+	file1 := types.File{
+		Name:      "Test",
+		Extension: "java",
+		Code:      "public class Test { public static void main(String args[]){ System.out.println('Hello Java'); } }",
+	}
+	file2 := types.File{
+		Name:      "Test2",
+		Extension: "java",
+		Code:      "public class Test2 { public void test(){ System.out.println('test2'); } }",
+	}
+	numberOfFiles := 2
+	files := make([]types.File, numberOfFiles)
+	files = append(files, file1, file2)
+
+	return files, nil
+}
+
+func getProjectLanguage(files []types.File) (string, error) {
+	var language string
+
+	// Figure out which language is being used based on file extension
+	language = "java"
+
+	return language, nil
+}
+
+func parseProjectByLanguage(language string, files []types.File) ([]byte, error) {
+	// Call transpilation of specified language
+	switch language {
+	case "java":
+		return java.ParseProject(&types.Project{Files: files})
+	case "cpp", "go", "js", "ts", "html", "css", "py", "cs", "php", "swift", "vb":
+		// Covers C++, Go, JavaScript, TypeScript, HTML, CSS, Python , C#, PHP, Swift, Visual Basic
+		return nil, errors.New("This is an unsupported language.")
+	default:
+		return nil, errors.New("Could not figure out which language was used.")
+	}
 }

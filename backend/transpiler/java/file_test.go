@@ -1,26 +1,40 @@
-package transpiler_test
+package java
 
 import (
 	"bytes"
 	"errors"
 	"testing"
 
-	java "github.com/junioryono/ProUML/backend/transpiler/java"
 	types "github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
 func TestFileParse(t *testing.T) {
-	var test1 = Test{
-		name:   "empty input string",
-		input:  java.Package{Original: []byte("")},
-		output: []byte(""),
-		err:    &types.CannotParseText{},
+	var test1 = types.TestFile{
+		Name: "invalid - no code inside file",
+		Input: types.File{
+			Name:      "Test",
+			Extension: "java",
+			Code:      "",
+		},
+		Output: []byte(""),
+		Err:    &types.CannotParseText{},
 	}
 
-	var tests = []Test{test1}
+	var test2 = types.TestFile{
+		Name: "valid - test class",
+		Input: types.File{
+			Name:      "Test",
+			Extension: "java",
+			Code:      "public class Test { public static void main(String args[]){ System.out.println('Hello Java'); } }",
+		},
+		Output: []byte(""),
+		Err:    &types.CannotParseText{},
+	}
+
+	var tests = []types.TestFile{test1, test2}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(subtest *testing.T) {
+		t.Run(tt.Name, func(subtest *testing.T) {
 			subtest.Parallel()
 
 			var (
@@ -28,10 +42,10 @@ func TestFileParse(t *testing.T) {
 				err error
 			)
 
-			res, err = tt.input.Parse()
+			res, err = parseFile(&tt.Input)
 
-			incorrectResponse := !bytes.Equal(res, tt.output)
-			incorrectError := !errors.Is(err, tt.err)
+			incorrectResponse := !bytes.Equal(res, tt.Output)
+			incorrectError := !errors.Is(err, tt.Err)
 
 			if incorrectResponse {
 				subtest.Errorf("incorrect response")
