@@ -62,6 +62,78 @@ func TestFileParse(t *testing.T) {
 	}
 }
 
+func TestRemoveQuotes(t *testing.T) {
+	test1 := types.TestByteSlice{
+		Name:   "empty file",
+		Input:  []byte(""),
+		Output: []byte(""),
+		Err:    &types.CannotParseText{},
+	}
+
+	test2 := types.TestByteSlice{
+		Name: "valid - test class",
+		Input: []byte(`
+			public class Test {
+				public static void main(String args[]) {
+					System.out.println('Hello Java'); // UIEHQW
+
+					/* IOEWJQIOJE
+						*
+						* wopqkepoqk
+						* q
+						* q
+						* q
+						*
+						*/ System.out.println("Hello Java"); 
+				}`),
+		Output: []byte(`
+			public class Test {
+				public static void main(String args[]) {
+					System.out.println(); // UIEHQW
+
+					/* IOEWJQIOJE
+						*
+						* wopqkepoqk
+						* q
+						* q
+						* q
+						*
+						*/ System.out.println(); 
+				}`),
+		Err: nil,
+	}
+
+	var tests = []types.TestByteSlice{test1, test2}
+
+	for _, tt := range tests {
+		t.Run(tt.Name, func(subtest *testing.T) {
+			// subtest.Parallel()
+
+			var (
+				res []byte
+				err error
+			)
+
+			res, err = removeQuotes(tt.Input)
+
+			incorrectResponse := !bytes.Equal(res, tt.Output)
+			incorrectError := !errors.Is(err, tt.Err)
+
+			if incorrectResponse {
+				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
+			}
+
+			if incorrectError {
+				subtest.Errorf("incorrect error")
+			}
+
+			if incorrectResponse || incorrectError {
+				subtest.Fail()
+			}
+		})
+	}
+}
+
 func TestRemoveComments(t *testing.T) {
 	test1 := types.TestByteSlice{
 		Name:   "empty file",

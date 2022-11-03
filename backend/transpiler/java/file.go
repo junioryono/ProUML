@@ -9,8 +9,12 @@ import (
 
 func parseFile(file *types.File) ([]byte, error) {
 	// Need to remove quotations from code to prevent removeComments() from breaking code
+	text, err := removeQuotes(file.Code)
+	if err != nil {
+		return nil, err
+	}
 
-	text, err := removeComments(file.Code)
+	text, err = removeComments(text)
 	if err != nil {
 		return nil, err
 	}
@@ -26,6 +30,53 @@ func parseFile(file *types.File) ([]byte, error) {
 	}
 
 	_ = text
+
+	return text, nil
+}
+
+// Remove all quotes from code
+func removeQuotes(text []byte) ([]byte, error) {
+	if len(text) == 0 {
+		return nil, &types.CannotParseText{}
+	}
+
+	var (
+		NoQuote     byte = 0
+		SingleQuote byte = '\''
+		DoubleQuote byte = '"'
+		TickerQuote byte = '`'
+	)
+
+	var (
+		lastQuoteIndex int  = 0
+		currentQuote   byte = 0
+	)
+
+	removeText := func(i int) {
+		text = append(text[:lastQuoteIndex], text[i+1:]...)
+		currentQuote = NoQuote
+	}
+
+	for i := 0; i < len(text); i++ {
+		if currentQuote == NoQuote {
+			if text[i] == SingleQuote {
+				currentQuote = SingleQuote
+				lastQuoteIndex = i
+			} else if text[i] == DoubleQuote {
+				currentQuote = DoubleQuote
+				lastQuoteIndex = i
+			} else if text[i] == TickerQuote {
+				currentQuote = TickerQuote
+				lastQuoteIndex = i
+			}
+		} else if currentQuote == SingleQuote && text[i] == SingleQuote {
+			removeText(i)
+		} else if currentQuote == DoubleQuote && text[i] == DoubleQuote {
+			removeText(i)
+		} else if currentQuote == TickerQuote && text[i] == TickerQuote {
+			removeText(i)
+		}
+	}
 
 	return text, nil
 }
