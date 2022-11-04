@@ -2,15 +2,17 @@ package java
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func parseFile(file *types.File) (*types.FileResponse, error) {
+func parseFile(file types.File) (*types.FileResponse, error) {
 	var (
 		fileResponse = &types.FileResponse{Name: file.Name}
 		parsedText   = file.Code
+		packageName  []byte
 	)
 
 	parsedText, err := removeQuotes(parsedText)
@@ -23,12 +25,14 @@ func parseFile(file *types.File) (*types.FileResponse, error) {
 		return fileResponse, err
 	}
 
-	parsedText, err = getPackageName(parsedText)
+	packageName, err = getPackageName(parsedText)
 	if err != nil {
 		return fileResponse, err
 	}
+	fileResponse.Package = string(packageName)
 
 	parsedText, err = removeSpacing(parsedText)
+	fmt.Printf("err: %v\n", err)
 	if err != nil {
 		return fileResponse, err
 	}
@@ -38,13 +42,16 @@ func parseFile(file *types.File) (*types.FileResponse, error) {
 		return fileResponse, err
 	}
 
-	// example response
-	fileResponse.Data = types.JavaClass{
-		Implements: [][]byte{},
-		Extends:    [][]byte{},
-		Variables:  []types.JavaVariable{},
-		Methods:    []types.JavaMethod{},
-	}
+	// EXAMPLE RESPONSE
+	// types.FileResponse{
+	// 	Name: "FileName",
+	// 	Data: types.JavaClass{
+	// 		Implements: [][]byte{},
+	// 		Extends:    [][]byte{},
+	// 		Variables:  []types.JavaVariable{},
+	// 		Methods:    []types.JavaMethod{},
+	// 	},
+	// }
 
 	return fileResponse, nil
 }

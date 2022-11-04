@@ -8,7 +8,7 @@ func ParseProject(p *types.Project) ([]byte, error) {
 	_ = parsedFiles
 
 	for _, file := range p.Files {
-		parseFile(&file)
+		parseFile(file)
 	}
 
 	// Group files by package

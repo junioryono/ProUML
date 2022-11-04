@@ -8,72 +8,205 @@ import (
 	types "github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func TestFileParse(t *testing.T) {
-	test1 := types.TestFile{
+func TestParseFile(t *testing.T) {
+	test1 := types.TestFileResponse{
 		Name: "invalid - no code inside file",
 		Input: types.File{
-			Name:      "Test",
+			Name:      "Test1",
 			Extension: "java",
 			Code:      nil,
 		},
-		Output: types.FileResponse{
-			Name: "Test",
-			Data: types.JavaAbstract{
-				Implements: [][]byte{},
-				Extends:    [][]byte{},
-				Variables:  []types.JavaVariable{},
-				Methods:    []types.JavaMethod{},
-			},
+		Output: &types.FileResponse{
+			Package: "",
+			Name:    "Test1",
 		},
 		Err: &types.CannotParseText{},
 	}
 
-	test2 := types.TestFile{
-		Name: "invalid - no code inside file",
+	test2 := types.TestFileResponse{
+		Name: "valid - includes package, import, class",
 		Input: types.File{
-			Name:      "Test",
+			Name:      "Test2",
 			Extension: "java",
-			Code:      nil,
+			Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test2{public static void main(String args[]){System.out.println();System.out.println();}}"),
 		},
-		Output: types.FileResponse{
-			Name: "Test",
-			Data: types.JavaAbstract{
-				Implements: [][]byte{},
-				Extends:    [][]byte{},
-				Variables:  []types.JavaVariable{},
-				Methods:    []types.JavaMethod{},
+		Output: &types.FileResponse{
+			Package: "com.houarizegai.calculator",
+			Name:    "Test2",
+			Data: types.JavaClass{
+				Implements: nil,
+				Extends:    nil,
 			},
 		},
-		Err: &types.CannotParseText{},
+		Err: nil,
 	}
 
-	var tests = []types.TestFile{test1, test2}
+	test3 := types.TestFileResponse{
+		Name: "valid - includes package, class",
+		Input: types.File{
+			Name:      "Test3",
+			Extension: "java",
+			Code:      []byte("package com.houarizegai.calculator;public class Test3{public static void main(String args[]){System.out.println();System.out.println();}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "com.houarizegai.calculator",
+			Name:    "Test3",
+			Data: types.JavaClass{
+				Implements: nil,
+				Extends:    nil,
+			},
+		},
+		Err: nil,
+	}
+
+	test4 := types.TestFileResponse{
+		Name: "valid - includes package, import",
+		Input: types.File{
+			Name:      "Test4",
+			Extension: "java",
+			Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String args[]){System.out.println();System.out.println();}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Name:    "Test4",
+			Data: types.JavaClass{
+				Implements: nil,
+				Extends:    nil,
+			},
+		},
+		Err: nil,
+	}
+
+	test5 := types.TestFileResponse{
+		Name: "valid - includes class",
+		Input: types.File{
+			Name:      "Test5",
+			Extension: "java",
+			Code:      []byte("public class Test5{public static void main(String args[]){System.out.println();System.out.println();}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Name:    "Test5",
+			Data: types.JavaClass{
+				Implements: nil,
+				Extends:    nil,
+			},
+		},
+		Err: nil,
+	}
+
+	test6 := types.TestFileResponse{
+		Name: "valid - includes class, extends",
+		Input: types.File{
+			Name:      "Test5",
+			Extension: "java",
+			Code:      []byte("public class Test5 extends Test,Hello,Yes{public static void main(String args[]){System.out.println();System.out.println();}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Name:    "Test5",
+			Data: types.JavaClass{
+				Implements: nil,
+				Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+			},
+		},
+		Err: nil,
+	}
+
+	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6}
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
-			subtest.Parallel()
+			// subtest.Parallel()
 
-			res, err := parseFile(&tt.Input)
+			actualOutput, err := parseFile(tt.Input)
 
-			incorrectName := res.Name != tt.Output.Name
-			incorrectError := !errors.Is(err, tt.Err)
-			if incorrectName {
-				subtest.Errorf("incorrect name")
+			if actualOutput.Package != tt.Output.Package {
+				subtest.Errorf("incorrect package.\ngot:\n%s\nneed:\n%s\n", actualOutput.Package, tt.Output.Package)
 			}
 
-			if incorrectError {
+			if actualOutput.Name != tt.Output.Name {
+				subtest.Errorf("incorrect name.\ngot:\n%s\nneed:\n%s\n", actualOutput.Name, tt.Output.Name)
+			}
+
+			if !errors.Is(err, tt.Err) {
 				subtest.Errorf("incorrect error")
 			}
 
-			// FILL THIS OUT
-			switch file := res.Data.(type) {
+			if err != nil {
+				return
+			}
+
+			switch responseFile := actualOutput.Data.(type) {
 			case types.JavaAbstract:
+				for index, word := range responseFile.Extends {
+					switch expectedFile := tt.Output.Data.(type) {
+					case types.JavaAbstract:
+						if index > len(expectedFile.Extends)-1 {
+							subtest.Errorf("out of bounds error")
+						} else if !bytes.Equal(expectedFile.Extends[index], word) {
+							subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expectedFile.Extends[index]), string(word))
+						}
+					default:
+						subtest.Errorf("incorrect response type")
+					}
+				}
+
+				for index, word := range responseFile.Implements {
+					switch expectedFile := tt.Output.Data.(type) {
+					case types.JavaAbstract:
+						if index > len(expectedFile.Implements)-1 {
+							subtest.Errorf("out of bounds error")
+						} else if !bytes.Equal(expectedFile.Implements[index], word) {
+							subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expectedFile.Extends[index]), string(word))
+						}
+					default:
+						subtest.Errorf("incorrect response type")
+					}
+				}
 			case types.JavaClass:
+				for index, word := range responseFile.Extends {
+					switch expectedFile := tt.Output.Data.(type) {
+					case types.JavaClass:
+						if index > len(expectedFile.Extends)-1 {
+							subtest.Errorf("out of bounds error")
+						} else if !bytes.Equal(expectedFile.Extends[index], word) {
+							subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expectedFile.Extends[index]), string(word))
+						}
+					default:
+						subtest.Errorf("incorrect response type")
+					}
+				}
+
+				for index, word := range responseFile.Implements {
+					switch expectedFile := tt.Output.Data.(type) {
+					case types.JavaClass:
+						if index > len(expectedFile.Implements)-1 {
+							subtest.Errorf("out of bounds error")
+						} else if !bytes.Equal(expectedFile.Implements[index], word) {
+							subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expectedFile.Extends[index]), string(word))
+						}
+					default:
+						subtest.Errorf("incorrect response type")
+					}
+				}
 			case types.JavaInterface:
+				for index, word := range responseFile.Extends {
+					switch expectedFile := tt.Output.Data.(type) {
+					case types.JavaInterface:
+						if index > len(expectedFile.Extends)-1 {
+							subtest.Errorf("out of bounds error")
+						} else if !bytes.Equal(expectedFile.Extends[index], word) {
+							subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expectedFile.Extends[index]), string(word))
+						}
+					default:
+						subtest.Errorf("incorrect response type")
+					}
+				}
 			case types.JavaEnum:
 			default:
-				_ = file // Delete this
-				subtest.Errorf("cannot get language reponse")
+				subtest.Errorf("cannot get language response")
+				subtest.Fail()
 			}
 		})
 	}
@@ -387,7 +520,8 @@ func TestSetFileDeclarations(t *testing.T) {
 			Code:      nil,
 		},
 		Output: &types.FileResponse{
-			Name: "",
+			Package: "",
+			Name:    "",
 		},
 		Err: &types.CannotParseText{},
 	}
@@ -400,7 +534,8 @@ func TestSetFileDeclarations(t *testing.T) {
 			Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test2{public static void main(String args[]){System.out.println();System.out.println();}}"),
 		},
 		Output: &types.FileResponse{
-			Name: "Test2",
+			Package: "",
+			Name:    "Test2",
 			Data: types.JavaClass{
 				Implements: nil,
 				Extends:    nil,
@@ -417,7 +552,8 @@ func TestSetFileDeclarations(t *testing.T) {
 			Code:      []byte("package com.houarizegai.calculator;public class Test3{public static void main(String args[]){System.out.println();System.out.println();}}"),
 		},
 		Output: &types.FileResponse{
-			Name: "Test3",
+			Package: "",
+			Name:    "Test3",
 			Data: types.JavaClass{
 				Implements: nil,
 				Extends:    nil,
@@ -434,7 +570,8 @@ func TestSetFileDeclarations(t *testing.T) {
 			Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String args[]){System.out.println();System.out.println();}}"),
 		},
 		Output: &types.FileResponse{
-			Name: "Test4",
+			Package: "",
+			Name:    "Test4",
 			Data: types.JavaClass{
 				Implements: nil,
 				Extends:    nil,
@@ -451,7 +588,8 @@ func TestSetFileDeclarations(t *testing.T) {
 			Code:      []byte("public class Test5{public static void main(String args[]){System.out.println();System.out.println();}}"),
 		},
 		Output: &types.FileResponse{
-			Name: "Test5",
+			Package: "",
+			Name:    "Test5",
 			Data: types.JavaClass{
 				Implements: nil,
 				Extends:    nil,
@@ -468,7 +606,8 @@ func TestSetFileDeclarations(t *testing.T) {
 			Code:      []byte("public class Test5 extends Test,Hello,Yes{public static void main(String args[]){System.out.println();System.out.println();}}"),
 		},
 		Output: &types.FileResponse{
-			Name: "Test5",
+			Package: "",
+			Name:    "Test5",
 			Data: types.JavaClass{
 				Implements: nil,
 				Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
@@ -488,7 +627,7 @@ func TestSetFileDeclarations(t *testing.T) {
 			err := setFileDeclarations(&response, tt.Input.Code)
 
 			if tt.Input.Name != tt.Output.Name {
-				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", tt.Output.Name, tt.Input.Name)
+				subtest.Errorf("incorrect name.\ngot:\n%s\nneed:\n%s\n", tt.Output.Name, tt.Input.Name)
 			}
 
 			if !errors.Is(err, tt.Err) {
