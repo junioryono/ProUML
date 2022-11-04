@@ -511,7 +511,7 @@ func TestRemoveSpacing(t *testing.T) {
 	}
 }
 
-func TestSetFileDeclarations(t *testing.T) {
+func TestSetFileTypeAndAssociations(t *testing.T) {
 	test1 := types.TestFileResponse{
 		Name: "invalid - no code inside file",
 		Input: types.File{
@@ -624,7 +624,7 @@ func TestSetFileDeclarations(t *testing.T) {
 			response := *tt.Output
 
 			tt.Output.Name = tt.Input.Name // This is implemented in the code
-			err := setFileDeclarations(&response, tt.Input.Code)
+			err := setFileTypeAndAssociations(&response, tt.Input.Code)
 
 			if tt.Input.Name != tt.Output.Name {
 				subtest.Errorf("incorrect name.\ngot:\n%s\nneed:\n%s\n", tt.Output.Name, tt.Input.Name)

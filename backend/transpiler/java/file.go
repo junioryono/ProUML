@@ -35,10 +35,12 @@ func parseFile(file types.File) (*types.FileResponse, error) {
 		return fileResponse, err
 	}
 
-	err = setFileDeclarations(fileResponse, parsedText)
+	err = setFileTypeAndAssociations(fileResponse, parsedText)
 	if err != nil {
 		return fileResponse, err
 	}
+
+	// err = setVariablesAndMethods(fileResponse, parsedText)
 
 	// EXAMPLE RESPONSE
 	// types.FileResponse{
@@ -211,7 +213,7 @@ func removeSpacing(text []byte) ([]byte, error) {
 	return text, nil
 }
 
-func setFileDeclarations(fileResponse *types.FileResponse, text []byte) error {
+func setFileTypeAndAssociations(fileResponse *types.FileResponse, text []byte) error {
 	// Search for file name
 	// Example return: "public class Test5"
 	REGEX_FileName := regexp.MustCompile("[^;]+" + fileResponse.Name + "[^{]*")
