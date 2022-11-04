@@ -212,77 +212,6 @@ func TestParseFile(t *testing.T) {
 	}
 }
 
-func TestRemoveQuotes(t *testing.T) {
-	test1 := types.TestByteSlice{
-		Name:   "invalid - empty file",
-		Input:  nil,
-		Output: nil,
-		Err:    &types.CannotParseText{},
-	}
-
-	test2 := types.TestByteSlice{
-		Name: "valid - test class",
-		Input: []byte(`
-			public class Test {
-				public static void main(String args[]) {
-					System.out.println('Hello Java'); // UIEHQW
-
-					/* IOEWJQIOJE
-						*
-						* wopqkepoqk
-						* q
-						* q
-						* q
-						*
-						*/ System.out.println("Hello Java"); 
-						System.out.println("My name's Mila"); 
-						System.out.println(` + "`" + `My name's Mila` + "`" + `); 
-						System.out.println("My name` + "`" + `s Mila"); 
-				}`),
-		Output: []byte(`
-			public class Test {
-				public static void main(String args[]) {
-					System.out.println(); // UIEHQW
-
-					/* IOEWJQIOJE
-						*
-						* wopqkepoqk
-						* q
-						* q
-						* q
-						*
-						*/ System.out.println(); 
-						System.out.println(); 
-						System.out.println(); 
-						System.out.println(); 
-				}`),
-		Err: nil,
-	}
-
-	var tests = []types.TestByteSlice{test1, test2}
-
-	for _, tt := range tests {
-		t.Run(tt.Name, func(subtest *testing.T) {
-			// subtest.Parallel()
-
-			var (
-				res []byte
-				err error
-			)
-
-			res, err = removeQuotes(tt.Input)
-
-			if !bytes.Equal(res, tt.Output) {
-				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
-			}
-
-			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
-			}
-		})
-	}
-}
-
 func TestRemoveComments(t *testing.T) {
 	test1 := types.TestByteSlice{
 		Name:   "invalid - empty file",
@@ -292,7 +221,14 @@ func TestRemoveComments(t *testing.T) {
 	}
 
 	test2 := types.TestByteSlice{
-		Name: "valid - test class",
+		Name:   "valid - multi line commment",
+		Input:  []byte(`/* IOEWJQIOJE */System.out.println('Hello Java');`),
+		Output: []byte(`System.out.println('Hello Java');`),
+		Err:    nil,
+	}
+
+	test3 := types.TestByteSlice{
+		Name: "valid - test class 3",
 		Input: []byte(`
 			// Hello   // qwmeiqw //wqeqweqw
 			public class Test {
@@ -308,7 +244,7 @@ func TestRemoveComments(t *testing.T) {
 						* q
 						* q
 						*
-						*/ System.out.println('Hello Java'); 
+						*/ System.out.println('Hello Java');
 				}
 
 				/*
@@ -323,7 +259,7 @@ func TestRemoveComments(t *testing.T) {
 					
 					System.out.println('Hello Java'); 
 
-					 System.out.println('Hello Java'); 
+					 System.out.println('Hello Java');
 				}
 
 				
@@ -331,7 +267,107 @@ func TestRemoveComments(t *testing.T) {
 		Err: nil,
 	}
 
-	var tests = []types.TestByteSlice{test1, test2}
+	test4 := types.TestByteSlice{
+		Name: "valid - test class 4",
+		Input: []byte(`
+			// Hello   // qwmeiqw //wqeqweqw
+			public class Test {
+				/// WEI0ojqwoije
+				public static void main(String args[]) {
+					// wjqiehnwijken
+					System.out.println('Hello // Java'); // UIEHQW
+
+					/* IOEWJQIOJE
+						*
+						* wopqkepoqk
+						* q
+						* q
+						* q
+						*
+						*/ System.out.println('Hello Java');
+				}
+
+				/*
+					* Hello
+					*/
+										}   `),
+		Output: []byte(`
+			
+			public class Test {
+				
+				public static void main(String args[]) {
+					
+					System.out.println('Hello // Java'); 
+
+					 System.out.println('Hello Java');
+				}
+
+				
+										}   `),
+		Err: nil,
+	}
+
+	test5 := types.TestByteSlice{
+		Name: "valid - test class 5",
+		Input: []byte(`   package com.houarizegai.calculator  ;
+
+		import java.awt.Cursor;
+		import java.awt.Font;
+		import java.awt.event.ActionListener;
+		import java.awt.event.ItemEvent;
+		import java.util.function.Consumer;
+		import java.util.regex.Pattern;
+		import java.awt.Color;
+		import javax.swing.*;
+		import java.lang.Math;
+			// Hello   // qwmeiqw //wqeqweqw
+			public class Test {
+				/// WEI0ojqwoije
+				public static void main(String args[]) {
+					// wjqiehnwijken
+					System.out.println('Hello /* wmkqoem */ Java'); // UIEHQW
+
+					/* IOEWJQIOJE
+						*
+						* wopqkepoqk
+						* q
+						* q
+						* q
+						*
+						*/ System.out.println('Hello Java');
+				}
+
+				/*
+					* Hello
+					*/
+										}   `),
+		Output: []byte(`   package com.houarizegai.calculator  ;
+
+		import java.awt.Cursor;
+		import java.awt.Font;
+		import java.awt.event.ActionListener;
+		import java.awt.event.ItemEvent;
+		import java.util.function.Consumer;
+		import java.util.regex.Pattern;
+		import java.awt.Color;
+		import javax.swing.*;
+		import java.lang.Math;
+			
+			public class Test {
+				
+				public static void main(String args[]) {
+					
+					System.out.println('Hello /* wmkqoem */ Java'); 
+
+					 System.out.println('Hello Java');
+				}
+
+				
+										}   `),
+		Err: nil,
+	}
+
+	var tests = []types.TestByteSlice{test1, test2, test3, test4, test5}
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {

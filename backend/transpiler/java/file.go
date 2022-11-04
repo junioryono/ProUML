@@ -14,12 +14,7 @@ func parseFile(file types.File) (*types.FileResponse, error) {
 		packageName  []byte
 	)
 
-	parsedText, err := removeQuotes(parsedText)
-	if err != nil {
-		return fileResponse, err
-	}
-
-	parsedText, err = removeComments(parsedText)
+	parsedText, err := removeComments(parsedText)
 	if err != nil {
 		return fileResponse, err
 	}
@@ -55,53 +50,6 @@ func parseFile(file types.File) (*types.FileResponse, error) {
 	// }
 
 	return fileResponse, nil
-}
-
-// Remove all quotes from code
-func removeQuotes(text []byte) ([]byte, error) {
-	if len(text) == 0 {
-		return nil, &types.CannotParseText{}
-	}
-
-	var (
-		NoQuote     byte = 0
-		SingleQuote byte = '\''
-		DoubleQuote byte = '"'
-		TickerQuote byte = '`'
-	)
-
-	var (
-		lastQuoteIndex int  = 0
-		currentQuote   byte = 0
-	)
-
-	removeText := func(i int) {
-		text = append(text[:lastQuoteIndex], text[i+1:]...)
-		currentQuote = NoQuote
-	}
-
-	for i := 0; i < len(text); i++ {
-		if currentQuote == NoQuote {
-			if text[i] == SingleQuote {
-				currentQuote = SingleQuote
-				lastQuoteIndex = i
-			} else if text[i] == DoubleQuote {
-				currentQuote = DoubleQuote
-				lastQuoteIndex = i
-			} else if text[i] == TickerQuote {
-				currentQuote = TickerQuote
-				lastQuoteIndex = i
-			}
-		} else if currentQuote == SingleQuote && text[i] == SingleQuote {
-			removeText(i)
-		} else if currentQuote == DoubleQuote && text[i] == DoubleQuote {
-			removeText(i)
-		} else if currentQuote == TickerQuote && text[i] == TickerQuote {
-			removeText(i)
-		}
-	}
-
-	return text, nil
 }
 
 // Get package name from code if one exists
@@ -148,19 +96,60 @@ func getPackageName(text []byte) ([]byte, error) {
 	return text, nil
 }
 
-// Remove all comments from code
+// Remove all comments that are not inside of quotations from code
 func removeComments(text []byte) ([]byte, error) {
 	if len(text) == 0 {
 		return nil, &types.CannotParseText{}
 	}
 
-	// Replace all single line quotes with an empty string
-	REGEX_SingleLine := regexp.MustCompile(`\/\/.*`)
-	text = REGEX_SingleLine.ReplaceAll(text, nil)
+	var (
+		NoQuote           byte = 0
+		SingleQuote       byte = '\''
+		DoubleQuote       byte = '"'
+		TickerQuote       byte = '`'
+		SingleLineComment byte = '/'
+		MultiLineComment  byte = '*'
+	)
 
-	// Replace all multi line quotes with an empty string
-	REGEX_MultiLine := regexp.MustCompile(`\/\*[\s\S]*?\*\/`)
-	text = REGEX_MultiLine.ReplaceAll(text, nil)
+	var (
+		startCommentIndex int  = 0
+		currentStyle      byte = 0
+	)
+
+	removeText := func(i int) {
+		text = append(text[:startCommentIndex], text[i+1:]...)
+		currentStyle = NoQuote
+	}
+
+	for i := 0; i < len(text); i++ {
+		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if text[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if text[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if text[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else if i+1 < len(text) {
+				if text[i] == '/' && text[i+1] == '/' {
+					currentStyle = SingleLineComment
+					startCommentIndex = i
+				} else if text[i] == '/' && text[i+1] == '*' {
+					currentStyle = MultiLineComment
+					startCommentIndex = i
+				}
+			}
+		} else if currentStyle == SingleLineComment && text[i] == '\n' {
+			removeText(i - 1)
+			i = startCommentIndex
+		} else if currentStyle == MultiLineComment && text[i] == '*' && i+1 < len(text) && text[i+1] == '/' {
+			removeText(i + 1)
+			i = startCommentIndex
+		}
+	}
 
 	return text, nil
 }
