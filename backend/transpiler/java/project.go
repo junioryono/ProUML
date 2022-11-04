@@ -13,5 +13,5 @@ func ParseProject(p *types.Project) ([]byte, error) {
 
 	// Group files by package
 
-	return []byte(""), nil
+	return nil, nil
 }

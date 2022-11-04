@@ -15,7 +15,7 @@ func TestPackageParse(t *testing.T) {
 		Input: types.Package{
 			Files: test1Files,
 		},
-		Output: []byte(""),
+		Output: nil,
 		Err:    &types.CannotParseText{},
 	}
 

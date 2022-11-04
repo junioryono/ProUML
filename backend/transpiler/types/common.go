@@ -20,12 +20,7 @@ type File struct {
 	Code      []byte
 }
 
-type ParsedFileData struct {
-	OriginalFile *File
-	ClassName    string
-	Variables    string
-	Methods      string
+type FileResponse struct {
+	Name string
+	Data any // Holds JavaAbstract | JavaClass | JavaInterface | JavaEnum
 }
-
-// type ProjectJSON struct {
-// }

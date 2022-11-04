@@ -17,7 +17,7 @@ type TestPackage struct {
 type TestFile struct {
 	Name   string
 	Input  File
-	Output []byte
+	Output FileResponse
 	Err    error
 }
 
@@ -25,5 +25,12 @@ type TestByteSlice struct {
 	Name   string
 	Input  []byte
 	Output []byte
+	Err    error
+}
+
+type TestFileResponse struct {
+	Name   string
+	Input  File
+	Output *FileResponse
 	Err    error
 }

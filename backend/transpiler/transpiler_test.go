@@ -63,7 +63,7 @@ func getProject1() types.TestProject {
 		Input: types.Project{
 			Files: []types.File{file1, file2},
 		},
-		Output: []byte(""),
+		Output: nil,
 		Err:    &types.CannotParseText{},
 	}
 }

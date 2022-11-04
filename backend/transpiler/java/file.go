@@ -7,31 +7,46 @@ import (
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func parseFile(file *types.File) ([]byte, error) {
-	// Need to remove quotations from code to prevent removeComments() from breaking code
-	text, err := removeQuotes(file.Code)
+func parseFile(file *types.File) (*types.FileResponse, error) {
+	var (
+		fileResponse = &types.FileResponse{Name: file.Name}
+		parsedText   = file.Code
+	)
+
+	parsedText, err := removeQuotes(parsedText)
 	if err != nil {
-		return nil, err
+		return fileResponse, err
 	}
 
-	text, err = removeComments(text)
+	parsedText, err = removeComments(parsedText)
 	if err != nil {
-		return nil, err
+		return fileResponse, err
 	}
 
-	text, err = getPackageName(text)
+	parsedText, err = getPackageName(parsedText)
 	if err != nil {
-		return nil, err
+		return fileResponse, err
 	}
 
-	text, err = removeSpacing(text)
+	parsedText, err = removeSpacing(parsedText)
 	if err != nil {
-		return nil, err
+		return fileResponse, err
 	}
 
-	_ = text
+	err = setMainPackageDeclarations(fileResponse, parsedText)
+	if err != nil {
+		return fileResponse, err
+	}
 
-	return text, nil
+	// example response
+	fileResponse.Data = types.JavaClass{
+		Implements: [][]byte{},
+		Extends:    [][]byte{},
+		Variables:  []types.JavaVariable{},
+		Methods:    []types.JavaMethod{},
+	}
+
+	return fileResponse, nil
 }
 
 // Remove all quotes from code
@@ -188,4 +203,86 @@ func removeSpacing(text []byte) ([]byte, error) {
 	text = bytes.TrimSpace(text)
 
 	return text, nil
+}
+
+func setMainPackageDeclarations(fileResponse *types.FileResponse, text []byte) error {
+	// Search for file name
+	// Example return: "public class Test5"
+	REGEX_FileName := regexp.MustCompile("[^;]+" + fileResponse.Name + "[^{]*")
+	packageDeclarations := REGEX_FileName.Find(text)
+	if packageDeclarations == nil {
+		return &types.CannotParseText{}
+	}
+
+	textSplit := bytes.Split(packageDeclarations, []byte(" "))
+
+	findIndex := func(sWord string) int {
+		bWord := []byte(sWord)
+		for i, w := range textSplit {
+			if bytes.Equal(w, bWord) {
+				return i
+			}
+		}
+
+		return -1
+	}
+
+	abstractIndex := findIndex("abstract")
+	classIndex := findIndex("class")
+	interfaceIndex := findIndex("interface")
+	enumIndex := findIndex("enum")
+
+	if (classIndex != -1 && (interfaceIndex != -1 || enumIndex != -1)) ||
+		(interfaceIndex != -1 && enumIndex != -1) ||
+		(classIndex == -1 && interfaceIndex == -1 && enumIndex == -1) {
+		return &types.CannotParseText{}
+	}
+
+	// Set enum data
+	if enumIndex != -1 {
+		fileResponse.Data = types.JavaEnum{}
+		return nil
+	}
+
+	if classIndex != -1 || interfaceIndex != -1 {
+		var extendsValue [][]byte
+		extendsIndex := findIndex("extends")
+		if extendsIndex != -1 {
+			extendsValue = bytes.Split(textSplit[extendsIndex+1], []byte(","))
+		}
+
+		// Set class and abstract class data
+		if classIndex != -1 {
+			isAbstract := abstractIndex == 0 && classIndex == 1
+
+			var implementsValue [][]byte
+			implementsIndex := findIndex("implements")
+			if implementsIndex != -1 {
+				implementsValue = bytes.Split(textSplit[implementsIndex+1], []byte(","))
+			}
+
+			if isAbstract {
+				fileResponse.Data = types.JavaAbstract{
+					Implements: implementsValue,
+					Extends:    extendsValue,
+				}
+				return nil
+			}
+
+			fileResponse.Data = types.JavaClass{
+				Implements: implementsValue,
+				Extends:    extendsValue,
+			}
+			return nil
+		}
+
+		// Set interface data
+		fileResponse.Data = types.JavaInterface{
+			Extends: extendsValue,
+		}
+		return nil
+	}
+
+	// If all else fails, return parsing error
+	return &types.CannotParseText{}
 }
