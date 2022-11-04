@@ -42,6 +42,7 @@ func parseFile(file types.File) (*types.FileResponse, error) {
 
 	// EXAMPLE RESPONSE
 	// types.FileResponse{
+	//  Package: "",
 	// 	Name: "FileName",
 	// 	Data: types.JavaClass{
 	// 		Implements: [][]byte{},
