@@ -2,7 +2,6 @@ package java
 
 import (
 	"bytes"
-	"fmt"
 	"regexp"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
@@ -32,7 +31,6 @@ func parseFile(file types.File) (*types.FileResponse, error) {
 	fileResponse.Package = string(packageName)
 
 	parsedText, err = removeSpacing(parsedText)
-	fmt.Printf("err: %v\n", err)
 	if err != nil {
 		return fileResponse, err
 	}
