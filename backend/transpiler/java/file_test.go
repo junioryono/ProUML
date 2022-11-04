@@ -378,7 +378,7 @@ func TestRemoveSpacing(t *testing.T) {
 	}
 }
 
-func TestSetMainPackageDeclarations(t *testing.T) {
+func TestSetFileDeclarations(t *testing.T) {
 	test1 := types.TestFileResponse{
 		Name: "invalid - no code inside file",
 		Input: types.File{
@@ -485,7 +485,7 @@ func TestSetMainPackageDeclarations(t *testing.T) {
 			response := *tt.Output
 
 			tt.Output.Name = tt.Input.Name // This is implemented in the code
-			err := setMainPackageDeclarations(&response, tt.Input.Code)
+			err := setFileDeclarations(&response, tt.Input.Code)
 
 			if tt.Input.Name != tt.Output.Name {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", tt.Output.Name, tt.Input.Name)
