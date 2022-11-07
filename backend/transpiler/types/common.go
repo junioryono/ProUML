@@ -22,6 +22,5 @@ type File struct {
 
 type FileResponse struct {
 	Package string
-	Name    string
-	Data    any // Holds JavaAbstract | JavaClass | JavaInterface | JavaEnum
+	Data    []any // Holds JavaAbstract | JavaClass | JavaInterface | JavaEnum
 }

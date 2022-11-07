@@ -25,6 +25,7 @@ type JavaMethod struct {
 }
 
 type JavaAbstract struct {
+	Name       string
 	Implements [][]byte
 	Extends    [][]byte
 	Variables  []JavaVariable
@@ -32,6 +33,7 @@ type JavaAbstract struct {
 }
 
 type JavaClass struct {
+	Name       string
 	Implements [][]byte
 	Extends    [][]byte
 	Variables  []JavaVariable
@@ -39,6 +41,7 @@ type JavaClass struct {
 }
 
 type JavaInterface struct {
+	Name      string
 	Extends   [][]byte
 	Variables []JavaVariable
 	Methods   []JavaMethod

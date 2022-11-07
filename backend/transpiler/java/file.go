@@ -9,91 +9,51 @@ import (
 
 func parseFile(file types.File) (*types.FileResponse, error) {
 	var (
-		fileResponse = &types.FileResponse{Name: file.Name}
-		parsedText   = file.Code
-		packageName  []byte
+		response    = &types.FileResponse{Package: "", Data: make([]any, 0)}
+		parsedText  = file.Code
+		packageName []byte
 	)
 
 	parsedText, err := removeComments(parsedText)
 	if err != nil {
-		return fileResponse, err
+		return nil, err
 	}
 
 	packageName, err = getPackageName(parsedText)
 	if err != nil {
-		return fileResponse, err
+		return nil, err
 	}
-	fileResponse.Package = string(packageName)
 
 	parsedText, err = removeSpacing(parsedText)
 	if err != nil {
-		return fileResponse, err
+		return nil, err
 	}
 
-	err = setFileTypeAndAssociations(fileResponse, parsedText)
+	classes, err := getFileClasses(file.Name, parsedText)
 	if err != nil {
-		return fileResponse, err
+		return nil, err
 	}
+
+	response.Package = string(packageName)
+	response.Data = append(response.Data, classes...)
 
 	// err = setVariablesAndMethods(fileResponse, parsedText)
 
 	// EXAMPLE RESPONSE
 	// types.FileResponse{
-	//  Package: "",
-	// 	Name: "FileName",
-	// 	Data: types.JavaClass{
-	// 		Implements: [][]byte{},
-	// 		Extends:    [][]byte{},
-	// 		Variables:  []types.JavaVariable{},
-	// 		Methods:    []types.JavaMethod{},
-	// 	},
+	//  	Package: "",
+	// 		Data: [
+	//			types.JavaClass{
+	//				Name: "ClassName",
+	// 				Implements: [][]byte{},
+	// 				Extends:    [][]byte{},
+	// 				Variables:  []types.JavaVariable{},
+	// 				Methods:    []types.JavaMethod{},
+	// 			},
+	//		]
 	// }
 
-	return fileResponse, nil
-}
-
-// Get package name from code if one exists
-func getPackageName(text []byte) ([]byte, error) {
-	if len(text) == 0 {
-		return nil, &types.CannotParseText{}
-	}
-
-	REGEX_FirstOpenCurly := regexp.MustCompile(`\{`)
-	firstOpenCurlyIndex := REGEX_FirstOpenCurly.FindIndex(text)
-
-	// Find package declaration
-	// Example return: "  package   com.main.prouml  ;       "
-	// Make sure when finding 'package' keyword, we are on the outside scope
-	// If there is no scope increment in the code, return error
-	// If there is a scope increment, but there's no package declaration, return nil byte slice with no error
-	// If there is a scope increment, and there's a package declaration inside the scope, return nil byte slice with no error
-	REGEX_PackageDeclaration := regexp.MustCompile(`[\s\S]*?package[\s\S][^;]*`)
-	packageDeclarationIndex := REGEX_PackageDeclaration.FindIndex(text)
-
-	if len(firstOpenCurlyIndex) == 0 {
-		return nil, &types.CannotParseText{}
-	}
-
-	if len(packageDeclarationIndex) == 0 || packageDeclarationIndex[len(packageDeclarationIndex)-1] > firstOpenCurlyIndex[len(firstOpenCurlyIndex)-1] {
-		return nil, nil
-	}
-
-	text = REGEX_PackageDeclaration.Find(text)
-
-	// Remove package keyword and whitespacing
-	// Example return: "com.main.prouml       "
-	REGEX_PackageRemoval := regexp.MustCompile(`[\s]*package[\s]*`)
-	text = REGEX_PackageRemoval.ReplaceAll(text, nil)
-
-	// Remove package keyword and whitespacing
-	// Example return: "com.main.prouml"
-	REGEX_SemiColonRemoval := regexp.MustCompile(`[\s]*;[\s]*`)
-	text = REGEX_SemiColonRemoval.ReplaceAll(text, nil)
-
-	// Trim left and right spacing
-	text = bytes.TrimSpace(text)
-
-	return text, nil
+	return response, nil
 }
 
 // Remove all comments that are not inside of quotations from code
@@ -154,6 +114,50 @@ func removeComments(text []byte) ([]byte, error) {
 	return text, nil
 }
 
+// Get package name from code if one exists
+func getPackageName(text []byte) ([]byte, error) {
+	if len(text) == 0 {
+		return nil, &types.CannotParseText{}
+	}
+
+	REGEX_FirstOpenCurly := regexp.MustCompile(`\{`)
+	firstOpenCurlyIndex := REGEX_FirstOpenCurly.FindIndex(text)
+
+	// Find package declaration
+	// Example return: "  package   com.main.prouml  ;       "
+	// Make sure when finding 'package' keyword, we are on the outside scope
+	// If there is no scope increment in the code, return error
+	// If there is a scope increment, but there's no package declaration, return nil byte slice with no error
+	// If there is a scope increment, and there's a package declaration inside the scope, return nil byte slice with no error
+	REGEX_PackageDeclaration := regexp.MustCompile(`[\s\S]*?package[\s\S][^;]*`)
+	packageDeclarationIndex := REGEX_PackageDeclaration.FindIndex(text)
+
+	if len(firstOpenCurlyIndex) == 0 {
+		return nil, &types.CannotParseText{}
+	}
+
+	if len(packageDeclarationIndex) == 0 || packageDeclarationIndex[len(packageDeclarationIndex)-1] > firstOpenCurlyIndex[len(firstOpenCurlyIndex)-1] {
+		return nil, nil
+	}
+
+	text = REGEX_PackageDeclaration.Find(text)
+
+	// Remove package keyword and whitespacing
+	// Example return: "com.main.prouml       "
+	REGEX_PackageRemoval := regexp.MustCompile(`[\s]*package[\s]*`)
+	text = REGEX_PackageRemoval.ReplaceAll(text, nil)
+
+	// Remove package keyword and whitespacing
+	// Example return: "com.main.prouml"
+	REGEX_SemiColonRemoval := regexp.MustCompile(`[\s]*;[\s]*`)
+	text = REGEX_SemiColonRemoval.ReplaceAll(text, nil)
+
+	// Trim left and right spacing
+	text = bytes.TrimSpace(text)
+
+	return text, nil
+}
+
 // Remove all extra spacing from code
 func removeSpacing(text []byte) ([]byte, error) {
 	if len(text) == 0 {
@@ -202,13 +206,13 @@ func removeSpacing(text []byte) ([]byte, error) {
 	return text, nil
 }
 
-func setFileTypeAndAssociations(fileResponse *types.FileResponse, text []byte) error {
+func getFileClasses(fileName string, text []byte) ([]any, error) {
 	// Search for file name
 	// Example return: "public class Test5"
-	REGEX_FileName := regexp.MustCompile("[^;]+" + fileResponse.Name + "[^{]*")
+	REGEX_FileName := regexp.MustCompile("[^;]+" + fileName + "[^{]*")
 	packageDeclarations := REGEX_FileName.Find(text)
 	if packageDeclarations == nil {
-		return &types.CannotParseText{}
+		return nil, &types.CannotParseText{}
 	}
 
 	textSplit := bytes.Split(packageDeclarations, []byte(" "))
@@ -232,13 +236,12 @@ func setFileTypeAndAssociations(fileResponse *types.FileResponse, text []byte) e
 	if (classIndex != -1 && (interfaceIndex != -1 || enumIndex != -1)) ||
 		(interfaceIndex != -1 && enumIndex != -1) ||
 		(classIndex == -1 && interfaceIndex == -1 && enumIndex == -1) {
-		return &types.CannotParseText{}
+		return nil, &types.CannotParseText{}
 	}
 
 	// Set enum data
 	if enumIndex != -1 {
-		fileResponse.Data = types.JavaEnum{}
-		return nil
+		return []any{types.JavaEnum{}}, nil
 	}
 
 	if classIndex != -1 || interfaceIndex != -1 {
@@ -259,27 +262,27 @@ func setFileTypeAndAssociations(fileResponse *types.FileResponse, text []byte) e
 			}
 
 			if isAbstract {
-				fileResponse.Data = types.JavaAbstract{
+				return []any{types.JavaAbstract{
+					Name:       fileName,
 					Implements: implementsValue,
 					Extends:    extendsValue,
-				}
-				return nil
+				}}, nil
 			}
 
-			fileResponse.Data = types.JavaClass{
+			return []any{types.JavaClass{
+				Name:       fileName,
 				Implements: implementsValue,
 				Extends:    extendsValue,
-			}
-			return nil
+			}}, nil
 		}
 
 		// Set interface data
-		fileResponse.Data = types.JavaInterface{
+		return []any{types.JavaInterface{
+			Name:    fileName,
 			Extends: extendsValue,
-		}
-		return nil
+		}}, nil
 	}
 
 	// If all else fails, return parsing error
-	return &types.CannotParseText{}
+	return nil, &types.CannotParseText{}
 }
