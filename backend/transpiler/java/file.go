@@ -209,17 +209,20 @@ func removeSpacing(text []byte) ([]byte, error) {
 func getFileClasses(fileName string, text []byte) ([]any, error) {
 	// Search for file name
 	// Example return: "public class Test5"
-	REGEX_FileName := regexp.MustCompile("[^;]+" + fileName + "[^{]*")
-	packageDeclarations := REGEX_FileName.Find(text)
-	if packageDeclarations == nil {
+	var (
+		classesText   = make([]types.ClassText, 0)
+		classesStruct = make([]any, 0)
+	)
+
+	getInnerClasses(&classesText, text, false)
+
+	if len(classesText) == 0 {
 		return nil, &types.CannotParseText{}
 	}
 
-	textSplit := bytes.Split(packageDeclarations, []byte(" "))
-
-	findIndex := func(sWord string) int {
+	findIndex := func(sWord string, dbArray [][]byte) int {
 		bWord := []byte(sWord)
-		for i, w := range textSplit {
+		for i, w := range dbArray {
 			if bytes.Equal(w, bWord) {
 				return i
 			}
@@ -228,61 +231,210 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 		return -1
 	}
 
-	abstractIndex := findIndex("abstract")
-	classIndex := findIndex("class")
-	interfaceIndex := findIndex("interface")
-	enumIndex := findIndex("enum")
+	for i := 0; i < len(classesText); i++ {
+		textSplit := bytes.Split(classesText[i].Outside, []byte(" "))
 
-	if (classIndex != -1 && (interfaceIndex != -1 || enumIndex != -1)) ||
-		(interfaceIndex != -1 && enumIndex != -1) ||
-		(classIndex == -1 && interfaceIndex == -1 && enumIndex == -1) {
-		return nil, &types.CannotParseText{}
-	}
+		abstractIndex := findIndex("abstract", textSplit)
+		classIndex := findIndex("class", textSplit)
+		interfaceIndex := findIndex("interface", textSplit)
+		enumIndex := findIndex("enum", textSplit)
 
-	// Set enum data
-	if enumIndex != -1 {
-		return []any{types.JavaEnum{}}, nil
-	}
+		if (classIndex != -1 && (interfaceIndex != -1 || enumIndex != -1)) ||
+			(interfaceIndex != -1 && enumIndex != -1) ||
+			(classIndex == -1 && interfaceIndex == -1 && enumIndex == -1) {
+			continue
+		}
 
-	if classIndex != -1 || interfaceIndex != -1 {
+		// Set enum data
+		if enumIndex != -1 {
+			classesStruct = append(classesStruct, types.JavaEnum{
+				DefinedWithin: string(classesText[i].DefinedWithin),
+				Name:          string(textSplit[enumIndex+1]),
+			})
+			continue
+		}
+
+		if classIndex == -1 && interfaceIndex == -1 {
+			continue
+		}
+
 		var extendsValue [][]byte
-		extendsIndex := findIndex("extends")
+		extendsIndex := findIndex("extends", textSplit)
 		if extendsIndex != -1 {
 			extendsValue = bytes.Split(textSplit[extendsIndex+1], []byte(","))
 		}
 
-		// Set class and abstract class data
-		if classIndex != -1 {
-			isAbstract := abstractIndex == 0 && classIndex == 1
-
-			var implementsValue [][]byte
-			implementsIndex := findIndex("implements")
-			if implementsIndex != -1 {
-				implementsValue = bytes.Split(textSplit[implementsIndex+1], []byte(","))
-			}
-
-			if isAbstract {
-				return []any{types.JavaAbstract{
-					Name:       fileName,
-					Implements: implementsValue,
-					Extends:    extendsValue,
-				}}, nil
-			}
-
-			return []any{types.JavaClass{
-				Name:       fileName,
-				Implements: implementsValue,
-				Extends:    extendsValue,
-			}}, nil
+		if interfaceIndex != -1 {
+			classesStruct = append(classesStruct, types.JavaInterface{
+				DefinedWithin: string(classesText[i].DefinedWithin),
+				Name:          string(textSplit[interfaceIndex+1]),
+				Extends:       extendsValue,
+			})
+			continue
 		}
 
-		// Set interface data
-		return []any{types.JavaInterface{
-			Name:    fileName,
-			Extends: extendsValue,
-		}}, nil
+		var implementsValue [][]byte
+		implementsIndex := findIndex("implements", textSplit)
+		if implementsIndex != -1 {
+			implementsValue = bytes.Split(textSplit[implementsIndex+1], []byte(","))
+		}
+
+		if abstractIndex != -1 {
+			classesStruct = append(classesStruct, types.JavaAbstract{
+				DefinedWithin: string(classesText[i].DefinedWithin),
+				Name:          string(textSplit[classIndex+1]),
+				Implements:    implementsValue,
+				Extends:       extendsValue,
+			})
+			continue
+		}
+
+		classesStruct = append(classesStruct, types.JavaClass{
+			DefinedWithin: string(classesText[i].DefinedWithin),
+			Name:          string(textSplit[classIndex+1]),
+			Implements:    implementsValue,
+			Extends:       extendsValue,
+		})
 	}
 
-	// If all else fails, return parsing error
-	return nil, &types.CannotParseText{}
+	// REGEX_FileName := regexp.MustCompile("[^;}]+" + fileName + "[^{]*")
+	// packageDeclarations := REGEX_FileName.Find(text)
+	// if packageDeclarations == nil {
+	// 	return nil, &types.CannotParseText{}
+	// }
+
+	return classesStruct, nil
+}
+
+func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool) {
+	var (
+		NoQuote     byte = 0
+		SingleQuote byte = '\''
+		DoubleQuote byte = '"'
+		TickerQuote byte = '`'
+		OpenCurly   byte = '{'
+		ClosedCurly byte = '}'
+		SemiColon   byte = ';'
+	)
+
+	var (
+		startScopeIndex int  = 0
+		currentStyle    byte = 0
+		currentScope    int  = 0
+	)
+
+	isClassDeclaration := func(word []byte) bool {
+		return bytes.Equal(word, []byte("abstract")) || bytes.Equal(word, []byte("class")) || bytes.Equal(word, []byte("interface")) || bytes.Equal(word, []byte("enum"))
+	}
+
+	for i := 0; i < len(text); i++ {
+		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if text[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if text[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if text[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else if text[i] == OpenCurly {
+				if currentScope == 0 {
+					startScopeIndex = i
+				}
+
+				currentScope++
+			} else if text[i] == ClosedCurly {
+				currentScope--
+
+				if startScopeIndex != 0 && currentScope == 0 {
+					if i+1 < len(text) && text[i+1] == SemiColon {
+						i++
+					}
+
+					for j := startScopeIndex; j >= 0; j-- {
+						if j == 0 || text[j-1] == SemiColon || text[j-1] == ClosedCurly {
+							var (
+								definedWithin []byte
+								outerText     []byte
+							)
+							outerText = append(outerText, text[j:startScopeIndex]...)
+							outerTextSplit := bytes.Split(outerText, []byte(" "))
+							innerText := text[startScopeIndex+1 : i]
+
+							if len(outerTextSplit) > 5 && isClassDeclaration(outerTextSplit[4]) ||
+								len(outerTextSplit) > 4 && isClassDeclaration(outerTextSplit[3]) ||
+								len(outerTextSplit) > 3 && isClassDeclaration(outerTextSplit[2]) ||
+								len(outerTextSplit) > 2 && isClassDeclaration(outerTextSplit[1]) ||
+								len(outerTextSplit) > 1 && isClassDeclaration(outerTextSplit[0]) {
+
+								if isNested {
+									previousInnerText := (*classesText)[len(*classesText)-1].Inside
+
+									if text[i] == SemiColon {
+										innerText = text[startScopeIndex+1 : i-1]
+									}
+
+									index := bytes.Index(previousInnerText, outerText)
+									if index != -1 {
+										var (
+											currentInnerStyle byte = 0
+											innerScopeNumber  int  = 0
+											endingIndex            = len(previousInnerText) - 1
+										)
+
+										for k := index; k < len(previousInnerText); k++ {
+											if currentInnerStyle == SingleQuote && previousInnerText[k] == SingleQuote ||
+												currentInnerStyle == DoubleQuote && previousInnerText[k] == DoubleQuote ||
+												currentInnerStyle == TickerQuote && previousInnerText[k] == TickerQuote {
+												currentInnerStyle = NoQuote
+											} else if currentInnerStyle == NoQuote {
+												if previousInnerText[k] == SingleQuote {
+													currentInnerStyle = SingleQuote
+												} else if previousInnerText[k] == DoubleQuote {
+													currentInnerStyle = DoubleQuote
+												} else if previousInnerText[k] == TickerQuote {
+													currentInnerStyle = TickerQuote
+												} else if previousInnerText[k] == OpenCurly {
+													innerScopeNumber++
+												} else if previousInnerText[k] == ClosedCurly {
+													innerScopeNumber--
+
+													if k+1 < len(previousInnerText) && previousInnerText[k+1] == SemiColon {
+														k++
+													}
+
+													if innerScopeNumber == 0 {
+														endingIndex = k
+														break
+													}
+												}
+											}
+										}
+
+										(*classesText)[len(*classesText)-1].Inside = append(previousInnerText[0:index], previousInnerText[endingIndex+1:]...)
+										previousOuterText := (*classesText)[len(*classesText)-1].Outside
+										previousOuterTextSplit := bytes.Split(previousOuterText, []byte(" "))
+										definedWithin = previousOuterTextSplit[len(previousOuterTextSplit)-1]
+									}
+								}
+
+								*classesText = append(*classesText, types.ClassText{
+									DefinedWithin: definedWithin,
+									Outside:       outerText,
+									Inside:        innerText,
+								})
+								getInnerClasses(classesText, innerText, true)
+							}
+
+							break
+						}
+					}
+
+					startScopeIndex = 0
+				}
+			}
+		}
+	}
 }

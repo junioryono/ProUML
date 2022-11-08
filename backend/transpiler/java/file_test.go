@@ -34,11 +34,13 @@ func TestParseFile(t *testing.T) {
 		},
 		Output: &types.FileResponse{
 			Package: "com.houarizegai.calculator",
-			Data: []any{types.JavaClass{
-				Name:       "Test2",
-				Implements: nil,
-				Extends:    nil,
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test2",
+					Implements: nil,
+					Extends:    nil,
+				},
+			},
 		},
 		Err: nil,
 	}
@@ -52,11 +54,13 @@ func TestParseFile(t *testing.T) {
 		},
 		Output: &types.FileResponse{
 			Package: "com.houarizegai.calculator",
-			Data: []any{types.JavaClass{
-				Name:       "Test3",
-				Implements: nil,
-				Extends:    nil,
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test3",
+					Implements: nil,
+					Extends:    nil,
+				},
+			},
 		},
 		Err: nil,
 	}
@@ -70,11 +74,13 @@ func TestParseFile(t *testing.T) {
 		},
 		Output: &types.FileResponse{
 			Package: "",
-			Data: []any{types.JavaClass{
-				Name:       "Test4",
-				Implements: nil,
-				Extends:    nil,
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test4",
+					Implements: nil,
+					Extends:    nil,
+				},
+			},
 		},
 		Err: nil,
 	}
@@ -88,11 +94,13 @@ func TestParseFile(t *testing.T) {
 		},
 		Output: &types.FileResponse{
 			Package: "",
-			Data: []any{types.JavaClass{
-				Name:       "Test5",
-				Implements: nil,
-				Extends:    nil,
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test5",
+					Implements: nil,
+					Extends:    nil,
+				},
+			},
 		},
 		Err: nil,
 	}
@@ -106,25 +114,27 @@ func TestParseFile(t *testing.T) {
 		},
 		Output: &types.FileResponse{
 			Package: "",
-			Data: []any{types.JavaClass{
-				Name:       "Test6",
-				Implements: nil,
-				Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test6",
+					Implements: nil,
+					Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+				},
+			},
 		},
 		Err: nil,
 	}
 
 	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6}
 
-	for _, tt := range tests {
+	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
 			actualOutput, err := parseFile(tt.Input)
 
 			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
+				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
 			}
 
 			if err != nil {
@@ -143,80 +153,81 @@ func TestParseFile(t *testing.T) {
 			for i, class := range actualOutput.Data {
 				switch response := class.(type) {
 				case types.JavaAbstract:
-					for index, word := range response.Extends {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaAbstract:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Extends)-1 {
+					switch expected := tt.Output.Data[i].(type) {
+					case types.JavaAbstract:
+						if response.Name != expected.Name {
+							subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
+						} else if response.DefinedWithin != expected.DefinedWithin {
+							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
+						}
+
+						for index, word := range response.Extends {
+							if index > len(expected.Extends)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Extends[index], word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
-					}
 
-					for index, word := range response.Implements {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaAbstract:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Implements)-1 {
+						for index, word := range response.Implements {
+							if index > len(expected.Implements)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Implements[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Implements[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
+					default:
+						subtest.Errorf("incorrect response type")
 					}
+
 				case types.JavaClass:
-					for index, word := range response.Extends {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaClass:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Extends)-1 {
+					switch expected := tt.Output.Data[i].(type) {
+					case types.JavaClass:
+						if response.Name != expected.Name {
+							subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
+						} else if response.DefinedWithin != expected.DefinedWithin {
+							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
+						}
+
+						for index, word := range response.Extends {
+							if index > len(expected.Extends)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Extends[index], word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
-					}
 
-					for index, word := range response.Implements {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaClass:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Implements)-1 {
+						for index, word := range response.Implements {
+							if index > len(expected.Implements)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Implements[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Implements[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
+					default:
+						subtest.Errorf("incorrect response type")
 					}
+
 				case types.JavaInterface:
-					for index, word := range response.Extends {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaInterface:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Extends)-1 {
+					switch expected := tt.Output.Data[i].(type) {
+					case types.JavaInterface:
+						if response.Name != expected.Name {
+							subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
+						} else if response.DefinedWithin != expected.DefinedWithin {
+							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
+						}
+
+						for index, word := range response.Extends {
+							if index > len(expected.Extends)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Extends[index], word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
+					default:
+						subtest.Errorf("incorrect response type")
 					}
+
 				case types.JavaEnum:
 				default:
 					subtest.Errorf("cannot get language response %s", reflect.TypeOf(class))
@@ -384,7 +395,7 @@ func TestRemoveComments(t *testing.T) {
 
 	var tests = []types.TestByteSlice{test1, test2, test3, test4, test5}
 
-	for _, tt := range tests {
+	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
@@ -400,7 +411,7 @@ func TestRemoveComments(t *testing.T) {
 			}
 
 			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
+				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
 			}
 
 		})
@@ -489,7 +500,7 @@ func TestGetPackageName(t *testing.T) {
 
 	var tests = []types.TestByteSlice{test1, test2, test3, test4}
 
-	for _, tt := range tests {
+	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
@@ -505,7 +516,7 @@ func TestGetPackageName(t *testing.T) {
 			}
 
 			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
+				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
 			}
 		})
 	}
@@ -540,7 +551,7 @@ func TestRemoveSpacing(t *testing.T) {
 
 	var tests = []types.TestByteSlice{test1, test2}
 
-	for _, tt := range tests {
+	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
@@ -556,7 +567,7 @@ func TestRemoveSpacing(t *testing.T) {
 			}
 
 			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
+				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
 			}
 		})
 	}
@@ -586,11 +597,13 @@ func TestGetFileClasses(t *testing.T) {
 		},
 		Output: &types.FileResponse{
 			Package: "",
-			Data: []any{types.JavaClass{
-				Name:       "Test2",
-				Implements: nil,
-				Extends:    nil,
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test2",
+					Implements: nil,
+					Extends:    nil,
+				},
+			},
 		},
 		Err: nil,
 	}
@@ -604,11 +617,13 @@ func TestGetFileClasses(t *testing.T) {
 		},
 		Output: &types.FileResponse{
 			Package: "",
-			Data: []any{types.JavaClass{
-				Name:       "Test3",
-				Implements: nil,
-				Extends:    nil,
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test3",
+					Implements: nil,
+					Extends:    nil,
+				},
+			},
 		},
 		Err: nil,
 	}
@@ -622,11 +637,13 @@ func TestGetFileClasses(t *testing.T) {
 		},
 		Output: &types.FileResponse{
 			Package: "",
-			Data: []any{types.JavaClass{
-				Name:       "Test4",
-				Implements: nil,
-				Extends:    nil,
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test4",
+					Implements: nil,
+					Extends:    nil,
+				},
+			},
 		},
 		Err: nil,
 	}
@@ -640,11 +657,13 @@ func TestGetFileClasses(t *testing.T) {
 		},
 		Output: &types.FileResponse{
 			Package: "",
-			Data: []any{types.JavaClass{
-				Name:       "Test5",
-				Implements: nil,
-				Extends:    nil,
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test5",
+					Implements: nil,
+					Extends:    nil,
+				},
+			},
 		},
 		Err: nil,
 	}
@@ -652,31 +671,68 @@ func TestGetFileClasses(t *testing.T) {
 	test6 := types.TestFileResponse{
 		Name: "valid - includes class, extends",
 		Input: types.File{
-			Name:      "Test5",
+			Name:      "Test6",
 			Extension: "java",
-			Code:      []byte("public class Test5 extends Test,Hello,Yes{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
+			Code:      []byte("public class Test6 extends Test,Hello,Yes{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
 			Package: "",
-			Data: []any{types.JavaClass{
-				Name:       "Test5",
-				Implements: nil,
-				Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
-			}},
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test6",
+					Implements: nil,
+					Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+				},
+			},
 		},
 		Err: nil,
 	}
 
-	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6}
+	test7 := types.TestFileResponse{
+		Name: "valid - includes class, extends",
+		Input: types.File{
+			Name:      "A",
+			Extension: "java",
+			Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Data: []any{
+				types.JavaClass{
+					Name:       "Test",
+					Implements: nil,
+					Extends:    nil,
+				},
+				types.JavaInterface{
+					DefinedWithin: "Test",
+					Name:          "Yes",
+					Extends:       nil,
+				},
+				types.JavaClass{
+					Name:       "Testing",
+					Implements: [][]byte{[]byte("Test.Yes")},
+					Extends:    nil,
+				},
+				types.JavaClass{
+					Name:       "A",
+					Implements: nil,
+					Extends:    nil,
+				},
+			},
+		},
+		Err: nil,
+	}
 
-	for _, tt := range tests {
+	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6, test7}
+
+	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
 			classes, err := getFileClasses(tt.Input.Name, tt.Input.Code)
 
 			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
+				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
 			}
 
 			if err != nil {
@@ -691,80 +747,82 @@ func TestGetFileClasses(t *testing.T) {
 			for i, class := range classes {
 				switch response := class.(type) {
 				case types.JavaAbstract:
-					for index, word := range response.Extends {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaAbstract:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Extends)-1 {
+					switch expected := tt.Output.Data[i].(type) {
+					case types.JavaAbstract:
+						if response.Name != expected.Name {
+							subtest.Errorf("incorrect class name on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.Name, response.Name)
+						} else if response.DefinedWithin != expected.DefinedWithin {
+							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
+						}
+
+						for index, word := range response.Extends {
+							if index > len(expected.Extends)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Extends[index], word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
-					}
 
-					for index, word := range response.Implements {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaAbstract:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Implements)-1 {
+						for index, word := range response.Implements {
+							if index > len(expected.Implements)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Implements[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Implements[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
+					default:
+						subtest.Errorf("incorrect response type")
 					}
+
 				case types.JavaClass:
-					for index, word := range response.Extends {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaClass:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Extends)-1 {
+					switch expected := tt.Output.Data[i].(type) {
+					case types.JavaClass:
+						if response.Name != expected.Name {
+							subtest.Errorf("incorrect class name on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.Name, response.Name)
+						} else if response.DefinedWithin != expected.DefinedWithin {
+							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
+						}
+
+						for index, word := range response.Extends {
+							if index > len(expected.Extends)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Extends[index], word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
-					}
 
-					for index, word := range response.Implements {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaClass:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Implements)-1 {
+						for index, word := range response.Implements {
+							if index > len(expected.Implements)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Implements[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Implements[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
+
+					default:
+						subtest.Errorf("incorrect response type")
 					}
+
 				case types.JavaInterface:
-					for index, word := range response.Extends {
-						switch expected := tt.Output.Data[i].(type) {
-						case types.JavaInterface:
-							if response.Name != expected.Name {
-								subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-							} else if index > len(expected.Extends)-1 {
+					switch expected := tt.Output.Data[i].(type) {
+					case types.JavaInterface:
+						if response.Name != expected.Name {
+							subtest.Errorf("incorrect class name on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.Name, response.Name)
+						} else if response.DefinedWithin != expected.DefinedWithin {
+							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
+						}
+
+						for index, word := range response.Extends {
+							if index > len(expected.Extends)-1 {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Extends[index], word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
 							}
-						default:
-							subtest.Errorf("incorrect response type")
 						}
+					default:
+						subtest.Errorf("incorrect response type")
 					}
+
 				case types.JavaEnum:
 				default:
 					subtest.Errorf("cannot get language response")

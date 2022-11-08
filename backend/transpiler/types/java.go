@@ -1,5 +1,11 @@
 package types
 
+type ClassText struct {
+	DefinedWithin []byte
+	Outside       []byte
+	Inside        []byte
+}
+
 type JavaVariable struct {
 	Type           string
 	Name           string
@@ -25,28 +31,33 @@ type JavaMethod struct {
 }
 
 type JavaAbstract struct {
-	Name       string
-	Implements [][]byte
-	Extends    [][]byte
-	Variables  []JavaVariable
-	Methods    []JavaMethod
+	DefinedWithin string
+	Name          string
+	Implements    [][]byte
+	Extends       [][]byte
+	Variables     []JavaVariable
+	Methods       []JavaMethod
 }
 
 type JavaClass struct {
-	Name       string
-	Implements [][]byte
-	Extends    [][]byte
-	Variables  []JavaVariable
-	Methods    []JavaMethod
+	DefinedWithin string
+	Name          string
+	Implements    [][]byte
+	Extends       [][]byte
+	Variables     []JavaVariable
+	Methods       []JavaMethod
 }
 
 type JavaInterface struct {
-	Name      string
-	Extends   [][]byte
-	Variables []JavaVariable
-	Methods   []JavaMethod
+	DefinedWithin string
+	Name          string
+	Extends       [][]byte
+	Variables     []JavaVariable
+	Methods       []JavaMethod
 }
 
 type JavaEnum struct {
-	Declarations string
+	DefinedWithin string
+	Name          string
+	Declarations  string
 }
