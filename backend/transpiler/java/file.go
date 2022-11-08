@@ -248,8 +248,9 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 		// Set enum data
 		if enumIndex != -1 {
 			classesStruct = append(classesStruct, types.JavaEnum{
-				DefinedWithin: string(classesText[i].DefinedWithin),
-				Name:          string(textSplit[enumIndex+1]),
+				DefinedWithin: classesText[i].DefinedWithin,
+				Name:          textSplit[enumIndex+1],
+				Declarations:  classesText[i].Declarations,
 			})
 			continue
 		}
@@ -266,9 +267,11 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 
 		if interfaceIndex != -1 {
 			classesStruct = append(classesStruct, types.JavaInterface{
-				DefinedWithin: string(classesText[i].DefinedWithin),
-				Name:          string(textSplit[interfaceIndex+1]),
+				DefinedWithin: classesText[i].DefinedWithin,
+				Name:          textSplit[interfaceIndex+1],
 				Extends:       extendsValue,
+				Variables:     classesText[i].Variables,
+				Methods:       classesText[i].Methods,
 			})
 			continue
 		}
@@ -281,27 +284,25 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 
 		if abstractIndex != -1 {
 			classesStruct = append(classesStruct, types.JavaAbstract{
-				DefinedWithin: string(classesText[i].DefinedWithin),
-				Name:          string(textSplit[classIndex+1]),
+				DefinedWithin: classesText[i].DefinedWithin,
+				Name:          textSplit[classIndex+1],
 				Implements:    implementsValue,
 				Extends:       extendsValue,
+				Variables:     classesText[i].Variables,
+				Methods:       classesText[i].Methods,
 			})
 			continue
 		}
 
 		classesStruct = append(classesStruct, types.JavaClass{
-			DefinedWithin: string(classesText[i].DefinedWithin),
-			Name:          string(textSplit[classIndex+1]),
+			DefinedWithin: classesText[i].DefinedWithin,
+			Name:          textSplit[classIndex+1],
 			Implements:    implementsValue,
 			Extends:       extendsValue,
+			Variables:     classesText[i].Variables,
+			Methods:       classesText[i].Methods,
 		})
 	}
-
-	// REGEX_FileName := regexp.MustCompile("[^;}]+" + fileName + "[^{]*")
-	// packageDeclarations := REGEX_FileName.Find(text)
-	// if packageDeclarations == nil {
-	// 	return nil, &types.CannotParseText{}
-	// }
 
 	return classesStruct, nil
 }

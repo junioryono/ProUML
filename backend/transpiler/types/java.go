@@ -4,26 +4,29 @@ type ClassText struct {
 	DefinedWithin []byte
 	Outside       []byte
 	Inside        []byte
+	Declarations  [][]byte
+	Variables     []JavaVariable
+	Methods       []JavaMethod
 }
 
 type JavaVariable struct {
-	Type           string
-	Name           string
-	Value          string
-	AccessModifier string // "private" | "protected" | "public"
+	Type           []byte
+	Name           []byte
+	Value          []byte
+	AccessModifier []byte // "private" | "protected" | "public"
 	Static         bool
 	Final          bool
 }
 
 type JavaMethodParameter struct {
-	Type string
-	Name string
+	Type []byte
+	Name []byte
 }
 
 type JavaMethod struct {
-	Type           string
-	Name           string
-	AccessModifier string // "private" | "protected" | "public"
+	Type           []byte
+	Name           []byte
+	AccessModifier []byte // "private" | "protected" | "public"
 	Parameters     []JavaMethodParameter
 	Abstract       bool // If abstract is true, Static and Final must be false
 	Static         bool
@@ -31,8 +34,8 @@ type JavaMethod struct {
 }
 
 type JavaAbstract struct {
-	DefinedWithin string
-	Name          string
+	DefinedWithin []byte
+	Name          []byte
 	Implements    [][]byte
 	Extends       [][]byte
 	Variables     []JavaVariable
@@ -40,8 +43,8 @@ type JavaAbstract struct {
 }
 
 type JavaClass struct {
-	DefinedWithin string
-	Name          string
+	DefinedWithin []byte
+	Name          []byte
 	Implements    [][]byte
 	Extends       [][]byte
 	Variables     []JavaVariable
@@ -49,15 +52,15 @@ type JavaClass struct {
 }
 
 type JavaInterface struct {
-	DefinedWithin string
-	Name          string
+	DefinedWithin []byte
+	Name          []byte
 	Extends       [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
 }
 
 type JavaEnum struct {
-	DefinedWithin string
-	Name          string
-	Declarations  string
+	DefinedWithin []byte
+	Name          []byte
+	Declarations  [][]byte
 }

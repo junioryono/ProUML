@@ -36,7 +36,7 @@ func TestParseFile(t *testing.T) {
 			Package: "com.houarizegai.calculator",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test2",
+					Name:       []byte("Test2"),
 					Implements: nil,
 					Extends:    nil,
 				},
@@ -56,7 +56,7 @@ func TestParseFile(t *testing.T) {
 			Package: "com.houarizegai.calculator",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test3",
+					Name:       []byte("Test3"),
 					Implements: nil,
 					Extends:    nil,
 				},
@@ -76,7 +76,7 @@ func TestParseFile(t *testing.T) {
 			Package: "",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test4",
+					Name:       []byte("Test4"),
 					Implements: nil,
 					Extends:    nil,
 				},
@@ -96,7 +96,7 @@ func TestParseFile(t *testing.T) {
 			Package: "",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test5",
+					Name:       []byte("Test5"),
 					Implements: nil,
 					Extends:    nil,
 				},
@@ -116,7 +116,7 @@ func TestParseFile(t *testing.T) {
 			Package: "",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test6",
+					Name:       []byte("Test6"),
 					Implements: nil,
 					Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
 				},
@@ -127,14 +127,14 @@ func TestParseFile(t *testing.T) {
 
 	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6}
 
-	for testIndex, tt := range tests {
+	for _, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
 			actualOutput, err := parseFile(tt.Input)
 
 			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
+				subtest.Errorf("incorrect error")
 			}
 
 			if err != nil {
@@ -155,9 +155,9 @@ func TestParseFile(t *testing.T) {
 				case types.JavaAbstract:
 					switch expected := tt.Output.Data[i].(type) {
 					case types.JavaAbstract:
-						if response.Name != expected.Name {
+						if !bytes.Equal(response.Name, expected.Name) {
 							subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-						} else if response.DefinedWithin != expected.DefinedWithin {
+						} else if !bytes.Equal(response.DefinedWithin, expected.DefinedWithin) {
 							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
 						}
 
@@ -183,9 +183,9 @@ func TestParseFile(t *testing.T) {
 				case types.JavaClass:
 					switch expected := tt.Output.Data[i].(type) {
 					case types.JavaClass:
-						if response.Name != expected.Name {
+						if !bytes.Equal(response.Name, expected.Name) {
 							subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-						} else if response.DefinedWithin != expected.DefinedWithin {
+						} else if !bytes.Equal(response.DefinedWithin, expected.DefinedWithin) {
 							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
 						}
 
@@ -211,9 +211,9 @@ func TestParseFile(t *testing.T) {
 				case types.JavaInterface:
 					switch expected := tt.Output.Data[i].(type) {
 					case types.JavaInterface:
-						if response.Name != expected.Name {
+						if !bytes.Equal(response.Name, expected.Name) {
 							subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
-						} else if response.DefinedWithin != expected.DefinedWithin {
+						} else if !bytes.Equal(response.DefinedWithin, expected.DefinedWithin) {
 							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
 						}
 
@@ -395,7 +395,7 @@ func TestRemoveComments(t *testing.T) {
 
 	var tests = []types.TestByteSlice{test1, test2, test3, test4, test5}
 
-	for testIndex, tt := range tests {
+	for _, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
@@ -411,7 +411,7 @@ func TestRemoveComments(t *testing.T) {
 			}
 
 			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
+				subtest.Errorf("incorrect error")
 			}
 
 		})
@@ -500,7 +500,7 @@ func TestGetPackageName(t *testing.T) {
 
 	var tests = []types.TestByteSlice{test1, test2, test3, test4}
 
-	for testIndex, tt := range tests {
+	for _, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
@@ -516,7 +516,7 @@ func TestGetPackageName(t *testing.T) {
 			}
 
 			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
+				subtest.Errorf("incorrect error")
 			}
 		})
 	}
@@ -551,7 +551,7 @@ func TestRemoveSpacing(t *testing.T) {
 
 	var tests = []types.TestByteSlice{test1, test2}
 
-	for testIndex, tt := range tests {
+	for _, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
@@ -567,7 +567,7 @@ func TestRemoveSpacing(t *testing.T) {
 			}
 
 			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
+				subtest.Errorf("incorrect error")
 			}
 		})
 	}
@@ -599,7 +599,7 @@ func TestGetFileClasses(t *testing.T) {
 			Package: "",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test2",
+					Name:       []byte("Test2"),
 					Implements: nil,
 					Extends:    nil,
 				},
@@ -619,7 +619,7 @@ func TestGetFileClasses(t *testing.T) {
 			Package: "",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test3",
+					Name:       []byte("Test3"),
 					Implements: nil,
 					Extends:    nil,
 				},
@@ -639,7 +639,7 @@ func TestGetFileClasses(t *testing.T) {
 			Package: "",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test4",
+					Name:       []byte("Test4"),
 					Implements: nil,
 					Extends:    nil,
 				},
@@ -659,7 +659,7 @@ func TestGetFileClasses(t *testing.T) {
 			Package: "",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test5",
+					Name:       []byte("Test5"),
 					Implements: nil,
 					Extends:    nil,
 				},
@@ -679,7 +679,7 @@ func TestGetFileClasses(t *testing.T) {
 			Package: "",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test6",
+					Name:       []byte("Test6"),
 					Implements: nil,
 					Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
 				},
@@ -699,22 +699,22 @@ func TestGetFileClasses(t *testing.T) {
 			Package: "",
 			Data: []any{
 				types.JavaClass{
-					Name:       "Test",
+					Name:       []byte("Test"),
 					Implements: nil,
 					Extends:    nil,
 				},
 				types.JavaInterface{
-					DefinedWithin: "Test",
-					Name:          "Yes",
+					DefinedWithin: []byte("Test"),
+					Name:          []byte("Yes"),
 					Extends:       nil,
 				},
 				types.JavaClass{
-					Name:       "Testing",
+					Name:       []byte("Testing"),
 					Implements: [][]byte{[]byte("Test.Yes")},
 					Extends:    nil,
 				},
 				types.JavaClass{
-					Name:       "A",
+					Name:       []byte("A"),
 					Implements: nil,
 					Extends:    nil,
 				},
@@ -749,9 +749,9 @@ func TestGetFileClasses(t *testing.T) {
 				case types.JavaAbstract:
 					switch expected := tt.Output.Data[i].(type) {
 					case types.JavaAbstract:
-						if response.Name != expected.Name {
+						if !bytes.Equal(response.Name, expected.Name) {
 							subtest.Errorf("incorrect class name on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.Name, response.Name)
-						} else if response.DefinedWithin != expected.DefinedWithin {
+						} else if !bytes.Equal(response.DefinedWithin, expected.DefinedWithin) {
 							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
 						}
 
@@ -777,9 +777,9 @@ func TestGetFileClasses(t *testing.T) {
 				case types.JavaClass:
 					switch expected := tt.Output.Data[i].(type) {
 					case types.JavaClass:
-						if response.Name != expected.Name {
+						if !bytes.Equal(response.Name, expected.Name) {
 							subtest.Errorf("incorrect class name on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.Name, response.Name)
-						} else if response.DefinedWithin != expected.DefinedWithin {
+						} else if !bytes.Equal(response.DefinedWithin, expected.DefinedWithin) {
 							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
 						}
 
@@ -806,9 +806,9 @@ func TestGetFileClasses(t *testing.T) {
 				case types.JavaInterface:
 					switch expected := tt.Output.Data[i].(type) {
 					case types.JavaInterface:
-						if response.Name != expected.Name {
+						if !bytes.Equal(response.Name, expected.Name) {
 							subtest.Errorf("incorrect class name on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.Name, response.Name)
-						} else if response.DefinedWithin != expected.DefinedWithin {
+						} else if !bytes.Equal(response.DefinedWithin, expected.DefinedWithin) {
 							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
 						}
 
