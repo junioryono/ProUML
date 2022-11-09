@@ -421,11 +421,111 @@ func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool)
 									}
 								}
 
+								// ===============================================================================
+								// required variables for struct
+								var declarations [][]byte
+								var variables []types.JavaVariable
+								var methods []types.JavaMethod
+
+								_ = declarations
+								_ = variables
+								_ = methods
+								
+								// getting variables and methods
+								currentDeclarationScope := 0
+								inMethod := false
+								currentMethodScope := 0
+							
+								for m := 0; m < len(innerText); m++ {
+									
+									// once an open curly brace is found
+									if !inMethod && innerText[m] == '{' {
+										currentMethodScope = m + 1
+							
+										// indicate that we need to get all content until closed brace is found
+										inMethod = true
+							
+									// once a closed curly brace is found
+									} else if inMethod && innerText[m] == '}' {
+										// get entire function declaration
+										funcDeclaration := innerText[currentDeclarationScope : m-1]
+										_ = funcDeclaration
+							
+										// get parameters in function (if they exist)
+										openParenthesisIndex := bytes.Index(funcDeclaration, []byte("("))
+										closedParenthesisIndex := bytes.Index(funcDeclaration, []byte(")"))
+										// params only exist if these parenthesis are not next to each other
+										if openParenthesisIndex != (closedParenthesisIndex + 1) {
+											paramList := innerText[openParenthesisIndex+1 : closedParenthesisIndex-1]
+											paramListSplit := bytes.Split(paramList, []byte(","))
+											_ = paramListSplit
+
+											// MOREE TOOO DOOOO !!!!
+										}
+
+										// MORE TO DOOOO !!!!!
+										
+										// store content inside function implementation
+										funcImplementation := innerText[currentMethodScope : m-1]
+										_ = funcImplementation
+							
+										// indicate that we are done getting stuff in the method
+										inMethod = false
+
+									// once a semi colon is found
+									} else if !inMethod && innerText[m] == ';' {
+										// get all stuff before the semicolon
+										semiDeclaration := innerText[currentDeclarationScope : m-1]
+
+										// if there's an "abstract" in the declaration, it's a method, not variable
+										if bytes.Equal(semiDeclaration, []byte("abstract")) {
+											// process method
+											var method types.JavaMethod
+											_ = method
+
+											semiDeclarationSplit := bytes.Split(semiDeclaration, []byte(" "))
+											_ = semiDeclarationSplit
+
+											// MORE TO DOOOOOO!!!!!
+
+											currentDeclarationScope = m + 1
+							
+										// otherwise, the declaration before the semicolon will always be a variable
+										} else {
+											var variable types.JavaVariable
+
+											// if the variable is initialized, store the value
+											if bytes.Equal(semiDeclaration, []byte(" = ")) {
+												// get the stuff after the equal sign to the current semicolon index
+												equalIndex := bytes.Index(semiDeclaration, []byte(" = "))
+												variable.Value = innerText[equalIndex+1 : m-1]
+
+												//get rid of value portion from declaration to process rest of variable
+												semiDeclaration = innerText[currentDeclarationScope : equalIndex-1]
+											}
+
+											// get the type, name, access modifier, static, and final vals of variable
+											semiDeclarationSplit := bytes.Split(semiDeclaration, []byte(" "))
+											_ = semiDeclarationSplit
+
+											// MOREEE TO DOO!!!!!!
+							
+											currentDeclarationScope = m + 1
+										}
+									}
+								}
+
+								// ===============================================================================
+
 								*classesText = append(*classesText, types.ClassText{
 									DefinedWithin: definedWithin,
 									Outside:       outerText,
 									Inside:        innerText,
+									Declarations:  declarations,
+									Variables: 	   variables,
+									Methods: 	   methods,
 								})
+
 								getInnerClasses(classesText, innerText, true)
 							}
 
