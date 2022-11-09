@@ -723,7 +723,243 @@ func TestGetFileClasses(t *testing.T) {
 		Err: nil,
 	}
 
-	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6, test7}
+	test8 := types.TestFileResponse{
+		Name: "valid - includes class, extends",
+		Input: types.File{
+			Name:      "A",
+			Extension: "java",
+			Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3() {};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9() {};public static final void function10() {};}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Data: []any{
+				types.JavaClass{
+					Name:       []byte("Test"),
+					Implements: nil,
+					Extends:    nil,
+					Variables:  nil,
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("TestVoid"),
+							AccessModifier: []byte("public"),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         false,
+							Final:          false,
+						},
+					},
+				},
+				types.JavaInterface{
+					DefinedWithin: []byte("Test"),
+					Name:          []byte("Yes"),
+					Extends:       nil,
+					Variables:     nil,
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("show"),
+							AccessModifier: []byte(""),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         false,
+							Final:          false,
+						},
+					},
+				},
+				types.JavaClass{
+					Name:       []byte("Testing"),
+					Implements: [][]byte{[]byte("Test.Yes")},
+					Extends:    nil,
+					Variables:  nil,
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("show"),
+							AccessModifier: []byte(""),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         false,
+							Final:          false,
+						},
+					},
+				},
+				types.JavaClass{
+					Name:       []byte("A"),
+					Implements: nil,
+					Extends:    nil,
+					Variables: []types.JavaVariable{
+						{
+							Type:           []byte("Test"),
+							Name:           []byte("inner1"),
+							Value:          []byte(""),
+							AccessModifier: []byte(""),
+							Static:         false,
+							Final:          false,
+						},
+						{
+							Type:           []byte("Testing"),
+							Name:           []byte("inner2"),
+							Value:          []byte("new Testing()"),
+							AccessModifier: []byte("public"),
+							Static:         false,
+							Final:          false,
+						},
+						{
+							Type:           []byte("Test.Yes"),
+							Name:           []byte("inner3"),
+							Value:          []byte("new Testing()"),
+							AccessModifier: []byte("private"),
+							Static:         true,
+							Final:          false,
+						},
+						{
+							Type:           []byte("Test.Yes"),
+							Name:           []byte("inner4"),
+							Value:          []byte("\"Hello\""),
+							AccessModifier: []byte("protected"),
+							Static:         false,
+							Final:          true,
+						},
+						{
+							Type:           []byte("Test.Yes"),
+							Name:           []byte("inner5"),
+							Value:          []byte("null"),
+							AccessModifier: []byte(""),
+							Static:         true,
+							Final:          true,
+						},
+						{
+							Type:           []byte("Test.Yes"),
+							Name:           []byte("inner6"),
+							Value:          []byte("null"),
+							AccessModifier: []byte("protected"),
+							Static:         true,
+							Final:          true,
+						},
+					},
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("main"),
+							AccessModifier: []byte("public"),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("String[]"),
+									Name: []byte("args"),
+								},
+							},
+							Abstract: false,
+							Static:   true,
+							Final:    false,
+						},
+						{
+							Type:           []byte("Testing"),
+							Name:           []byte("function1"),
+							AccessModifier: []byte(""),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("Test.Yes"),
+									Name: []byte("var1"),
+								},
+								{
+									Type: []byte("Test"),
+									Name: []byte("var2"),
+								},
+							},
+							Abstract: false,
+							Static:   false,
+							Final:    false,
+						},
+						{
+							Type:           []byte("Testing"),
+							Name:           []byte("function2"),
+							AccessModifier: []byte(""),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         false,
+							Final:          false,
+						},
+						{
+							Type:           []byte("void"),
+							Name:           []byte("function3"),
+							AccessModifier: []byte(""),
+							Parameters:     nil,
+							Abstract:       true,
+							Static:         false,
+							Final:          false,
+						},
+						{
+							Type:           []byte("Testing"),
+							Name:           []byte("function4"),
+							AccessModifier: []byte(""),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         true,
+							Final:          false,
+						},
+						{
+							Type:           []byte("Testing"),
+							Name:           []byte("function5"),
+							AccessModifier: []byte(""),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         false,
+							Final:          true,
+						},
+						{
+							Type:           []byte("void"),
+							Name:           []byte("function6"),
+							AccessModifier: []byte(""),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         true,
+							Final:          true,
+						},
+						{
+							Type:           []byte("void"),
+							Name:           []byte("function7"),
+							AccessModifier: []byte("public"),
+							Parameters:     nil,
+							Abstract:       true,
+							Static:         false,
+							Final:          false,
+						},
+						{
+							Type:           []byte("Testing"),
+							Name:           []byte("function8"),
+							AccessModifier: []byte("private"),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         true,
+							Final:          false,
+						},
+						{
+							Type:           []byte("Testing"),
+							Name:           []byte("function9"),
+							AccessModifier: []byte("protected"),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         false,
+							Final:          true,
+						},
+						{
+							Type:           []byte("void"),
+							Name:           []byte("function10"),
+							AccessModifier: []byte("public"),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         true,
+							Final:          true,
+						},
+					},
+				},
+			},
+		},
+		Err: nil,
+	}
+
+	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6, test7, test8}
 
 	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
@@ -770,6 +1006,52 @@ func TestGetFileClasses(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Implements[index]), string(word))
 							}
 						}
+
+						for index, variable := range response.Variables {
+							if index > len(expected.Variables)-1 {
+								subtest.Errorf("out of bounds error")
+							} else if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].Type), string(variable.Type))
+							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].Name), string(variable.Name))
+							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].Value), string(variable.Value))
+							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].AccessModifier), string(variable.AccessModifier))
+							} else if expected.Variables[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Variables[index].Static, variable.Static)
+							} else if expected.Variables[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Variables[index].Final, variable.Final)
+							}
+						}
+
+						for index, variable := range response.Methods {
+							if index > len(expected.Methods)-1 {
+								subtest.Errorf("out of bounds error")
+							} else if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Type), string(variable.Type))
+							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Name), string(variable.Name))
+							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].AccessModifier), string(variable.AccessModifier))
+							} else if expected.Methods[index].Abstract != variable.Abstract {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Methods[index].Abstract, variable.Abstract)
+							} else if expected.Methods[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Methods[index].Static, variable.Static)
+							} else if expected.Methods[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Methods[index].Final, variable.Final)
+							}
+
+							for indexParam, parameter := range variable.Parameters {
+								if indexParam > len(variable.Parameters)-1 {
+									subtest.Errorf("out of bounds error")
+								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Parameters[indexParam].Type), string(parameter.Type))
+								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Parameters[indexParam].Name), string(variable.Name))
+								}
+							}
+						}
 					default:
 						subtest.Errorf("incorrect response type")
 					}
@@ -799,6 +1081,51 @@ func TestGetFileClasses(t *testing.T) {
 							}
 						}
 
+						for index, variable := range response.Variables {
+							if index > len(expected.Variables)-1 {
+								subtest.Errorf("out of bounds error")
+							} else if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].Type), string(variable.Type))
+							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].Name), string(variable.Name))
+							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].Value), string(variable.Value))
+							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].AccessModifier), string(variable.AccessModifier))
+							} else if expected.Variables[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Variables[index].Static, variable.Static)
+							} else if expected.Variables[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Variables[index].Final, variable.Final)
+							}
+						}
+
+						for index, variable := range response.Methods {
+							if index > len(expected.Methods)-1 {
+								subtest.Errorf("out of bounds error")
+							} else if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Type), string(variable.Type))
+							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Name), string(variable.Name))
+							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].AccessModifier), string(variable.AccessModifier))
+							} else if expected.Methods[index].Abstract != variable.Abstract {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Methods[index].Abstract, variable.Abstract)
+							} else if expected.Methods[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Methods[index].Static, variable.Static)
+							} else if expected.Methods[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Methods[index].Final, variable.Final)
+							}
+
+							for indexParam, parameter := range variable.Parameters {
+								if indexParam > len(variable.Parameters)-1 {
+									subtest.Errorf("out of bounds error")
+								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Parameters[indexParam].Type), string(parameter.Type))
+								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Parameters[indexParam].Name), string(variable.Name))
+								}
+							}
+						}
 					default:
 						subtest.Errorf("incorrect response type")
 					}
@@ -817,6 +1144,52 @@ func TestGetFileClasses(t *testing.T) {
 								subtest.Errorf("out of bounds error")
 							} else if !bytes.Equal(expected.Extends[index], word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
+							}
+						}
+
+						for index, variable := range response.Variables {
+							if index > len(expected.Variables)-1 {
+								subtest.Errorf("out of bounds error")
+							} else if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].Type), string(variable.Type))
+							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].Name), string(variable.Name))
+							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].Value), string(variable.Value))
+							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Variables[index].AccessModifier), string(variable.AccessModifier))
+							} else if expected.Variables[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Variables[index].Static, variable.Static)
+							} else if expected.Variables[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Variables[index].Final, variable.Final)
+							}
+						}
+
+						for index, variable := range response.Methods {
+							if index > len(expected.Methods)-1 {
+								subtest.Errorf("out of bounds error")
+							} else if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Type), string(variable.Type))
+							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Name), string(variable.Name))
+							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].AccessModifier), string(variable.AccessModifier))
+							} else if expected.Methods[index].Abstract != variable.Abstract {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Methods[index].Abstract, variable.Abstract)
+							} else if expected.Methods[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Methods[index].Static, variable.Static)
+							} else if expected.Methods[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", expected.Methods[index].Final, variable.Final)
+							}
+
+							for indexParam, parameter := range variable.Parameters {
+								if indexParam > len(variable.Parameters)-1 {
+									subtest.Errorf("out of bounds error")
+								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Parameters[indexParam].Type), string(parameter.Type))
+								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Methods[index].Parameters[indexParam].Name), string(variable.Name))
+								}
 							}
 						}
 					default:
