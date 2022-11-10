@@ -63,4 +63,5 @@ type JavaEnum struct {
 	DefinedWithin []byte
 	Name          []byte
 	Declarations  [][]byte
+	Implements [][]byte
 }
