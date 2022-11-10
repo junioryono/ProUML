@@ -498,8 +498,9 @@ func isVariable(text []byte) bool {
 		currentStyle    byte = 0
 	)
 
-	// Check if this string is a variable or method
 	var i int = 0
+
+	// determine whether the text is a variable or method
 	for ; i < len(text); i++ {
 		if currentStyle == SingleQuote && text[i] == SingleQuote ||
 			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
