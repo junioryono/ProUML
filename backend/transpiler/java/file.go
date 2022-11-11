@@ -487,43 +487,22 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	return variables, method
 }
 
+// Determine whether the line of text is a variable or method
 func isVariable(text []byte) bool {
 	var (
-		NoQuote         byte = 0
-		SingleQuote     byte = '\''
-		DoubleQuote     byte = '"'
-		TickerQuote     byte = '`'
-		OpenParenthesis byte = '{'
+		OpenParenthesis byte = '('
 		EqualSign       byte = '='
-		currentStyle    byte = 0
 	)
 
 	var i int = 0
 
-	// determine whether the text is a variable or method
 	for ; i < len(text); i++ {
-		if currentStyle == SingleQuote && text[i] == SingleQuote ||
-			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if text[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if text[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if text[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if text[i] == EqualSign {
-				return true
-			} else if text[i] == OpenParenthesis {
-				return false
-			}
+		if text[i] == EqualSign {
+			return true
+		} else if text[i] == OpenParenthesis {
+			return false
 		}
 	}
 
-	if i == len(text)-1 {
-		return true
-	}
-
-	return false
+	return i == len(text)
 }

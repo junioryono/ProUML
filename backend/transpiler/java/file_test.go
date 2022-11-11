@@ -1205,3 +1205,85 @@ func TestGetFileClasses(t *testing.T) {
 		})
 	}
 }
+
+func TestIsVariable(t *testing.T) {
+	type TestIsVar struct {
+		Input  []byte
+		Output bool
+	}
+
+	var tests = []TestIsVar{
+		{
+			[]byte("void Hello();"),
+			false,
+		},
+		{
+			[]byte("void Hello(){}"),
+			false,
+		},
+		{
+			[]byte("void Hello(){};"),
+			false,
+		},
+		{
+			[]byte("void Hello(String var1)"),
+			false,
+		},
+		{
+			[]byte("void Hello(String var1);"),
+			false,
+		},
+		{
+			[]byte("void Hello(String var1, String var2)"),
+			false,
+		},
+		{
+			[]byte("void Hello(String var1, String var2);"),
+			false,
+		},
+		{
+			[]byte("String var;"),
+			true,
+		},
+		{
+			[]byte("String var = \"Hello\";"),
+			true,
+		},
+		{
+			[]byte("String var = 'Hello';"),
+			true,
+		},
+		{
+			[]byte("String var = `Hello`;"),
+			true,
+		},
+		{
+			[]byte("String var = '(Hello);"),
+			true,
+		},
+		{
+			[]byte("String var = new Test();"),
+			true,
+		},
+		{
+			[]byte("String var1, var2, var3;"),
+			true,
+		},
+		{
+			[]byte("String var1 = 'Hello', var2 = 'Hello', var3 = 'Hello';"),
+			true,
+		},
+	}
+
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			// subtest.Parallel()
+
+			actualOutput := isVariable(tt.Input)
+
+			if tt.Output != actualOutput {
+				subtest.Errorf("incorrect response.\ngot:\n%t\nneed:\n%t\n", actualOutput, tt.Output)
+			}
+		})
+	}
+}
