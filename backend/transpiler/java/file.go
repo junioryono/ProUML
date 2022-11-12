@@ -2,6 +2,7 @@ package java
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
@@ -424,10 +425,8 @@ func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool)
 								// ===============================================================================
 								// required variables for struct
 								var declarations [][]byte
-								var variables []types.JavaVariable
-								var methods []types.JavaMethod
 
-								// variables, method := getVariablesOrMethod(innerText)
+								variables, methods := getVariablesAndMethods(innerText)
 
 								// ===============================================================================
 
@@ -454,32 +453,33 @@ func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool)
 	}
 }
 
+func getVariablesAndMethods(text []byte) ([]types.JavaVariable, []types.JavaMethod) {
+	var (
+		linesSplit [][]byte
+		variables  []types.JavaVariable
+		methods    []types.JavaMethod
+	)
+
+	// TODO
+	// split by line of execution
+	fmt.Printf("Inside: %s\n", text)
+
+	// get variables or method
+	// push to this variables and methods
+	for i := 0; i < len(linesSplit); i++ {
+		v, m := getVariablesOrMethod(linesSplit[i])
+		variables = append(variables, v...)
+		methods = append(methods, m)
+	}
+
+	return variables, methods
+}
+
 func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) {
 	var (
 		variables []types.JavaVariable
 		method    types.JavaMethod
 	)
-
-	/*
-		types.JavaVariable{
-			Type           []byte
-			Name           []byte
-			Value          []byte
-			AccessModifier []byte // "private" | "protected" | "public"
-			Static         bool
-			Final          bool
-		}
-
-		types.JavaMethod{
-			Type           []byte
-			Name           []byte
-			AccessModifier []byte // "private" | "protected" | "public"
-			Parameters     []JavaMethodParameter
-			Abstract       bool // If abstract is true, Static and Final must be false
-			Static         bool
-			Final          bool
-		}
-	*/
 
 	isVar := isVariable(text)
 	_ = isVar
