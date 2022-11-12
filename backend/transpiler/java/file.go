@@ -221,6 +221,15 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 		return nil, &types.CannotParseText{}
 	}
 
+	for _, ct := range classesText {
+		var declarations [][]byte
+
+		variables, methods := getVariablesAndMethods(ct.Inside)
+		ct.Variables = variables
+		ct.Methods = methods
+		ct.Declarations = declarations
+	}
+
 	findIndex := func(sWord string, dbArray [][]byte) int {
 		bWord := []byte(sWord)
 		for i, w := range dbArray {
@@ -422,21 +431,13 @@ func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool)
 									}
 								}
 
-								// ===============================================================================
-								// required variables for struct
-								var declarations [][]byte
-
-								variables, methods := getVariablesAndMethods(innerText)
-
-								// ===============================================================================
-
 								*classesText = append(*classesText, types.ClassText{
 									DefinedWithin: definedWithin,
 									Outside:       outerText,
 									Inside:        innerText,
-									Declarations:  declarations,
-									Variables:     variables,
-									Methods:       methods,
+									Declarations:  nil,
+									Variables:     nil,
+									Methods:       nil,
 								})
 
 								getInnerClasses(classesText, innerText, true)
@@ -473,6 +474,12 @@ func getVariablesAndMethods(text []byte) ([]types.JavaVariable, []types.JavaMeth
 	}
 
 	return variables, methods
+}
+
+func splitVariablesAndMethods(text []byte) [][]byte {
+	var res [][]byte
+
+	return res
 }
 
 func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) {

@@ -1209,6 +1209,91 @@ func TestGetFileClasses(t *testing.T) {
 	}
 }
 
+func TestSplitVariablesAndMethods(t *testing.T) {
+	type TestSplit struct {
+		Input  []byte
+		Output [][]byte
+	}
+
+	var tests = []TestSplit{
+		{
+			[]byte("public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}"),
+			[][]byte{[]byte("public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}")},
+		},
+		{
+			[]byte("void show();"),
+			[][]byte{[]byte("void show();")},
+		},
+		{
+			[]byte("public void show(){System.out.println('show method of interface');}"),
+			[][]byte{[]byte("public void show(){System.out.println('show method of interface');}")},
+		},
+		{
+			[]byte("public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}"),
+			[][]byte{[]byte("public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}")},
+		},
+		{
+			[]byte("protected interface Yes{void show();}public void TestVoid(){}"),
+			[][]byte{
+				[]byte("protected interface Yes{void show();}"),
+				[]byte("public void TestVoid(){}"),
+			},
+		},
+		{
+			[]byte("void Hello(String var1, String var2);"),
+			[][]byte{[]byte("void Hello(String var1, String var2);")},
+		},
+		{
+			[]byte("String hello1, hello2;String bye1, bye2;"),
+			[][]byte{
+				[]byte("String hello1, hello2;"),
+				[]byte("String bye1, bye2;"),
+			},
+		},
+		{
+			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
+			[][]byte{
+				[]byte("Test inner1;"),
+				[]byte("public Testing inner2 = new Testing();"),
+				[]byte("private static Test.Yes inner3 = new Testing();"),
+				[]byte("protected final Test.Yes inner4 = \"Hello\";"),
+				[]byte("static final Test.Yes inner5 = null;"),
+				[]byte("protected static final Test.Yes inner6 = null;"),
+				[]byte("public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}"),
+				[]byte("Testing function1(Test.Yes var1, Test var2){};"),
+				[]byte("Testing function2();"),
+				[]byte("abstract void function3(){};"),
+				[]byte("static Testing function4(){}"),
+				[]byte("final Testing function5();"),
+				[]byte("static final void function6(){};"),
+				[]byte("public abstract void function7();"),
+				[]byte("private static Testing function8(){};"),
+				[]byte("protected final Testing function9(){};"),
+				[]byte("public static final void function10(){};"),
+			},
+		},
+	}
+
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			// subtest.Parallel()
+
+			actualOutput := splitVariablesAndMethods(tt.Input)
+
+			if len(tt.Output) != len(actualOutput) {
+				subtest.Errorf("incorrect length.\ngot: %s\nneed: %s\n", strconv.Itoa(len(actualOutput)), strconv.Itoa(len(tt.Output)))
+				subtest.FailNow()
+			}
+
+			for index, expected := range tt.Output {
+				if !bytes.Equal(actualOutput[index], expected) {
+					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected), string(actualOutput[index]))
+				}
+			}
+		})
+	}
+}
+
 func TestGetVariablesOrMethod(t *testing.T) {
 	type TestGetVarsOrMethod struct {
 		Input           []byte
