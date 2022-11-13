@@ -2,10 +2,26 @@ package java
 
 import (
 	"bytes"
-	"fmt"
 	"regexp"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
+)
+
+var (
+	NoQuote           byte = 0
+	SingleQuote       byte = '\''
+	DoubleQuote       byte = '"'
+	TickerQuote       byte = '`'
+	OpenParenthesis   byte = '('
+	ClosedParenthesis byte = ')'
+	OpenCurly         byte = '{'
+	ClosedCurly       byte = '}'
+	SemiColon         byte = ';'
+	EqualSign         byte = '='
+	SingleLineComment byte = '/'
+	MultiLineComment  byte = '*'
+	Comma             byte = ','
+	Space             byte = ' '
 )
 
 func parseFile(file types.File) (*types.FileResponse, error) {
@@ -64,17 +80,8 @@ func removeComments(text []byte) ([]byte, error) {
 	}
 
 	var (
-		NoQuote           byte = 0
-		SingleQuote       byte = '\''
-		DoubleQuote       byte = '"'
-		TickerQuote       byte = '`'
-		SingleLineComment byte = '/'
-		MultiLineComment  byte = '*'
-	)
-
-	var (
 		startCommentIndex int  = 0
-		currentStyle      byte = 0
+		currentStyle      byte = NoQuote
 	)
 
 	removeText := func(i int) {
@@ -221,13 +228,13 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 		return nil, &types.CannotParseText{}
 	}
 
-	for _, ct := range classesText {
+	for i := 0; i < len(classesText); i++ {
 		var declarations [][]byte
 
-		variables, methods := getVariablesAndMethods(ct.Inside)
-		ct.Variables = variables
-		ct.Methods = methods
-		ct.Declarations = declarations
+		variables, methods := getVariablesAndMethods(classesText[i].Inside)
+		classesText[i].Variables = variables
+		classesText[i].Methods = methods
+		classesText[i].Declarations = declarations
 	}
 
 	findIndex := func(sWord string, dbArray [][]byte) int {
@@ -319,23 +326,13 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 
 func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool) {
 	var (
-		NoQuote     byte = 0
-		SingleQuote byte = '\''
-		DoubleQuote byte = '"'
-		TickerQuote byte = '`'
-		OpenCurly   byte = '{'
-		ClosedCurly byte = '}'
-		SemiColon   byte = ';'
-	)
-
-	var (
 		startScopeIndex int  = 0
-		currentStyle    byte = 0
+		currentStyle    byte = NoQuote
 		currentScope    int  = 0
 	)
 
-	isClassDeclaration := func(word []byte) bool {
-		return bytes.Equal(word, []byte("abstract")) || bytes.Equal(word, []byte("class")) || bytes.Equal(word, []byte("interface")) || bytes.Equal(word, []byte("enum"))
+	isClassDeclaration := func(word1, word2 []byte) bool {
+		return (bytes.Equal(word1, []byte("abstract")) && bytes.Equal(word2, []byte("class"))) || bytes.Equal(word1, []byte("class")) || bytes.Equal(word1, []byte("interface")) || bytes.Equal(word1, []byte("enum"))
 	}
 
 	for i := 0; i < len(text); i++ {
@@ -374,11 +371,11 @@ func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool)
 							outerTextSplit := bytes.Split(outerText, []byte(" "))
 							innerText := text[startScopeIndex+1 : i]
 
-							if len(outerTextSplit) > 5 && isClassDeclaration(outerTextSplit[4]) ||
-								len(outerTextSplit) > 4 && isClassDeclaration(outerTextSplit[3]) ||
-								len(outerTextSplit) > 3 && isClassDeclaration(outerTextSplit[2]) ||
-								len(outerTextSplit) > 2 && isClassDeclaration(outerTextSplit[1]) ||
-								len(outerTextSplit) > 1 && isClassDeclaration(outerTextSplit[0]) {
+							if len(outerTextSplit) > 5 && isClassDeclaration(outerTextSplit[4], outerTextSplit[5]) ||
+								len(outerTextSplit) > 4 && isClassDeclaration(outerTextSplit[3], outerTextSplit[4]) ||
+								len(outerTextSplit) > 3 && isClassDeclaration(outerTextSplit[2], outerTextSplit[3]) ||
+								len(outerTextSplit) > 2 && isClassDeclaration(outerTextSplit[1], outerTextSplit[2]) ||
+								len(outerTextSplit) > 1 && isClassDeclaration(outerTextSplit[0], outerTextSplit[1]) {
 
 								if isNested {
 									previousInnerText := (*classesText)[len(*classesText)-1].Inside
@@ -390,7 +387,7 @@ func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool)
 									index := bytes.Index(previousInnerText, outerText)
 									if index != -1 {
 										var (
-											currentInnerStyle byte = 0
+											currentInnerStyle byte = NoQuote
 											innerScopeNumber  int  = 0
 											endingIndex            = len(previousInnerText) - 1
 										)
@@ -456,28 +453,76 @@ func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool)
 
 func getVariablesAndMethods(text []byte) ([]types.JavaVariable, []types.JavaMethod) {
 	var (
-		linesSplit [][]byte
+		linesSplit = splitVariablesAndMethods(text) // Split by line of execution
 		variables  []types.JavaVariable
 		methods    []types.JavaMethod
 	)
-
-	// TODO
-	// split by line of execution
-	fmt.Printf("Inside: %s\n", text)
 
 	// get variables or method
 	// push to this variables and methods
 	for i := 0; i < len(linesSplit); i++ {
 		v, m := getVariablesOrMethod(linesSplit[i])
 		variables = append(variables, v...)
-		methods = append(methods, m)
+
+		if !bytes.Equal(m.Name, []byte("")) {
+			methods = append(methods, m)
+		}
 	}
 
 	return variables, methods
 }
 
-func splitVariablesAndMethods(text []byte) [][]byte {
-	var res [][]byte
+func splitVariablesAndMethods(t []byte) [][]byte {
+	var (
+		text         = make([]byte, len(t))
+		res          [][]byte
+		currentStyle byte = NoQuote
+		currentScope int  = 0
+	)
+	copy(text, t)
+
+	removeAndAppendText := func(i int) {
+		temp := make([]byte, len(text))
+		copy(temp, text)
+		temp = append([]byte(nil), temp[0:i+1]...)
+
+		res = append(res, temp)
+
+		text = append(text[:0], text[i+1:]...)
+		currentStyle = NoQuote
+	}
+
+	for i := 0; i < len(text); i++ {
+		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if text[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if text[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if text[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else if text[i] == OpenCurly {
+				currentScope++
+			} else if text[i] == ClosedCurly {
+				currentScope--
+
+				if currentScope == 0 {
+					if i+1 < len(text) && text[i+1] == SemiColon {
+						i++
+					}
+
+					removeAndAppendText(i)
+					i = 0
+				}
+			} else if text[i] == SemiColon && currentScope == 0 {
+				removeAndAppendText(i)
+				i = 0
+			}
+		}
+	}
 
 	return res
 }
@@ -488,28 +533,222 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		method    types.JavaMethod
 	)
 
-	isVar := isVariable(text)
-	_ = isVar
+	isVar, openParamIndex := isVariable(text)
 
-	return variables, method
-}
+	if isVar {
+		var (
+			Type           []byte
+			AccessModifier []byte
+			Static         bool
+			Final          bool
+		)
 
-// Determine whether the line of text is a variable or method
-func isVariable(text []byte) bool {
+		var variablesStartIndex int
+
+		_ = Type
+		_ = AccessModifier
+		_ = Static
+		_ = Final
+
+		if bytes.HasPrefix(text, []byte("public static final")) {
+			AccessModifier = []byte("public")
+			Static = true
+			Final = true
+		} else if bytes.HasPrefix(text, []byte("public static")) {
+			AccessModifier = []byte("public")
+			Static = true
+		} else if bytes.HasPrefix(text, []byte("public final")) {
+			AccessModifier = []byte("public")
+			Final = true
+		} else if bytes.HasPrefix(text, []byte("protected static final")) {
+			AccessModifier = []byte("protected")
+			Static = true
+			Final = true
+		} else if bytes.HasPrefix(text, []byte("protected static")) {
+			AccessModifier = []byte("protected")
+			Static = true
+		} else if bytes.HasPrefix(text, []byte("protected final")) {
+			AccessModifier = []byte("protected")
+			Final = true
+		} else if bytes.HasPrefix(text, []byte("private static final")) {
+			AccessModifier = []byte("private")
+			Static = true
+			Final = true
+		} else if bytes.HasPrefix(text, []byte("private static")) {
+			AccessModifier = []byte("private")
+			Static = true
+		} else if bytes.HasPrefix(text, []byte("private final")) {
+			AccessModifier = []byte("private")
+			Final = true
+		} else if bytes.HasPrefix(text, []byte("static final")) {
+			Static = true
+			Final = true
+		} else if bytes.HasPrefix(text, []byte("public")) {
+			AccessModifier = []byte("public")
+		} else if bytes.HasPrefix(text, []byte("protected")) {
+			AccessModifier = []byte("protected")
+		} else if bytes.HasPrefix(text, []byte("private")) {
+			AccessModifier = []byte("private")
+		} else if bytes.HasPrefix(text, []byte("static")) {
+			Static = true
+		} else if bytes.HasPrefix(text, []byte("final")) {
+			Final = true
+		}
+
+		if len(AccessModifier) != 0 {
+			variablesStartIndex += len(AccessModifier) + 1
+		}
+		if Static {
+			variablesStartIndex += 6 + 1
+		}
+		if Final {
+			variablesStartIndex += 5 + 1
+		}
+
+		vSText := text[variablesStartIndex:]
+		Type = bytes.SplitN(vSText, []byte(" "), 2)[0]
+		vSText = vSText[len(Type)+1:]
+
+		var (
+			currentStyle         byte = NoQuote
+			nameStartIndex       int  = 0
+			currentName          []byte
+			currentlyFindingName bool = true
+			valueStartIndex      int  = 0
+		)
+
+		// Example inputs:
+		// var1;
+		// var2 = "Hello";
+		// var3 = "Hello",var4;
+		// var5 = "Hello",var6 = "Hello",var7;
+
+		for i := 0; i < len(vSText); i++ {
+			if currentStyle == SingleQuote && vSText[i] == SingleQuote ||
+				currentStyle == DoubleQuote && vSText[i] == DoubleQuote ||
+				currentStyle == TickerQuote && vSText[i] == TickerQuote {
+				currentStyle = NoQuote
+			} else if currentStyle == NoQuote {
+				if vSText[i] == SingleQuote {
+					currentStyle = SingleQuote
+				} else if vSText[i] == DoubleQuote {
+					currentStyle = DoubleQuote
+				} else if vSText[i] == TickerQuote {
+					currentStyle = TickerQuote
+				} else if vSText[i] == Comma || vSText[i] == SemiColon {
+					var currentValue []byte
+					if valueStartIndex != 0 {
+						currentValue = vSText[valueStartIndex:i]
+					}
+					if currentlyFindingName {
+						currentName = vSText[nameStartIndex:i]
+					}
+
+					variables = append(variables, types.JavaVariable{
+						Type:           Type,
+						Name:           currentName,
+						Value:          currentValue,
+						AccessModifier: AccessModifier,
+						Static:         Static,
+						Final:          Final,
+					})
+
+					if vSText[i] == Comma {
+						nameStartIndex = i + 1
+						valueStartIndex = 0
+						currentlyFindingName = true
+					}
+
+				} else if vSText[i] == EqualSign {
+					valueStartIndex = i + 2
+				} else if vSText[i] == Space && currentlyFindingName {
+					currentName = vSText[nameStartIndex:i]
+					currentlyFindingName = false
+				}
+			}
+		}
+
+		return variables, method
+	}
+
 	var (
-		OpenParenthesis byte = '('
-		EqualSign       byte = '='
+		methodDeclaration = text[0:openParamIndex]
+		paramDeclarations []byte
+		currentStyle      byte = NoQuote
 	)
 
+	for i := openParamIndex; i < len(text); i++ {
+		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if text[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if text[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if text[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else if text[i] == ClosedParenthesis {
+				paramDeclarations = append(paramDeclarations, text[openParamIndex+1:i]...)
+				break
+			}
+		}
+	}
+
+	declarationSplit := bytes.Split(methodDeclaration, []byte(" "))
+
+	var allParamsSplit [][]byte
+	if len(paramDeclarations) != 0 {
+		allParamsSplit = bytes.Split(paramDeclarations, []byte(", "))
+
+		for _, param := range allParamsSplit {
+			paramSplit := bytes.Split(param, []byte(" "))
+			method.Parameters = append(method.Parameters, types.JavaMethodParameter{
+				Type: paramSplit[0],
+				Name: paramSplit[1],
+			})
+		}
+	}
+
+	if bytes.Equal(declarationSplit[0], []byte("public")) || bytes.Equal(declarationSplit[0], []byte("protected")) || bytes.Equal(declarationSplit[0], []byte("private")) {
+		method.AccessModifier = declarationSplit[0]
+	}
+
+	if (len(declarationSplit) == 4 && bytes.Equal(declarationSplit[1], []byte("abstract"))) ||
+		(len(declarationSplit) == 3 && bytes.Equal(declarationSplit[0], []byte("abstract"))) {
+		method.Abstract = true
+	}
+
+	if (len(declarationSplit) == 5 || len(declarationSplit) == 4) && bytes.Equal(declarationSplit[1], []byte("static")) ||
+		(len(declarationSplit) == 4 || len(declarationSplit) == 3) && bytes.Equal(declarationSplit[0], []byte("static")) {
+		method.Static = true
+	}
+
+	if (len(declarationSplit) == 5 && bytes.Equal(declarationSplit[2], []byte("final"))) ||
+		(len(declarationSplit) == 4 && bytes.Equal(declarationSplit[1], []byte("final"))) ||
+		(len(declarationSplit) == 3 && bytes.Equal(declarationSplit[0], []byte("final"))) {
+		method.Final = true
+	}
+
+	method.Type = declarationSplit[len(declarationSplit)-2]
+	method.Name = declarationSplit[len(declarationSplit)-1]
+
+	return nil, method
+}
+
+// Determine whether the line of text is a variable or method.
+// If it is a method, return OpenParenthesis index
+func isVariable(text []byte) (bool, int) {
 	var i int = 0
 
 	for ; i < len(text); i++ {
 		if text[i] == EqualSign {
-			return true
+			return true, 0
 		} else if text[i] == OpenParenthesis {
-			return false
+			return false, i
 		}
 	}
 
-	return i == len(text)
+	return i == len(text), 0
 }

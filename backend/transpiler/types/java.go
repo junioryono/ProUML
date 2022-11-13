@@ -13,7 +13,7 @@ type JavaVariable struct {
 	Type           []byte
 	Name           []byte
 	Value          []byte
-	AccessModifier []byte // "private" | "protected" | "public"
+	AccessModifier []byte // "public" | "protected" | "private"
 	Static         bool
 	Final          bool
 }
@@ -26,7 +26,7 @@ type JavaMethodParameter struct {
 type JavaMethod struct {
 	Type           []byte
 	Name           []byte
-	AccessModifier []byte // "private" | "protected" | "public"
+	AccessModifier []byte // "public" | "protected" | "private"
 	Parameters     []JavaMethodParameter
 	Abstract       bool // If abstract is true, Static and Final must be false
 	Static         bool
@@ -63,5 +63,5 @@ type JavaEnum struct {
 	DefinedWithin []byte
 	Name          []byte
 	Declarations  [][]byte
-	Implements [][]byte
+	Implements    [][]byte
 }
