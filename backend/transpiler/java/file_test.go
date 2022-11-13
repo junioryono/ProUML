@@ -30,7 +30,7 @@ func TestParseFile(t *testing.T) {
 		Input: types.File{
 			Name:      "Test2",
 			Extension: "java",
-			Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test2{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
+			Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
 			Package: "com.houarizegai.calculator",
@@ -50,7 +50,7 @@ func TestParseFile(t *testing.T) {
 		Input: types.File{
 			Name:      "Test3",
 			Extension: "java",
-			Code:      []byte("package com.houarizegai.calculator;public class Test3{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
+			Code:      []byte("package com.houarizegai.calculator;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
 			Package: "com.houarizegai.calculator",
@@ -70,7 +70,7 @@ func TestParseFile(t *testing.T) {
 		Input: types.File{
 			Name:      "Test4",
 			Extension: "java",
-			Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
+			Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
 			Package: "",
@@ -90,7 +90,7 @@ func TestParseFile(t *testing.T) {
 		Input: types.File{
 			Name:      "Test5",
 			Extension: "java",
-			Code:      []byte("public class Test5{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
+			Code:      []byte("public class Test5{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
 			Package: "",
@@ -110,7 +110,7 @@ func TestParseFile(t *testing.T) {
 		Input: types.File{
 			Name:      "Test6",
 			Extension: "java",
-			Code:      []byte("public class Test6 extends Test,Hello,Yes{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
+			Code:      []byte("public class Test6 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
 			Package: "",
@@ -259,7 +259,7 @@ func TestRemoveComments(t *testing.T) {
 			// Hello   // qwmeiqw //wqeqweqw
 			public class Test {
 				/// WEI0ojqwoije
-				public static void main(String args[]) {
+				public static void main(String[] args) {
 					// wjqiehnwijken
 					System.out.println('Hello Java'); // UIEHQW
 
@@ -281,7 +281,7 @@ func TestRemoveComments(t *testing.T) {
 			
 			public class Test {
 				
-				public static void main(String args[]) {
+				public static void main(String[] args) {
 					
 					System.out.println('Hello Java'); 
 
@@ -299,7 +299,7 @@ func TestRemoveComments(t *testing.T) {
 			// Hello   // qwmeiqw //wqeqweqw
 			public class Test {
 				/// WEI0ojqwoije
-				public static void main(String args[]) {
+				public static void main(String[] args) {
 					// wjqiehnwijken
 					System.out.println('Hello // Java'); // UIEHQW
 
@@ -321,7 +321,7 @@ func TestRemoveComments(t *testing.T) {
 			
 			public class Test {
 				
-				public static void main(String args[]) {
+				public static void main(String[] args) {
 					
 					System.out.println('Hello // Java'); 
 
@@ -349,7 +349,7 @@ func TestRemoveComments(t *testing.T) {
 			// Hello   // qwmeiqw //wqeqweqw
 			public class Test {
 				/// WEI0ojqwoije
-				public static void main(String args[]) {
+				public static void main(String[] args) {
 					// wjqiehnwijken
 					System.out.println('Hello /* wmkqoem */ Java'); // UIEHQW
 
@@ -381,7 +381,7 @@ func TestRemoveComments(t *testing.T) {
 			
 			public class Test {
 				
-				public static void main(String args[]) {
+				public static void main(String[] args) {
 					
 					System.out.println('Hello /* wmkqoem */ Java'); 
 
@@ -536,7 +536,7 @@ func TestRemoveSpacing(t *testing.T) {
 			
 		public class Test {
 			
-			public static void main(String args[]) {
+			public static void main(String[] args) {
 				
 				System.out.println('Hello'); 
 
@@ -545,7 +545,7 @@ func TestRemoveSpacing(t *testing.T) {
 
 			
 									}   `),
-		Output: []byte("public class Test{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
+		Output: []byte("public class Test{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		Err:    nil,
 	}
 
@@ -594,154 +594,268 @@ func TestRemoveSpacing(t *testing.T) {
 }
 
 func TestGetFileClasses(t *testing.T) {
-	// test1 := types.TestFileResponse{
-	// 	Name: "invalid - no code inside file",
-	// 	Input: types.File{
-	// 		Name:      "Test1",
-	// 		Extension: "java",
-	// 		Code:      nil,
-	// 	},
-	// 	Output: &types.FileResponse{
-	// 		Package: "",
-	// 		Data:    nil,
-	// 	},
-	// 	Err: &types.CannotParseText{},
-	// }
+	test1 := types.TestFileResponse{
+		Name: "invalid - no code inside file",
+		Input: types.File{
+			Name:      "Test1",
+			Extension: "java",
+			Code:      nil,
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Data:    nil,
+		},
+		Err: &types.CannotParseText{},
+	}
 
-	// test2 := types.TestFileResponse{
-	// 	Name: "valid - includes package, import, class",
-	// 	Input: types.File{
-	// 		Name:      "Test2",
-	// 		Extension: "java",
-	// 		Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test2{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
-	// 	},
-	// 	Output: &types.FileResponse{
-	// 		Package: "",
-	// 		Data: []any{
-	// 			types.JavaClass{
-	// 				Name:       []byte("Test2"),
-	// 				Implements: nil,
-	// 				Extends:    nil,
-	// 			},
-	// 		},
-	// 	},
-	// 	Err: nil,
-	// }
+	test2 := types.TestFileResponse{
+		Name: "valid - includes package, import, class",
+		Input: types.File{
+			Name:      "Test2",
+			Extension: "java",
+			Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Data: []any{
+				types.JavaClass{
+					Name: []byte("Test2"),
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("main"),
+							AccessModifier: []byte("public"),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("String[]"),
+									Name: []byte("args"),
+								},
+							},
+							Abstract: false,
+							Static:   true,
+							Final:    false,
+						},
+					},
+				},
+			},
+		},
+		Err: nil,
+	}
 
-	// test3 := types.TestFileResponse{
-	// 	Name: "valid - includes package, class",
-	// 	Input: types.File{
-	// 		Name:      "Test3",
-	// 		Extension: "java",
-	// 		Code:      []byte("package com.houarizegai.calculator;public class Test3{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
-	// 	},
-	// 	Output: &types.FileResponse{
-	// 		Package: "",
-	// 		Data: []any{
-	// 			types.JavaClass{
-	// 				Name:       []byte("Test3"),
-	// 				Implements: nil,
-	// 				Extends:    nil,
-	// 			},
-	// 		},
-	// 	},
-	// 	Err: nil,
-	// }
+	test3 := types.TestFileResponse{
+		Name: "valid - includes package, class",
+		Input: types.File{
+			Name:      "Test3",
+			Extension: "java",
+			Code:      []byte("package com.houarizegai.calculator;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Data: []any{
+				types.JavaClass{
+					Name: []byte("Test3"),
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("main"),
+							AccessModifier: []byte("public"),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("String[]"),
+									Name: []byte("args"),
+								},
+							},
+							Abstract: false,
+							Static:   true,
+							Final:    false,
+						},
+					},
+				},
+			},
+		},
+		Err: nil,
+	}
 
-	// test4 := types.TestFileResponse{
-	// 	Name: "valid - includes package, import",
-	// 	Input: types.File{
-	// 		Name:      "Test4",
-	// 		Extension: "java",
-	// 		Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
-	// 	},
-	// 	Output: &types.FileResponse{
-	// 		Package: "",
-	// 		Data: []any{
-	// 			types.JavaClass{
-	// 				Name:       []byte("Test4"),
-	// 				Implements: nil,
-	// 				Extends:    nil,
-	// 			},
-	// 		},
-	// 	},
-	// 	Err: nil,
-	// }
+	test4 := types.TestFileResponse{
+		Name: "valid - includes package, import",
+		Input: types.File{
+			Name:      "Test4",
+			Extension: "java",
+			Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Data: []any{
+				types.JavaClass{
+					Name: []byte("Test4"),
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("main"),
+							AccessModifier: []byte("public"),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("String[]"),
+									Name: []byte("args"),
+								},
+							},
+							Abstract: false,
+							Static:   true,
+							Final:    false,
+						},
+					},
+				},
+			},
+		},
+		Err: nil,
+	}
 
-	// test5 := types.TestFileResponse{
-	// 	Name: "valid - includes class",
-	// 	Input: types.File{
-	// 		Name:      "Test5",
-	// 		Extension: "java",
-	// 		Code:      []byte("public class Test5{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
-	// 	},
-	// 	Output: &types.FileResponse{
-	// 		Package: "",
-	// 		Data: []any{
-	// 			types.JavaClass{
-	// 				Name:       []byte("Test5"),
-	// 				Implements: nil,
-	// 				Extends:    nil,
-	// 			},
-	// 		},
-	// 	},
-	// 	Err: nil,
-	// }
+	test5 := types.TestFileResponse{
+		Name: "valid - includes class",
+		Input: types.File{
+			Name:      "Test5",
+			Extension: "java",
+			Code:      []byte("public class Test5{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Data: []any{
+				types.JavaClass{
+					Name: []byte("Test5"),
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("main"),
+							AccessModifier: []byte("public"),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("String[]"),
+									Name: []byte("args"),
+								},
+							},
+							Abstract: false,
+							Static:   true,
+							Final:    false,
+						},
+					},
+				},
+			},
+		},
+		Err: nil,
+	}
 
-	// test6 := types.TestFileResponse{
-	// 	Name: "valid - includes class, extends",
-	// 	Input: types.File{
-	// 		Name:      "Test6",
-	// 		Extension: "java",
-	// 		Code:      []byte("public class Test6 extends Test,Hello,Yes{public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}}"),
-	// 	},
-	// 	Output: &types.FileResponse{
-	// 		Package: "",
-	// 		Data: []any{
-	// 			types.JavaClass{
-	// 				Name:       []byte("Test6"),
-	// 				Implements: nil,
-	// 				Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
-	// 			},
-	// 		},
-	// 	},
-	// 	Err: nil,
-	// }
+	test6 := types.TestFileResponse{
+		Name: "valid - includes class, extends",
+		Input: types.File{
+			Name:      "Test6",
+			Extension: "java",
+			Code:      []byte("public class Test6 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Data: []any{
+				types.JavaClass{
+					Name:    []byte("Test6"),
+					Extends: [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("main"),
+							AccessModifier: []byte("public"),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("String[]"),
+									Name: []byte("args"),
+								},
+							},
+							Abstract: false,
+							Static:   true,
+							Final:    false,
+						},
+					},
+				},
+			},
+		},
+		Err: nil,
+	}
 
-	// test7 := types.TestFileResponse{
-	// 	Name: "valid - includes class, extends",
-	// 	Input: types.File{
-	// 		Name:      "A",
-	// 		Extension: "java",
-	// 		Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}}"),
-	// 	},
-	// 	Output: &types.FileResponse{
-	// 		Package: "",
-	// 		Data: []any{
-	// 			types.JavaClass{
-	// 				Name:       []byte("Test"),
-	// 				Implements: nil,
-	// 				Extends:    nil,
-	// 			},
-	// 			types.JavaInterface{
-	// 				DefinedWithin: []byte("Test"),
-	// 				Name:          []byte("Yes"),
-	// 				Extends:       nil,
-	// 			},
-	// 			types.JavaClass{
-	// 				Name:       []byte("Testing"),
-	// 				Implements: [][]byte{[]byte("Test.Yes")},
-	// 				Extends:    nil,
-	// 			},
-	// 			types.JavaClass{
-	// 				Name:       []byte("A"),
-	// 				Implements: nil,
-	// 				Extends:    nil,
-	// 			},
-	// 		},
-	// 	},
-	// 	Err: nil,
-	// }
+	test7 := types.TestFileResponse{
+		Name: "valid - includes class, extends",
+		Input: types.File{
+			Name:      "A",
+			Extension: "java",
+			Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}}"),
+		},
+		Output: &types.FileResponse{
+			Package: "",
+			Data: []any{
+				types.JavaClass{
+					Name: []byte("Test"),
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("Test"),
+							AccessModifier: []byte("public"),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         true,
+							Final:          false,
+						},
+					},
+				},
+				types.JavaInterface{
+					DefinedWithin: []byte("Test"),
+					Name:          []byte("Yes"),
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("show"),
+							AccessModifier: []byte(""),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         false,
+							Final:          false,
+						},
+					},
+				},
+				types.JavaClass{
+					Name:       []byte("Testing"),
+					Implements: [][]byte{[]byte("Test.Yes")},
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("show"),
+							AccessModifier: []byte("public"),
+							Parameters:     nil,
+							Abstract:       false,
+							Static:         false,
+							Final:          false,
+						},
+					},
+				},
+				types.JavaClass{
+					Name: []byte("A"),
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("main"),
+							AccessModifier: []byte("public"),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("String[]"),
+									Name: []byte("args"),
+								},
+							},
+							Abstract: false,
+							Static:   true,
+							Final:    false,
+						},
+					},
+				},
+			},
+		},
+		Err: nil,
+	}
 
 	test8 := types.TestFileResponse{
 		Name: "valid - includes class, extends",
@@ -979,7 +1093,7 @@ func TestGetFileClasses(t *testing.T) {
 		Err: nil,
 	}
 
-	var tests = []types.TestFileResponse{test8}
+	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6, test7, test8}
 
 	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
@@ -1107,6 +1221,17 @@ func TestGetFileClasses(t *testing.T) {
 							subtest.FailNow()
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
+
+							subtest.Logf("expected:\n")
+							for _, jm := range expected.Methods {
+								subtest.Logf("%s\n", jm.Name)
+							}
+
+							subtest.Logf("\ngot:\n")
+							for _, jm := range response.Methods {
+								subtest.Logf("%s\n", jm.Name)
+							}
+
 							subtest.FailNow()
 						}
 
@@ -1263,8 +1388,8 @@ func TestSplitVariablesAndMethods(t *testing.T) {
 
 	var tests = []TestSplit{
 		{
-			[]byte("public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}"),
-			[][]byte{[]byte("public static void main(String args[]){System.out.println('Hello');System.out.println('Hello');}")},
+			[]byte("public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}"),
+			[][]byte{[]byte("public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}")},
 		},
 		{
 			[]byte("void show();"),
@@ -1346,15 +1471,6 @@ func TestGetVariablesOrMethod(t *testing.T) {
 		VariablesOutput []types.JavaVariable
 		MethodOutput    types.JavaMethod
 	}
-
-	// []byte("abstract void function3(){};"),
-	// []byte("static Testing function4(){}"),
-	// []byte("final Testing function5();"),
-	// []byte("static final void function6(){};"),
-	// []byte("public abstract void function7();"),
-	// []byte("private static Testing function8(){};"),
-	// []byte("protected final Testing function9(){};"),
-	// []byte("public static final void function10(){};"),
 
 	var tests = []TestGetVarsOrMethod{
 		{
