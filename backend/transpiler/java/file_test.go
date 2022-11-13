@@ -3,7 +3,6 @@ package java
 import (
 	"bytes"
 	"errors"
-	"reflect"
 	"strconv"
 	"testing"
 
@@ -11,123 +10,501 @@ import (
 )
 
 func TestParseFile(t *testing.T) {
-	test1 := types.TestFileResponse{
-		Name: "invalid - no code inside file",
-		Input: types.File{
-			Name:      "Test1",
-			Extension: "java",
-			Code:      nil,
+	var tests = []types.TestFileResponse{
+		{
+			Name: "invalid - no code inside file",
+			Input: types.File{
+				Name:      "Test1",
+				Extension: "java",
+				Code:      nil,
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data:    nil,
+			},
+			Err: &types.CannotParseText{},
 		},
-		Output: &types.FileResponse{
-			Package: "",
-			Data:    nil,
-		},
-		Err: &types.CannotParseText{},
-	}
-
-	test2 := types.TestFileResponse{
-		Name: "valid - includes package, import, class",
-		Input: types.File{
-			Name:      "Test2",
-			Extension: "java",
-			Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		},
-		Output: &types.FileResponse{
-			Package: "com.houarizegai.calculator",
-			Data: []any{
-				types.JavaClass{
-					Name:       []byte("Test2"),
-					Implements: nil,
-					Extends:    nil,
+		{
+			Name: "valid - includes package, import, class",
+			Input: types.File{
+				Name:      "Test2",
+				Extension: "java",
+				Code:      []byte("import java.awt.Cursor;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test2"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract: false,
+								Static:   true,
+								Final:    false,
+							},
+						},
+					},
 				},
 			},
+			Err: nil,
 		},
-		Err: nil,
-	}
-
-	test3 := types.TestFileResponse{
-		Name: "valid - includes package, class",
-		Input: types.File{
-			Name:      "Test3",
-			Extension: "java",
-			Code:      []byte("package com.houarizegai.calculator;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		},
-		Output: &types.FileResponse{
-			Package: "com.houarizegai.calculator",
-			Data: []any{
-				types.JavaClass{
-					Name:       []byte("Test3"),
-					Implements: nil,
-					Extends:    nil,
+		{
+			Name: "valid - includes package, class",
+			Input: types.File{
+				Name:      "Test3",
+				Extension: "java",
+				Code:      []byte("package com.houarizegai.calculator;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte("com.houarizegai.calculator"),
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test3"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract: false,
+								Static:   true,
+								Final:    false,
+							},
+						},
+					},
 				},
 			},
+			Err: nil,
 		},
-		Err: nil,
-	}
-
-	test4 := types.TestFileResponse{
-		Name: "valid - includes package, import",
-		Input: types.File{
-			Name:      "Test4",
-			Extension: "java",
-			Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		},
-		Output: &types.FileResponse{
-			Package: "",
-			Data: []any{
-				types.JavaClass{
-					Name:       []byte("Test4"),
-					Implements: nil,
-					Extends:    nil,
+		{
+			Name: "valid - includes package, import",
+			Input: types.File{
+				Name:      "Test4",
+				Extension: "java",
+				Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test4"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract: false,
+								Static:   true,
+								Final:    false,
+							},
+						},
+					},
 				},
 			},
+			Err: nil,
 		},
-		Err: nil,
-	}
-
-	test5 := types.TestFileResponse{
-		Name: "valid - includes class",
-		Input: types.File{
-			Name:      "Test5",
-			Extension: "java",
-			Code:      []byte("public class Test5{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		},
-		Output: &types.FileResponse{
-			Package: "",
-			Data: []any{
-				types.JavaClass{
-					Name:       []byte("Test5"),
-					Implements: nil,
-					Extends:    nil,
+		{
+			Name: "valid - includes class",
+			Input: types.File{
+				Name:      "Test5",
+				Extension: "java",
+				Code:      []byte("public class Test5{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test5"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract: false,
+								Static:   true,
+								Final:    false,
+							},
+						},
+					},
 				},
 			},
+			Err: nil,
 		},
-		Err: nil,
-	}
-
-	test6 := types.TestFileResponse{
-		Name: "valid - includes class, extends",
-		Input: types.File{
-			Name:      "Test6",
-			Extension: "java",
-			Code:      []byte("public class Test6 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		},
-		Output: &types.FileResponse{
-			Package: "",
-			Data: []any{
-				types.JavaClass{
-					Name:       []byte("Test6"),
-					Implements: nil,
-					Extends:    [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+		{
+			Name: "valid - includes class, extends",
+			Input: types.File{
+				Name:      "Test6",
+				Extension: "java",
+				Code:      []byte("public class Test6 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name:    []byte("Test6"),
+						Extends: [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract: false,
+								Static:   true,
+								Final:    false,
+							},
+						},
+					},
 				},
 			},
+			Err: nil,
 		},
-		Err: nil,
+		{
+			Name: "valid - includes class, extends",
+			Input: types.File{
+				Name:      "A",
+				Extension: "java",
+				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("Test"),
+								AccessModifier: []byte("public"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         true,
+								Final:          false,
+							},
+						},
+					},
+					types.JavaInterface{
+						DefinedWithin: []byte("Test"),
+						Name:          []byte("Yes"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("show"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+							},
+						},
+					},
+					types.JavaClass{
+						Name:       []byte("Testing"),
+						Implements: [][]byte{[]byte("Test.Yes")},
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("show"),
+								AccessModifier: []byte("public"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+							},
+						},
+					},
+					types.JavaClass{
+						Name: []byte("A"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract: false,
+								Static:   true,
+								Final:    false,
+							},
+						},
+					},
+				},
+			},
+			Err: nil,
+		},
+		{
+			Name: "valid - includes class, extends",
+			Input: types.File{
+				Name:      "A",
+				Extension: "java",
+				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name:       []byte("Test"),
+						Implements: nil,
+						Extends:    nil,
+						Variables:  nil,
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("TestVoid"),
+								AccessModifier: []byte("public"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+							},
+						},
+					},
+					types.JavaInterface{
+						DefinedWithin: []byte("Test"),
+						Name:          []byte("Yes"),
+						Extends:       nil,
+						Variables:     nil,
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("show"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+							},
+						},
+					},
+					types.JavaClass{
+						Name:       []byte("Testing"),
+						Implements: [][]byte{[]byte("Test.Yes")},
+						Extends:    nil,
+						Variables:  nil,
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("show"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+							},
+						},
+					},
+					types.JavaClass{
+						Name:       []byte("A"),
+						Implements: nil,
+						Extends:    nil,
+						Variables: []types.JavaVariable{
+							{
+								Type:           []byte("Test"),
+								Name:           []byte("inner1"),
+								Value:          []byte(""),
+								AccessModifier: []byte(""),
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("inner2"),
+								Value:          []byte("new Testing()"),
+								AccessModifier: []byte("public"),
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Test.Yes"),
+								Name:           []byte("inner3"),
+								Value:          []byte("new Testing()"),
+								AccessModifier: []byte("private"),
+								Static:         true,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Test.Yes"),
+								Name:           []byte("inner4"),
+								Value:          []byte("\"Hello\""),
+								AccessModifier: []byte("protected"),
+								Static:         false,
+								Final:          true,
+							},
+							{
+								Type:           []byte("Test.Yes"),
+								Name:           []byte("inner5"),
+								Value:          []byte("null"),
+								AccessModifier: []byte(""),
+								Static:         true,
+								Final:          true,
+							},
+							{
+								Type:           []byte("Test.Yes"),
+								Name:           []byte("inner6"),
+								Value:          []byte("null"),
+								AccessModifier: []byte("protected"),
+								Static:         true,
+								Final:          true,
+							},
+						},
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract: false,
+								Static:   true,
+								Final:    false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function1"),
+								AccessModifier: []byte(""),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("Test.Yes"),
+										Name: []byte("var1"),
+									},
+									{
+										Type: []byte("Test"),
+										Name: []byte("var2"),
+									},
+								},
+								Abstract: false,
+								Static:   false,
+								Final:    false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function2"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("void"),
+								Name:           []byte("function3"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       true,
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function4"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         true,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function5"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          true,
+							},
+							{
+								Type:           []byte("void"),
+								Name:           []byte("function6"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         true,
+								Final:          true,
+							},
+							{
+								Type:           []byte("void"),
+								Name:           []byte("function7"),
+								AccessModifier: []byte("public"),
+								Parameters:     nil,
+								Abstract:       true,
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function8"),
+								AccessModifier: []byte("private"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         true,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function9"),
+								AccessModifier: []byte("protected"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          true,
+							},
+							{
+								Type:           []byte("void"),
+								Name:           []byte("function10"),
+								AccessModifier: []byte("public"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         true,
+								Final:          true,
+							},
+						},
+					},
+				},
+			},
+			Err: nil,
+		},
 	}
 
-	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6}
-
-	for _, tt := range tests {
+	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
 			// subtest.Parallel()
 
@@ -141,8 +518,21 @@ func TestParseFile(t *testing.T) {
 				return
 			}
 
-			if actualOutput.Package != tt.Output.Package {
-				subtest.Errorf("incorrect package.\ngot:\n%s\nneed:\n%s\n", actualOutput.Package, tt.Output.Package)
+			if !bytes.Equal(actualOutput.Package, tt.Output.Package) {
+				subtest.Errorf("testIndex: %s. incorrect package.\ngot:\n%s\nneed:\n%s\n", strconv.Itoa(testIndex), string(actualOutput.Package), string(tt.Output.Package))
+			}
+
+			if len(actualOutput.Data) != len(tt.Output.Data) {
+				subtest.Errorf("incorrect number of classes.\nExpected %s. Got %s\n", strconv.Itoa(len(tt.Output.Data)), strconv.Itoa(len(actualOutput.Data)))
+				subtest.FailNow()
+			}
+
+			if !errors.Is(err, tt.Err) {
+				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
+			}
+
+			if err != nil {
+				return
 			}
 
 			if len(actualOutput.Data) != len(tt.Output.Data) {
@@ -156,24 +546,80 @@ func TestParseFile(t *testing.T) {
 					switch expected := tt.Output.Data[i].(type) {
 					case types.JavaAbstract:
 						if !bytes.Equal(response.Name, expected.Name) {
-							subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
+							subtest.Errorf("incorrect class name on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.Name, response.Name)
 						} else if !bytes.Equal(response.DefinedWithin, expected.DefinedWithin) {
 							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
 						}
 
-						for index, word := range response.Extends {
-							if index > len(expected.Extends)-1 {
-								subtest.Errorf("out of bounds error")
-							} else if !bytes.Equal(expected.Extends[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
+						subtest.Logf("class name: %s\n", string(response.Name))
+						if len(expected.Extends) != len(response.Extends) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Extends)), strconv.Itoa(len(response.Extends)))
+							subtest.FailNow()
+						} else if len(expected.Implements) != len(response.Implements) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Implements)), strconv.Itoa(len(response.Implements)))
+							subtest.FailNow()
+						} else if len(expected.Variables) != len(response.Variables) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Variables)), strconv.Itoa(len(response.Variables)))
+							subtest.FailNow()
+						} else if len(expected.Methods) != len(response.Methods) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
+							subtest.FailNow()
+						}
+
+						for index, word := range expected.Extends {
+							if !bytes.Equal(response.Extends[index], word) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Extends[index]))
 							}
 						}
 
-						for index, word := range response.Implements {
-							if index > len(expected.Implements)-1 {
-								subtest.Errorf("out of bounds error")
-							} else if !bytes.Equal(expected.Implements[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Implements[index]), string(word))
+						for index, word := range expected.Implements {
+							if !bytes.Equal(response.Implements[index], word) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Implements[index]))
+							}
+						}
+
+						for index, variable := range expected.Variables {
+							if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Variables[index].Type))
+							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Variables[index].Name))
+							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Value), string(response.Variables[index].Value))
+							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Variables[index].AccessModifier))
+							} else if expected.Variables[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Variables[index].Static)
+							} else if expected.Variables[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Variables[index].Final)
+							}
+						}
+
+						for index, variable := range expected.Methods {
+							if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Methods[index].Type))
+							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Methods[index].Name))
+							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Methods[index].AccessModifier))
+							} else if expected.Methods[index].Abstract != variable.Abstract {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Abstract, response.Methods[index].Abstract)
+							} else if expected.Methods[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
+							} else if expected.Methods[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
+							}
+
+							if len(expected.Methods[index].Parameters) != len(variable.Parameters) {
+								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
+								subtest.FailNow()
+							}
+
+							for indexParam, parameter := range variable.Parameters {
+								if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Type), string(response.Methods[index].Parameters[indexParam].Type))
+								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
+								}
 							}
 						}
 					default:
@@ -184,24 +630,91 @@ func TestParseFile(t *testing.T) {
 					switch expected := tt.Output.Data[i].(type) {
 					case types.JavaClass:
 						if !bytes.Equal(response.Name, expected.Name) {
-							subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
+							subtest.Errorf("incorrect class name on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.Name, response.Name)
 						} else if !bytes.Equal(response.DefinedWithin, expected.DefinedWithin) {
 							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
 						}
 
-						for index, word := range response.Extends {
-							if index > len(expected.Extends)-1 {
-								subtest.Errorf("out of bounds error")
-							} else if !bytes.Equal(expected.Extends[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
+						subtest.Logf("class name: %s\n", string(response.Name))
+						if len(expected.Extends) != len(response.Extends) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Extends)), strconv.Itoa(len(response.Extends)))
+							subtest.FailNow()
+						} else if len(expected.Implements) != len(response.Implements) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Implements)), strconv.Itoa(len(response.Implements)))
+							subtest.FailNow()
+						} else if len(expected.Variables) != len(response.Variables) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Variables)), strconv.Itoa(len(response.Variables)))
+							subtest.FailNow()
+						} else if len(expected.Methods) != len(response.Methods) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
+
+							subtest.Logf("expected:\n")
+							for _, jm := range expected.Methods {
+								subtest.Logf("%s\n", jm.Name)
+							}
+
+							subtest.Logf("\ngot:\n")
+							for _, jm := range response.Methods {
+								subtest.Logf("%s\n", jm.Name)
+							}
+
+							subtest.FailNow()
+						}
+
+						for index, word := range expected.Extends {
+							if !bytes.Equal(response.Extends[index], word) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Extends[index]))
 							}
 						}
 
-						for index, word := range response.Implements {
-							if index > len(expected.Implements)-1 {
-								subtest.Errorf("out of bounds error")
-							} else if !bytes.Equal(expected.Implements[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Implements[index]), string(word))
+						for index, word := range expected.Implements {
+							if !bytes.Equal(response.Implements[index], word) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Implements[index]))
+							}
+						}
+
+						for index, variable := range expected.Variables {
+							if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Variables[index].Type))
+							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Variables[index].Name))
+							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Value), string(response.Variables[index].Value))
+							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Variables[index].AccessModifier))
+							} else if expected.Variables[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Variables[index].Static)
+							} else if expected.Variables[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Variables[index].Final)
+							}
+						}
+
+						for index, variable := range expected.Methods {
+							if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Methods[index].Type))
+							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Methods[index].Name))
+							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Methods[index].AccessModifier))
+							} else if expected.Methods[index].Abstract != variable.Abstract {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Abstract, response.Methods[index].Abstract)
+							} else if expected.Methods[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
+							} else if expected.Methods[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
+							}
+
+							if len(expected.Methods[index].Parameters) != len(variable.Parameters) {
+								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
+								subtest.FailNow()
+							}
+
+							for indexParam, parameter := range variable.Parameters {
+								if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Type), string(response.Methods[index].Parameters[indexParam].Type))
+								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
+								}
 							}
 						}
 					default:
@@ -212,16 +725,71 @@ func TestParseFile(t *testing.T) {
 					switch expected := tt.Output.Data[i].(type) {
 					case types.JavaInterface:
 						if !bytes.Equal(response.Name, expected.Name) {
-							subtest.Errorf("incorrect class name on index %s", strconv.Itoa(i))
+							subtest.Errorf("incorrect class name on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.Name, response.Name)
 						} else if !bytes.Equal(response.DefinedWithin, expected.DefinedWithin) {
 							subtest.Errorf("incorrect defined within on index %s.\nexpected:\n%s\ngot:\n%s\n", strconv.Itoa(i), expected.DefinedWithin, response.DefinedWithin)
 						}
 
-						for index, word := range response.Extends {
-							if index > len(expected.Extends)-1 {
-								subtest.Errorf("out of bounds error")
-							} else if !bytes.Equal(expected.Extends[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends[index]), string(word))
+						subtest.Logf("class name: %s\n", string(response.Name))
+						if len(expected.Extends) != len(response.Extends) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Extends)), strconv.Itoa(len(response.Extends)))
+							subtest.FailNow()
+						} else if len(expected.Variables) != len(response.Variables) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Variables)), strconv.Itoa(len(response.Variables)))
+							subtest.FailNow()
+						} else if len(expected.Methods) != len(response.Methods) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
+							subtest.FailNow()
+						}
+
+						for index, word := range expected.Extends {
+							if !bytes.Equal(response.Extends[index], word) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Extends[index]))
+							}
+						}
+
+						for index, variable := range expected.Variables {
+							if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Variables[index].Type))
+							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Variables[index].Name))
+							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Value), string(response.Variables[index].Value))
+							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Variables[index].AccessModifier))
+							} else if expected.Variables[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Variables[index].Static)
+							} else if expected.Variables[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Variables[index].Final)
+							}
+						}
+
+						for index, variable := range expected.Methods {
+							if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Methods[index].Type))
+							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Methods[index].Name))
+							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Methods[index].AccessModifier))
+							} else if expected.Methods[index].Abstract != variable.Abstract {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Abstract, response.Methods[index].Abstract)
+							} else if expected.Methods[index].Static != variable.Static {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
+							} else if expected.Methods[index].Final != variable.Final {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
+							}
+
+							if len(expected.Methods[index].Parameters) != len(variable.Parameters) {
+								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
+								subtest.FailNow()
+							}
+
+							for indexParam, parameter := range variable.Parameters {
+								if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Type), string(response.Methods[index].Parameters[indexParam].Type))
+								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
+								}
 							}
 						}
 					default:
@@ -230,7 +798,7 @@ func TestParseFile(t *testing.T) {
 
 				case types.JavaEnum:
 				default:
-					subtest.Errorf("cannot get language response %s", reflect.TypeOf(class))
+					subtest.Errorf("cannot get language response")
 					subtest.Fail()
 				}
 			}
@@ -602,7 +1170,7 @@ func TestGetFileClasses(t *testing.T) {
 			Code:      nil,
 		},
 		Output: &types.FileResponse{
-			Package: "",
+			Package: []byte(""),
 			Data:    nil,
 		},
 		Err: &types.CannotParseText{},
@@ -616,7 +1184,7 @@ func TestGetFileClasses(t *testing.T) {
 			Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
-			Package: "",
+			Package: []byte(""),
 			Data: []any{
 				types.JavaClass{
 					Name: []byte("Test2"),
@@ -650,7 +1218,7 @@ func TestGetFileClasses(t *testing.T) {
 			Code:      []byte("package com.houarizegai.calculator;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
-			Package: "",
+			Package: []byte(""),
 			Data: []any{
 				types.JavaClass{
 					Name: []byte("Test3"),
@@ -684,7 +1252,7 @@ func TestGetFileClasses(t *testing.T) {
 			Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
-			Package: "",
+			Package: []byte(""),
 			Data: []any{
 				types.JavaClass{
 					Name: []byte("Test4"),
@@ -718,7 +1286,7 @@ func TestGetFileClasses(t *testing.T) {
 			Code:      []byte("public class Test5{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
-			Package: "",
+			Package: []byte(""),
 			Data: []any{
 				types.JavaClass{
 					Name: []byte("Test5"),
@@ -752,7 +1320,7 @@ func TestGetFileClasses(t *testing.T) {
 			Code:      []byte("public class Test6 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		Output: &types.FileResponse{
-			Package: "",
+			Package: []byte(""),
 			Data: []any{
 				types.JavaClass{
 					Name:    []byte("Test6"),
@@ -787,7 +1355,7 @@ func TestGetFileClasses(t *testing.T) {
 			Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}}"),
 		},
 		Output: &types.FileResponse{
-			Package: "",
+			Package: []byte(""),
 			Data: []any{
 				types.JavaClass{
 					Name: []byte("Test"),
@@ -865,7 +1433,7 @@ func TestGetFileClasses(t *testing.T) {
 			Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
 		},
 		Output: &types.FileResponse{
-			Package: "",
+			Package: []byte(""),
 			Data: []any{
 				types.JavaClass{
 					Name:       []byte("Test"),

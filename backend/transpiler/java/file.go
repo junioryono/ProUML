@@ -24,34 +24,34 @@ var (
 	Space             byte = ' '
 )
 
-func parseFile(file types.File) (*types.FileResponse, error) {
+func parseFile(file types.File) (types.FileResponse, error) {
 	var (
-		response    = &types.FileResponse{Package: "", Data: make([]any, 0)}
+		response    = types.FileResponse{}
 		parsedText  = file.Code
 		packageName []byte
 	)
 
 	parsedText, err := removeComments(parsedText)
 	if err != nil {
-		return nil, err
+		return response, err
 	}
 
 	packageName, err = getPackageName(parsedText)
 	if err != nil {
-		return nil, err
+		return response, err
 	}
 
 	parsedText, err = removeSpacing(parsedText)
 	if err != nil {
-		return nil, err
+		return response, err
 	}
 
 	classes, err := getFileClasses(file.Name, parsedText)
 	if err != nil {
-		return nil, err
+		return response, err
 	}
 
-	response.Package = string(packageName)
+	response.Package = packageName
 	response.Data = append(response.Data, classes...)
 
 	// err = setVariablesAndMethods(fileResponse, parsedText)
