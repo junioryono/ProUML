@@ -8,7 +8,8 @@ type ParsedProject struct {
 }
 
 type Package struct {
-	Files []File
+	Name  []byte
+	Files []FileResponse
 }
 
 type ParsedPackage struct {

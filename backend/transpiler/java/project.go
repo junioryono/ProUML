@@ -4,14 +4,47 @@ import "github.com/junioryono/ProUML/backend/transpiler/types"
 
 func ParseProject(p *types.Project) ([]byte, error) {
 	// Parse each file
-	var parsedFiles string
-	_ = parsedFiles
-
+	var parsedFiles []types.FileResponse
 	for _, file := range p.Files {
-		parseFile(file)
+		res, err := parseFile(file)
+		if err != nil {
+			return nil, err
+		}
+
+		parsedFiles = append(parsedFiles, res)
 	}
 
-	// Group files by package
+	packages := groupClassesByPackage(parsedFiles)
+
+	for _, pkg := range packages {
+		AssociatePackageClasses(pkg)
+	}
 
 	return nil, nil
+}
+
+func groupClassesByPackage(files []types.FileResponse) []types.Package {
+	var (
+		packageMap   = make(map[string]types.Package)
+		packageSlice []types.Package
+	)
+
+	for _, file := range files {
+		pkg, ok := packageMap[string(file.Package)]
+		if !ok {
+			packageMap[string(file.Package)] = types.Package{
+				Name:  file.Package,
+				Files: []types.FileResponse{file},
+			}
+			continue
+		}
+
+		pkg.Files = append(pkg.Files, file)
+	}
+
+	for _, p := range packageMap {
+		packageSlice = append(packageSlice, p)
+	}
+
+	return packageSlice
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func TestPackageParse(t *testing.T) {
-	var test1Files = []types.File{}
+	var test1Files = []types.FileResponse{}
 	var test1 = types.TestPackage{
 		Name: "empty input string",
 		Input: types.Package{
@@ -34,7 +34,7 @@ func TestPackageParse(t *testing.T) {
 				err error
 			)
 
-			res, err = parsePackage(&tt.Input)
+			res, err = AssociatePackageClasses(tt.Input)
 
 			incorrectResponse := !bytes.Equal(res, tt.Output)
 			incorrectError := !errors.Is(err, tt.Err)
