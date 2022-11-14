@@ -14,9 +14,6 @@ type Package struct {
 	Files []FileResponse
 }
 
-type ParsedPackage struct {
-}
-
 type File struct {
 	Name      string
 	Extension string
@@ -29,9 +26,9 @@ type FileResponse struct {
 }
 
 type Relation struct {
-	FromClass []byte
-	ToClass   []byte
-	Type      RelationData
+	FromClassId []byte
+	ToClassId   []byte
+	Type        RelationData
 }
 
 type RelationData interface {

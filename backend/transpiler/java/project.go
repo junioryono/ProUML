@@ -27,22 +27,53 @@ func ParseProject(p types.Project) (types.ParsedProject, error) {
 }
 
 func getClassRelations(files []types.FileResponse) []types.Relation {
-	var relations []types.Relation
-
-	relation := types.Relation{
-		FromClass: []byte("Test"),
-		ToClass:   []byte("Test2"),
-		Type:      &types.Association{},
+	type Class struct {
+		Package []byte
+		Data    any
 	}
-	_ = relation
+
+	// Push all classes into one array
+	var classes []Class
+	for _, file := range files {
+		for _, class := range file.Data {
+			classes = append(classes, Class{
+				Package: file.Package,
+				Data:    class,
+			})
+		}
+	}
+
+	var relations []types.Relation
+	for _, classOverview := range classes {
+		packageName := classOverview.Package
+
+		switch class := classOverview.Data.(type) {
+		case types.JavaAbstract:
+		case types.JavaClass:
+			FromClassId := append(packageName, class.Name...)
+			ToClassId := []byte("")
+
+			Relation := &types.Aggregation{}
+			Relation.SetFromArrow(true)
+
+			relations = append(relations, types.Relation{
+				FromClassId: FromClassId,
+				ToClassId:   ToClassId,
+				Type:        Relation,
+			})
+		case types.JavaInterface:
+		case types.JavaEnum:
+		}
+
+	}
 
 	return relations
 }
 
-func getExistingRelation(class1, class2 []byte, relations []types.Relation) *types.Relation {
+func getExistingRelation(classId1, classId2 []byte, relations []types.Relation) *types.Relation {
 	for _, relation := range relations {
-		if (bytes.Equal(relation.FromClass, class1) && bytes.Equal(relation.ToClass, class2)) ||
-			bytes.Equal(relation.FromClass, class2) && bytes.Equal(relation.ToClass, class1) {
+		if (bytes.Equal(relation.FromClassId, classId1) && bytes.Equal(relation.ToClassId, classId2)) ||
+			bytes.Equal(relation.FromClassId, classId2) && bytes.Equal(relation.ToClassId, classId1) {
 			return &relation
 		}
 	}
