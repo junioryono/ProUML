@@ -506,8 +506,6 @@ func TestParseFile(t *testing.T) {
 
 	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
-			// subtest.Parallel()
-
 			actualOutput, err := parseFile(tt.Input)
 
 			if !errors.Is(err, tt.Err) {
@@ -965,14 +963,7 @@ func TestRemoveComments(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
-			// subtest.Parallel()
-
-			var (
-				res []byte
-				err error
-			)
-
-			res, err = removeComments(tt.Input)
+			res, err := removeComments(tt.Input)
 
 			if !bytes.Equal(res, tt.Output) {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
@@ -1070,14 +1061,7 @@ func TestGetPackageName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
-			// subtest.Parallel()
-
-			var (
-				res []byte
-				err error
-			)
-
-			res, err = getPackageName(tt.Input)
+			res, err := getPackageName(tt.Input)
 
 			if !bytes.Equal(res, tt.Output) {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
@@ -1141,14 +1125,7 @@ func TestRemoveSpacing(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
-			// subtest.Parallel()
-
-			var (
-				res []byte
-				err error
-			)
-
-			res, err = removeSpacing(tt.Input)
+			res, err := removeSpacing(tt.Input)
 
 			if !bytes.Equal(res, tt.Output) {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
@@ -1665,8 +1642,6 @@ func TestGetFileClasses(t *testing.T) {
 
 	for testIndex, tt := range tests {
 		t.Run(tt.Name, func(subtest *testing.T) {
-			// subtest.Parallel()
-
 			classes, err := getFileClasses(tt.Input.Name, tt.Input.Code)
 
 			if !errors.Is(err, tt.Err) {
@@ -2015,8 +1990,6 @@ func TestSplitVariablesAndMethods(t *testing.T) {
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			// subtest.Parallel()
-
 			actualOutput := splitVariablesAndMethods(tt.Input)
 
 			if len(tt.Output) != len(actualOutput) {
@@ -2456,8 +2429,6 @@ func TestGetVariablesOrMethod(t *testing.T) {
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			// subtest.Parallel()
-
 			actualVariables, actualMethod := getVariablesOrMethod(tt.Input)
 
 			if len(actualVariables) != len(tt.VariablesOutput) {
@@ -2601,8 +2572,6 @@ func TestIsVariable(t *testing.T) {
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			// subtest.Parallel()
-
 			actualBoolOutput, actualIntOutput := isVariable(tt.Input)
 
 			if tt.BoolOutput != actualBoolOutput {

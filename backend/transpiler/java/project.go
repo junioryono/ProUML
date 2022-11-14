@@ -1,26 +1,53 @@
 package java
 
-import "github.com/junioryono/ProUML/backend/transpiler/types"
+import (
+	"bytes"
 
-func ParseProject(p *types.Project) ([]byte, error) {
+	"github.com/junioryono/ProUML/backend/transpiler/types"
+)
+
+func ParseProject(p types.Project) (types.ParsedProject, error) {
+	var response types.ParsedProject
+
 	// Parse each file
 	var parsedFiles []types.FileResponse
 	for _, file := range p.Files {
 		res, err := parseFile(file)
 		if err != nil {
-			return nil, err
+			return response, err
 		}
 
 		parsedFiles = append(parsedFiles, res)
 	}
 
-	packages := groupClassesByPackage(parsedFiles)
+	response.Relations = getClassRelations(parsedFiles)
+	response.Packages = groupClassesByPackage(parsedFiles)
 
-	for _, pkg := range packages {
-		AssociatePackageClasses(pkg)
+	return response, nil
+}
+
+func getClassRelations(files []types.FileResponse) []types.Relation {
+	var relations []types.Relation
+
+	relation := types.Relation{
+		FromClass: []byte("Test"),
+		ToClass:   []byte("Test2"),
+		Type:      &types.Association{},
+	}
+	_ = relation
+
+	return relations
+}
+
+func getExistingRelation(class1, class2 []byte, relations []types.Relation) *types.Relation {
+	for _, relation := range relations {
+		if (bytes.Equal(relation.FromClass, class1) && bytes.Equal(relation.ToClass, class2)) ||
+			bytes.Equal(relation.FromClass, class2) && bytes.Equal(relation.ToClass, class1) {
+			return &relation
+		}
 	}
 
-	return nil, nil
+	return nil
 }
 
 func groupClassesByPackage(files []types.FileResponse) []types.Package {

@@ -12,9 +12,9 @@ import (
 )
 
 type Status struct {
-	Success  bool   `json:"success"`
-	Reason   string `json:"reason,omitempty"`
-	Response []byte `json:"response,omitempty"`
+	Success  bool                `json:"success"`
+	Reason   string              `json:"reason,omitempty"`
+	Response types.ParsedProject `json:"response,omitempty"`
 }
 
 func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]byte, error) {
@@ -38,14 +38,14 @@ func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]by
 		return handleError(err)
 	}
 
-	parserResponse, err := parseProjectByLanguage(language, files)
+	parsedProject, err := parseProjectByLanguage(language, files)
 	if err != nil {
 		return handleError(err)
 	}
 
 	jsonResponse, err := jsoniter.Marshal(Status{
 		Success:  true,
-		Response: parserResponse,
+		Response: parsedProject,
 	})
 	if err != nil {
 		return handleError(err)
@@ -170,15 +170,15 @@ func getProjectLanguage(files []types.File) (string, error) {
 	return language, nil
 }
 
-func parseProjectByLanguage(language string, files []types.File) ([]byte, error) {
+func parseProjectByLanguage(language string, files []types.File) (types.ParsedProject, error) {
 	// Call transpilation of specified language
 	switch language {
 	case "java":
-		return java.ParseProject(&types.Project{Files: files})
+		return java.ParseProject(types.Project{Files: files})
 	case "cpp", "go", "js", "ts", "html", "css", "py", "cs", "php", "swift", "vb":
 		// Covers C++, Go, JavaScript, TypeScript, HTML, CSS, Python , C#, PHP, Swift, Visual Basic
-		return nil, errors.New("this is an unsupported language")
+		return types.ParsedProject{}, errors.New("this is an unsupported language")
 	default:
-		return nil, errors.New("could not figure out which language was used")
+		return types.ParsedProject{}, errors.New("could not figure out which language was used")
 	}
 }

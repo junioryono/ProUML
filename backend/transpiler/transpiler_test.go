@@ -1,7 +1,6 @@
 package transpiler
 
 import (
-	"bytes"
 	"errors"
 	"testing"
 
@@ -27,24 +26,19 @@ func TestProjectParse(t *testing.T) {
 				subtest.Fail()
 			}
 
-			parserResponse, err := parseProjectByLanguage(language, tt.Input.Files)
+			_, err = parseProjectByLanguage(language, tt.Input.Files)
 			if err != nil {
 				subtest.Errorf("error parsing language %s, %s", language, err.Error())
 				subtest.Fail()
 			}
 
-			incorrectResponse := !bytes.Equal(parserResponse, tt.Output)
 			incorrectError := !errors.Is(err, tt.Err)
-
-			if incorrectResponse {
-				subtest.Errorf("incorrect response")
-			}
 
 			if incorrectError {
 				subtest.Errorf("incorrect error")
 			}
 
-			if incorrectResponse || incorrectError {
+			if incorrectError {
 				subtest.Fail()
 			}
 		})
