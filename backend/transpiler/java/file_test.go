@@ -1129,8 +1129,10 @@ func TestRemoveSpacing(t *testing.T) {
 				System.out.println("Hello");
 		
 			}
+
+			void Test3(  String  var1  );
 		}`),
-		Output: []byte("public class Test2{String var1;String var2 = \"Hello\";String var3 = \"Hello\",var4;String var5 = \"Hello\",var6 = \"Hello\",var7;Test2(){this.var4 = \"J\";System.out.println(\"Hello\");}}"),
+		Output: []byte("public class Test2{String var1;String var2 = \"Hello\";String var3 = \"Hello\",var4;String var5 = \"Hello\",var6 = \"Hello\",var7;Test2(){this.var4 = \"J\";System.out.println(\"Hello\");}void Test3(String var1);}"),
 		Err:    nil,
 	}
 

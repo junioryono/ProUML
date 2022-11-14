@@ -204,6 +204,14 @@ func removeSpacing(text []byte) ([]byte, error) {
 	REGEX_CloseCurlySpace := regexp.MustCompile(`\s*}\s*`)
 	text = REGEX_CloseCurlySpace.ReplaceAll(text, []byte("}"))
 
+	// Remove all spaces before and after {
+	REGEX_OpenParenthesisSpace := regexp.MustCompile(`\s*\(\s*`)
+	text = REGEX_OpenParenthesisSpace.ReplaceAll(text, []byte("("))
+
+	// Remove all spaces before and after }
+	REGEX_CloseParenthesisSpace := regexp.MustCompile(`\s*\)\s*`)
+	text = REGEX_CloseParenthesisSpace.ReplaceAll(text, []byte(")"))
+
 	// Replace all "=", " =", and "= " with " = "
 	REGEX_EqualSpace := regexp.MustCompile(`[\s]*=[\s]*`)
 	text = REGEX_EqualSpace.ReplaceAll(text, []byte(" = "))
