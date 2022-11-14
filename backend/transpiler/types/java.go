@@ -7,6 +7,7 @@ type ClassText struct {
 	Declarations  [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
+	Invokes       [][]byte
 }
 
 type JavaVariable struct {
@@ -40,6 +41,7 @@ type JavaAbstract struct {
 	Extends       [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
+	Invokes       [][]byte // TODO - invokation TYPES inside all functions - Add all "new ...." to here... "new "ClassTest'"
 }
 
 type JavaClass struct {
@@ -49,6 +51,7 @@ type JavaClass struct {
 	Extends       [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
+	Invokes       [][]byte // TODO
 }
 
 type JavaInterface struct {

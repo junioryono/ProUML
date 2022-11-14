@@ -262,6 +262,9 @@ func TestParseFile(t *testing.T) {
 								Final:    false,
 							},
 						},
+						Invokes: [][]byte{
+							[]byte("Testing"),
+						},
 					},
 				},
 			},
@@ -497,6 +500,9 @@ func TestParseFile(t *testing.T) {
 								Final:          true,
 							},
 						},
+						Invokes: [][]byte{
+							[]byte("Testing"),
+						},
 					},
 				},
 			},
@@ -562,6 +568,9 @@ func TestParseFile(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
+						} else if len(expected.Invokes) != len(response.Invokes) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Invokes)), strconv.Itoa(len(response.Invokes)))
+							subtest.FailNow()
 						}
 
 						for index, word := range expected.Extends {
@@ -618,6 +627,12 @@ func TestParseFile(t *testing.T) {
 								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
+							}
+						}
+
+						for index, variable := range expected.Invokes {
+							if !bytes.Equal(expected.Invokes[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Invokes[index]))
 							}
 						}
 					default:
@@ -645,17 +660,9 @@ func TestParseFile(t *testing.T) {
 							subtest.FailNow()
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
-
-							subtest.Logf("expected:\n")
-							for _, jm := range expected.Methods {
-								subtest.Logf("%s\n", jm.Name)
-							}
-
-							subtest.Logf("\ngot:\n")
-							for _, jm := range response.Methods {
-								subtest.Logf("%s\n", jm.Name)
-							}
-
+							subtest.FailNow()
+						} else if len(expected.Invokes) != len(response.Invokes) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Invokes)), strconv.Itoa(len(response.Invokes)))
 							subtest.FailNow()
 						}
 
@@ -713,6 +720,12 @@ func TestParseFile(t *testing.T) {
 								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
+							}
+						}
+
+						for index, variable := range expected.Invokes {
+							if !bytes.Equal(expected.Invokes[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Invokes[index]))
 							}
 						}
 					default:
@@ -1396,6 +1409,9 @@ func TestGetFileClasses(t *testing.T) {
 							Final:    false,
 						},
 					},
+					Invokes: [][]byte{
+						[]byte("Testing"),
+					},
 				},
 			},
 		},
@@ -1632,6 +1648,9 @@ func TestGetFileClasses(t *testing.T) {
 							Final:          true,
 						},
 					},
+					Invokes: [][]byte{
+						[]byte("Testing"),
+					},
 				},
 			},
 		},
@@ -1681,6 +1700,9 @@ func TestGetFileClasses(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
+						} else if len(expected.Invokes) != len(response.Invokes) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Invokes)), strconv.Itoa(len(response.Invokes)))
+							subtest.FailNow()
 						}
 
 						for index, word := range expected.Extends {
@@ -1737,6 +1759,12 @@ func TestGetFileClasses(t *testing.T) {
 								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
+							}
+						}
+
+						for index, variable := range expected.Invokes {
+							if !bytes.Equal(expected.Invokes[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Invokes[index]))
 							}
 						}
 					default:
@@ -1764,17 +1792,9 @@ func TestGetFileClasses(t *testing.T) {
 							subtest.FailNow()
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
-
-							subtest.Logf("expected:\n")
-							for _, jm := range expected.Methods {
-								subtest.Logf("%s\n", jm.Name)
-							}
-
-							subtest.Logf("\ngot:\n")
-							for _, jm := range response.Methods {
-								subtest.Logf("%s\n", jm.Name)
-							}
-
+							subtest.FailNow()
+						} else if len(expected.Invokes) != len(response.Invokes) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Invokes)), strconv.Itoa(len(response.Invokes)))
 							subtest.FailNow()
 						}
 
@@ -1832,6 +1852,12 @@ func TestGetFileClasses(t *testing.T) {
 								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
+							}
+						}
+
+						for index, variable := range expected.Invokes {
+							if !bytes.Equal(expected.Invokes[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Invokes[index]))
 							}
 						}
 					default:
@@ -2578,6 +2604,37 @@ func TestIsVariable(t *testing.T) {
 				subtest.Errorf("incorrect response.\ngot:\n%t\nneed:\n%t\n", actualBoolOutput, tt.BoolOutput)
 			} else if tt.IntOutput != actualIntOutput {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", strconv.Itoa(actualIntOutput), strconv.Itoa(tt.IntOutput))
+			}
+		})
+	}
+}
+
+func TestGetTypeInvocations(t *testing.T) {
+	type TestSplit struct {
+		Input  []byte
+		Output [][]byte
+	}
+
+	var tests = []TestSplit{
+		{
+			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
+			[][]byte{[]byte("Testing")},
+		},
+	}
+
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			actualOutput := getTypeInvocations(tt.Input)
+
+			if len(tt.Output) != len(actualOutput) {
+				subtest.Errorf("incorrect length.\ngot: %s\nneed: %s\n", strconv.Itoa(len(actualOutput)), strconv.Itoa(len(tt.Output)))
+				subtest.FailNow()
+			}
+
+			for index, expected := range tt.Output {
+				if !bytes.Equal(actualOutput[index], expected) {
+					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected), string(actualOutput[index]))
+				}
 			}
 		})
 	}

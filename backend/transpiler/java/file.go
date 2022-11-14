@@ -214,6 +214,47 @@ func removeSpacing(text []byte) ([]byte, error) {
 	return text, nil
 }
 
+func getTypeInvocations(text []byte) [][]byte {
+	var (
+		response       [][]byte
+		currentStyle   byte = NoQuote
+		currentScope   int  = 0
+		startTypeIndex int  = 0
+	)
+
+	textLength := len(text)
+	for i := 0; i < textLength; i++ {
+		if startTypeIndex != 0 {
+			if text[i] == OpenParenthesis {
+				response = append(response, text[startTypeIndex:i])
+				startTypeIndex = 0
+			}
+		} else if currentStyle == SingleQuote && text[i] == SingleQuote ||
+			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if text[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if text[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if text[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else if text[i] == OpenCurly {
+				currentScope++
+			} else if text[i] == ClosedCurly {
+				currentScope--
+			} else if currentScope != 0 && i+4 < textLength &&
+				text[i] == ' ' && text[i+1] == 'n' && text[i+2] == 'e' && text[i+3] == 'w' && text[i+4] == ' ' {
+				i = i + 5
+				startTypeIndex = i
+			}
+		}
+	}
+
+	return response
+}
+
 func getFileClasses(fileName string, text []byte) ([]any, error) {
 	// Search for file name
 	// Example return: "public class Test5"
@@ -230,11 +271,13 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 
 	for i := 0; i < len(classesText); i++ {
 		var declarations [][]byte
+		classesText[i].Declarations = declarations
 
 		variables, methods := getVariablesAndMethods(classesText[i].Inside)
 		classesText[i].Variables = variables
 		classesText[i].Methods = methods
-		classesText[i].Declarations = declarations
+
+		classesText[i].Invokes = getTypeInvocations(classesText[i].Inside)
 	}
 
 	findIndex := func(sWord string, dbArray [][]byte) int {
@@ -307,6 +350,7 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 				Extends:       extendsValue,
 				Variables:     classesText[i].Variables,
 				Methods:       classesText[i].Methods,
+				Invokes:       classesText[i].Invokes,
 			})
 			continue
 		}
@@ -318,6 +362,7 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 			Extends:       extendsValue,
 			Variables:     classesText[i].Variables,
 			Methods:       classesText[i].Methods,
+			Invokes:       classesText[i].Invokes,
 		})
 	}
 
@@ -475,7 +520,7 @@ func getVariablesAndMethods(text []byte) ([]types.JavaVariable, []types.JavaMeth
 func splitVariablesAndMethods(t []byte) [][]byte {
 	var (
 		text         = make([]byte, len(t))
-		res          [][]byte
+		response     [][]byte
 		currentStyle byte = NoQuote
 		currentScope int  = 0
 	)
@@ -486,7 +531,7 @@ func splitVariablesAndMethods(t []byte) [][]byte {
 		copy(temp, text)
 		temp = append([]byte(nil), temp[0:i+1]...)
 
-		res = append(res, temp)
+		response = append(response, temp)
 
 		text = append(text[:0], text[i+1:]...)
 		currentStyle = NoQuote
@@ -524,7 +569,7 @@ func splitVariablesAndMethods(t []byte) [][]byte {
 		}
 	}
 
-	return res
+	return response
 }
 
 func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) {
@@ -544,11 +589,6 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		)
 
 		var variablesStartIndex int
-
-		_ = Type
-		_ = AccessModifier
-		_ = Static
-		_ = Final
 
 		if bytes.HasPrefix(text, []byte("public static final")) {
 			AccessModifier = []byte("public")
