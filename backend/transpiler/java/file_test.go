@@ -511,7 +511,7 @@ func TestParseFile(t *testing.T) {
 	}
 
 	for testIndex, tt := range tests {
-		t.Run(tt.Name, func(subtest *testing.T) {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
 			actualOutput, err := parseFile(tt.Input)
 
 			if !errors.Is(err, tt.Err) {
@@ -819,21 +819,13 @@ func TestParseFile(t *testing.T) {
 
 func TestRemoveComments(t *testing.T) {
 	test1 := types.TestByteSlice{
-		Name:   "invalid - empty file",
-		Input:  nil,
-		Output: nil,
-		Err:    &types.CannotParseText{},
-	}
-
-	test2 := types.TestByteSlice{
 		Name:   "valid - multi line commment",
 		Input:  []byte(`/* IOEWJQIOJE */System.out.println('Hello Java');`),
 		Output: []byte(`System.out.println('Hello Java');`),
-		Err:    nil,
 	}
 
-	test3 := types.TestByteSlice{
-		Name: "valid - test class 3",
+	test2 := types.TestByteSlice{
+		Name: "valid - test class 2",
 		Input: []byte(`
 			// Hello   // qwmeiqw //wqeqweqw
 			public class Test {
@@ -869,11 +861,10 @@ func TestRemoveComments(t *testing.T) {
 
 				
 										}   `),
-		Err: nil,
 	}
 
-	test4 := types.TestByteSlice{
-		Name: "valid - test class 4",
+	test3 := types.TestByteSlice{
+		Name: "valid - test class 3",
 		Input: []byte(`
 			// Hello   // qwmeiqw //wqeqweqw
 			public class Test {
@@ -909,11 +900,10 @@ func TestRemoveComments(t *testing.T) {
 
 				
 										}   `),
-		Err: nil,
 	}
 
-	test5 := types.TestByteSlice{
-		Name: "valid - test class 5",
+	test4 := types.TestByteSlice{
+		Name: "valid - test class 4",
 		Input: []byte(`   package com.houarizegai.calculator  ;
 
 		import java.awt.Cursor;
@@ -969,23 +959,72 @@ func TestRemoveComments(t *testing.T) {
 
 				
 										}   `),
-		Err: nil,
 	}
 
-	var tests = []types.TestByteSlice{test1, test2, test3, test4, test5}
+	var tests = []types.TestByteSlice{test1, test2, test3, test4}
 
-	for _, tt := range tests {
-		t.Run(tt.Name, func(subtest *testing.T) {
-			res, err := removeComments(tt.Input)
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			res := removeComments(tt.Input)
 
 			if !bytes.Equal(res, tt.Output) {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
 			}
+		})
+	}
+}
 
-			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
+func TestRemoveAnnotations(t *testing.T) {
+	var tests = []types.TestByteSlice{
+		{
+			Input:  []byte("new @Readonly ArrayList<>()"),
+			Output: []byte("new  ArrayList<>()"),
+		},
+		{
+			Input:  []byte("@SuppressWarnings(\"unchecked\") static void wordsList();"),
+			Output: []byte(" static void wordsList();"),
+		},
+		{
+			Input:  []byte("@Override public void wordList();"),
+			Output: []byte(" public void wordList();"),
+		},
+		{
+			Input:  []byte("@AnnotationName(elementName = \"elementValue\");"),
+			Output: []byte(";"),
+		},
+		{
+			Input:  []byte("@SuppressWarnings(\"unchecked\")"),
+			Output: []byte(""),
+		},
+		{
+			Input:  []byte("@NonNull String str;"),
+			Output: []byte(" String str;"),
+		},
+		{
+			Input:  []byte("class Warning extends @Localized Message"),
+			Output: []byte("class Warning extends  Message"),
+		},
+		{
+			Input:  []byte("newStr = ( String) str;"),
+			Output: []byte(""),
+		},
+		{
+			Input:  []byte("@Documented @Target(ElementType.METHOD) @Inherited @Retention(RetentionPolicy.RUNTIME) public @interface MethodInfo { String author() default \"Pankaj\"; String date(); int revision() default 1; String comments();}"),
+			Output: []byte("    public  MethodInfo { String author() default \"Pankaj\"; String date(); int revision() default 1; String comments();}"),
+		},
+		{
+			Input:  []byte(""),
+			Output: []byte(""),
+		},
+	}
+
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			res := removeComments(tt.Input)
+
+			if !bytes.Equal(res, tt.Output) {
+				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
 			}
-
 		})
 	}
 }
@@ -1072,8 +1111,8 @@ func TestGetPackageName(t *testing.T) {
 
 	var tests = []types.TestByteSlice{test1, test2, test3, test4}
 
-	for _, tt := range tests {
-		t.Run(tt.Name, func(subtest *testing.T) {
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
 			res, err := getPackageName(tt.Input)
 
 			if !bytes.Equal(res, tt.Output) {
@@ -1089,13 +1128,6 @@ func TestGetPackageName(t *testing.T) {
 
 func TestRemoveSpacing(t *testing.T) {
 	test1 := types.TestByteSlice{
-		Name:   "invalid - empty file",
-		Input:  nil,
-		Output: nil,
-		Err:    &types.CannotParseText{},
-	}
-
-	test2 := types.TestByteSlice{
 		Name: "valid - test class",
 		Input: []byte(`
 			
@@ -1114,7 +1146,7 @@ func TestRemoveSpacing(t *testing.T) {
 		Err:    nil,
 	}
 
-	test3 := types.TestByteSlice{
+	test2 := types.TestByteSlice{
 		Name: "valid - test class",
 		Input: []byte(`
 			
@@ -1136,18 +1168,14 @@ func TestRemoveSpacing(t *testing.T) {
 		Err:    nil,
 	}
 
-	var tests = []types.TestByteSlice{test1, test2, test3}
+	var tests = []types.TestByteSlice{test1, test2}
 
-	for _, tt := range tests {
-		t.Run(tt.Name, func(subtest *testing.T) {
-			res, err := removeSpacing(tt.Input)
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			res := removeSpacing(tt.Input)
 
 			if !bytes.Equal(res, tt.Output) {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
-			}
-
-			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
 			}
 		})
 	}
@@ -1662,16 +1690,8 @@ func TestGetFileClasses(t *testing.T) {
 	var tests = []types.TestFileResponse{test1, test2, test3, test4, test5, test6, test7, test8}
 
 	for testIndex, tt := range tests {
-		t.Run(tt.Name, func(subtest *testing.T) {
-			classes, err := getFileClasses(tt.Input.Name, tt.Input.Code)
-
-			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
-			}
-
-			if err != nil {
-				return
-			}
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			classes := getFileClasses(tt.Input.Name, tt.Input.Code)
 
 			if len(classes) != len(tt.Output.Data) {
 				subtest.Errorf("incorrect number of classes.\nExpected %s. Got %s\n", strconv.Itoa(len(tt.Output.Data)), strconv.Itoa(len(classes)))
@@ -2019,6 +2039,37 @@ func TestSplitVariablesAndMethods(t *testing.T) {
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
 			actualOutput := splitVariablesAndMethods(tt.Input)
+
+			if len(tt.Output) != len(actualOutput) {
+				subtest.Errorf("incorrect length.\ngot: %s\nneed: %s\n", strconv.Itoa(len(actualOutput)), strconv.Itoa(len(tt.Output)))
+				subtest.FailNow()
+			}
+
+			for index, expected := range tt.Output {
+				if !bytes.Equal(actualOutput[index], expected) {
+					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected), string(actualOutput[index]))
+				}
+			}
+		})
+	}
+}
+
+func TestGetTypeInvocations(t *testing.T) {
+	type TestSplit struct {
+		Input  []byte
+		Output [][]byte
+	}
+
+	var tests = []TestSplit{
+		{
+			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
+			[][]byte{[]byte("Testing")},
+		},
+	}
+
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			actualOutput := getTypeInvocations(tt.Input)
 
 			if len(tt.Output) != len(actualOutput) {
 				subtest.Errorf("incorrect length.\ngot: %s\nneed: %s\n", strconv.Itoa(len(actualOutput)), strconv.Itoa(len(tt.Output)))
@@ -2606,37 +2657,6 @@ func TestIsVariable(t *testing.T) {
 				subtest.Errorf("incorrect response.\ngot:\n%t\nneed:\n%t\n", actualBoolOutput, tt.BoolOutput)
 			} else if tt.IntOutput != actualIntOutput {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", strconv.Itoa(actualIntOutput), strconv.Itoa(tt.IntOutput))
-			}
-		})
-	}
-}
-
-func TestGetTypeInvocations(t *testing.T) {
-	type TestSplit struct {
-		Input  []byte
-		Output [][]byte
-	}
-
-	var tests = []TestSplit{
-		{
-			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
-			[][]byte{[]byte("Testing")},
-		},
-	}
-
-	for testIndex, tt := range tests {
-		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			actualOutput := getTypeInvocations(tt.Input)
-
-			if len(tt.Output) != len(actualOutput) {
-				subtest.Errorf("incorrect length.\ngot: %s\nneed: %s\n", strconv.Itoa(len(actualOutput)), strconv.Itoa(len(tt.Output)))
-				subtest.FailNow()
-			}
-
-			for index, expected := range tt.Output {
-				if !bytes.Equal(actualOutput[index], expected) {
-					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected), string(actualOutput[index]))
-				}
 			}
 		})
 	}

@@ -22,31 +22,28 @@ var (
 	MultiLineComment  byte = '*'
 	Comma             byte = ','
 	Space             byte = ' '
+	Asperand          byte = '@'
 )
 
 func parseFile(file types.File) (types.FileResponse, error) {
 	var (
-		response    = types.FileResponse{}
-		parsedText  = file.Code
-		packageName []byte
+		response   = types.FileResponse{}
+		parsedText = file.Code
 	)
 
-	parsedText, err := removeComments(parsedText)
+	if len(parsedText) == 0 {
+		return response, &types.CannotParseText{}
+	}
+
+	parsedText = removeComments(parsedText)
+	parsedText = removeAnnotations(parsedText)
+	packageName, err := getPackageName(parsedText)
 	if err != nil {
 		return response, err
 	}
 
-	packageName, err = getPackageName(parsedText)
-	if err != nil {
-		return response, err
-	}
-
-	parsedText, err = removeSpacing(parsedText)
-	if err != nil {
-		return response, err
-	}
-
-	classes, err := getFileClasses(file.Name, parsedText)
+	parsedText = removeSpacing(parsedText)
+	classes := getFileClasses(file.Name, parsedText)
 	if err != nil {
 		return response, err
 	}
@@ -74,11 +71,7 @@ func parseFile(file types.File) (types.FileResponse, error) {
 }
 
 // Remove all comments that are not inside of quotations from code
-func removeComments(text []byte) ([]byte, error) {
-	if len(text) == 0 {
-		return nil, &types.CannotParseText{}
-	}
-
+func removeComments(text []byte) []byte {
 	var (
 		startCommentIndex int  = 0
 		currentStyle      byte = NoQuote
@@ -119,15 +112,55 @@ func removeComments(text []byte) ([]byte, error) {
 		}
 	}
 
-	return text, nil
+	return text
+}
+
+func removeAnnotations(text []byte) []byte {
+	var (
+		startCommentIndex int  = 0
+		currentStyle      byte = NoQuote
+	)
+
+	removeText := func(i int) {
+		text = append(text[:startCommentIndex], text[i+1:]...)
+		currentStyle = NoQuote
+	}
+
+	for i := 0; i < len(text); i++ {
+		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if text[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if text[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if text[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else if i+1 < len(text) {
+				if text[i] == '/' && text[i+1] == '/' {
+					currentStyle = SingleLineComment
+					startCommentIndex = i
+				} else if text[i] == '/' && text[i+1] == '*' {
+					currentStyle = MultiLineComment
+					startCommentIndex = i
+				}
+			}
+		} else if currentStyle == SingleLineComment && text[i] == '\n' {
+			removeText(i - 1)
+			i = startCommentIndex
+		} else if currentStyle == MultiLineComment && text[i] == '*' && i+1 < len(text) && text[i+1] == '/' {
+			removeText(i + 1)
+			i = startCommentIndex
+		}
+	}
+
+	return text
 }
 
 // Get package name from code if one exists
 func getPackageName(text []byte) ([]byte, error) {
-	if len(text) == 0 {
-		return nil, &types.CannotParseText{}
-	}
-
 	REGEX_FirstOpenCurly := regexp.MustCompile(`\{`)
 	firstOpenCurlyIndex := REGEX_FirstOpenCurly.FindIndex(text)
 
@@ -167,11 +200,7 @@ func getPackageName(text []byte) ([]byte, error) {
 }
 
 // Remove all extra spacing from code
-func removeSpacing(text []byte) ([]byte, error) {
-	if len(text) == 0 {
-		return nil, &types.CannotParseText{}
-	}
-
+func removeSpacing(text []byte) []byte {
 	// Remove package declaration
 	REGEX_Package := regexp.MustCompile(`[\s\S]*?package[\s\S]*?;[\s]*`)
 	text = REGEX_Package.ReplaceAll(text, nil)
@@ -219,51 +248,10 @@ func removeSpacing(text []byte) ([]byte, error) {
 	// Trim left and right spacing
 	text = bytes.TrimSpace(text)
 
-	return text, nil
+	return text
 }
 
-func getTypeInvocations(text []byte) [][]byte {
-	var (
-		response       [][]byte
-		currentStyle   byte = NoQuote
-		currentScope   int  = 0
-		startTypeIndex int  = 0
-	)
-
-	textLength := len(text)
-	for i := 0; i < textLength; i++ {
-		if startTypeIndex != 0 {
-			if text[i] == OpenParenthesis {
-				response = append(response, text[startTypeIndex:i])
-				startTypeIndex = 0
-			}
-		} else if currentStyle == SingleQuote && text[i] == SingleQuote ||
-			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if text[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if text[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if text[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if text[i] == OpenCurly {
-				currentScope++
-			} else if text[i] == ClosedCurly {
-				currentScope--
-			} else if currentScope != 0 && i+4 < textLength &&
-				text[i] == ' ' && text[i+1] == 'n' && text[i+2] == 'e' && text[i+3] == 'w' && text[i+4] == ' ' {
-				i = i + 5
-				startTypeIndex = i
-			}
-		}
-	}
-
-	return response
-}
-
-func getFileClasses(fileName string, text []byte) ([]any, error) {
+func getFileClasses(fileName string, text []byte) []any {
 	// Search for file name
 	// Example return: "public class Test5"
 	var (
@@ -272,10 +260,6 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 	)
 
 	getInnerClasses(&classesText, text, false)
-
-	if len(classesText) == 0 {
-		return nil, &types.CannotParseText{}
-	}
 
 	for i := 0; i < len(classesText); i++ {
 		var declarations [][]byte
@@ -374,7 +358,48 @@ func getFileClasses(fileName string, text []byte) ([]any, error) {
 		})
 	}
 
-	return classesStruct, nil
+	return classesStruct
+}
+
+func getTypeInvocations(text []byte) [][]byte {
+	var (
+		response       [][]byte
+		currentStyle   byte = NoQuote
+		currentScope   int  = 0
+		startTypeIndex int  = 0
+	)
+
+	textLength := len(text)
+	for i := 0; i < textLength; i++ {
+		if startTypeIndex != 0 {
+			if text[i] == OpenParenthesis {
+				response = append(response, text[startTypeIndex:i])
+				startTypeIndex = 0
+			}
+		} else if currentStyle == SingleQuote && text[i] == SingleQuote ||
+			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if text[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if text[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if text[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else if text[i] == OpenCurly {
+				currentScope++
+			} else if text[i] == ClosedCurly {
+				currentScope--
+			} else if currentScope != 0 && i+4 < textLength &&
+				text[i] == ' ' && text[i+1] == 'n' && text[i+2] == 'e' && text[i+3] == 'w' && text[i+4] == ' ' {
+				i = i + 5
+				startTypeIndex = i
+			}
+		}
+	}
+
+	return response
 }
 
 func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool) {
