@@ -17,6 +17,8 @@
 
 ### Add
 
+- [ ] Get enum declarations
+
 ### Change
 
 ### Fix
