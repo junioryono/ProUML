@@ -2,7 +2,9 @@ package java
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
+	"strconv"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
@@ -36,13 +38,13 @@ func parseFile(file types.File) (types.FileResponse, error) {
 	}
 
 	parsedText = removeComments(parsedText)
+	parsedText = removeSpacing(parsedText)
 	parsedText = removeAnnotations(parsedText)
 	packageName, err := getPackageName(parsedText)
 	if err != nil {
 		return response, err
 	}
 
-	parsedText = removeSpacing(parsedText)
 	classes := getFileClasses(file.Name, parsedText)
 	if err != nil {
 		return response, err
@@ -50,22 +52,6 @@ func parseFile(file types.File) (types.FileResponse, error) {
 
 	response.Package = packageName
 	response.Data = append(response.Data, classes...)
-
-	// err = setVariablesAndMethods(fileResponse, parsedText)
-
-	// EXAMPLE RESPONSE
-	// types.FileResponse{
-	//  	Package: "",
-	// 		Data: [
-	//			types.JavaClass{
-	//				Name: "ClassName",
-	// 				Implements: [][]byte{},
-	// 				Extends:    [][]byte{},
-	// 				Variables:  []types.JavaVariable{},
-	// 				Methods:    []types.JavaMethod{},
-	// 			},
-	//		]
-	// }
 
 	return response, nil
 }
@@ -115,15 +101,72 @@ func removeComments(text []byte) []byte {
 	return text
 }
 
+// Remove all extra spacing from code
+func removeSpacing(text []byte) []byte {
+	// Remove all imports
+	REGEX_Imports := regexp.MustCompile(`[\s\S]*?import[\s\S]*?;[\s]*`)
+	text = REGEX_Imports.ReplaceAll(text, []byte(" "))
+
+	// Replace all new lines with a space
+	REGEX_NewLine := regexp.MustCompile(`\r?\n|\r`)
+	text = REGEX_NewLine.ReplaceAll(text, []byte(" "))
+
+	// Replace all double spaces with a single space
+	REGEX_DoubleSpace := regexp.MustCompile(`\s\s+`)
+	text = REGEX_DoubleSpace.ReplaceAll(text, []byte(" "))
+
+	// Remove all spaces before and after ,
+	REGEX_CommaSpace := regexp.MustCompile(`\s*,\s*`)
+	text = REGEX_CommaSpace.ReplaceAll(text, []byte(","))
+
+	// Remove all spaces before and after ;
+	REGEX_SemiColonSpace := regexp.MustCompile(`\s*;\s*`)
+	text = REGEX_SemiColonSpace.ReplaceAll(text, []byte(";"))
+
+	// Remove all spaces before and after @
+	REGEX_AsperandSpace := regexp.MustCompile(`\s*@\s*`)
+	text = REGEX_AsperandSpace.ReplaceAll(text, []byte("@"))
+
+	// Remove all spaces before and after {
+	REGEX_OpenCurlySpace := regexp.MustCompile(`\s*{\s*`)
+	text = REGEX_OpenCurlySpace.ReplaceAll(text, []byte("{"))
+
+	// Remove all spaces before and after }
+	REGEX_CloseCurlySpace := regexp.MustCompile(`\s*}\s*`)
+	text = REGEX_CloseCurlySpace.ReplaceAll(text, []byte("}"))
+
+	// Remove all spaces before and after {
+	REGEX_OpenParenthesisSpace := regexp.MustCompile(`\s*\(\s*`)
+	text = REGEX_OpenParenthesisSpace.ReplaceAll(text, []byte("("))
+
+	// Remove all spaces before and after }
+	REGEX_CloseParenthesisSpace := regexp.MustCompile(`\s*\)\s*`)
+	text = REGEX_CloseParenthesisSpace.ReplaceAll(text, []byte(")"))
+
+	// Replace all "=", " =", and "= " with " = "
+	REGEX_EqualSpace := regexp.MustCompile(`[\s]*=[\s]*`)
+	text = REGEX_EqualSpace.ReplaceAll(text, []byte(" = "))
+
+	// Trim left and right spacing
+	text = bytes.TrimSpace(text)
+
+	return text
+}
+
 func removeAnnotations(text []byte) []byte {
 	var (
-		startCommentIndex int  = 0
-		currentStyle      byte = NoQuote
+		activeAsperand              bool = false
+		activeAsperandIndex         int  = 0
+		currentStyle                byte = NoQuote
+		currentAsperandBracket      byte = NoQuote
+		currentAsperandBracketCount int  = 1
 	)
 
 	removeText := func(i int) {
-		text = append(text[:startCommentIndex], text[i+1:]...)
-		currentStyle = NoQuote
+		fmt.Printf("%s\n", string(text))
+		fmt.Printf("Remove from index %s to index %s.\n", string(strconv.Itoa(activeAsperandIndex)), string(strconv.Itoa(i)))
+		text = append(text[:activeAsperandIndex], text[i+1:]...)
+		activeAsperand = false
 	}
 
 	for i := 0; i < len(text); i++ {
@@ -138,23 +181,31 @@ func removeAnnotations(text []byte) []byte {
 				currentStyle = DoubleQuote
 			} else if text[i] == TickerQuote {
 				currentStyle = TickerQuote
-			} else if i+1 < len(text) {
-				if text[i] == '/' && text[i+1] == '/' {
-					currentStyle = SingleLineComment
-					startCommentIndex = i
-				} else if text[i] == '/' && text[i+1] == '*' {
-					currentStyle = MultiLineComment
-					startCommentIndex = i
+			} else if text[i] == Asperand {
+				activeAsperand = true
+				activeAsperandIndex = i
+			} else if activeAsperand {
+				if currentAsperandBracket == NoQuote && (text[i] == OpenParenthesis || text[i] == OpenCurly) {
+					currentAsperandBracket = text[i]
+				} else if (currentAsperandBracket == OpenParenthesis && text[i] == OpenParenthesis) || (currentAsperandBracket == OpenCurly && text[i] == OpenCurly) {
+					currentAsperandBracketCount++
+				} else if (currentAsperandBracket == OpenParenthesis && text[i] == ClosedParenthesis) ||
+					(currentAsperandBracket == OpenCurly && text[i] == ClosedCurly) {
+					currentAsperandBracketCount--
+
+					fmt.Printf("currentAsperandBracketCount: %s\n", string(strconv.Itoa(currentAsperandBracketCount)))
+
+					if currentAsperandBracketCount == 0 {
+						removeText(i)
+					}
+				} else if currentAsperandBracket == NoQuote && text[i] == Space {
+					removeText(i)
 				}
 			}
-		} else if currentStyle == SingleLineComment && text[i] == '\n' {
-			removeText(i - 1)
-			i = startCommentIndex
-		} else if currentStyle == MultiLineComment && text[i] == '*' && i+1 < len(text) && text[i+1] == '/' {
-			removeText(i + 1)
-			i = startCommentIndex
 		}
 	}
+
+	fmt.Printf("%s\n\n", string(text))
 
 	return text
 }
@@ -171,6 +222,7 @@ func getPackageName(text []byte) ([]byte, error) {
 	// If there is a scope increment, but there's no package declaration, return nil byte slice with no error
 	// If there is a scope increment, and there's a package declaration inside the scope, return nil byte slice with no error
 	REGEX_PackageDeclaration := regexp.MustCompile(`[\s\S]*?package[\s\S][^;]*`)
+
 	packageDeclarationIndex := REGEX_PackageDeclaration.FindIndex(text)
 
 	if len(firstOpenCurlyIndex) == 0 {
@@ -197,58 +249,6 @@ func getPackageName(text []byte) ([]byte, error) {
 	text = bytes.TrimSpace(text)
 
 	return text, nil
-}
-
-// Remove all extra spacing from code
-func removeSpacing(text []byte) []byte {
-	// Remove package declaration
-	REGEX_Package := regexp.MustCompile(`[\s\S]*?package[\s\S]*?;[\s]*`)
-	text = REGEX_Package.ReplaceAll(text, nil)
-
-	// Remove all imports
-	REGEX_Imports := regexp.MustCompile(`[\s\S]*?import[\s\S]*?;[\s]*`)
-	text = REGEX_Imports.ReplaceAll(text, []byte(" "))
-
-	// Replace all new lines with a space
-	REGEX_NewLine := regexp.MustCompile(`\r?\n|\r`)
-	text = REGEX_NewLine.ReplaceAll(text, []byte(" "))
-
-	// Replace all double spaces with a single space
-	REGEX_DoubleSpace := regexp.MustCompile(`\s\s+`)
-	text = REGEX_DoubleSpace.ReplaceAll(text, []byte(" "))
-
-	// Remove all spaces before and after ,
-	REGEX_CommaSpace := regexp.MustCompile(`\s*,\s*`)
-	text = REGEX_CommaSpace.ReplaceAll(text, []byte(","))
-
-	// Remove all spaces before and after ;
-	REGEX_SemiColonSpace := regexp.MustCompile(`\s*;\s*`)
-	text = REGEX_SemiColonSpace.ReplaceAll(text, []byte(";"))
-
-	// Remove all spaces before and after {
-	REGEX_OpenCurlySpace := regexp.MustCompile(`\s*{\s*`)
-	text = REGEX_OpenCurlySpace.ReplaceAll(text, []byte("{"))
-
-	// Remove all spaces before and after }
-	REGEX_CloseCurlySpace := regexp.MustCompile(`\s*}\s*`)
-	text = REGEX_CloseCurlySpace.ReplaceAll(text, []byte("}"))
-
-	// Remove all spaces before and after {
-	REGEX_OpenParenthesisSpace := regexp.MustCompile(`\s*\(\s*`)
-	text = REGEX_OpenParenthesisSpace.ReplaceAll(text, []byte("("))
-
-	// Remove all spaces before and after }
-	REGEX_CloseParenthesisSpace := regexp.MustCompile(`\s*\)\s*`)
-	text = REGEX_CloseParenthesisSpace.ReplaceAll(text, []byte(")"))
-
-	// Replace all "=", " =", and "= " with " = "
-	REGEX_EqualSpace := regexp.MustCompile(`[\s]*=[\s]*`)
-	text = REGEX_EqualSpace.ReplaceAll(text, []byte(" = "))
-
-	// Trim left and right spacing
-	text = bytes.TrimSpace(text)
-
-	return text
 }
 
 func getFileClasses(fileName string, text []byte) []any {

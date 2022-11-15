@@ -195,7 +195,7 @@ func TestParseFile(t *testing.T) {
 			Input: types.File{
 				Name:      "A",
 				Extension: "java",
-				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}}"),
+				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj= t; obj.show();}}"),
 			},
 			Output: &types.FileResponse{
 				Package: []byte(""),
@@ -978,15 +978,15 @@ func TestRemoveAnnotations(t *testing.T) {
 	var tests = []types.TestByteSlice{
 		{
 			Input:  []byte("new @Readonly ArrayList<>()"),
-			Output: []byte("new  ArrayList<>()"),
+			Output: []byte("new ArrayList<>()"),
 		},
 		{
-			Input:  []byte("@SuppressWarnings(\"unchecked\") static void wordsList();"),
-			Output: []byte(" static void wordsList();"),
+			Input:  []byte("@SuppressWarnings(\"unchecked\")static void wordsList();"),
+			Output: []byte("static void wordsList();"),
 		},
 		{
 			Input:  []byte("@Override public void wordList();"),
-			Output: []byte(" public void wordList();"),
+			Output: []byte("public void wordList();"),
 		},
 		{
 			Input:  []byte("@AnnotationName(elementName = \"elementValue\");"),
@@ -998,29 +998,41 @@ func TestRemoveAnnotations(t *testing.T) {
 		},
 		{
 			Input:  []byte("@NonNull String str;"),
-			Output: []byte(" String str;"),
+			Output: []byte("String str;"),
 		},
 		{
 			Input:  []byte("class Warning extends @Localized Message"),
-			Output: []byte("class Warning extends  Message"),
+			Output: []byte("class Warning extends Message"),
 		},
 		{
-			Input:  []byte("newStr = ( String) str;"),
-			Output: []byte(""),
+			Input:  []byte("newStr = (@NonNull String) str;"),
+			Output: []byte("newStr = (String) str;"),
 		},
 		{
-			Input:  []byte("@Documented @Target(ElementType.METHOD) @Inherited @Retention(RetentionPolicy.RUNTIME) public @interface MethodInfo { String author() default \"Pankaj\"; String date(); int revision() default 1; String comments();}"),
-			Output: []byte("    public  MethodInfo { String author() default \"Pankaj\"; String date(); int revision() default 1; String comments();}"),
+			Input:  []byte("import java.util.*;@Annotation{qi = \"ddd\", qd}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Output: []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
 		},
 		{
-			Input:  []byte(""),
-			Output: []byte(""),
+			Input:  []byte("@Annotation{qi = \"ddd\",qd}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		},
+		{
+			Input:  []byte("@Annotation{qi = {{({\"ddd\",qd})}}}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		},
+		{
+			Input:  []byte("@Annotation(qi = (\"ddd\",qd))class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		},
+		{
+			Input:  []byte("@Annotation class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
 		},
 	}
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			res := removeComments(tt.Input)
+			res := removeAnnotations(tt.Input)
 
 			if !bytes.Equal(res, tt.Output) {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
@@ -1168,7 +1180,28 @@ func TestRemoveSpacing(t *testing.T) {
 		Err:    nil,
 	}
 
-	var tests = []types.TestByteSlice{test1, test2}
+	test3 := types.TestByteSlice{
+		Name:   "valid - test class",
+		Input:  []byte("import java.util.*  ;     @   Annotation  {qi = \"ddd\", qd  }  class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		Output: []byte("@Annotation{qi = \"ddd\",qd}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		Err:    nil,
+	}
+
+	test4 := types.TestByteSlice{
+		Name:   "valid - test class",
+		Input:  []byte("import java.util.*  ;     @   Annotation  (qi = \"ddd\", qd  )  class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		Output: []byte("@Annotation(qi = \"ddd\",qd)class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		Err:    nil,
+	}
+
+	test5 := types.TestByteSlice{
+		Name:   "valid - test class",
+		Input:  []byte("import java.util.*  ;     @   Annotation    class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		Output: []byte("@Annotation class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		Err:    nil,
+	}
+
+	var tests = []types.TestByteSlice{test1, test2, test3, test4, test5}
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
@@ -1372,7 +1405,7 @@ func TestGetFileClasses(t *testing.T) {
 		Input: types.File{
 			Name:      "A",
 			Extension: "java",
-			Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}}"),
+			Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj= t; obj.show();}}"),
 		},
 		Output: &types.FileResponse{
 			Package: []byte(""),
@@ -1991,8 +2024,8 @@ func TestSplitVariablesAndMethods(t *testing.T) {
 			[][]byte{[]byte("public void show(){System.out.println('show method of interface');}")},
 		},
 		{
-			[]byte("public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}"),
-			[][]byte{[]byte("public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj=t;obj.show();}")},
+			[]byte("public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj= t; obj.show();}"),
+			[][]byte{[]byte("public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj= t; obj.show();}")},
 		},
 		{
 			[]byte("protected interface Yes{void show();}public void TestVoid(){}"),
