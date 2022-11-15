@@ -1,36 +1,36 @@
 # ProUML Todo List
 
-### Backend
+# Backend
 
 ## Transpiler — All Languages
 
-# Add
+### Add
 
 - [ ] Relate classes
 - [ ] Generate layout based on relations
 
-# Change
+### Change
 
-# Fix
+### Fix
 
 ## Transpiler — Java
 
-# Add
+### Add
 
-# Change
+### Change
 
-# Fix
+### Fix
 
-### Frontend
+# Frontend
 
 ## Architecture
 
-# Add
+### Add
 
-# Change
+### Change
 
 - [ ] Separate frontend/backend
 - [ ] Move to a Next.js/Vercel setup
 - [ ] Move backend to a serverless setup
 
-# Fix
+### Fix
