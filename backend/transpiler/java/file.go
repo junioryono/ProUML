@@ -372,10 +372,23 @@ func getTypeInvocations(text []byte) [][]byte {
 	textLength := len(text)
 	for i := 0; i < textLength; i++ {
 		if startTypeIndex != 0 {
-			if text[i] == OpenParenthesis {
-				response = append(response, text[startTypeIndex:i])
-				startTypeIndex = 0
+			if text[i] != OpenParenthesis {
+				continue
 			}
+
+			alreadyExistsInResponse := false
+			for _, existingType := range response {
+				if bytes.Equal(existingType, text[startTypeIndex:i]) {
+					alreadyExistsInResponse = true
+					break
+				}
+			}
+
+			if !alreadyExistsInResponse {
+				response = append(response, text[startTypeIndex:i])
+			}
+
+			startTypeIndex = 0
 		} else if currentStyle == SingleQuote && text[i] == SingleQuote ||
 			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
 			currentStyle == TickerQuote && text[i] == TickerQuote {
