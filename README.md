@@ -7,7 +7,11 @@
 ### Add
 
 - [ ] Relate classes
+  - [ ] Check parent class types to find relation
 - [ ] Generate layout based on relations
+  - [ ] Generate class box size
+  - [ ] Create an array that is sorted by least amount of relations first
+  - [ ] Create 2d array to find shortest path of class relations
 
 ### Change
 
