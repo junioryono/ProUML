@@ -65,8 +65,12 @@ class Player {}
 public class Team {
   private List players;
 
-  public Car() {
+  public Team() {
     players = new ArrayList();
+  }
+
+  public void addPlayer(Player player) {
+    players.add(player);
   }
 }
 ```
