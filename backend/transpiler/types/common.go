@@ -48,6 +48,10 @@ func (t Association) GetFromArrow() bool {
 }
 
 func (t Association) GetToArrow() bool {
+	if !t.fromArrow {
+		return true
+	}
+
 	return t.toArrow
 }
 
@@ -69,6 +73,10 @@ func (t Aggregation) GetFromArrow() bool {
 }
 
 func (t Aggregation) GetToArrow() bool {
+	if !t.fromArrow {
+		return true
+	}
+
 	return t.toArrow
 }
 
@@ -92,6 +100,10 @@ func (t Composition) GetFromArrow() bool {
 }
 
 func (t Composition) GetToArrow() bool {
+	if !t.fromArrow {
+		return true
+	}
+
 	return t.toArrow
 }
 
@@ -115,6 +127,10 @@ func (t Dependency) GetFromArrow() bool {
 }
 
 func (t Dependency) GetToArrow() bool {
+	if !t.fromArrow {
+		return true
+	}
+
 	return t.toArrow
 }
 
@@ -138,6 +154,10 @@ func (t Realization) GetFromArrow() bool {
 }
 
 func (t Realization) GetToArrow() bool {
+	if !t.fromArrow {
+		return true
+	}
+
 	return t.toArrow
 }
 
@@ -161,6 +181,10 @@ func (t Generalization) GetFromArrow() bool {
 }
 
 func (t Generalization) GetToArrow() bool {
+	if !t.fromArrow {
+		return true
+	}
+
 	return t.toArrow
 }
 

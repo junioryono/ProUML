@@ -1,5 +1,12 @@
 package types
 
+type TypeRelations struct {
+	Association [][]byte
+	Aggregation [][]byte
+	Composition [][]byte
+	Dependency  [][]byte
+}
+
 type ClassText struct {
 	DefinedWithin []byte
 	Outside       []byte
@@ -7,7 +14,7 @@ type ClassText struct {
 	Declarations  [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
-	Invokes       [][]byte
+	Relations     TypeRelations
 }
 
 type JavaVariable struct {
@@ -41,7 +48,7 @@ type JavaAbstract struct {
 	Extends       [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
-	Invokes       [][]byte // TODO - invokation TYPES inside all functions - Add all "new ...." to here... "new "ClassTest'"
+	Relations     TypeRelations
 }
 
 type JavaClass struct {
@@ -51,7 +58,7 @@ type JavaClass struct {
 	Extends       [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
-	Invokes       [][]byte // TODO
+	Relations     TypeRelations
 }
 
 type JavaInterface struct {

@@ -269,7 +269,7 @@ func getFileClasses(fileName string, text []byte) []any {
 		classesText[i].Variables = variables
 		classesText[i].Methods = methods
 
-		classesText[i].Invokes = getTypeInvocations(classesText[i].Inside)
+		classesText[i].Relations = getTypeRelations(classesText[i].Inside)
 	}
 
 	findIndex := func(sWord string, dbArray [][]byte) int {
@@ -342,7 +342,7 @@ func getFileClasses(fileName string, text []byte) []any {
 				Extends:       extendsValue,
 				Variables:     classesText[i].Variables,
 				Methods:       classesText[i].Methods,
-				Invokes:       classesText[i].Invokes,
+				Relations:     classesText[i].Relations,
 			})
 			continue
 		}
@@ -354,63 +354,63 @@ func getFileClasses(fileName string, text []byte) []any {
 			Extends:       extendsValue,
 			Variables:     classesText[i].Variables,
 			Methods:       classesText[i].Methods,
-			Invokes:       classesText[i].Invokes,
+			Relations:     classesText[i].Relations,
 		})
 	}
 
 	return classesStruct
 }
 
-func getTypeInvocations(text []byte) [][]byte {
+func getTypeRelations(text []byte) types.TypeRelations {
 	var (
-		response       [][]byte
-		currentStyle   byte = NoQuote
-		currentScope   int  = 0
-		startTypeIndex int  = 0
+		response types.TypeRelations
+		// currentStyle   byte = NoQuote
+		// currentScope   int  = 0
+		// startTypeIndex int  = 0
 	)
 
-	textLength := len(text)
-	for i := 0; i < textLength; i++ {
-		if startTypeIndex != 0 {
-			if text[i] != OpenParenthesis {
-				continue
-			}
+	// textLength := len(text)
+	// for i := 0; i < textLength; i++ {
+	// 	if startTypeIndex != 0 {
+	// 		if text[i] != OpenParenthesis {
+	// 			continue
+	// 		}
 
-			alreadyExistsInResponse := false
-			for _, existingType := range response {
-				if bytes.Equal(existingType, text[startTypeIndex:i]) {
-					alreadyExistsInResponse = true
-					break
-				}
-			}
+	// 		alreadyExistsInResponse := false
+	// 		for _, existingType := range response {
+	// 			if bytes.Equal(existingType, text[startTypeIndex:i]) {
+	// 				alreadyExistsInResponse = true
+	// 				break
+	// 			}
+	// 		}
 
-			if !alreadyExistsInResponse {
-				response = append(response, text[startTypeIndex:i])
-			}
+	// 		if !alreadyExistsInResponse {
+	// 			response = append(response, text[startTypeIndex:i])
+	// 		}
 
-			startTypeIndex = 0
-		} else if currentStyle == SingleQuote && text[i] == SingleQuote ||
-			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if text[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if text[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if text[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if text[i] == OpenCurly {
-				currentScope++
-			} else if text[i] == ClosedCurly {
-				currentScope--
-			} else if currentScope != 0 && i+4 < textLength &&
-				text[i] == ' ' && text[i+1] == 'n' && text[i+2] == 'e' && text[i+3] == 'w' && text[i+4] == ' ' {
-				i = i + 5
-				startTypeIndex = i
-			}
-		}
-	}
+	// 		startTypeIndex = 0
+	// 	} else if currentStyle == SingleQuote && text[i] == SingleQuote ||
+	// 		currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+	// 		currentStyle == TickerQuote && text[i] == TickerQuote {
+	// 		currentStyle = NoQuote
+	// 	} else if currentStyle == NoQuote {
+	// 		if text[i] == SingleQuote {
+	// 			currentStyle = SingleQuote
+	// 		} else if text[i] == DoubleQuote {
+	// 			currentStyle = DoubleQuote
+	// 		} else if text[i] == TickerQuote {
+	// 			currentStyle = TickerQuote
+	// 		} else if text[i] == OpenCurly {
+	// 			currentScope++
+	// 		} else if text[i] == ClosedCurly {
+	// 			currentScope--
+	// 		} else if currentScope != 0 && i+4 < textLength &&
+	// 			text[i] == ' ' && text[i+1] == 'n' && text[i+2] == 'e' && text[i+3] == 'w' && text[i+4] == ' ' {
+	// 			i = i + 5
+	// 			startTypeIndex = i
+	// 		}
+	// 	}
+	// }
 
 	return response
 }

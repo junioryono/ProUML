@@ -53,6 +53,9 @@ func getClassRelations(files []types.FileResponse) []types.Relation {
 			FromClassId := append(packageName, class.Name...)
 			ToClassId := []byte("")
 
+			// TODO
+			// need to use DefinedWithin, Extends, Implements, and Relations
+
 			Relation := &types.Aggregation{}
 			Relation.SetFromArrow(true)
 
@@ -70,11 +73,11 @@ func getClassRelations(files []types.FileResponse) []types.Relation {
 	return relations
 }
 
-func getExistingRelation(classId1, classId2 []byte, relations []types.Relation) *types.Relation {
+func getExistingRelationData(classId1, classId2 []byte, relations []types.Relation) *types.RelationData {
 	for _, relation := range relations {
 		if (bytes.Equal(relation.FromClassId, classId1) && bytes.Equal(relation.ToClassId, classId2)) ||
 			bytes.Equal(relation.FromClassId, classId2) && bytes.Equal(relation.ToClassId, classId1) {
-			return &relation
+			return &relation.Type
 		}
 	}
 

@@ -262,9 +262,7 @@ func TestParseFile(t *testing.T) {
 								Final:    false,
 							},
 						},
-						Invokes: [][]byte{
-							[]byte("Testing"),
-						},
+						// TODO
 					},
 				},
 			},
@@ -275,7 +273,7 @@ func TestParseFile(t *testing.T) {
 			Input: types.File{
 				Name:      "A",
 				Extension: "java",
-				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
+				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
 			},
 			Output: &types.FileResponse{
 				Package: []byte(""),
@@ -500,9 +498,7 @@ func TestParseFile(t *testing.T) {
 								Final:          true,
 							},
 						},
-						Invokes: [][]byte{
-							[]byte("Testing"),
-						},
+						// TODO,
 					},
 				},
 			},
@@ -568,8 +564,17 @@ func TestParseFile(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
-						} else if len(expected.Invokes) != len(response.Invokes) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Invokes)), strconv.Itoa(len(response.Invokes)))
+						} else if len(expected.Relations.Association) != len(response.Relations.Association) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Association)), strconv.Itoa(len(response.Relations.Association)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Aggregation) != len(response.Relations.Aggregation) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Aggregation)), strconv.Itoa(len(response.Relations.Aggregation)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Composition) != len(response.Relations.Composition) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Composition)), strconv.Itoa(len(response.Relations.Composition)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Dependency) != len(response.Relations.Dependency) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Dependency)), strconv.Itoa(len(response.Relations.Dependency)))
 							subtest.FailNow()
 						}
 
@@ -586,53 +591,71 @@ func TestParseFile(t *testing.T) {
 						}
 
 						for index, variable := range expected.Variables {
-							if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+							if !bytes.Equal(response.Variables[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Variables[index].Type))
-							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Variables[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Variables[index].Name))
-							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+							} else if !bytes.Equal(response.Variables[index].Value, variable.Value) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Value), string(response.Variables[index].Value))
-							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Variables[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Variables[index].AccessModifier))
-							} else if expected.Variables[index].Static != variable.Static {
+							} else if response.Variables[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Variables[index].Static)
-							} else if expected.Variables[index].Final != variable.Final {
+							} else if response.Variables[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Variables[index].Final)
 							}
 						}
 
 						for index, variable := range expected.Methods {
-							if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+							if !bytes.Equal(response.Methods[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Methods[index].Type))
-							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Methods[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Methods[index].Name))
-							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Methods[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Methods[index].AccessModifier))
-							} else if expected.Methods[index].Abstract != variable.Abstract {
+							} else if response.Methods[index].Abstract != variable.Abstract {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Abstract, response.Methods[index].Abstract)
-							} else if expected.Methods[index].Static != variable.Static {
+							} else if response.Methods[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
-							} else if expected.Methods[index].Final != variable.Final {
+							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
 							}
 
-							if len(expected.Methods[index].Parameters) != len(variable.Parameters) {
+							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
 								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
 								subtest.FailNow()
 							}
 
 							for indexParam, parameter := range variable.Parameters {
-								if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+								if !bytes.Equal(response.Methods[index].Parameters[indexParam].Type, parameter.Type) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Type), string(response.Methods[index].Parameters[indexParam].Type))
-								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+								} else if !bytes.Equal(response.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
 							}
 						}
 
-						for index, variable := range expected.Invokes {
-							if !bytes.Equal(expected.Invokes[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Invokes[index]))
+						for index, variable := range expected.Relations.Association {
+							if !bytes.Equal(response.Relations.Association[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Association[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Aggregation {
+							if !bytes.Equal(response.Relations.Aggregation[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Aggregation[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Composition {
+							if !bytes.Equal(response.Relations.Composition[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Composition[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Dependency {
+							if !bytes.Equal(response.Relations.Dependency[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Dependency[index]))
 							}
 						}
 					default:
@@ -661,8 +684,17 @@ func TestParseFile(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
-						} else if len(expected.Invokes) != len(response.Invokes) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Invokes)), strconv.Itoa(len(response.Invokes)))
+						} else if len(expected.Relations.Association) != len(response.Relations.Association) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Association)), strconv.Itoa(len(response.Relations.Association)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Aggregation) != len(response.Relations.Aggregation) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Aggregation)), strconv.Itoa(len(response.Relations.Aggregation)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Composition) != len(response.Relations.Composition) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Composition)), strconv.Itoa(len(response.Relations.Composition)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Dependency) != len(response.Relations.Dependency) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Dependency)), strconv.Itoa(len(response.Relations.Dependency)))
 							subtest.FailNow()
 						}
 
@@ -679,53 +711,71 @@ func TestParseFile(t *testing.T) {
 						}
 
 						for index, variable := range expected.Variables {
-							if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+							if !bytes.Equal(response.Variables[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Variables[index].Type))
-							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Variables[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Variables[index].Name))
-							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+							} else if !bytes.Equal(response.Variables[index].Value, variable.Value) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Value), string(response.Variables[index].Value))
-							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Variables[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Variables[index].AccessModifier))
-							} else if expected.Variables[index].Static != variable.Static {
+							} else if response.Variables[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Variables[index].Static)
-							} else if expected.Variables[index].Final != variable.Final {
+							} else if response.Variables[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Variables[index].Final)
 							}
 						}
 
 						for index, variable := range expected.Methods {
-							if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+							if !bytes.Equal(response.Methods[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Methods[index].Type))
-							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Methods[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Methods[index].Name))
-							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Methods[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Methods[index].AccessModifier))
-							} else if expected.Methods[index].Abstract != variable.Abstract {
+							} else if response.Methods[index].Abstract != variable.Abstract {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Abstract, response.Methods[index].Abstract)
-							} else if expected.Methods[index].Static != variable.Static {
+							} else if response.Methods[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
-							} else if expected.Methods[index].Final != variable.Final {
+							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
 							}
 
-							if len(expected.Methods[index].Parameters) != len(variable.Parameters) {
+							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
 								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
 								subtest.FailNow()
 							}
 
 							for indexParam, parameter := range variable.Parameters {
-								if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+								if !bytes.Equal(response.Methods[index].Parameters[indexParam].Type, parameter.Type) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Type), string(response.Methods[index].Parameters[indexParam].Type))
-								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+								} else if !bytes.Equal(response.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
 							}
 						}
 
-						for index, variable := range expected.Invokes {
-							if !bytes.Equal(expected.Invokes[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Invokes[index]))
+						for index, variable := range expected.Relations.Association {
+							if !bytes.Equal(response.Relations.Association[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Association[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Aggregation {
+							if !bytes.Equal(response.Relations.Aggregation[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Aggregation[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Composition {
+							if !bytes.Equal(response.Relations.Composition[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Composition[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Dependency {
+							if !bytes.Equal(response.Relations.Dependency[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Dependency[index]))
 							}
 						}
 					default:
@@ -760,45 +810,45 @@ func TestParseFile(t *testing.T) {
 						}
 
 						for index, variable := range expected.Variables {
-							if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+							if !bytes.Equal(response.Variables[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Variables[index].Type))
-							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Variables[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Variables[index].Name))
-							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+							} else if !bytes.Equal(response.Variables[index].Value, variable.Value) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Value), string(response.Variables[index].Value))
-							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Variables[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Variables[index].AccessModifier))
-							} else if expected.Variables[index].Static != variable.Static {
+							} else if response.Variables[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Variables[index].Static)
-							} else if expected.Variables[index].Final != variable.Final {
+							} else if response.Variables[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Variables[index].Final)
 							}
 						}
 
 						for index, variable := range expected.Methods {
-							if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+							if !bytes.Equal(response.Methods[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Methods[index].Type))
-							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Methods[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Methods[index].Name))
-							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Methods[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Methods[index].AccessModifier))
-							} else if expected.Methods[index].Abstract != variable.Abstract {
+							} else if response.Methods[index].Abstract != variable.Abstract {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Abstract, response.Methods[index].Abstract)
-							} else if expected.Methods[index].Static != variable.Static {
+							} else if response.Methods[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
-							} else if expected.Methods[index].Final != variable.Final {
+							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
 							}
 
-							if len(expected.Methods[index].Parameters) != len(variable.Parameters) {
-								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
+							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
+								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(response.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
 								subtest.FailNow()
 							}
 
 							for indexParam, parameter := range variable.Parameters {
-								if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+								if !bytes.Equal(response.Methods[index].Parameters[indexParam].Type, parameter.Type) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Type), string(response.Methods[index].Parameters[indexParam].Type))
-								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+								} else if !bytes.Equal(response.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
 							}
@@ -1201,7 +1251,14 @@ func TestRemoveSpacing(t *testing.T) {
 		Err:    nil,
 	}
 
-	var tests = []types.TestByteSlice{test1, test2, test3, test4, test5}
+	test6 := types.TestByteSlice{
+		Name:   "valid - test class",
+		Input:  []byte("import java.util.*;class Test{public static void main(String[] args   ,  Test hello ){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		Output: []byte("class Test{public static void main(String[] args,Test hello){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+		Err:    nil,
+	}
+
+	var tests = []types.TestByteSlice{test1, test2, test3, test4, test5, test6}
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
@@ -1472,9 +1529,7 @@ func TestGetFileClasses(t *testing.T) {
 							Final:    false,
 						},
 					},
-					Invokes: [][]byte{
-						[]byte("Testing"),
-					},
+					// TODO
 				},
 			},
 		},
@@ -1486,7 +1541,7 @@ func TestGetFileClasses(t *testing.T) {
 		Input: types.File{
 			Name:      "A",
 			Extension: "java",
-			Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
+			Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
 		},
 		Output: &types.FileResponse{
 			Package: []byte(""),
@@ -1711,9 +1766,7 @@ func TestGetFileClasses(t *testing.T) {
 							Final:          true,
 						},
 					},
-					Invokes: [][]byte{
-						[]byte("Testing"),
-					},
+					// TODO
 				},
 			},
 		},
@@ -1755,8 +1808,17 @@ func TestGetFileClasses(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
-						} else if len(expected.Invokes) != len(response.Invokes) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Invokes)), strconv.Itoa(len(response.Invokes)))
+						} else if len(expected.Relations.Association) != len(response.Relations.Association) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Association)), strconv.Itoa(len(response.Relations.Association)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Aggregation) != len(response.Relations.Aggregation) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Aggregation)), strconv.Itoa(len(response.Relations.Aggregation)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Composition) != len(response.Relations.Composition) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Composition)), strconv.Itoa(len(response.Relations.Composition)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Dependency) != len(response.Relations.Dependency) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Dependency)), strconv.Itoa(len(response.Relations.Dependency)))
 							subtest.FailNow()
 						}
 
@@ -1773,53 +1835,71 @@ func TestGetFileClasses(t *testing.T) {
 						}
 
 						for index, variable := range expected.Variables {
-							if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+							if !bytes.Equal(response.Variables[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Variables[index].Type))
-							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Variables[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Variables[index].Name))
-							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+							} else if !bytes.Equal(response.Variables[index].Value, variable.Value) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Value), string(response.Variables[index].Value))
-							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Variables[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Variables[index].AccessModifier))
-							} else if expected.Variables[index].Static != variable.Static {
+							} else if response.Variables[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Variables[index].Static)
-							} else if expected.Variables[index].Final != variable.Final {
+							} else if response.Variables[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Variables[index].Final)
 							}
 						}
 
 						for index, variable := range expected.Methods {
-							if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+							if !bytes.Equal(response.Methods[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Methods[index].Type))
-							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Methods[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Methods[index].Name))
-							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Methods[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Methods[index].AccessModifier))
-							} else if expected.Methods[index].Abstract != variable.Abstract {
+							} else if response.Methods[index].Abstract != variable.Abstract {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Abstract, response.Methods[index].Abstract)
-							} else if expected.Methods[index].Static != variable.Static {
+							} else if response.Methods[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
-							} else if expected.Methods[index].Final != variable.Final {
+							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
 							}
 
-							if len(expected.Methods[index].Parameters) != len(variable.Parameters) {
-								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
+							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
+								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(response.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
 								subtest.FailNow()
 							}
 
 							for indexParam, parameter := range variable.Parameters {
-								if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+								if !bytes.Equal(response.Methods[index].Parameters[indexParam].Type, parameter.Type) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Type), string(response.Methods[index].Parameters[indexParam].Type))
-								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+								} else if !bytes.Equal(response.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
 							}
 						}
 
-						for index, variable := range expected.Invokes {
-							if !bytes.Equal(expected.Invokes[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Invokes[index]))
+						for index, variable := range expected.Relations.Association {
+							if !bytes.Equal(response.Relations.Association[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Association[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Aggregation {
+							if !bytes.Equal(response.Relations.Aggregation[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Aggregation[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Composition {
+							if !bytes.Equal(response.Relations.Composition[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Composition[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Dependency {
+							if !bytes.Equal(response.Relations.Dependency[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Dependency[index]))
 							}
 						}
 					default:
@@ -1848,8 +1928,17 @@ func TestGetFileClasses(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
-						} else if len(expected.Invokes) != len(response.Invokes) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Invokes)), strconv.Itoa(len(response.Invokes)))
+						} else if len(expected.Relations.Association) != len(response.Relations.Association) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Association)), strconv.Itoa(len(response.Relations.Association)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Aggregation) != len(response.Relations.Aggregation) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Aggregation)), strconv.Itoa(len(response.Relations.Aggregation)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Composition) != len(response.Relations.Composition) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Composition)), strconv.Itoa(len(response.Relations.Composition)))
+							subtest.FailNow()
+						} else if len(expected.Relations.Dependency) != len(response.Relations.Dependency) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Dependency)), strconv.Itoa(len(response.Relations.Dependency)))
 							subtest.FailNow()
 						}
 
@@ -1866,53 +1955,71 @@ func TestGetFileClasses(t *testing.T) {
 						}
 
 						for index, variable := range expected.Variables {
-							if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+							if !bytes.Equal(response.Variables[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Variables[index].Type))
-							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Variables[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Variables[index].Name))
-							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+							} else if !bytes.Equal(response.Variables[index].Value, variable.Value) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Value), string(response.Variables[index].Value))
-							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Variables[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Variables[index].AccessModifier))
-							} else if expected.Variables[index].Static != variable.Static {
+							} else if response.Variables[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Variables[index].Static)
-							} else if expected.Variables[index].Final != variable.Final {
+							} else if response.Variables[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Variables[index].Final)
 							}
 						}
 
 						for index, variable := range expected.Methods {
-							if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+							if !bytes.Equal(response.Methods[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Methods[index].Type))
-							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Methods[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Methods[index].Name))
-							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Methods[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Methods[index].AccessModifier))
-							} else if expected.Methods[index].Abstract != variable.Abstract {
+							} else if response.Methods[index].Abstract != variable.Abstract {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Abstract, response.Methods[index].Abstract)
-							} else if expected.Methods[index].Static != variable.Static {
+							} else if response.Methods[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
-							} else if expected.Methods[index].Final != variable.Final {
+							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
 							}
 
-							if len(expected.Methods[index].Parameters) != len(variable.Parameters) {
-								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
+							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
+								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(response.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
 								subtest.FailNow()
 							}
 
 							for indexParam, parameter := range variable.Parameters {
-								if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+								if !bytes.Equal(response.Methods[index].Parameters[indexParam].Type, parameter.Type) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Type), string(response.Methods[index].Parameters[indexParam].Type))
-								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+								} else if !bytes.Equal(response.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
 							}
 						}
 
-						for index, variable := range expected.Invokes {
-							if !bytes.Equal(expected.Invokes[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Invokes[index]))
+						for index, variable := range expected.Relations.Association {
+							if !bytes.Equal(response.Relations.Association[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Association[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Aggregation {
+							if !bytes.Equal(response.Relations.Aggregation[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Aggregation[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Composition {
+							if !bytes.Equal(response.Relations.Composition[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Composition[index]))
+							}
+						}
+
+						for index, variable := range expected.Relations.Dependency {
+							if !bytes.Equal(response.Relations.Dependency[index], variable) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Dependency[index]))
 							}
 						}
 					default:
@@ -1947,45 +2054,45 @@ func TestGetFileClasses(t *testing.T) {
 						}
 
 						for index, variable := range expected.Variables {
-							if !bytes.Equal(expected.Variables[index].Type, variable.Type) {
+							if !bytes.Equal(response.Variables[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Variables[index].Type))
-							} else if !bytes.Equal(expected.Variables[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Variables[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Variables[index].Name))
-							} else if !bytes.Equal(expected.Variables[index].Value, variable.Value) {
+							} else if !bytes.Equal(response.Variables[index].Value, variable.Value) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Value), string(response.Variables[index].Value))
-							} else if !bytes.Equal(expected.Variables[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Variables[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Variables[index].AccessModifier))
-							} else if expected.Variables[index].Static != variable.Static {
+							} else if response.Variables[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Variables[index].Static)
-							} else if expected.Variables[index].Final != variable.Final {
+							} else if response.Variables[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Variables[index].Final)
 							}
 						}
 
 						for index, variable := range expected.Methods {
-							if !bytes.Equal(expected.Methods[index].Type, variable.Type) {
+							if !bytes.Equal(response.Methods[index].Type, variable.Type) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Type), string(response.Methods[index].Type))
-							} else if !bytes.Equal(expected.Methods[index].Name, variable.Name) {
+							} else if !bytes.Equal(response.Methods[index].Name, variable.Name) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Name), string(response.Methods[index].Name))
-							} else if !bytes.Equal(expected.Methods[index].AccessModifier, variable.AccessModifier) {
+							} else if !bytes.Equal(response.Methods[index].AccessModifier, variable.AccessModifier) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.AccessModifier), string(response.Methods[index].AccessModifier))
-							} else if expected.Methods[index].Abstract != variable.Abstract {
+							} else if response.Methods[index].Abstract != variable.Abstract {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Abstract, response.Methods[index].Abstract)
-							} else if expected.Methods[index].Static != variable.Static {
+							} else if response.Methods[index].Static != variable.Static {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
-							} else if expected.Methods[index].Final != variable.Final {
+							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
 							}
 
-							if len(expected.Methods[index].Parameters) != len(variable.Parameters) {
+							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
 								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
 								subtest.FailNow()
 							}
 
 							for indexParam, parameter := range variable.Parameters {
-								if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Type, parameter.Type) {
+								if !bytes.Equal(response.Methods[index].Parameters[indexParam].Type, parameter.Type) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Type), string(response.Methods[index].Parameters[indexParam].Type))
-								} else if !bytes.Equal(expected.Methods[index].Parameters[indexParam].Name, parameter.Name) {
+								} else if !bytes.Equal(response.Methods[index].Parameters[indexParam].Name, parameter.Name) {
 									subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(parameter.Name), string(response.Methods[index].Parameters[indexParam].Type))
 								}
 							}
@@ -2046,7 +2153,7 @@ func TestSplitVariablesAndMethods(t *testing.T) {
 			},
 		},
 		{
-			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
+			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
 			[][]byte{
 				[]byte("Test inner1;"),
 				[]byte("public Testing inner2 = new Testing();"),
@@ -2055,7 +2162,7 @@ func TestSplitVariablesAndMethods(t *testing.T) {
 				[]byte("static final Test.Yes inner5 = null;"),
 				[]byte("protected static final Test.Yes inner6 = null;"),
 				[]byte("public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}"),
-				[]byte("Testing function1(Test.Yes var1, Test var2){};"),
+				[]byte("Testing function1(Test.Yes var1,Test var2){};"),
 				[]byte("Testing function2();"),
 				[]byte("abstract void function3(){};"),
 				[]byte("static Testing function4(){}"),
@@ -2087,31 +2194,67 @@ func TestSplitVariablesAndMethods(t *testing.T) {
 	}
 }
 
-func TestGetTypeInvocations(t *testing.T) {
-	type TestSplit struct {
+func TestGetTypeRelations(t *testing.T) {
+	type TestRelations struct {
 		Input  []byte
-		Output [][]byte
+		Output types.TypeRelations
 	}
 
-	var tests = []TestSplit{
+	var tests = []TestRelations{
 		{
-			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1, Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
-			[][]byte{[]byte("Testing")},
+
+			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
+			types.TypeRelations{
+				// TODO
+			},
+		},
+		{
+			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
+			types.TypeRelations{
+				// TODO
+			},
 		},
 	}
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			actualOutput := getTypeInvocations(tt.Input)
+			response := getTypeRelations(tt.Input)
 
-			if len(tt.Output) != len(actualOutput) {
-				subtest.Errorf("incorrect length.\ngot: %s\nneed: %s\n", strconv.Itoa(len(actualOutput)), strconv.Itoa(len(tt.Output)))
+			if len(tt.Output.Association) != len(response.Association) {
+				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output.Association)), strconv.Itoa(len(response.Association)))
+				subtest.FailNow()
+			} else if len(tt.Output.Aggregation) != len(response.Aggregation) {
+				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output.Aggregation)), strconv.Itoa(len(response.Aggregation)))
+				subtest.FailNow()
+			} else if len(tt.Output.Composition) != len(response.Composition) {
+				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output.Composition)), strconv.Itoa(len(response.Composition)))
+				subtest.FailNow()
+			} else if len(tt.Output.Dependency) != len(response.Dependency) {
+				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output.Dependency)), strconv.Itoa(len(response.Dependency)))
 				subtest.FailNow()
 			}
 
-			for index, expected := range tt.Output {
-				if !bytes.Equal(actualOutput[index], expected) {
-					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected), string(actualOutput[index]))
+			for index, variable := range tt.Output.Association {
+				if !bytes.Equal(response.Association[index], variable) {
+					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Association[index]))
+				}
+			}
+
+			for index, variable := range tt.Output.Aggregation {
+				if !bytes.Equal(response.Aggregation[index], variable) {
+					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Aggregation[index]))
+				}
+			}
+
+			for index, variable := range tt.Output.Composition {
+				if !bytes.Equal(response.Composition[index], variable) {
+					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Composition[index]))
+				}
+			}
+
+			for index, variable := range tt.Output.Dependency {
+				if !bytes.Equal(response.Dependency[index], variable) {
+					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Dependency[index]))
 				}
 			}
 		})
