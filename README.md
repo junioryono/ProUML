@@ -1,4 +1,4 @@
-# ProUML Todo List
+# ProUML
 
 ## Todo List
 
@@ -52,7 +52,7 @@ Fix
 ```java
 class Engine {}
 public class Car {
-  public Car () {
+  public Car() {
     engine = new Engine();
   }
 }
@@ -65,7 +65,7 @@ class Player {}
 public class Team {
   private List players;
 
-  public Car () {
+  public Car() {
     players = new ArrayList();
   }
 }
@@ -76,9 +76,9 @@ public class Team {
 ```java
 class Engine {}
 public class Car {
-  private final Engine engine;
+  private Engine engine;
 
-  public Car () {
+  public Car() {
     engine = new Engine();
   }
 }
@@ -91,7 +91,7 @@ class Engine {}
 public class Car {
   private Engine engine;
 
-  public Car (Engine engine) {
+  public Car(Engine engine) {
     engine = engine;
   }
 }
