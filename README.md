@@ -43,7 +43,7 @@
 
 ##### Fix
 
-## UML Patterns
+## UML Relations
 
 ### Java
 
