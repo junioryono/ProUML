@@ -6,7 +6,7 @@
 
 #### Transpiler — All Languages
 
-Add
+##### Add
 
 - [ ] Relate classes
   - [ ] Check parent class types to find relation
@@ -15,33 +15,33 @@ Add
   - [ ] Create an array that is sorted by least amount of relations first
   - [ ] Create 2d array to find shortest path of class relations
 
-Change
+##### Change
 
-Fix
+##### Fix
 
 #### Transpiler — Java
 
-Add
+##### Add
 
 - [ ] Get enum declarations
 
-Change
+##### Change
 
-Fix
+##### Fix
 
 ### Frontend
 
 #### Architecture
 
-Add
+##### Add
 
-Change
+##### Change
 
 - [ ] Separate frontend/backend
 - [ ] Move to a Next.js/Vercel setup
 - [ ] Move backend to a serverless setup
 
-Fix
+##### Fix
 
 ## UML Patterns
 
