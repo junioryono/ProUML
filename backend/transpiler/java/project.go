@@ -56,7 +56,7 @@ func getClassRelations(files []types.FileResponse) []types.Relation {
 			// TODO
 			// need to use DefinedWithin, Extends, Implements, and Relations
 
-			Relation := &types.Aggregation{}
+			Relation := &types.Association{}
 			Relation.SetFromArrow(true)
 
 			relations = append(relations, types.Relation{

@@ -564,17 +564,8 @@ func TestParseFile(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
-						} else if len(expected.Relations.Association) != len(response.Relations.Association) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Association)), strconv.Itoa(len(response.Relations.Association)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Aggregation) != len(response.Relations.Aggregation) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Aggregation)), strconv.Itoa(len(response.Relations.Aggregation)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Composition) != len(response.Relations.Composition) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Composition)), strconv.Itoa(len(response.Relations.Composition)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Dependency) != len(response.Relations.Dependency) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Dependency)), strconv.Itoa(len(response.Relations.Dependency)))
+						} else if len(expected.Associations) != len(response.Associations) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Associations)), strconv.Itoa(len(response.Associations)))
 							subtest.FailNow()
 						}
 
@@ -635,27 +626,9 @@ func TestParseFile(t *testing.T) {
 							}
 						}
 
-						for index, variable := range expected.Relations.Association {
-							if !bytes.Equal(response.Relations.Association[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Association[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Aggregation {
-							if !bytes.Equal(response.Relations.Aggregation[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Aggregation[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Composition {
-							if !bytes.Equal(response.Relations.Composition[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Composition[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Dependency {
-							if !bytes.Equal(response.Relations.Dependency[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Dependency[index]))
+						for index, association := range expected.Associations {
+							if !bytes.Equal(response.Associations[index], association) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response.Associations[index]))
 							}
 						}
 					default:
@@ -684,17 +657,8 @@ func TestParseFile(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
-						} else if len(expected.Relations.Association) != len(response.Relations.Association) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Association)), strconv.Itoa(len(response.Relations.Association)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Aggregation) != len(response.Relations.Aggregation) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Aggregation)), strconv.Itoa(len(response.Relations.Aggregation)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Composition) != len(response.Relations.Composition) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Composition)), strconv.Itoa(len(response.Relations.Composition)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Dependency) != len(response.Relations.Dependency) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Dependency)), strconv.Itoa(len(response.Relations.Dependency)))
+						} else if len(expected.Associations) != len(response.Associations) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Associations)), strconv.Itoa(len(response.Associations)))
 							subtest.FailNow()
 						}
 
@@ -755,27 +719,9 @@ func TestParseFile(t *testing.T) {
 							}
 						}
 
-						for index, variable := range expected.Relations.Association {
-							if !bytes.Equal(response.Relations.Association[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Association[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Aggregation {
-							if !bytes.Equal(response.Relations.Aggregation[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Aggregation[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Composition {
-							if !bytes.Equal(response.Relations.Composition[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Composition[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Dependency {
-							if !bytes.Equal(response.Relations.Dependency[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Dependency[index]))
+						for index, association := range expected.Associations {
+							if !bytes.Equal(response.Associations[index], association) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response.Associations[index]))
 							}
 						}
 					default:
@@ -1808,17 +1754,8 @@ func TestGetFileClasses(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
-						} else if len(expected.Relations.Association) != len(response.Relations.Association) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Association)), strconv.Itoa(len(response.Relations.Association)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Aggregation) != len(response.Relations.Aggregation) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Aggregation)), strconv.Itoa(len(response.Relations.Aggregation)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Composition) != len(response.Relations.Composition) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Composition)), strconv.Itoa(len(response.Relations.Composition)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Dependency) != len(response.Relations.Dependency) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Dependency)), strconv.Itoa(len(response.Relations.Dependency)))
+						} else if len(expected.Associations) != len(response.Associations) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Associations)), strconv.Itoa(len(response.Associations)))
 							subtest.FailNow()
 						}
 
@@ -1879,27 +1816,9 @@ func TestGetFileClasses(t *testing.T) {
 							}
 						}
 
-						for index, variable := range expected.Relations.Association {
-							if !bytes.Equal(response.Relations.Association[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Association[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Aggregation {
-							if !bytes.Equal(response.Relations.Aggregation[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Aggregation[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Composition {
-							if !bytes.Equal(response.Relations.Composition[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Composition[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Dependency {
-							if !bytes.Equal(response.Relations.Dependency[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Dependency[index]))
+						for index, association := range expected.Associations {
+							if !bytes.Equal(response.Associations[index], association) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response.Associations[index]))
 							}
 						}
 					default:
@@ -1928,17 +1847,8 @@ func TestGetFileClasses(t *testing.T) {
 						} else if len(expected.Methods) != len(response.Methods) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Methods)), strconv.Itoa(len(response.Methods)))
 							subtest.FailNow()
-						} else if len(expected.Relations.Association) != len(response.Relations.Association) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Association)), strconv.Itoa(len(response.Relations.Association)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Aggregation) != len(response.Relations.Aggregation) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Aggregation)), strconv.Itoa(len(response.Relations.Aggregation)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Composition) != len(response.Relations.Composition) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Composition)), strconv.Itoa(len(response.Relations.Composition)))
-							subtest.FailNow()
-						} else if len(expected.Relations.Dependency) != len(response.Relations.Dependency) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Relations.Dependency)), strconv.Itoa(len(response.Relations.Dependency)))
+						} else if len(expected.Associations) != len(response.Associations) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Associations)), strconv.Itoa(len(response.Associations)))
 							subtest.FailNow()
 						}
 
@@ -1999,27 +1909,9 @@ func TestGetFileClasses(t *testing.T) {
 							}
 						}
 
-						for index, variable := range expected.Relations.Association {
-							if !bytes.Equal(response.Relations.Association[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Association[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Aggregation {
-							if !bytes.Equal(response.Relations.Aggregation[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Aggregation[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Composition {
-							if !bytes.Equal(response.Relations.Composition[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Composition[index]))
-							}
-						}
-
-						for index, variable := range expected.Relations.Dependency {
-							if !bytes.Equal(response.Relations.Dependency[index], variable) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Relations.Dependency[index]))
+						for index, association := range expected.Associations {
+							if !bytes.Equal(response.Associations[index], association) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response.Associations[index]))
 							}
 						}
 					default:
@@ -2188,73 +2080,6 @@ func TestSplitVariablesAndMethods(t *testing.T) {
 			for index, expected := range tt.Output {
 				if !bytes.Equal(actualOutput[index], expected) {
 					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected), string(actualOutput[index]))
-				}
-			}
-		})
-	}
-}
-
-func TestGetTypeRelations(t *testing.T) {
-	type TestRelations struct {
-		Input  []byte
-		Output types.TypeRelations
-	}
-
-	var tests = []TestRelations{
-		{
-
-			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
-			types.TypeRelations{
-				// TODO
-			},
-		},
-		{
-			[]byte("Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};"),
-			types.TypeRelations{
-				// TODO
-			},
-		},
-	}
-
-	for testIndex, tt := range tests {
-		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			response := getTypeRelations(tt.Input)
-
-			if len(tt.Output.Association) != len(response.Association) {
-				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output.Association)), strconv.Itoa(len(response.Association)))
-				subtest.FailNow()
-			} else if len(tt.Output.Aggregation) != len(response.Aggregation) {
-				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output.Aggregation)), strconv.Itoa(len(response.Aggregation)))
-				subtest.FailNow()
-			} else if len(tt.Output.Composition) != len(response.Composition) {
-				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output.Composition)), strconv.Itoa(len(response.Composition)))
-				subtest.FailNow()
-			} else if len(tt.Output.Dependency) != len(response.Dependency) {
-				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output.Dependency)), strconv.Itoa(len(response.Dependency)))
-				subtest.FailNow()
-			}
-
-			for index, variable := range tt.Output.Association {
-				if !bytes.Equal(response.Association[index], variable) {
-					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Association[index]))
-				}
-			}
-
-			for index, variable := range tt.Output.Aggregation {
-				if !bytes.Equal(response.Aggregation[index], variable) {
-					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Aggregation[index]))
-				}
-			}
-
-			for index, variable := range tt.Output.Composition {
-				if !bytes.Equal(response.Composition[index], variable) {
-					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Composition[index]))
-				}
-			}
-
-			for index, variable := range tt.Output.Dependency {
-				if !bytes.Equal(response.Dependency[index], variable) {
-					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable), string(response.Dependency[index]))
 				}
 			}
 		})
@@ -2833,6 +2658,56 @@ func TestIsVariable(t *testing.T) {
 				subtest.Errorf("incorrect response.\ngot:\n%t\nneed:\n%t\n", actualBoolOutput, tt.BoolOutput)
 			} else if tt.IntOutput != actualIntOutput {
 				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", strconv.Itoa(actualIntOutput), strconv.Itoa(tt.IntOutput))
+			}
+		})
+	}
+}
+
+func TestGetClassAssociations(t *testing.T) {
+	type Input struct {
+		Variables []types.JavaVariable
+		Methods   []types.JavaMethod
+	}
+
+	type TestRelations struct {
+		Input  Input
+		Output [][]byte
+	}
+
+	var tests = []TestRelations{
+		{
+			Input{
+				Variables: []types.JavaVariable{},
+				Methods:   []types.JavaMethod{},
+			},
+			[][]byte{
+				[]byte(""), // TODO
+			},
+		},
+		{
+			Input{
+				Variables: []types.JavaVariable{},
+				Methods:   []types.JavaMethod{},
+			},
+			[][]byte{
+				[]byte(""), // TODO
+			},
+		},
+	}
+
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			response := getClassAssociations(tt.Input.Variables, tt.Input.Methods)
+
+			if len(tt.Output) != len(response) {
+				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output)), strconv.Itoa(len(response)))
+				subtest.FailNow()
+			}
+
+			for index, association := range tt.Output {
+				if !bytes.Equal(response[index], association) {
+					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response[index]))
+				}
 			}
 		})
 	}

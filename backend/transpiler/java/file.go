@@ -255,7 +255,7 @@ func getFileClasses(fileName string, text []byte) []any {
 	// Search for file name
 	// Example return: "public class Test5"
 	var (
-		classesText   = make([]types.ClassText, 0)
+		classesText   = make([]types.JavaClassText, 0)
 		classesStruct = make([]any, 0)
 	)
 
@@ -268,8 +268,7 @@ func getFileClasses(fileName string, text []byte) []any {
 		variables, methods := getVariablesAndMethods(classesText[i].Inside)
 		classesText[i].Variables = variables
 		classesText[i].Methods = methods
-
-		classesText[i].Relations = getTypeRelations(classesText[i].Inside)
+		classesText[i].Associations = getClassAssociations(variables, methods)
 	}
 
 	findIndex := func(sWord string, dbArray [][]byte) int {
@@ -342,7 +341,7 @@ func getFileClasses(fileName string, text []byte) []any {
 				Extends:       extendsValue,
 				Variables:     classesText[i].Variables,
 				Methods:       classesText[i].Methods,
-				Relations:     classesText[i].Relations,
+				Associations:  classesText[i].Associations,
 			})
 			continue
 		}
@@ -354,16 +353,16 @@ func getFileClasses(fileName string, text []byte) []any {
 			Extends:       extendsValue,
 			Variables:     classesText[i].Variables,
 			Methods:       classesText[i].Methods,
-			Relations:     classesText[i].Relations,
+			Associations:  classesText[i].Associations,
 		})
 	}
 
 	return classesStruct
 }
 
-func getTypeRelations(text []byte) types.TypeRelations {
+func getClassAssociations(variables []types.JavaVariable, methods []types.JavaMethod) [][]byte {
 	var (
-		response types.TypeRelations
+		response [][]byte
 		// currentStyle   byte = NoQuote
 		// currentScope   int  = 0
 		// startTypeIndex int  = 0
@@ -415,7 +414,7 @@ func getTypeRelations(text []byte) types.TypeRelations {
 	return response
 }
 
-func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool) {
+func getInnerClasses(classesText *[]types.JavaClassText, text []byte, isNested bool) {
 	var (
 		startScopeIndex int  = 0
 		currentStyle    byte = NoQuote
@@ -519,7 +518,7 @@ func getInnerClasses(classesText *[]types.ClassText, text []byte, isNested bool)
 									}
 								}
 
-								*classesText = append(*classesText, types.ClassText{
+								*classesText = append(*classesText, types.JavaClassText{
 									DefinedWithin: definedWithin,
 									Outside:       outerText,
 									Inside:        innerText,
@@ -760,6 +759,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	var (
 		methodDeclaration = text[0:openParamIndex]
 		paramDeclarations []byte
+		closedParamIndex  int  = 0
 		currentStyle      byte = NoQuote
 	)
 
@@ -776,8 +776,37 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 			} else if text[i] == TickerQuote {
 				currentStyle = TickerQuote
 			} else if text[i] == ClosedParenthesis {
-				paramDeclarations = append(paramDeclarations, text[openParamIndex+1:i]...)
+				closedParamIndex = i
+				paramDeclarations = append(paramDeclarations, text[openParamIndex+1:closedParamIndex]...)
 				break
+			}
+		}
+	}
+
+	if len(text) > closedParamIndex+1 && text[closedParamIndex+1] == OpenCurly {
+		var currentScope int = 1
+
+		for i := closedParamIndex; i < len(text); i++ {
+			if currentStyle == SingleQuote && text[i] == SingleQuote ||
+				currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+				currentStyle == TickerQuote && text[i] == TickerQuote {
+				currentStyle = NoQuote
+			} else if currentStyle == NoQuote {
+				if text[i] == SingleQuote {
+					currentStyle = SingleQuote
+				} else if text[i] == DoubleQuote {
+					currentStyle = DoubleQuote
+				} else if text[i] == TickerQuote {
+					currentStyle = TickerQuote
+				} else if text[i] == OpenCurly {
+					currentScope++
+				} else if text[i] == ClosedCurly {
+					currentScope--
+
+					if currentScope == 0 {
+						method.Functionality = append(method.Functionality, text[closedParamIndex+1:i]...)
+					}
+				}
 			}
 		}
 	}

@@ -1,20 +1,13 @@
 package types
 
-type TypeRelations struct {
-	Association [][]byte
-	Aggregation [][]byte
-	Composition [][]byte
-	Dependency  [][]byte
-}
-
-type ClassText struct {
+type JavaClassText struct {
 	DefinedWithin []byte
 	Outside       []byte
 	Inside        []byte
 	Declarations  [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
-	Relations     TypeRelations
+	Associations  [][]byte
 }
 
 type JavaVariable struct {
@@ -39,6 +32,7 @@ type JavaMethod struct {
 	Abstract       bool // If abstract is true, Static and Final must be false
 	Static         bool
 	Final          bool
+	Functionality  []byte
 }
 
 type JavaAbstract struct {
@@ -48,7 +42,7 @@ type JavaAbstract struct {
 	Extends       [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
-	Relations     TypeRelations
+	Associations  [][]byte
 }
 
 type JavaClass struct {
@@ -58,7 +52,7 @@ type JavaClass struct {
 	Extends       [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
-	Relations     TypeRelations
+	Associations  [][]byte
 }
 
 type JavaInterface struct {

@@ -295,8 +295,8 @@ func TestGetClassRelations(t *testing.T) {
 						Final:    false,
 					},
 				},
-				Relations: types.TypeRelations{
-					// TODO
+				Associations: [][]byte{
+					[]byte(""), // TODO
 				},
 			},
 		},
@@ -353,8 +353,8 @@ func TestGetClassRelations(t *testing.T) {
 						Final:          false,
 					},
 				},
-				Relations: types.TypeRelations{
-					// TODO
+				Associations: [][]byte{
+					[]byte(""), // TODO
 				},
 			},
 		},
@@ -385,8 +385,8 @@ func TestGetClassRelations(t *testing.T) {
 						Final:          false,
 					},
 				},
-				Relations: types.TypeRelations{
-					// TODO
+				Associations: [][]byte{
+					[]byte(""), // TODO
 				},
 			},
 		},
@@ -417,8 +417,8 @@ func TestGetClassRelations(t *testing.T) {
 						Final:          false,
 					},
 				},
-				Relations: types.TypeRelations{
-					// TODO
+				Associations: [][]byte{
+					[]byte(""), // TODO
 				},
 			},
 		},
@@ -733,8 +733,8 @@ func TestGetClassRelations(t *testing.T) {
 						Final:    false,
 					},
 				},
-				Relations: types.TypeRelations{
-					// TODO
+				Associations: [][]byte{
+					[]byte(""), // TODO
 				},
 			},
 		},
@@ -747,22 +747,22 @@ func TestGetClassRelations(t *testing.T) {
 				{
 					FromClassId: []byte("Client"),
 					ToClassId:   []byte("WeaponInterface"),
-					Type:        &types.Dependency{},
+					Type:        &types.Association{},
 				},
 				{
 					FromClassId: []byte("Client"),
 					ToClassId:   []byte("CharacterInterface"),
-					Type:        &types.Dependency{},
+					Type:        &types.Association{},
 				},
 				{
 					FromClassId: []byte("Client"),
 					ToClassId:   []byte("ModeFactory"),
-					Type:        &types.Dependency{},
+					Type:        &types.Association{},
 				},
 				{
 					FromClassId: []byte("Client"),
 					ToClassId:   []byte("ModeInterface"),
-					Type:        &types.Dependency{},
+					Type:        &types.Association{},
 				},
 				{
 					FromClassId: []byte("BeginnerWeapon"),
