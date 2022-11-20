@@ -58,49 +58,6 @@ public class Car {
 }
 ```
 
-#### Aggregation
-
-```java
-class Player {}
-public class Team {
-  private List players;
-
-  public Team() {
-    players = new ArrayList();
-  }
-
-  public void addPlayer(Player player) {
-    players.add(player);
-  }
-}
-```
-
-#### Composition
-
-```java
-class Engine {}
-public class Car {
-  private Engine engine;
-
-  public Car() {
-    engine = new Engine();
-  }
-}
-```
-
-#### Dependency
-
-```java
-class Engine {}
-public class Car {
-  private Engine engine;
-
-  public Car(Engine engine) {
-    engine = engine;
-  }
-}
-```
-
 #### Realization
 
 ```java

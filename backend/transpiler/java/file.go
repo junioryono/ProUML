@@ -783,33 +783,16 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 	}
 
-	if len(text) > closedParamIndex+1 && text[closedParamIndex+1] == OpenCurly {
-		var currentScope int = 1
-
-		for i := closedParamIndex; i < len(text); i++ {
-			if currentStyle == SingleQuote && text[i] == SingleQuote ||
-				currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-				currentStyle == TickerQuote && text[i] == TickerQuote {
-				currentStyle = NoQuote
-			} else if currentStyle == NoQuote {
-				if text[i] == SingleQuote {
-					currentStyle = SingleQuote
-				} else if text[i] == DoubleQuote {
-					currentStyle = DoubleQuote
-				} else if text[i] == TickerQuote {
-					currentStyle = TickerQuote
-				} else if text[i] == OpenCurly {
-					currentScope++
-				} else if text[i] == ClosedCurly {
-					currentScope--
-
-					if currentScope == 0 {
-						method.Functionality = append(method.Functionality, text[closedParamIndex+1:i]...)
-					}
-				}
-			}
+	fmt.Printf("closedParamIndex: %s\n", string(text[closedParamIndex+1]))
+	if closedParamIndex+2 < len(text) && text[closedParamIndex+1] != SemiColon {
+		if text[len(text)-1] == SemiColon {
+			method.Functionality = append(method.Functionality, text[closedParamIndex+2:len(text)-2]...)
+		} else {
+			method.Functionality = append(method.Functionality, text[closedParamIndex+2:len(text)-1]...)
 		}
 	}
+
+	fmt.Printf("Here: %s\n", string(text))
 
 	declarationSplit := bytes.Split(methodDeclaration, []byte(" "))
 

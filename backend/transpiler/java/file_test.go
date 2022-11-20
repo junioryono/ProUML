@@ -2105,6 +2105,7 @@ func TestGetVariablesOrMethod(t *testing.T) {
 				Abstract:       false,
 				Static:         false,
 				Final:          false,
+				Functionality:  nil,
 			},
 		},
 		{
@@ -2118,10 +2119,11 @@ func TestGetVariablesOrMethod(t *testing.T) {
 				Abstract:       false,
 				Static:         false,
 				Final:          false,
+				Functionality:  nil,
 			},
 		},
 		{
-			Input:           []byte("abstract void function3(){};"),
+			Input:           []byte("abstract void function3(){System.out.println('Hi')};"),
 			VariablesOutput: nil,
 			MethodOutput: types.JavaMethod{
 				Type:           []byte("void"),
@@ -2131,10 +2133,11 @@ func TestGetVariablesOrMethod(t *testing.T) {
 				Abstract:       true,
 				Static:         false,
 				Final:          false,
+				Functionality:  []byte("System.out.println('Hi')"),
 			},
 		},
 		{
-			Input:           []byte("static Testing function4(){}"),
+			Input:           []byte("static Testing function4(){System.out.println('Hi')}"),
 			VariablesOutput: nil,
 			MethodOutput: types.JavaMethod{
 				Type:           []byte("Testing"),
@@ -2144,6 +2147,7 @@ func TestGetVariablesOrMethod(t *testing.T) {
 				Abstract:       false,
 				Static:         true,
 				Final:          false,
+				Functionality:  []byte("System.out.println('Hi')"),
 			},
 		},
 		{
@@ -2157,10 +2161,11 @@ func TestGetVariablesOrMethod(t *testing.T) {
 				Abstract:       false,
 				Static:         false,
 				Final:          true,
+				Functionality:  nil,
 			},
 		},
 		{
-			Input:           []byte("static final void function6(){};"),
+			Input:           []byte("static final void function6(){}"),
 			VariablesOutput: nil,
 			MethodOutput: types.JavaMethod{
 				Type:           []byte("void"),
@@ -2170,6 +2175,7 @@ func TestGetVariablesOrMethod(t *testing.T) {
 				Abstract:       false,
 				Static:         true,
 				Final:          true,
+				Functionality:  nil,
 			},
 		},
 		{
@@ -2185,13 +2191,14 @@ func TestGetVariablesOrMethod(t *testing.T) {
 						Name: []byte("var1"),
 					},
 				},
-				Abstract: true,
-				Static:   false,
-				Final:    false,
+				Abstract:      true,
+				Static:        false,
+				Final:         false,
+				Functionality: nil,
 			},
 		},
 		{
-			Input:           []byte("private static Testing function8(String var1, String var2){};"),
+			Input:           []byte("private static Testing function8(String var1, String var2){}"),
 			VariablesOutput: nil,
 			MethodOutput: types.JavaMethod{
 				Type:           []byte("Testing"),
@@ -2207,9 +2214,10 @@ func TestGetVariablesOrMethod(t *testing.T) {
 						Name: []byte("var2"),
 					},
 				},
-				Abstract: false,
-				Static:   true,
-				Final:    false,
+				Abstract:      false,
+				Static:        true,
+				Final:         false,
+				Functionality: nil,
 			},
 		},
 		{
@@ -2229,13 +2237,14 @@ func TestGetVariablesOrMethod(t *testing.T) {
 						Name: []byte("var2"),
 					},
 				},
-				Abstract: false,
-				Static:   false,
-				Final:    true,
+				Abstract:      false,
+				Static:        false,
+				Final:         true,
+				Functionality: nil,
 			},
 		},
 		{
-			Input:           []byte("public static final void function10(){};"),
+			Input:           []byte("public static final void function10(){System.out.println('Hi')};"),
 			VariablesOutput: nil,
 			MethodOutput: types.JavaMethod{
 				Type:           []byte("void"),
@@ -2245,6 +2254,7 @@ func TestGetVariablesOrMethod(t *testing.T) {
 				Abstract:       false,
 				Static:         true,
 				Final:          true,
+				Functionality:  []byte("System.out.println('Hi')"),
 			},
 		},
 		{
@@ -2527,6 +2537,8 @@ func TestGetVariablesOrMethod(t *testing.T) {
 				subtest.Errorf("incorrect.\nexpected:\n%t\ngot:\n%t\n", tt.MethodOutput.Static, actualMethod.Static)
 			} else if actualMethod.Final != tt.MethodOutput.Final {
 				subtest.Errorf("incorrect.\nexpected:\n%t\ngot:\n%t\n", tt.MethodOutput.Final, actualMethod.Final)
+			} else if !bytes.Equal(actualMethod.Functionality, tt.MethodOutput.Functionality) {
+				subtest.Errorf("incorrect.\nexpected:\n%s\ngot:\n%s\n", string(tt.MethodOutput.Functionality), string(actualMethod.Functionality))
 			}
 
 			if len(actualMethod.Parameters) != len(tt.MethodOutput.Parameters) {
