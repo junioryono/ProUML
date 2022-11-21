@@ -135,13 +135,21 @@ func removeSpacing(text []byte) []byte {
 	REGEX_CloseCurlySpace := regexp.MustCompile(`\s*}\s*`)
 	text = REGEX_CloseCurlySpace.ReplaceAll(text, []byte("}"))
 
-	// Remove all spaces before and after {
+	// Remove all spaces before and after (
 	REGEX_OpenParenthesisSpace := regexp.MustCompile(`\s*\(\s*`)
 	text = REGEX_OpenParenthesisSpace.ReplaceAll(text, []byte("("))
 
-	// Remove all spaces before and after }
+	// Remove all spaces before and after )
 	REGEX_CloseParenthesisSpace := regexp.MustCompile(`\s*\)\s*`)
 	text = REGEX_CloseParenthesisSpace.ReplaceAll(text, []byte(")"))
+
+	// Remove all spaces before and after <
+	REGEX_LeftArrowSpace := regexp.MustCompile(`\s*\<\s*`)
+	text = REGEX_LeftArrowSpace.ReplaceAll(text, []byte("<"))
+
+	// Remove all spaces before and after >
+	REGEX_RightArrowSpace := regexp.MustCompile(`\s*\>\s*`)
+	text = REGEX_RightArrowSpace.ReplaceAll(text, []byte(">"))
 
 	// Replace all "=", " =", and "= " with " = "
 	REGEX_EqualSpace := regexp.MustCompile(`[\s]*=[\s]*`)
@@ -358,60 +366,6 @@ func getFileClasses(fileName string, text []byte) []any {
 	}
 
 	return classesStruct
-}
-
-func getClassAssociations(variables []types.JavaVariable, methods []types.JavaMethod) [][]byte {
-	var (
-		response [][]byte
-		// currentStyle   byte = NoQuote
-		// currentScope   int  = 0
-		// startTypeIndex int  = 0
-	)
-
-	// textLength := len(text)
-	// for i := 0; i < textLength; i++ {
-	// 	if startTypeIndex != 0 {
-	// 		if text[i] != OpenParenthesis {
-	// 			continue
-	// 		}
-
-	// 		alreadyExistsInResponse := false
-	// 		for _, existingType := range response {
-	// 			if bytes.Equal(existingType, text[startTypeIndex:i]) {
-	// 				alreadyExistsInResponse = true
-	// 				break
-	// 			}
-	// 		}
-
-	// 		if !alreadyExistsInResponse {
-	// 			response = append(response, text[startTypeIndex:i])
-	// 		}
-
-	// 		startTypeIndex = 0
-	// 	} else if currentStyle == SingleQuote && text[i] == SingleQuote ||
-	// 		currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-	// 		currentStyle == TickerQuote && text[i] == TickerQuote {
-	// 		currentStyle = NoQuote
-	// 	} else if currentStyle == NoQuote {
-	// 		if text[i] == SingleQuote {
-	// 			currentStyle = SingleQuote
-	// 		} else if text[i] == DoubleQuote {
-	// 			currentStyle = DoubleQuote
-	// 		} else if text[i] == TickerQuote {
-	// 			currentStyle = TickerQuote
-	// 		} else if text[i] == OpenCurly {
-	// 			currentScope++
-	// 		} else if text[i] == ClosedCurly {
-	// 			currentScope--
-	// 		} else if currentScope != 0 && i+4 < textLength &&
-	// 			text[i] == ' ' && text[i+1] == 'n' && text[i+2] == 'e' && text[i+3] == 'w' && text[i+4] == ' ' {
-	// 			i = i + 5
-	// 			startTypeIndex = i
-	// 		}
-	// 	}
-	// }
-
-	return response
 }
 
 func getInnerClasses(classesText *[]types.JavaClassText, text []byte, isNested bool) {
@@ -783,7 +737,6 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 	}
 
-	fmt.Printf("closedParamIndex: %s\n", string(text[closedParamIndex+1]))
 	if closedParamIndex+2 < len(text) && text[closedParamIndex+1] != SemiColon {
 		if text[len(text)-1] == SemiColon {
 			method.Functionality = append(method.Functionality, text[closedParamIndex+2:len(text)-2]...)
@@ -791,8 +744,6 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 			method.Functionality = append(method.Functionality, text[closedParamIndex+2:len(text)-1]...)
 		}
 	}
-
-	fmt.Printf("Here: %s\n", string(text))
 
 	declarationSplit := bytes.Split(methodDeclaration, []byte(" "))
 
@@ -849,4 +800,28 @@ func isVariable(text []byte) (bool, int) {
 	}
 
 	return i == len(text), 0
+}
+
+func getClassAssociations(variables []types.JavaVariable, methods []types.JavaMethod) [][]byte {
+	var (
+		response [][]byte
+	)
+
+	// Include all types... even if it is int, char, etc.
+	// If String[], do not include [], etc. Could be anything, not just 'String'. // Only include the exact type name
+	// If List<ClassName>, include List and ClassName in response
+	// Possible inputs to watch for:
+	// ClassName[] array;
+	// List<ClassName> list; <<< Could be anything, not just 'List', so use '<'
+	// List1<List2<ClassName>> list;
+	// List1<List2<List3<ClassName>>> list;
+	// List<ClassName1,ClassName2> list;
+	// List<ClassName1,ClassName2,ClassName3> list;
+	// ClassIF varName = new Class1(); <<< Include ClassIF and Class1
+	// Class1 varName = new Class1(new Class2); <<< Include Class1 and Class2
+	// Class1 varName = new Class1(new Class2(new Class 3)); <<< Include Class1, Class2, and Class3
+	// Need to watch out for quotations because they could be included in new Class parameters
+	// The variable 'Type', method 'Type' and method parameters 'Type' will all have the same functionality
+
+	return response
 }

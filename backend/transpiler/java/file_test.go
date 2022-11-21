@@ -1163,6 +1163,9 @@ func TestRemoveSpacing(t *testing.T) {
 			String var2 = "Hello";
 			String var3 = "Hello", var4;
 			String  var5   =   "Hello"  ,   var6 = "Hello" , var7  ;
+			List  <  ClassName  >  ;
+			List  <  ClassName  <  ClassName  >  >  ;
+			List  <  ClassName1  ,  ClassName2   >  ;
 		
 			Test2() {
 				this.var4 = "J";
@@ -1172,7 +1175,7 @@ func TestRemoveSpacing(t *testing.T) {
 
 			void Test3(  String  var1  );
 		}`),
-		Output: []byte("public class Test2{String var1;String var2 = \"Hello\";String var3 = \"Hello\",var4;String var5 = \"Hello\",var6 = \"Hello\",var7;Test2(){this.var4 = \"J\";System.out.println(\"Hello\");}void Test3(String var1);}"),
+		Output: []byte("public class Test2{String var1;String var2 = \"Hello\";String var3 = \"Hello\",var4;String var5 = \"Hello\",var6 = \"Hello\",var7;List<ClassName>;List<ClassName<ClassName>>;List<ClassName1,ClassName2>;Test2(){this.var4 = \"J\";System.out.println(\"Hello\");}void Test3(String var1);}"),
 		Err:    nil,
 	}
 
@@ -2689,20 +2692,142 @@ func TestGetClassAssociations(t *testing.T) {
 	var tests = []TestRelations{
 		{
 			Input{
-				Variables: []types.JavaVariable{},
-				Methods:   []types.JavaMethod{},
+				Variables: []types.JavaVariable{
+					{
+						Type:           []byte("Type1"),
+						Name:           []byte("inner1"),
+						Value:          []byte(""),
+						AccessModifier: []byte(""),
+						Static:         false,
+						Final:          false,
+					},
+					{
+						Type:           []byte("Type2"),
+						Name:           []byte("inner2"),
+						Value:          []byte("new Type2()"),
+						AccessModifier: []byte("public"),
+						Static:         false,
+						Final:          false,
+					},
+					{
+						Type:           []byte("Type3"),
+						Name:           []byte("inner3"),
+						Value:          []byte("new Type2()"),
+						AccessModifier: []byte("public"),
+						Static:         false,
+						Final:          false,
+					},
+					{
+						Type:           []byte("String"),
+						Name:           []byte("inner4"),
+						Value:          []byte(""),
+						AccessModifier: []byte("public"),
+						Static:         false,
+						Final:          false,
+					},
+					{
+						Type:           []byte("String[]"),
+						Name:           []byte("inner5"),
+						Value:          []byte(""),
+						AccessModifier: []byte("public"),
+						Static:         true,
+						Final:          false,
+					},
+					{
+						Type:           []byte("char[]"),
+						Name:           []byte("inner6"),
+						Value:          []byte("new char[5]"),
+						AccessModifier: []byte("protected"),
+						Static:         false,
+						Final:          true,
+					},
+					{
+						Type:           []byte("List1<Type4>"),
+						Name:           []byte("inner7"),
+						Value:          []byte(""),
+						AccessModifier: []byte(""),
+						Static:         false,
+						Final:          false,
+					},
+					{
+						Type:           []byte("List2<List3<Type5>"),
+						Name:           []byte("inner8"),
+						Value:          []byte(""),
+						AccessModifier: []byte(""),
+						Static:         false,
+						Final:          false,
+					},
+					{
+						Type:           []byte("List4<Type6, Type7>"),
+						Name:           []byte("inner9"),
+						Value:          []byte(""),
+						AccessModifier: []byte(""),
+						Static:         false,
+						Final:          false,
+					},
+					{
+						Type:           []byte("Type8"),
+						Name:           []byte("inner10"),
+						Value:          []byte("new Type9()"),
+						AccessModifier: []byte(""),
+						Static:         false,
+						Final:          false,
+					},
+					{
+						Type:           []byte("Type10"),
+						Name:           []byte("inner11"),
+						Value:          []byte("new Type11(new Type12)"),
+						AccessModifier: []byte(""),
+						Static:         false,
+						Final:          false,
+					},
+				},
+				Methods: []types.JavaMethod{},
 			},
 			[][]byte{
-				[]byte(""), // TODO
+				[]byte("Type1"),
+				[]byte("Type2"),
+				[]byte("Type3"),
+				[]byte("String"),
+				[]byte("char"),
+				[]byte("List1"),
+				[]byte("Type4"),
+				[]byte("List2"),
+				[]byte("List3"),
+				[]byte("Type5"),
+				[]byte("List4"),
+				[]byte("Type6"),
+				[]byte("Type7"),
+				[]byte("Type8"),
+				[]byte("Type9"),
+				[]byte("Type10"),
+				[]byte("Type11"),
+				[]byte("Type12"),
 			},
 		},
 		{
 			Input{
 				Variables: []types.JavaVariable{},
-				Methods:   []types.JavaMethod{},
+				Methods: []types.JavaMethod{
+					{
+						Type:           []byte("void"),
+						Name:           []byte("Test1"),
+						AccessModifier: []byte("public"),
+						Parameters: []types.JavaMethodParameter{
+							{
+								Type: []byte("String[]"),
+								Name: []byte("args"),
+							},
+						},
+						Abstract: false,
+						Static:   false,
+						Final:    false,
+					},
+				},
 			},
 			[][]byte{
-				[]byte(""), // TODO
+				[]byte("void"),
+				[]byte("String"),
 			},
 		},
 	}
