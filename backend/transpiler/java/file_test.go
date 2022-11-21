@@ -2776,7 +2776,7 @@ func TestGetClassAssociations(t *testing.T) {
 					{
 						Type:           []byte("Type10"),
 						Name:           []byte("inner11"),
-						Value:          []byte("new Type11(new Type12)"),
+						Value:          []byte("new Type11(new Type12())"),
 						AccessModifier: []byte(""),
 						Static:         false,
 						Final:          false,
