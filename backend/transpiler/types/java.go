@@ -4,10 +4,6 @@ type JavaClassText struct {
 	DefinedWithin []byte
 	Outside       []byte
 	Inside        []byte
-	Declarations  [][]byte
-	Variables     []JavaVariable
-	Methods       []JavaMethod
-	Associations  [][]byte
 }
 
 type JavaVariable struct {
@@ -61,6 +57,7 @@ type JavaInterface struct {
 	Extends       [][]byte
 	Variables     []JavaVariable
 	Methods       []JavaMethod
+	Associations  [][]byte
 }
 
 type JavaEnum struct {

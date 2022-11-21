@@ -2,9 +2,7 @@ package java
 
 import (
 	"bytes"
-	"fmt"
 	"regexp"
-	"strconv"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
@@ -18,6 +16,8 @@ var (
 	ClosedParenthesis byte = ')'
 	OpenCurly         byte = '{'
 	ClosedCurly       byte = '}'
+	LeftArrow         byte = '<'
+	RightArrow        byte = '>'
 	SemiColon         byte = ';'
 	EqualSign         byte = '='
 	SingleLineComment byte = '/'
@@ -127,21 +127,29 @@ func removeSpacing(text []byte) []byte {
 	REGEX_AsperandSpace := regexp.MustCompile(`\s*@\s*`)
 	text = REGEX_AsperandSpace.ReplaceAll(text, []byte("@"))
 
+	// Remove all spaces before and after [
+	REGEX_OpenBracketSpace := regexp.MustCompile(`\s*\[\s*`)
+	text = REGEX_OpenBracketSpace.ReplaceAll(text, []byte("["))
+
+	// Remove all spaces before ]
+	REGEX_ClosedBracketSpace := regexp.MustCompile(`\s*\]`)
+	text = REGEX_ClosedBracketSpace.ReplaceAll(text, []byte("]"))
+
 	// Remove all spaces before and after {
 	REGEX_OpenCurlySpace := regexp.MustCompile(`\s*{\s*`)
 	text = REGEX_OpenCurlySpace.ReplaceAll(text, []byte("{"))
 
 	// Remove all spaces before and after }
-	REGEX_CloseCurlySpace := regexp.MustCompile(`\s*}\s*`)
-	text = REGEX_CloseCurlySpace.ReplaceAll(text, []byte("}"))
+	REGEX_ClosedCurlySpace := regexp.MustCompile(`\s*}\s*`)
+	text = REGEX_ClosedCurlySpace.ReplaceAll(text, []byte("}"))
 
 	// Remove all spaces before and after (
 	REGEX_OpenParenthesisSpace := regexp.MustCompile(`\s*\(\s*`)
 	text = REGEX_OpenParenthesisSpace.ReplaceAll(text, []byte("("))
 
 	// Remove all spaces before and after )
-	REGEX_CloseParenthesisSpace := regexp.MustCompile(`\s*\)\s*`)
-	text = REGEX_CloseParenthesisSpace.ReplaceAll(text, []byte(")"))
+	REGEX_ClosedParenthesisSpace := regexp.MustCompile(`\s*\)\s*`)
+	text = REGEX_ClosedParenthesisSpace.ReplaceAll(text, []byte(")"))
 
 	// Remove all spaces before and after <
 	REGEX_LeftArrowSpace := regexp.MustCompile(`\s*\<\s*`)
@@ -150,6 +158,10 @@ func removeSpacing(text []byte) []byte {
 	// Remove all spaces before and after >
 	REGEX_RightArrowSpace := regexp.MustCompile(`\s*\>\s*`)
 	text = REGEX_RightArrowSpace.ReplaceAll(text, []byte(">"))
+
+	// Replace all double semicolons with just one
+	REGEX_DoubleSemiColon := regexp.MustCompile(`;{2,}`)
+	text = REGEX_DoubleSemiColon.ReplaceAll(text, []byte(";"))
 
 	// Replace all "=", " =", and "= " with " = "
 	REGEX_EqualSpace := regexp.MustCompile(`[\s]*=[\s]*`)
@@ -171,8 +183,6 @@ func removeAnnotations(text []byte) []byte {
 	)
 
 	removeText := func(i int) {
-		fmt.Printf("%s\n", string(text))
-		fmt.Printf("Remove from index %s to index %s.\n", string(strconv.Itoa(activeAsperandIndex)), string(strconv.Itoa(i)))
 		text = append(text[:activeAsperandIndex], text[i+1:]...)
 		activeAsperand = false
 	}
@@ -201,8 +211,6 @@ func removeAnnotations(text []byte) []byte {
 					(currentAsperandBracket == OpenCurly && text[i] == ClosedCurly) {
 					currentAsperandBracketCount--
 
-					fmt.Printf("currentAsperandBracketCount: %s\n", string(strconv.Itoa(currentAsperandBracketCount)))
-
 					if currentAsperandBracketCount == 0 {
 						removeText(i)
 					}
@@ -212,8 +220,6 @@ func removeAnnotations(text []byte) []byte {
 			}
 		}
 	}
-
-	fmt.Printf("%s\n\n", string(text))
 
 	return text
 }
@@ -269,16 +275,6 @@ func getFileClasses(fileName string, text []byte) []any {
 
 	getInnerClasses(&classesText, text, false)
 
-	for i := 0; i < len(classesText); i++ {
-		var declarations [][]byte
-		classesText[i].Declarations = declarations
-
-		variables, methods := getVariablesAndMethods(classesText[i].Inside)
-		classesText[i].Variables = variables
-		classesText[i].Methods = methods
-		classesText[i].Associations = getClassAssociations(variables, methods)
-	}
-
 	findIndex := func(sWord string, dbArray [][]byte) int {
 		bWord := []byte(sWord)
 		for i, w := range dbArray {
@@ -304,12 +300,11 @@ func getFileClasses(fileName string, text []byte) []any {
 			continue
 		}
 
-		// Set enum data
 		if enumIndex != -1 {
 			classesStruct = append(classesStruct, types.JavaEnum{
 				DefinedWithin: classesText[i].DefinedWithin,
 				Name:          textSplit[enumIndex+1],
-				Declarations:  classesText[i].Declarations,
+				Declarations:  getEnumDeclarations(classesText[i].Inside),
 			})
 			continue
 		}
@@ -318,38 +313,42 @@ func getFileClasses(fileName string, text []byte) []any {
 			continue
 		}
 
-		var extendsValue [][]byte
+		Variables, Methods := getVariablesAndMethods(classesText[i].Inside)
+		Associations := getClassAssociations(Variables, Methods)
+
+		var Extends [][]byte
 		extendsIndex := findIndex("extends", textSplit)
 		if extendsIndex != -1 {
-			extendsValue = bytes.Split(textSplit[extendsIndex+1], []byte(","))
+			Extends = bytes.Split(textSplit[extendsIndex+1], []byte(","))
 		}
 
 		if interfaceIndex != -1 {
 			classesStruct = append(classesStruct, types.JavaInterface{
 				DefinedWithin: classesText[i].DefinedWithin,
 				Name:          textSplit[interfaceIndex+1],
-				Extends:       extendsValue,
-				Variables:     classesText[i].Variables,
-				Methods:       classesText[i].Methods,
+				Extends:       Extends,
+				Variables:     Variables,
+				Methods:       Methods,
+				Associations:  Associations,
 			})
 			continue
 		}
 
-		var implementsValue [][]byte
+		var Implements [][]byte
 		implementsIndex := findIndex("implements", textSplit)
 		if implementsIndex != -1 {
-			implementsValue = bytes.Split(textSplit[implementsIndex+1], []byte(","))
+			Implements = bytes.Split(textSplit[implementsIndex+1], []byte(","))
 		}
 
 		if abstractIndex != -1 {
 			classesStruct = append(classesStruct, types.JavaAbstract{
 				DefinedWithin: classesText[i].DefinedWithin,
 				Name:          textSplit[classIndex+1],
-				Implements:    implementsValue,
-				Extends:       extendsValue,
-				Variables:     classesText[i].Variables,
-				Methods:       classesText[i].Methods,
-				Associations:  classesText[i].Associations,
+				Implements:    Implements,
+				Extends:       Extends,
+				Variables:     Variables,
+				Methods:       Methods,
+				Associations:  Associations,
 			})
 			continue
 		}
@@ -357,15 +356,49 @@ func getFileClasses(fileName string, text []byte) []any {
 		classesStruct = append(classesStruct, types.JavaClass{
 			DefinedWithin: classesText[i].DefinedWithin,
 			Name:          textSplit[classIndex+1],
-			Implements:    implementsValue,
-			Extends:       extendsValue,
-			Variables:     classesText[i].Variables,
-			Methods:       classesText[i].Methods,
-			Associations:  classesText[i].Associations,
+			Implements:    Implements,
+			Extends:       Extends,
+			Variables:     Variables,
+			Methods:       Methods,
+			Associations:  Associations,
 		})
 	}
 
 	return classesStruct
+}
+
+func getEnumDeclarations(text []byte) [][]byte {
+	var (
+		response              [][]byte
+		currentStyle          byte = NoQuote
+		parenthesisScope      int  = 0
+		lastCommaPlusOneIndex int  = 0
+	)
+
+	for i := 0; i < len(text); i++ {
+		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
+			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if text[i] == OpenParenthesis {
+				parenthesisScope++
+			} else if text[i] == ClosedParenthesis {
+				parenthesisScope--
+			}
+
+			if parenthesisScope == 0 {
+				response = append(response, text[lastCommaPlusOneIndex:i])
+				lastCommaPlusOneIndex = i + 1
+			}
+		}
+	}
+
+	for i := 0; i < len(text); i++ {
+
+	}
+
+	return response
 }
 
 func getInnerClasses(classesText *[]types.JavaClassText, text []byte, isNested bool) {
@@ -410,10 +443,11 @@ func getInnerClasses(classesText *[]types.JavaClassText, text []byte, isNested b
 							var (
 								definedWithin []byte
 								outerText     []byte
+								innerText     []byte
 							)
 							outerText = append(outerText, text[j:startScopeIndex]...)
 							outerTextSplit := bytes.Split(outerText, []byte(" "))
-							innerText := text[startScopeIndex+1 : i]
+							innerText = append(innerText, text[startScopeIndex+1:i]...)
 
 							if len(outerTextSplit) > 5 && isClassDeclaration(outerTextSplit[4], outerTextSplit[5]) ||
 								len(outerTextSplit) > 4 && isClassDeclaration(outerTextSplit[3], outerTextSplit[4]) ||
@@ -476,9 +510,6 @@ func getInnerClasses(classesText *[]types.JavaClassText, text []byte, isNested b
 									DefinedWithin: definedWithin,
 									Outside:       outerText,
 									Inside:        innerText,
-									Declarations:  nil,
-									Variables:     nil,
-									Methods:       nil,
 								})
 
 								getInnerClasses(classesText, innerText, true)
@@ -645,7 +676,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 
 		vSText := text[variablesStartIndex:]
-		Type = bytes.SplitN(vSText, []byte(" "), 2)[0]
+		Type, _, _ = bytes.Cut(vSText, []byte(" "))
 		vSText = vSText[len(Type)+1:]
 
 		var (
@@ -747,15 +778,35 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 
 	declarationSplit := bytes.Split(methodDeclaration, []byte(" "))
 
-	var allParamsSplit [][]byte
+	var (
+		allParamsSplit        [][]byte
+		arrowScope            int = 0
+		lastCommaPlusOneIndex int = 0
+	)
+
 	if len(paramDeclarations) != 0 {
-		allParamsSplit = bytes.Split(paramDeclarations, []byte(", "))
+		for i := 0; i < len(paramDeclarations); i++ {
+			if paramDeclarations[i] == LeftArrow {
+				arrowScope++
+			} else if paramDeclarations[i] == RightArrow {
+				arrowScope--
+			} else if paramDeclarations[i] == Comma && arrowScope == 0 {
+				allParamsSplit = append(allParamsSplit, paramDeclarations[lastCommaPlusOneIndex:i])
+				lastCommaPlusOneIndex = i + 1
+				i = lastCommaPlusOneIndex
+			}
+		}
+		allParamsSplit = append(allParamsSplit, paramDeclarations[lastCommaPlusOneIndex:])
 
 		for _, param := range allParamsSplit {
-			paramSplit := bytes.Split(param, []byte(" "))
+			Type, Name, found := bytes.Cut(param, []byte(" "))
+			if !found {
+				continue
+			}
+
 			method.Parameters = append(method.Parameters, types.JavaMethodParameter{
-				Type: paramSplit[0],
-				Name: paramSplit[1],
+				Type: Type,
+				Name: Name,
 			})
 		}
 	}
