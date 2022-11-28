@@ -16,6 +16,8 @@ var (
 	ClosedParenthesis byte = ')'
 	OpenCurly         byte = '{'
 	ClosedCurly       byte = '}'
+	OpenBracket       byte = '['
+	ClosedBracket     byte = ']'
 	LeftArrow         byte = '<'
 	RightArrow        byte = '>'
 	SemiColon         byte = ';'
@@ -624,6 +626,22 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		method    types.JavaMethod
 	)
 
+	// Determine whether the line of text is a variable or method.
+	// If it is a method, return OpenParenthesis index
+	isVariable := func(text []byte) (bool, int) {
+		var i int = 0
+
+		for ; i < len(text); i++ {
+			if text[i] == EqualSign {
+				return true, 0
+			} else if text[i] == OpenParenthesis {
+				return false, i
+			}
+		}
+
+		return i == len(text), 0
+	}
+
 	isVar, openParamIndex := isVariable(text)
 
 	if isVar {
@@ -853,27 +871,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	return nil, method
 }
 
-// Determine whether the line of text is a variable or method.
-// If it is a method, return OpenParenthesis index
-func isVariable(text []byte) (bool, int) {
-	var i int = 0
-
-	for ; i < len(text); i++ {
-		if text[i] == EqualSign {
-			return true, 0
-		} else if text[i] == OpenParenthesis {
-			return false, i
-		}
-	}
-
-	return i == len(text), 0
-}
-
 func getClassAssociations(variables []types.JavaVariable, methods []types.JavaMethod) [][]byte {
-	var (
-		response [][]byte
-	)
-
 	// Include all types... even if it is int, char, etc.
 	// If String[], do not include [], etc. Could be anything, not just 'String'. // Only include the exact type name
 	// If List<ClassName>, include List and ClassName in response
@@ -885,10 +883,94 @@ func getClassAssociations(variables []types.JavaVariable, methods []types.JavaMe
 	// List<ClassName1,ClassName2> list;
 	// List<ClassName1,ClassName2,ClassName3> list;
 	// ClassIF varName = new Class1(); <<< Include ClassIF and Class1
-	// Class1 varName = new Class1(new Class2); <<< Include Class1 and Class2
-	// Class1 varName = new Class1(new Class2(new Class 3)); <<< Include Class1, Class2, and Class3
+	// Class1 varName = new Class1(new Class2()); <<< Include Class1 and Class2
+	// Class1 varName = new Class1(new Class2(new Class 3())); <<< Include Class1, Class2, and Class3
 	// Need to watch out for quotations because they could be included in new Class parameters
 	// The variable 'Type', method 'Type' and method parameters 'Type' will all have the same functionality
+
+	var (
+		responseMap = make(map[string]struct{})
+		response    [][]byte
+	)
+
+	// Use map to prevent duplicates
+	addToResponseMap := func(t []byte) {
+		responseMap[string(t)] = struct{}{}
+	}
+
+	getTypesFromType := func(text []byte) {
+		if len(text) > 0 && text[len(text)-1] != RightArrow {
+			if len(text) > 2 && text[len(text)-2] == OpenBracket && text[len(text)-1] == ClosedBracket {
+				addToResponseMap(text[:len(text)-2])
+				return
+			}
+
+			addToResponseMap(text)
+			return
+		}
+
+		var (
+			newTypeStartIndex int = 0
+		)
+
+		for i := 0; i < len(text); i++ {
+			if text[i] == LeftArrow || text[i] == RightArrow || text[i] == Comma {
+				wantToPush := text[newTypeStartIndex:i]
+				newTypeStartIndex = i + 1
+
+				if len(wantToPush) == 0 || bytes.ContainsAny(wantToPush, "<>,") {
+					continue
+				}
+
+				addToResponseMap(wantToPush)
+			}
+		}
+	}
+
+	getTypesFromValue := func(text []byte) {
+		var (
+			currentValueStyle  byte = NoQuote
+			newClassStartIndex int  = -1
+		)
+
+		for i := 0; i < len(text); i++ {
+			if currentValueStyle == SingleQuote && text[i] == SingleQuote ||
+				currentValueStyle == DoubleQuote && text[i] == DoubleQuote ||
+				currentValueStyle == TickerQuote && text[i] == TickerQuote {
+				currentValueStyle = NoQuote
+			} else if currentValueStyle == NoQuote {
+				if newClassStartIndex != -1 && (text[i] == OpenParenthesis || text[i] == OpenBracket) {
+					addToResponseMap(text[newClassStartIndex:i])
+					newClassStartIndex = -1
+				} else if newClassStartIndex == -1 && i+4 < len(text) &&
+					text[i] == 'n' && text[i+1] == 'e' && text[i+2] == 'w' && text[i+3] == ' ' &&
+					(i == 0 || text[i-1] == OpenParenthesis || text[i-1] == Comma) {
+					newClassStartIndex = i + 4
+				}
+			}
+		}
+	}
+
+	for _, variable := range variables {
+		getTypesFromType(variable.Type)
+		getTypesFromValue(variable.Value)
+	}
+
+	for _, method := range methods {
+		getTypesFromType(method.Type)
+
+		for _, parameter := range method.Parameters {
+			getTypesFromType(parameter.Type)
+		}
+
+		// Need to get all types inside function
+		// getVariablesAndMethods?? or splitVariablesAndMethods??
+	}
+
+	// Add map values to response array
+	for key := range responseMap {
+		response = append(response, []byte(key))
+	}
 
 	return response
 }
