@@ -2175,6 +2175,12 @@ func TestGetEnumDeclarations(t *testing.T) {
 				[]byte("Hello2"),
 			},
 		},
+		{
+			[]byte("Hello1"),
+			[][]byte{
+				[]byte("Hello1"),
+			},
+		},
 	}
 
 	for testIndex, tt := range tests {

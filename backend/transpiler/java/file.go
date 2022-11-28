@@ -369,33 +369,49 @@ func getFileClasses(fileName string, text []byte) []any {
 
 func getEnumDeclarations(text []byte) [][]byte {
 	var (
-		response              [][]byte
-		currentStyle          byte = NoQuote
-		parenthesisScope      int  = 0
-		lastCommaPlusOneIndex int  = 0
+		response               [][]byte
+		currentStyle           byte = NoQuote
+		parenthesisScope       int  = 0
+		textLength             int  = len(text)
+		startDeclarationIndex  int  = 0
+		sectionUsedParenthesis bool = false
 	)
 
-	for i := 0; i < len(text); i++ {
+	for i := 0; i < textLength; i++ {
 		if currentStyle == SingleQuote && text[i] == SingleQuote ||
 			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
 			currentStyle == TickerQuote && text[i] == TickerQuote {
 			currentStyle = NoQuote
 		} else if currentStyle == NoQuote {
-			if text[i] == OpenParenthesis {
-				parenthesisScope++
-			} else if text[i] == ClosedParenthesis {
+			if text[i] == ClosedParenthesis {
 				parenthesisScope--
-			}
+			} else if sectionUsedParenthesis {
+				if text[i] == Comma {
+					sectionUsedParenthesis = false
+					startDeclarationIndex = i + 1
+				} else if text[i] == SemiColon {
+					break
+				}
+			} else if parenthesisScope == 0 && (text[i] == OpenParenthesis || text[i] == Comma || text[i] == SemiColon) {
+				response = append(response, text[startDeclarationIndex:i])
 
-			if parenthesisScope == 0 {
-				response = append(response, text[lastCommaPlusOneIndex:i])
-				lastCommaPlusOneIndex = i + 1
+				if text[i] == SemiColon {
+					break
+				} else if text[i] == OpenParenthesis {
+					parenthesisScope++
+					sectionUsedParenthesis = true
+				} else if text[i] == Comma {
+					startDeclarationIndex = i + 1
+				}
 			}
 		}
 	}
 
-	for i := 0; i < len(text); i++ {
-
+	if textLength > 1 &&
+		text[textLength-1] != ClosedCurly &&
+		text[textLength-1] != SemiColon &&
+		text[textLength-1] != Comma {
+		response = append(response, text[startDeclarationIndex:])
 	}
 
 	return response
