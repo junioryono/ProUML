@@ -2129,23 +2129,69 @@ func TestGetFileClasses(t *testing.T) {
 func TestGetEnumDeclarations(t *testing.T) {
 	type EnumTest struct {
 		Input  []byte
-		Output types.JavaEnum
+		Output [][]byte
 	}
 
 	var tests = []EnumTest{
 		{
 			[]byte("H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label = label;}"),
-			types.JavaEnum{},
+			[][]byte{
+				[]byte("H"),
+				[]byte("HE"),
+				[]byte("NE"),
+			},
 		},
 		{
-			[]byte("Hello,Hello2,Hello3"),
-			types.JavaEnum{},
+			[]byte("Hello1,Hello2,Hello3"),
+			[][]byte{
+				[]byte("Hello1"),
+				[]byte("Hello2"),
+				[]byte("Hello3"),
+			},
 		},
 		{
-			[]byte("Hello;"),
-			types.JavaEnum{},
+			[]byte("Hello1,Hello2;"),
+			[][]byte{
+				[]byte("Hello1"),
+				[]byte("Hello2"),
+			},
+		},
+		{
+			[]byte("Hello1;"),
+			[][]byte{
+				[]byte("Hello1"),
+			},
+		},
+		{
+			[]byte("Hello1,"),
+			[][]byte{
+				[]byte("Hello1"),
+			},
+		},
+		{
+			[]byte("Hello1,Hello2,"),
+			[][]byte{
+				[]byte("Hello1"),
+				[]byte("Hello2"),
+			},
 		},
 	}
-	_ = tests
+
+	for testIndex, tt := range tests {
+		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
+			response := getEnumDeclarations(tt.Input)
+
+			if len(response) != len(tt.Output) {
+				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output)), strconv.Itoa(len(response)))
+				subtest.FailNow()
+			}
+
+			for index, expected := range tt.Output {
+				if !bytes.Equal(response[index], expected) {
+					subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected), string(response[index]))
+				}
+			}
+		})
+	}
 
 }
