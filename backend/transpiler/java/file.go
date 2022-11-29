@@ -2,6 +2,7 @@ package java
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
@@ -865,8 +866,12 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		method.Final = true
 	}
 
-	method.Type = declarationSplit[len(declarationSplit)-2]
-	method.Name = declarationSplit[len(declarationSplit)-1]
+	if len(declarationSplit) > 1 {
+		method.Type = declarationSplit[len(declarationSplit)-2]
+	}
+	if len(declarationSplit) > 0 {
+		method.Name = declarationSplit[len(declarationSplit)-1]
+	}
 
 	return nil, method
 }
@@ -961,6 +966,11 @@ func getClassAssociations(variables []types.JavaVariable, methods []types.JavaMe
 
 		for _, parameter := range method.Parameters {
 			getTypesFromType(parameter.Type)
+		}
+
+		test := splitVariablesAndMethods(method.Functionality)
+		for _, jv := range test {
+			fmt.Printf("jv: %s\n", string(jv))
 		}
 
 		// Need to get all types inside function
