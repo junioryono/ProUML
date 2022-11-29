@@ -1,9 +1,5 @@
 package types
 
-type Project struct {
-	Files []File
-}
-
 type ParsedProject struct {
 	Packages  []Package
 	Relations []Relation

@@ -6,12 +6,13 @@ import (
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func ParseProject(p types.Project) (types.ParsedProject, error) {
-	var response types.ParsedProject
+func ParseProject(files []types.File) (types.ParsedProject, error) {
+	var (
+		response    types.ParsedProject
+		parsedFiles []types.FileResponse
+	)
 
-	// Parse each file
-	var parsedFiles []types.FileResponse
-	for _, file := range p.Files {
+	for _, file := range files {
 		res, err := parseFile(file)
 		if err != nil {
 			return response, err

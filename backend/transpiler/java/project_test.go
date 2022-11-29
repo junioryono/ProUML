@@ -12,7 +12,7 @@ import (
 
 type ProjectParseTest struct {
 	Name   string
-	Input  types.Project
+	Input  []types.File
 	Output []byte
 	Err    error
 }
@@ -845,10 +845,8 @@ func getProject1() ProjectParseTest {
 		Code:      []byte("public class Test2 { public void test(){ System.out.println('test2'); } }"),
 	}
 	return ProjectParseTest{
-		Name: "empty input string",
-		Input: types.Project{
-			Files: []types.File{file1, file2},
-		},
+		Name:   "empty input string",
+		Input:  []types.File{file1, file2},
 		Output: nil,
 		Err:    &types.CannotParseText{},
 	}
