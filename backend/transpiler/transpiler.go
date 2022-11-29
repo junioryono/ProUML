@@ -154,9 +154,7 @@ func downloadProject(SupabaseClient *supabase.Client, projectId string) ([]types
 		Extension: "java",
 		Code:      []byte("public class Test2 { public void test(){ System.out.println('test2'); } }"),
 	}
-	numberOfFiles := 2
-	files := make([]types.File, numberOfFiles)
-	files = append(files, file1, file2)
+	files := []types.File{file1, file2}
 
 	return files, nil
 }

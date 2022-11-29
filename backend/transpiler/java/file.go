@@ -604,8 +604,17 @@ func splitVariablesAndMethods(t []byte) [][]byte {
 				currentScope--
 
 				if currentScope == 0 {
-					if i+1 < len(text) && text[i+1] == SemiColon {
-						i++
+					if i+1 < len(text) {
+						if text[i+1] == ClosedParenthesis || text[i+1] == Comma {
+							// This is to prevent:
+							// System.out.println(new int[][] {{20}, {40}});
+							// from appending an extra value
+							continue
+						}
+
+						if text[i+1] == SemiColon {
+							i++
+						}
 					}
 
 					removeAndAppendText(i)
@@ -723,10 +732,12 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		)
 
 		// Example inputs:
-		// var1;
-		// var2 = "Hello";
-		// var3 = "Hello",var4;
-		// var5 = "Hello",var6 = "Hello",var7;
+		// Type var1;
+		// Type var2 = "Hello";
+		// Type var3 = "Hello",var4;
+		// Type var5 = "Hello",var6 = "Hello",var7;
+		// Type var8 = true == true
+		// Type var9 = (true == true) || (true == false)
 
 		for i := 0; i < len(vSText); i++ {
 			if currentStyle == SingleQuote && vSText[i] == SingleQuote ||
@@ -764,7 +775,9 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 						currentlyFindingName = true
 					}
 
-				} else if vSText[i] == EqualSign {
+				} else if vSText[i] == EqualSign &&
+					!(i+1 < len(vSText) && vSText[i+1] == EqualSign) &&
+					!(i > 0 && vSText[i-1] == EqualSign) {
 					valueStartIndex = i + 2
 				} else if vSText[i] == Space && currentlyFindingName {
 					currentName = vSText[nameStartIndex:i]
@@ -810,6 +823,42 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 			method.Functionality = append(method.Functionality, text[closedParamIndex+2:len(text)-1]...)
 		}
 	}
+
+	var (
+		numberOfChangedOpenCurlies = 0
+		numberOfValidOpenCurlies   = 0
+	)
+
+	for i := 0; i < len(method.Functionality); i++ {
+		if currentStyle == SingleQuote && method.Functionality[i] == SingleQuote ||
+			currentStyle == DoubleQuote && method.Functionality[i] == DoubleQuote ||
+			currentStyle == TickerQuote && method.Functionality[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if method.Functionality[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if method.Functionality[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if method.Functionality[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else if i+1 < len(method.Functionality) &&
+				method.Functionality[i] == ClosedParenthesis &&
+				method.Functionality[i+1] == OpenCurly {
+				method.Functionality[i+1] = SemiColon
+				numberOfChangedOpenCurlies++
+			} else if numberOfValidOpenCurlies == 0 && method.Functionality[i] == ClosedCurly {
+				method.Functionality[i] = SemiColon
+			} else if method.Functionality[i] == OpenCurly {
+				numberOfValidOpenCurlies++
+			} else if method.Functionality[i] == ClosedCurly {
+				numberOfValidOpenCurlies--
+			}
+		}
+	}
+
+	// Replace all double semicolons with just one
+	REGEX_DoubleSemiColon := regexp.MustCompile(`;{2,}`)
+	method.Functionality = REGEX_DoubleSemiColon.ReplaceAll(method.Functionality, []byte(";"))
 
 	declarationSplit := bytes.Split(methodDeclaration, []byte(" "))
 
@@ -892,6 +941,17 @@ func getClassAssociations(variables []types.JavaVariable, methods []types.JavaMe
 	// Class1 varName = new Class1(new Class2(new Class 3())); <<< Include Class1, Class2, and Class3
 	// Need to watch out for quotations because they could be included in new Class parameters
 	// The variable 'Type', method 'Type' and method parameters 'Type' will all have the same functionality
+
+	// WATCH FOR THESE
+	// System.out.println(' FakeType t = new FakeType(); ');
+	// Type1 var1 = new Type2(' new FakeType() ',new Type3());
+	// Type1 var2;
+	// ActionListener task = new ActionListener();
+	// boolean alreadyDisposed = false;
+	// public void actionPerformed(ActionEvent e);
+	// if(frame.isDisplayable());
+	// alreadyDisposed = true;
+	// frame.dispose();
 
 	var (
 		responseMap = make(map[string]struct{})

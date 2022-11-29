@@ -4,26 +4,18 @@
 
 ### Backend
 
-#### Transpiler — All Languages
+#### Transpiler
 
 ##### Add
 
-- [ ] Relate classes
+- [ ] Get all declaration types inside method functionality (file)
+- [ ] Finish test cases for class associations (file)
+- [ ] Relate classes (project)
   - [ ] Check parent class types to find relation
-- [ ] Generate layout based on relations
+- [ ] Generate layout based on relations (project)
   - [ ] Generate class box size
   - [ ] Create an array that is sorted by least amount of relations first
   - [ ] Create 2d array to find shortest path of class relations
-
-##### Change
-
-##### Fix
-
-#### Transpiler — Java
-
-##### Add
-
-- [ ] Get enum declarations
 
 ##### Change
 

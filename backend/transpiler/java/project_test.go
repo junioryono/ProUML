@@ -10,20 +10,24 @@ import (
 	types "github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
+type ProjectParseTest struct {
+	Name   string
+	Input  types.Project
+	Output []byte
+	Err    error
+}
+
 func TestProjectParse(t *testing.T) {
-	var tests = []types.TestProject{}
+	var tests = []ProjectParseTest{
+		getProject1(),
+	}
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
 			_, err := ParseProject(tt.Input)
 
-			incorrectError := !errors.Is(err, tt.Err)
-
-			if incorrectError {
+			if !errors.Is(err, tt.Err) {
 				subtest.Errorf("incorrect error")
-			}
-
-			if incorrectError {
 				subtest.Fail()
 			}
 		})
@@ -826,5 +830,26 @@ func TestGetClassRelations(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func getProject1() ProjectParseTest {
+	file1 := types.File{
+		Name:      "Test",
+		Extension: "java",
+		Code:      []byte("public class Test { public static void main(String args[]){ System.out.println('Hello Java'); } }"),
+	}
+	file2 := types.File{
+		Name:      "Test2",
+		Extension: "java",
+		Code:      []byte("public class Test2 { public void test(){ System.out.println('test2'); } }"),
+	}
+	return ProjectParseTest{
+		Name: "empty input string",
+		Input: types.Project{
+			Files: []types.File{file1, file2},
+		},
+		Output: nil,
+		Err:    &types.CannotParseText{},
 	}
 }
