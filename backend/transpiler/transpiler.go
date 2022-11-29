@@ -12,9 +12,9 @@ import (
 )
 
 type Status struct {
-	Success  bool                `json:"success"`
-	Reason   string              `json:"reason,omitempty"`
-	Response types.ParsedProject `json:"response,omitempty"`
+	Success  bool          `json:"success"`
+	Reason   string        `json:"reason,omitempty"`
+	Response types.Project `json:"response,omitempty"`
 }
 
 func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]byte, error) {
@@ -168,15 +168,15 @@ func getProjectLanguage(files []types.File) (string, error) {
 	return language, nil
 }
 
-func parseProjectByLanguage(language string, files []types.File) (types.ParsedProject, error) {
+func parseProjectByLanguage(language string, files []types.File) (types.Project, error) {
 	// Call transpilation of specified language
 	switch language {
 	case "java":
 		return java.ParseProject(files)
 	case "cpp", "go", "js", "ts", "html", "css", "py", "cs", "php", "swift", "vb":
 		// Covers C++, Go, JavaScript, TypeScript, HTML, CSS, Python , C#, PHP, Swift, Visual Basic
-		return types.ParsedProject{}, errors.New("this is an unsupported language")
+		return types.Project{}, errors.New("this is an unsupported language")
 	default:
-		return types.ParsedProject{}, errors.New("could not figure out which language was used")
+		return types.Project{}, errors.New("could not figure out which language was used")
 	}
 }

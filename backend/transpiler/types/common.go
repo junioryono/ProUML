@@ -1,6 +1,6 @@
 package types
 
-type ParsedProject struct {
+type Project struct {
 	Packages  []Package
 	Relations []Relation
 }

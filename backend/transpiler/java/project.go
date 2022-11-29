@@ -6,9 +6,9 @@ import (
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func ParseProject(files []types.File) (types.ParsedProject, error) {
+func ParseProject(files []types.File) (types.Project, error) {
 	var (
-		response    types.ParsedProject
+		response    types.Project
 		parsedFiles []types.FileResponse
 	)
 
