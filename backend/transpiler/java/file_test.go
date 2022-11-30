@@ -2,7 +2,6 @@ package java
 
 import (
 	"bytes"
-	"errors"
 	"strconv"
 	"testing"
 
@@ -24,7 +23,6 @@ func TestParseFile(t *testing.T) {
 		Name   string
 		Input  types.File
 		Output *types.FileResponse
-		Err    error
 	}
 
 	var tests = []ParseFileTest{
@@ -39,7 +37,6 @@ func TestParseFile(t *testing.T) {
 				Package: []byte(""),
 				Data:    nil,
 			},
-			Err: &types.CannotParseText{},
 		},
 		{
 			Name: "valid - includes package, import, class",
@@ -72,7 +69,6 @@ func TestParseFile(t *testing.T) {
 					},
 				},
 			},
-			Err: nil,
 		},
 		{
 			Name: "valid - includes package, class",
@@ -105,7 +101,6 @@ func TestParseFile(t *testing.T) {
 					},
 				},
 			},
-			Err: nil,
 		},
 		{
 			Name: "valid - includes package, import",
@@ -138,7 +133,6 @@ func TestParseFile(t *testing.T) {
 					},
 				},
 			},
-			Err: nil,
 		},
 		{
 			Name: "valid - includes class",
@@ -171,7 +165,6 @@ func TestParseFile(t *testing.T) {
 					},
 				},
 			},
-			Err: nil,
 		},
 		{
 			Name: "valid - includes class, extends",
@@ -205,7 +198,6 @@ func TestParseFile(t *testing.T) {
 					},
 				},
 			},
-			Err: nil,
 		},
 		{
 			Name: "valid - includes class, extends",
@@ -297,7 +289,6 @@ func TestParseFile(t *testing.T) {
 					},
 				},
 			},
-			Err: nil,
 		},
 		{
 			Name: "valid - includes class, extends",
@@ -548,21 +539,12 @@ func TestParseFile(t *testing.T) {
 					},
 				},
 			},
-			Err: nil,
 		},
 	}
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			actualOutput, err := parseFile(tt.Input)
-
-			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
-			}
-
-			if err != nil {
-				return
-			}
+			actualOutput := parseFile(tt.Input)
 
 			if !bytes.Equal(actualOutput.Package, tt.Output.Package) {
 				subtest.Errorf("testIndex: %s. incorrect package.\ngot:\n%s\nneed:\n%s\n", strconv.Itoa(testIndex), string(actualOutput.Package), string(tt.Output.Package))
@@ -571,14 +553,6 @@ func TestParseFile(t *testing.T) {
 			if len(actualOutput.Data) != len(tt.Output.Data) {
 				subtest.Errorf("incorrect number of classes.\nExpected %s. Got %s\n", strconv.Itoa(len(tt.Output.Data)), strconv.Itoa(len(actualOutput.Data)))
 				subtest.FailNow()
-			}
-
-			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error on test %s", strconv.Itoa(testIndex))
-			}
-
-			if err != nil {
-				return
 			}
 
 			if len(actualOutput.Data) != len(tt.Output.Data) {
@@ -1090,7 +1064,6 @@ func TestGetPackageName(t *testing.T) {
 	type PackageNameTest struct {
 		Input  []byte
 		Output []byte
-		Err    error
 	}
 
 	var tests = []PackageNameTest{
@@ -1114,7 +1087,6 @@ func TestGetPackageName(t *testing.T) {
 				private static final int BUTTON_WIDTH = 80;
 			}`),
 			Output: []byte("com.houarizegai.calculator"),
-			Err:    nil,
 		},
 		{
 			Input: []byte(` 
@@ -1136,7 +1108,6 @@ func TestGetPackageName(t *testing.T) {
 				private static final int BUTTON_WIDTH = 80;
 			}`),
 			Output: nil,
-			Err:    nil,
 		},
 		{
 			Input: []byte(` 
@@ -1158,20 +1129,15 @@ func TestGetPackageName(t *testing.T) {
 				private static final int BUTTON_WIDTH = 80;
 			}`),
 			Output: nil,
-			Err:    nil,
 		},
 	}
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			res, err := getPackageName(tt.Input)
+			actualOutput := getPackageName(tt.Input)
 
-			if !bytes.Equal(res, tt.Output) {
-				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(res), string(tt.Output))
-			}
-
-			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
+			if !bytes.Equal(actualOutput, tt.Output) {
+				subtest.Errorf("incorrect response.\ngot:\n%s\nneed:\n%s\n", string(actualOutput), string(tt.Output))
 			}
 		})
 	}
@@ -1299,7 +1265,6 @@ func TestGetFileClasses(t *testing.T) {
 		// 			},
 		// 		},
 		// 	},
-		// 	Err: nil,
 		// },
 		// {
 		// 	Name: "valid - includes package, class",
@@ -1336,7 +1301,6 @@ func TestGetFileClasses(t *testing.T) {
 		// 			},
 		// 		},
 		// 	},
-		// 	Err: nil,
 		// },
 		// {
 		// 	Name: "valid - includes package, import",
@@ -1373,7 +1337,6 @@ func TestGetFileClasses(t *testing.T) {
 		// 			},
 		// 		},
 		// 	},
-		// 	Err: nil,
 		// },
 		// {
 		// 	Name: "valid - includes class",
@@ -1410,7 +1373,6 @@ func TestGetFileClasses(t *testing.T) {
 		// 			},
 		// 		},
 		// 	},
-		// 	Err: nil,
 		// },
 		// {
 		// 	Name: "valid - includes class, extends",
@@ -1448,7 +1410,6 @@ func TestGetFileClasses(t *testing.T) {
 		// 			},
 		// 		},
 		// 	},
-		// 	Err: nil,
 		// },
 		{
 			Name: "valid - includes class, extends",
@@ -1563,7 +1524,6 @@ func TestGetFileClasses(t *testing.T) {
 					},
 				},
 			},
-			Err: nil,
 		},
 		// {
 		// 	Name: "valid - includes class, extends",
@@ -1815,7 +1775,6 @@ func TestGetFileClasses(t *testing.T) {
 		// 			},
 		// 		},
 		// 	},
-		// 	Err: nil,
 		// },
 		// {
 		// 	Name: "valid - includes package, import, class",
@@ -1830,7 +1789,6 @@ func TestGetFileClasses(t *testing.T) {
 		// 			types.JavaEnum{},
 		// 		},
 		// 	},
-		// 	Err: nil,
 		// },
 		// {
 		// 	Name: "valid - includes package, import, class",
@@ -1845,7 +1803,6 @@ func TestGetFileClasses(t *testing.T) {
 		// 			types.JavaEnum{},
 		// 		},
 		// 	},
-		// 	Err: nil,
 		// },
 		// {
 		// 	Name: "valid - includes package, import, class",
@@ -1860,7 +1817,6 @@ func TestGetFileClasses(t *testing.T) {
 		// 			types.JavaEnum{},
 		// 		},
 		// 	},
-		// 	Err: nil,
 		// },
 	}
 

@@ -30,33 +30,27 @@ var (
 	Asperand          byte = '@'
 )
 
-func parseFile(file types.File) (types.FileResponse, error) {
+func parseFile(file types.File) types.FileResponse {
 	var (
 		response   = types.FileResponse{}
 		parsedText = file.Code
 	)
 
 	if len(parsedText) == 0 {
-		return response, &types.CannotParseText{}
+		return response
 	}
 
 	parsedText = removeComments(parsedText)
 	parsedText = removeSpacing(parsedText)
 	parsedText = removeAnnotations(parsedText)
-	packageName, err := getPackageName(parsedText)
-	if err != nil {
-		return response, err
-	}
+	packageName := getPackageName(parsedText)
 
 	classes := getFileClasses(file.Name, parsedText)
-	if err != nil {
-		return response, err
-	}
 
 	response.Package = packageName
 	response.Data = append(response.Data, classes...)
 
-	return response, nil
+	return response
 }
 
 // Remove all comments that are not inside of quotations from code
@@ -228,7 +222,7 @@ func removeAnnotations(text []byte) []byte {
 }
 
 // Get package name from code if one exists
-func getPackageName(text []byte) ([]byte, error) {
+func getPackageName(text []byte) []byte {
 	REGEX_FirstOpenCurly := regexp.MustCompile(`\{`)
 	firstOpenCurlyIndex := REGEX_FirstOpenCurly.FindIndex(text)
 
@@ -242,12 +236,10 @@ func getPackageName(text []byte) ([]byte, error) {
 
 	packageDeclarationIndex := REGEX_PackageDeclaration.FindIndex(text)
 
-	if len(firstOpenCurlyIndex) == 0 {
-		return nil, &types.CannotParseText{}
-	}
-
-	if len(packageDeclarationIndex) == 0 || packageDeclarationIndex[len(packageDeclarationIndex)-1] > firstOpenCurlyIndex[len(firstOpenCurlyIndex)-1] {
-		return nil, nil
+	if len(firstOpenCurlyIndex) == 0 ||
+		len(packageDeclarationIndex) == 0 ||
+		packageDeclarationIndex[len(packageDeclarationIndex)-1] > firstOpenCurlyIndex[len(firstOpenCurlyIndex)-1] {
+		return nil
 	}
 
 	text = REGEX_PackageDeclaration.Find(text)
@@ -265,7 +257,7 @@ func getPackageName(text []byte) ([]byte, error) {
 	// Trim left and right spacing
 	text = bytes.TrimSpace(text)
 
-	return text, nil
+	return text
 }
 
 func getFileClasses(fileName string, text []byte) []any {

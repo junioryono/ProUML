@@ -6,25 +6,21 @@ import (
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func ParseProject(files []types.File) (types.Project, error) {
+func ParseProject(files []types.File) types.Project {
 	var (
 		response    types.Project
 		parsedFiles []types.FileResponse
 	)
 
 	for _, file := range files {
-		res, err := parseFile(file)
-		if err != nil {
-			return response, err
-		}
-
-		parsedFiles = append(parsedFiles, res)
+		parsedFile := parseFile(file)
+		parsedFiles = append(parsedFiles, parsedFile)
 	}
 
 	response.Relations = getClassRelations(parsedFiles)
 	response.Packages = groupClassesByPackage(parsedFiles)
 
-	return response, nil
+	return response
 }
 
 func getClassRelations(files []types.FileResponse) []types.Relation {

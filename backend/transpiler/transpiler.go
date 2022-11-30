@@ -172,7 +172,7 @@ func parseProjectByLanguage(language string, files []types.File) (types.Project,
 	// Call transpilation of specified language
 	switch language {
 	case "java":
-		return java.ParseProject(files)
+		return java.ParseProject(files), nil
 	case "cpp", "go", "js", "ts", "html", "css", "py", "cs", "php", "swift", "vb":
 		// Covers C++, Go, JavaScript, TypeScript, HTML, CSS, Python , C#, PHP, Swift, Visual Basic
 		return types.Project{}, errors.New("this is an unsupported language")
