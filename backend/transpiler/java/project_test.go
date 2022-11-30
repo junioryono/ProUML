@@ -2,7 +2,6 @@ package java
 
 import (
 	"bytes"
-	"errors"
 	"reflect"
 	"strconv"
 	"testing"
@@ -24,12 +23,8 @@ func TestProjectParse(t *testing.T) {
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			_, err := ParseProject(tt.Input)
-
-			if !errors.Is(err, tt.Err) {
-				subtest.Errorf("incorrect error")
-				subtest.Fail()
-			}
+			parsedProject := ParseProject(tt.Input)
+			_ = parsedProject
 		})
 	}
 }
