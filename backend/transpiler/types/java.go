@@ -39,6 +39,7 @@ type JavaAbstract struct {
 	Variables     []JavaVariable
 	Methods       []JavaMethod
 	Associations  [][]byte
+	Dependencies  [][]byte
 }
 
 type JavaClass struct {
@@ -49,6 +50,7 @@ type JavaClass struct {
 	Variables     []JavaVariable
 	Methods       []JavaMethod
 	Associations  [][]byte
+	Dependencies  [][]byte
 }
 
 type JavaInterface struct {
@@ -58,6 +60,7 @@ type JavaInterface struct {
 	Variables     []JavaVariable
 	Methods       []JavaMethod
 	Associations  [][]byte
+	Dependencies  [][]byte
 }
 
 type JavaEnum struct {

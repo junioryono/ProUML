@@ -8,8 +8,6 @@
 
 ##### Add
 
-- [ ] Get all declaration types inside method functionality (file)
-- [ ] Finish test cases for class associations (file)
 - [ ] Relate classes (project)
   - [ ] Check parent class types to find relation
 - [ ] Generate layout based on relations (project)
@@ -44,8 +42,29 @@
 ```java
 class Engine {}
 public class Car {
+  private Engine engine;
+
   public Car() {
     engine = new Engine();
+  }
+}
+```
+
+#### Dependency
+
+```java
+class Engine {}
+public class Car {
+  public Car() {
+    Engine engine = new Engine();
+  }
+}
+```
+
+```java
+class Engine {}
+public class Car {
+  public Car(Engine engine) {
   }
 }
 ```

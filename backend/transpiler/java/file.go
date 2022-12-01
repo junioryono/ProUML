@@ -2,7 +2,6 @@ package java
 
 import (
 	"bytes"
-	"fmt"
 	"regexp"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
@@ -28,6 +27,8 @@ var (
 	Comma             byte = ','
 	Space             byte = ' '
 	Asperand          byte = '@'
+	AndCondition      byte = '&'
+	OrCondition       byte = '|'
 )
 
 func parseFile(file types.File) types.FileResponse {
@@ -100,6 +101,12 @@ func removeComments(text []byte) []byte {
 
 // Remove all extra spacing from code
 func removeSpacing(text []byte) []byte {
+	// TODO - Need to make sure these things arent being applied to strings
+	// NEED TO FIX THIS FOR IF STATEMENTS && (
+	// [^"^'*](?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)(?=([^'\\]*(\\.|'([^'\\]*\\.)*[^'\\]*'))*[^']*$)(?=([^`\\]*(\\.|`([^'\\]*\\.)*[^`\\]*`))*[^`]*$)
+	// [^"'`](?=\\"|"(?:\\"|[^"])*"|(\+))
+	// https://stackoverflow.com/questions/6462578/regex-to-match-all-instances-not-inside-quotes
+
 	// Remove all imports
 	REGEX_Imports := regexp.MustCompile(`[\s\S]*?import[\s\S]*?;[\s]*`)
 	text = REGEX_Imports.ReplaceAll(text, []byte(" "))
@@ -309,7 +316,7 @@ func getFileClasses(fileName string, text []byte) []any {
 		}
 
 		Variables, Methods := getVariablesAndMethods(classesText[i].Inside)
-		Associations := getClassRelationTypes(Variables, Methods)
+		Associations, Dependencies := getClassRelationTypes(Variables, Methods)
 
 		var Extends [][]byte
 		extendsIndex := findIndex("extends", textSplit)
@@ -325,6 +332,7 @@ func getFileClasses(fileName string, text []byte) []any {
 				Variables:     Variables,
 				Methods:       Methods,
 				Associations:  Associations,
+				Dependencies:  Dependencies,
 			})
 			continue
 		}
@@ -344,6 +352,7 @@ func getFileClasses(fileName string, text []byte) []any {
 				Variables:     Variables,
 				Methods:       Methods,
 				Associations:  Associations,
+				Dependencies:  Dependencies,
 			})
 			continue
 		}
@@ -356,6 +365,7 @@ func getFileClasses(fileName string, text []byte) []any {
 			Variables:     Variables,
 			Methods:       Methods,
 			Associations:  Associations,
+			Dependencies:  Dependencies,
 		})
 	}
 
@@ -816,6 +826,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 	}
 
+	// TODO there is something wrong with this because numberOfChangedOpenCurlies is never used..
 	var (
 		numberOfChangedOpenCurlies = 0
 		numberOfValidOpenCurlies   = 0
@@ -948,7 +959,8 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	return nil, method
 }
 
-func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaMethod) [][]byte {
+// Returns associations and dependencies
+func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaMethod) ([][]byte, [][]byte) {
 	// Include all types... even if it is int, char, etc.
 	// If String[], do not include [], etc. Could be anything, not just 'String'. // Only include the exact type name
 	// If List<ClassName>, include List and ClassName in response
@@ -973,6 +985,7 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 	// boolean alreadyDisposed = false;
 	// public void actionPerformed(ActionEvent e);
 	// if(frame.isDisplayable());
+	// if(frame.isDisplayable(true && new Type()));
 	// if(frame.isDisplayable() == new Type4());
 	// if(new Type5().value);
 	// if(frame.isDisplayable() == true && new Type6().value);
@@ -981,23 +994,25 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 	// frame.dispose();
 
 	var (
-		responseMap = make(map[string]struct{})
-		response    [][]byte
+		associationsMap = make(map[string]struct{})
+		associations    [][]byte
+		dependenciesMap = make(map[string]struct{})
+		dependencies    [][]byte
 	)
 
 	// Use map to prevent duplicates
-	addToResponseMap := func(t []byte) {
-		responseMap[string(t)] = struct{}{}
+	addToResponseMap := func(t []byte, relationMap map[string]struct{}) {
+		relationMap[string(t)] = struct{}{}
 	}
 
-	getTypesFromType := func(text []byte) {
+	getTypesFromType := func(text []byte, relationMap map[string]struct{}) {
 		if len(text) > 0 && text[len(text)-1] != RightArrow {
 			if len(text) > 2 && text[len(text)-2] == OpenBracket && text[len(text)-1] == ClosedBracket {
-				addToResponseMap(text[:len(text)-2])
+				addToResponseMap(text[:len(text)-2], relationMap)
 				return
 			}
 
-			addToResponseMap(text)
+			addToResponseMap(text, relationMap)
 			return
 		}
 
@@ -1014,12 +1029,12 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 					continue
 				}
 
-				addToResponseMap(wantToPush)
+				addToResponseMap(wantToPush, relationMap)
 			}
 		}
 	}
 
-	getTypesFromValue := func(text []byte) {
+	getTypesFromValue := func(text []byte, relationMap map[string]struct{}) {
 		var (
 			currentValueStyle  byte = NoQuote
 			newClassStartIndex int  = -1
@@ -1032,7 +1047,7 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 				currentValueStyle = NoQuote
 			} else if currentValueStyle == NoQuote {
 				if newClassStartIndex != -1 && (text[i] == OpenParenthesis || text[i] == OpenBracket) {
-					addToResponseMap(text[newClassStartIndex:i])
+					addToResponseMap(text[newClassStartIndex:i], relationMap)
 					newClassStartIndex = -1
 				} else if newClassStartIndex == -1 && i+4 < len(text) &&
 					text[i] == 'n' && text[i+1] == 'e' && text[i+2] == 'w' && text[i+3] == ' ' &&
@@ -1044,30 +1059,136 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 	}
 
 	for _, variable := range variables {
-		getTypesFromType(variable.Type)
-		getTypesFromValue(variable.Value)
+		getTypesFromType(variable.Type, associationsMap)
+		getTypesFromValue(variable.Value, associationsMap)
 	}
 
 	for _, method := range methods {
-		getTypesFromType(method.Type)
+		getTypesFromType(method.Type, dependenciesMap)
 
 		for _, parameter := range method.Parameters {
-			getTypesFromType(parameter.Type)
+			getTypesFromType(parameter.Type, dependenciesMap)
 		}
 
-		test := splitVariablesAndMethods(method.Functionality)
-		for _, jv := range test {
-			fmt.Printf("jv: %s\n", string(jv))
+		lines := splitVariablesAndMethods(method.Functionality)
+		for i := 0; i < len(lines); i++ {
+			isIfStatement := bytes.HasPrefix(lines[i], []byte("if("))
+			isElseIfStatement := bytes.HasPrefix(lines[i], []byte("else if("))
+
+			if isIfStatement || isElseIfStatement {
+				if isIfStatement {
+					lines[i] = lines[i][3 : len(lines[i])-2]
+				} else {
+					lines[i] = lines[i][8 : len(lines[i])-2]
+				}
+
+				var (
+					numberOfRemovedOpenParenthesis int = 0
+					numberOfValidOpenParenthesis   int = 0
+				)
+
+				for j := 0; j < len(lines[i]); j++ {
+					if j+1 < len(lines[i]) && (lines[i][j] == Space || j == 0) && lines[i][j+1] == OpenParenthesis {
+						lines[i] = append(lines[i][:j+1], lines[i][j+2:]...)
+						numberOfRemovedOpenParenthesis++
+					} else if numberOfRemovedOpenParenthesis != 0 {
+						if numberOfValidOpenParenthesis == 0 && lines[i][j] == ClosedParenthesis {
+							lines[i] = append(lines[i][:j], lines[i][j+1:]...)
+							numberOfRemovedOpenParenthesis--
+						} else if lines[i][j] == OpenParenthesis {
+							numberOfValidOpenParenthesis++
+						} else if lines[i][j] == ClosedParenthesis {
+							numberOfValidOpenParenthesis--
+						}
+					}
+				}
+			}
+
+			for j := 0; j < len(lines[i]); j++ {
+				if j+3 < len(lines[i]) && lines[i][j] == Space && lines[i][j+3] == Space &&
+					((lines[i][j+1] == EqualSign && lines[i][j+2] == EqualSign) ||
+						(lines[i][j+1] == AndCondition && lines[i][j+2] == AndCondition) ||
+						(lines[i][j+1] == OrCondition && lines[i][j+2] == OrCondition)) {
+					lines = append(lines, lines[i][j+4:])
+					lines[i] = lines[i][0:j]
+				} else if j+2 < len(lines[i]) && lines[i][j] == Space && lines[i][j+1] == EqualSign && lines[i][j+2] == Space {
+					lines = append(lines, lines[i][j+3:])
+					lines[i] = lines[i][0:j]
+				}
+			}
+
+			openParenthesisIndex := bytes.IndexByte(lines[i], OpenParenthesis)
+			if openParenthesisIndex != -1 && openParenthesisIndex+1 < len(lines[i]) && lines[i][openParenthesisIndex+1] != ClosedParenthesis {
+				var inside []byte
+				if lines[i][len(lines[i])-1] == SemiColon {
+					inside = append(inside, lines[i][openParenthesisIndex+1:len(lines[i])-2]...)
+				} else {
+					inside = append(inside, lines[i][openParenthesisIndex+1:len(lines[i])-1]...)
+				}
+
+				var (
+					numberOfOpenParenthesis int = 0
+					numberOfOpenCurlies     int = 0
+					numberOfOpenBrackets    int = 0
+				)
+
+				for j := 0; j < len(inside); j++ {
+					if inside[j] == Comma {
+						if j == 0 {
+							inside = inside[1:]
+							continue
+						} else if numberOfOpenParenthesis != 0 || numberOfOpenCurlies != 0 || numberOfOpenBrackets != 0 {
+							continue
+						}
+
+						lines = append(lines, inside[:j])
+						inside = inside[j+1:]
+
+					} else if inside[j] == OpenParenthesis {
+						numberOfOpenParenthesis++
+					} else if inside[j] == ClosedParenthesis {
+						numberOfOpenParenthesis--
+					} else if inside[j] == OpenCurly {
+						numberOfOpenCurlies++
+					} else if inside[j] == ClosedCurly {
+						numberOfOpenCurlies--
+					} else if inside[j] == OpenBracket {
+						numberOfOpenBrackets++
+					} else if inside[j] == ClosedBracket {
+						numberOfOpenBrackets--
+					}
+				}
+
+				lines = append(lines, inside)
+
+				lines[i] = append(lines[i][0:openParenthesisIndex+1], ");"...)
+			}
+
+			if bytes.HasPrefix(lines[i], []byte("new ")) {
+				getTypesFromValue(lines[i], dependenciesMap)
+				continue
+			}
+
+			lineSplit := bytes.Split(lines[i], []byte(" "))
+			if len(lineSplit) <= 1 {
+				continue
+			}
+
+			getTypesFromType(lineSplit[len(lineSplit)-2], dependenciesMap)
 		}
-
-		// Need to get all types inside function
-		// getVariablesAndMethods?? or splitVariablesAndMethods??
 	}
 
-	// Add map values to response array
-	for key := range responseMap {
-		response = append(response, []byte(key))
+	// Add map values to dependencies array
+	for key := range associationsMap {
+		associations = append(associations, []byte(key))
 	}
 
-	return response
+	// Add map values to dependencies array
+	for key := range dependenciesMap {
+		if _, exists := associationsMap[key]; !exists {
+			dependencies = append(dependencies, []byte(key))
+		}
+	}
+
+	return associations, dependencies
 }
