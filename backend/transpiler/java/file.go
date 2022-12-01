@@ -309,7 +309,7 @@ func getFileClasses(fileName string, text []byte) []any {
 		}
 
 		Variables, Methods := getVariablesAndMethods(classesText[i].Inside)
-		Associations := getClassAssociations(Variables, Methods)
+		Associations := getClassRelationTypes(Variables, Methods)
 
 		var Extends [][]byte
 		extendsIndex := findIndex("extends", textSplit)
@@ -848,6 +848,37 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 	}
 
+	var (
+		lastQuoteIndex int  = 0
+		currentQuote   byte = 0
+	)
+
+	removeQuoteText := func(i int) {
+		method.Functionality = append(method.Functionality[:lastQuoteIndex], method.Functionality[i+1:]...)
+		currentQuote = NoQuote
+	}
+
+	for i := 0; i < len(method.Functionality); i++ {
+		if currentQuote == NoQuote {
+			if method.Functionality[i] == SingleQuote {
+				currentQuote = SingleQuote
+				lastQuoteIndex = i
+			} else if method.Functionality[i] == DoubleQuote {
+				currentQuote = DoubleQuote
+				lastQuoteIndex = i
+			} else if method.Functionality[i] == TickerQuote {
+				currentQuote = TickerQuote
+				lastQuoteIndex = i
+			}
+		} else if currentQuote == SingleQuote && method.Functionality[i] == SingleQuote {
+			removeQuoteText(i)
+		} else if currentQuote == DoubleQuote && method.Functionality[i] == DoubleQuote {
+			removeQuoteText(i)
+		} else if currentQuote == TickerQuote && method.Functionality[i] == TickerQuote {
+			removeQuoteText(i)
+		}
+	}
+
 	// Replace all double semicolons with just one
 	REGEX_DoubleSemiColon := regexp.MustCompile(`;{2,}`)
 	method.Functionality = REGEX_DoubleSemiColon.ReplaceAll(method.Functionality, []byte(";"))
@@ -917,7 +948,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	return nil, method
 }
 
-func getClassAssociations(variables []types.JavaVariable, methods []types.JavaMethod) [][]byte {
+func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaMethod) [][]byte {
 	// Include all types... even if it is int, char, etc.
 	// If String[], do not include [], etc. Could be anything, not just 'String'. // Only include the exact type name
 	// If List<ClassName>, include List and ClassName in response
@@ -935,13 +966,17 @@ func getClassAssociations(variables []types.JavaVariable, methods []types.JavaMe
 	// The variable 'Type', method 'Type' and method parameters 'Type' will all have the same functionality
 
 	// WATCH FOR THESE
-	// System.out.println(' FakeType t = new FakeType(); ');
-	// Type1 var1 = new Type2(' new FakeType() ',new Type3());
+	// System.out.println();
+	// Type1 var1 = new Type2(,new Type3());
 	// Type1 var2;
 	// ActionListener task = new ActionListener();
 	// boolean alreadyDisposed = false;
 	// public void actionPerformed(ActionEvent e);
 	// if(frame.isDisplayable());
+	// if(frame.isDisplayable() == new Type4());
+	// if(new Type5().value);
+	// if(frame.isDisplayable() == true && new Type6().value);
+	// if(frame.isDisplayable() == true && frame.isDisplayable() == new Type7());
 	// alreadyDisposed = true;
 	// frame.dispose();
 

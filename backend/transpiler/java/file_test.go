@@ -1219,7 +1219,7 @@ func TestRemoveSpacing(t *testing.T) {
 }
 
 func TestGetFileClasses(t *testing.T) {
-	// Currently working on TestGetClassAssociations
+	// Currently working on TestGetClassRelationTypes
 	// That's why other tests are commented out right now
 
 	type FileClassesTest struct {
@@ -1416,7 +1416,7 @@ func TestGetFileClasses(t *testing.T) {
 			Input: types.File{
 				Name:      "A",
 				Extension: "java",
-				Code:      []byte("import java.util.*;class Test{boolean testVar1 = true == true;boolean testVar2 = (true == true) || (true == false);protected interface Yes{void show();}public static void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){System.out.println(' FakeType t = new FakeType(); ');Type1 var1 = new Type2(' new FakeType() ',new Type3());Type1 var2;ActionListener task = new ActionListener(){boolean alreadyDisposed = false;public void actionPerformed(ActionEvent e){if(frame.isDisplayable()){alreadyDisposed = true;frame.dispose();}System.out.println('hello');}System.out.println('hello');};System.out.println(new int[][] {{20}, {40}});}}"),
+				Code:      []byte("import java.util.*;class Test{boolean testVar1 = true == true;boolean testVar2 = (true == true) || (true == false);protected interface Yes{void show();}public static void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println();}}class A{public static void main(String[] args){System.out.println();Type1 var1 = new Type2(,new Type3());Type1 var2;ActionListener task = new ActionListener(){boolean alreadyDisposed = false;public void actionPerformed(ActionEvent e){if(frame.isDisplayable()){alreadyDisposed = true;frame.dispose();}System.out.println();}System.out.println();};System.out.println(new int[][]{{20},{40}});}}"),
 			},
 			Output: &types.FileResponse{
 				Package: []byte(""),
@@ -2186,7 +2186,7 @@ func TestGetEnumDeclarations(t *testing.T) {
 	}
 }
 
-func TestGetClassAssociations(t *testing.T) {
+func TestGetClassRelationTypes(t *testing.T) {
 	type Input struct {
 		Variables []types.JavaVariable
 		Methods   []types.JavaMethod
@@ -2285,7 +2285,7 @@ func TestGetClassAssociations(t *testing.T) {
 						Abstract:      false,
 						Static:        true,
 						Final:         false,
-						Functionality: []byte("System.out.println(' FakeType t = new FakeType(); ');Type1 var1 = new Type2(' new FakeType() ',new Type3());Type1 var2;ActionListener task = new ActionListener();boolean alreadyDisposed = false;public void actionPerformed(ActionEvent e);if(frame.isDisplayable());alreadyDisposed = true;frame.dispose();System.out.println('hello');System.out.println('hello');System.out.println(new int[][] {{20}, {40}});"),
+						Functionality: []byte("System.out.println();Type1 var1 = new Type2(,new Type3());Type1 var2;ActionListener task = new ActionListener();boolean alreadyDisposed = false;public void actionPerformed(ActionEvent e);if(frame.isDisplayable());if(frame.isDisplayable() == new Type4());if(new Type5().value);if(frame.isDisplayable() == true && new Type6().value);if(frame.isDisplayable() == true && frame.isDisplayable() == new Type7());alreadyDisposed = true;frame.dispose();System.out.println();System.out.println();System.out.println(new int[][]{{20},{40}});"),
 					},
 				},
 			},
@@ -2295,6 +2295,10 @@ func TestGetClassAssociations(t *testing.T) {
 				[]byte("Type1"),
 				[]byte("Type2"),
 				[]byte("Type3"),
+				[]byte("Type4"),
+				[]byte("Type5"),
+				[]byte("Type6"),
+				[]byte("Type7"),
 				[]byte("ActionListener"),
 				[]byte("boolean"),
 				[]byte("ActionEvent"),
@@ -2481,7 +2485,7 @@ func TestGetClassAssociations(t *testing.T) {
 
 	for testIndex, tt := range tests {
 		t.Run("Test index "+strconv.Itoa(testIndex), func(subtest *testing.T) {
-			response := getClassAssociations(tt.Input.Variables, tt.Input.Methods)
+			response := getClassRelationTypes(tt.Input.Variables, tt.Input.Methods)
 
 			if len(response) != len(tt.Output) {
 				subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(tt.Output)), strconv.Itoa(len(response)))

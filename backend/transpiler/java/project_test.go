@@ -29,7 +29,7 @@ func TestProjectParse(t *testing.T) {
 	}
 }
 
-func TestGetClassRelations(t *testing.T) {
+func TestGetRelations(t *testing.T) {
 	type TestClassRelations struct {
 		Input  []types.FileResponse
 		Output []types.Relation
