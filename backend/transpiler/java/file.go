@@ -171,6 +171,14 @@ func removeSpacing(text []byte) []byte {
 	REGEX_EqualSpace := regexp.MustCompile(`[\s]*=[\s]*`)
 	text = REGEX_EqualSpace.ReplaceAll(text, []byte(" = "))
 
+	// Replace all "&&", " &&", and "&& " with " && "
+	REGEX_AndSpace := regexp.MustCompile(`[\s]*&&[\s]*`)
+	text = REGEX_AndSpace.ReplaceAll(text, []byte(" && "))
+
+	// Replace all "||", " ||", and "|| " with " || "
+	REGEX_OrSpace := regexp.MustCompile(`[\s]*\|\|[\s]*`)
+	text = REGEX_OrSpace.ReplaceAll(text, []byte(" || "))
+
 	// Trim left and right spacing
 	text = bytes.TrimSpace(text)
 
@@ -826,12 +834,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 	}
 
-	// TODO there is something wrong with this because numberOfChangedOpenCurlies is never used..
-	var (
-		numberOfChangedOpenCurlies = 0
-		numberOfValidOpenCurlies   = 0
-	)
-
+	var numberOfValidOpenCurlies = 0
 	for i := 0; i < len(method.Functionality); i++ {
 		if currentStyle == SingleQuote && method.Functionality[i] == SingleQuote ||
 			currentStyle == DoubleQuote && method.Functionality[i] == DoubleQuote ||
@@ -848,7 +851,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 				method.Functionality[i] == ClosedParenthesis &&
 				method.Functionality[i+1] == OpenCurly {
 				method.Functionality[i+1] = SemiColon
-				numberOfChangedOpenCurlies++
+				continue
 			} else if numberOfValidOpenCurlies == 0 && method.Functionality[i] == ClosedCurly {
 				method.Functionality[i] = SemiColon
 			} else if method.Functionality[i] == OpenCurly {

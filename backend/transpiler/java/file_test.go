@@ -21,14 +21,12 @@ func byteSliceExists(slice [][]byte, expected []byte) bool {
 
 func TestParseFile(t *testing.T) {
 	type ParseFileTest struct {
-		Name   string
 		Input  types.File
 		Output *types.FileResponse
 	}
 
 	var tests = []ParseFileTest{
 		{
-			Name: "invalid - no code inside file",
 			Input: types.File{
 				Name:      "Test1",
 				Extension: "java",
@@ -40,7 +38,6 @@ func TestParseFile(t *testing.T) {
 			},
 		},
 		{
-			Name: "valid - includes package, import, class",
 			Input: types.File{
 				Name:      "Test2",
 				Extension: "java",
@@ -62,9 +59,10 @@ func TestParseFile(t *testing.T) {
 										Name: []byte("args"),
 									},
 								},
-								Abstract: false,
-								Static:   true,
-								Final:    false,
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
 							},
 						},
 					},
@@ -72,7 +70,6 @@ func TestParseFile(t *testing.T) {
 			},
 		},
 		{
-			Name: "valid - includes package, class",
 			Input: types.File{
 				Name:      "Test3",
 				Extension: "java",
@@ -94,9 +91,10 @@ func TestParseFile(t *testing.T) {
 										Name: []byte("args"),
 									},
 								},
-								Abstract: false,
-								Static:   true,
-								Final:    false,
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
 							},
 						},
 					},
@@ -104,7 +102,6 @@ func TestParseFile(t *testing.T) {
 			},
 		},
 		{
-			Name: "valid - includes package, import",
 			Input: types.File{
 				Name:      "Test4",
 				Extension: "java",
@@ -126,9 +123,10 @@ func TestParseFile(t *testing.T) {
 										Name: []byte("args"),
 									},
 								},
-								Abstract: false,
-								Static:   true,
-								Final:    false,
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
 							},
 						},
 					},
@@ -136,7 +134,6 @@ func TestParseFile(t *testing.T) {
 			},
 		},
 		{
-			Name: "valid - includes class",
 			Input: types.File{
 				Name:      "Test5",
 				Extension: "java",
@@ -158,9 +155,10 @@ func TestParseFile(t *testing.T) {
 										Name: []byte("args"),
 									},
 								},
-								Abstract: false,
-								Static:   true,
-								Final:    false,
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
 							},
 						},
 					},
@@ -168,7 +166,6 @@ func TestParseFile(t *testing.T) {
 			},
 		},
 		{
-			Name: "valid - includes class, extends",
 			Input: types.File{
 				Name:      "Test6",
 				Extension: "java",
@@ -191,9 +188,10 @@ func TestParseFile(t *testing.T) {
 										Name: []byte("args"),
 									},
 								},
-								Abstract: false,
-								Static:   true,
-								Final:    false,
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
 							},
 						},
 					},
@@ -201,7 +199,6 @@ func TestParseFile(t *testing.T) {
 			},
 		},
 		{
-			Name: "valid - includes class, extends",
 			Input: types.File{
 				Name:      "A",
 				Extension: "java",
@@ -219,11 +216,11 @@ func TestParseFile(t *testing.T) {
 								AccessModifier: []byte("public"),
 								Parameters:     nil,
 								Abstract:       false,
-								Static:         true,
+								Static:         false,
 								Final:          false,
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 						},
 					},
@@ -241,7 +238,7 @@ func TestParseFile(t *testing.T) {
 								Final:          false,
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 						},
 					},
@@ -257,9 +254,10 @@ func TestParseFile(t *testing.T) {
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
+								Functionality:  []byte("System.out.println();"),
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 						},
 					},
@@ -276,12 +274,13 @@ func TestParseFile(t *testing.T) {
 										Name: []byte("args"),
 									},
 								},
-								Abstract: false,
-								Static:   true,
-								Final:    false,
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("Test.Yes obj;Testing t = new Testing();obj = t;obj.show();"),
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 							[]byte("String"),
 							[]byte("Test.Yes"),
@@ -292,7 +291,6 @@ func TestParseFile(t *testing.T) {
 			},
 		},
 		{
-			Name: "valid - includes class, extends",
 			Input: types.File{
 				Name:      "A",
 				Extension: "java",
@@ -317,7 +315,7 @@ func TestParseFile(t *testing.T) {
 								Final:          false,
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 						},
 					},
@@ -337,7 +335,7 @@ func TestParseFile(t *testing.T) {
 								Final:          false,
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 						},
 					},
@@ -350,14 +348,15 @@ func TestParseFile(t *testing.T) {
 							{
 								Type:           []byte("void"),
 								Name:           []byte("show"),
-								AccessModifier: []byte(""),
+								AccessModifier: []byte("public"),
 								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
+								Functionality:  []byte("System.out.println();"),
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 						},
 					},
@@ -426,9 +425,10 @@ func TestParseFile(t *testing.T) {
 										Name: []byte("args"),
 									},
 								},
-								Abstract: false,
-								Static:   true,
-								Final:    false,
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("Test.Yes obj;Testing t = new Testing();obj = t;obj.show();"),
 							},
 							{
 								Type:           []byte("Testing"),
@@ -534,6 +534,8 @@ func TestParseFile(t *testing.T) {
 							[]byte("Test"),
 							[]byte("Testing"),
 							[]byte("Test.Yes"),
+						},
+						Dependencies: [][]byte{
 							[]byte("void"),
 							[]byte("String"),
 						},
@@ -631,6 +633,8 @@ func TestParseFile(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
 							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
+							} else if !bytes.Equal(response.Methods[index].Functionality, variable.Functionality) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
@@ -647,9 +651,15 @@ func TestParseFile(t *testing.T) {
 							}
 						}
 
-						for index, association := range expected.Associations {
-							if !bytes.Equal(response.Associations[index], association) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response.Associations[index]))
+						for _, association := range expected.Associations {
+							if !byteSliceExists(response.Associations, association) {
+								subtest.Errorf("bytes are not equal")
+							}
+						}
+
+						for _, dependency := range expected.Dependencies {
+							if !byteSliceExists(response.Dependencies, dependency) {
+								subtest.Errorf("bytes are not equal")
 							}
 						}
 					default:
@@ -724,6 +734,8 @@ func TestParseFile(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
 							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
+							} else if !bytes.Equal(response.Methods[index].Functionality, variable.Functionality) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
@@ -740,9 +752,15 @@ func TestParseFile(t *testing.T) {
 							}
 						}
 
-						for index, association := range expected.Associations {
-							if !bytes.Equal(response.Associations[index], association) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response.Associations[index]))
+						for _, association := range expected.Associations {
+							if !byteSliceExists(response.Associations, association) {
+								subtest.Errorf("bytes are not equal")
+							}
+						}
+
+						for _, dependency := range expected.Dependencies {
+							if !byteSliceExists(response.Dependencies, dependency) {
+								subtest.Errorf("bytes are not equal")
 							}
 						}
 					default:
@@ -805,6 +823,8 @@ func TestParseFile(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
 							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
+							} else if !bytes.Equal(response.Methods[index].Functionality, variable.Functionality) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
@@ -1153,6 +1173,16 @@ func TestRemoveSpacing(t *testing.T) {
 	var tests = []SpacingTest{
 		{
 			Input: []byte(`
+			public class Test {
+				if (  true     &&    true  &&    (  true   ||  false)   ) {}
+				if (  true     &&    true  &&(  true   ||  false)   ) {}
+				if (  true     ||    true  ||    (  true   &&  false)   ) {}
+				if (  true     ||    true  ||(  true   &&  false)   ) {}
+			}`),
+			Output: []byte("public class Test{if(true && true && (true || false)){}if(true && true && (true || false)){}if(true || true || (true && false)){}if(true || true || (true && false)){}}"),
+		},
+		{
+			Input: []byte(`
 				
 			public class Test {
 				private Test test = new Test [ 5 ];
@@ -1224,196 +1254,194 @@ func TestGetFileClasses(t *testing.T) {
 	// That's why other tests are commented out right now
 
 	type FileClassesTest struct {
-		Name   string
 		Input  types.File
 		Output *types.FileResponse
 		Err    error
 	}
 
 	var tests = []FileClassesTest{
-		// {
-		// 	Name: "valid - includes package, import, class",
-		// 	Input: types.File{
-		// 		Name:      "Test1",
-		// 		Extension: "java",
-		// 		Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test1{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		// 	},
-		// 	Output: &types.FileResponse{
-		// 		Package: []byte(""),
-		// 		Data: []any{
-		// 			types.JavaClass{
-		// 				Name: []byte("Test1"),
-		// 				Methods: []types.JavaMethod{
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("main"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters: []types.JavaMethodParameter{
-		// 							{
-		// 								Type: []byte("String[]"),
-		// 								Name: []byte("args"),
-		// 							},
-		// 						},
-		// 						Abstract: false,
-		// 						Static:   true,
-		// 						Final:    false,
-		// 					},
-		// 				},
-		// 				Associations: [][]byte{
-		// 					[]byte("void"),
-		// 					[]byte("String"),
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "valid - includes package, class",
-		// 	Input: types.File{
-		// 		Name:      "Test2",
-		// 		Extension: "java",
-		// 		Code:      []byte("package com.houarizegai.calculator;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		// 	},
-		// 	Output: &types.FileResponse{
-		// 		Package: []byte(""),
-		// 		Data: []any{
-		// 			types.JavaClass{
-		// 				Name: []byte("Test2"),
-		// 				Methods: []types.JavaMethod{
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("main"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters: []types.JavaMethodParameter{
-		// 							{
-		// 								Type: []byte("String[]"),
-		// 								Name: []byte("args"),
-		// 							},
-		// 						},
-		// 						Abstract: false,
-		// 						Static:   true,
-		// 						Final:    false,
-		// 					},
-		// 				},
-		// 				Associations: [][]byte{
-		// 					[]byte("void"),
-		// 					[]byte("String"),
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "valid - includes package, import",
-		// 	Input: types.File{
-		// 		Name:      "Test3",
-		// 		Extension: "java",
-		// 		Code:      []byte("import java.awt.Cursor;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		// 	},
-		// 	Output: &types.FileResponse{
-		// 		Package: []byte(""),
-		// 		Data: []any{
-		// 			types.JavaClass{
-		// 				Name: []byte("Test3"),
-		// 				Methods: []types.JavaMethod{
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("main"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters: []types.JavaMethodParameter{
-		// 							{
-		// 								Type: []byte("String[]"),
-		// 								Name: []byte("args"),
-		// 							},
-		// 						},
-		// 						Abstract: false,
-		// 						Static:   true,
-		// 						Final:    false,
-		// 					},
-		// 				},
-		// 				Associations: [][]byte{
-		// 					[]byte("void"),
-		// 					[]byte("String"),
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "valid - includes class",
-		// 	Input: types.File{
-		// 		Name:      "Test4",
-		// 		Extension: "java",
-		// 		Code:      []byte("public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		// 	},
-		// 	Output: &types.FileResponse{
-		// 		Package: []byte(""),
-		// 		Data: []any{
-		// 			types.JavaClass{
-		// 				Name: []byte("Test4"),
-		// 				Methods: []types.JavaMethod{
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("main"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters: []types.JavaMethodParameter{
-		// 							{
-		// 								Type: []byte("String[]"),
-		// 								Name: []byte("args"),
-		// 							},
-		// 						},
-		// 						Abstract: false,
-		// 						Static:   true,
-		// 						Final:    false,
-		// 					},
-		// 				},
-		// 				Associations: [][]byte{
-		// 					[]byte("void"),
-		// 					[]byte("String"),
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "valid - includes class, extends",
-		// 	Input: types.File{
-		// 		Name:      "Test5",
-		// 		Extension: "java",
-		// 		Code:      []byte("public class Test5 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-		// 	},
-		// 	Output: &types.FileResponse{
-		// 		Package: []byte(""),
-		// 		Data: []any{
-		// 			types.JavaClass{
-		// 				Name:    []byte("Test5"),
-		// 				Extends: [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
-		// 				Methods: []types.JavaMethod{
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("main"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters: []types.JavaMethodParameter{
-		// 							{
-		// 								Type: []byte("String[]"),
-		// 								Name: []byte("args"),
-		// 							},
-		// 						},
-		// 						Abstract: false,
-		// 						Static:   true,
-		// 						Final:    false,
-		// 					},
-		// 				},
-		// 				Associations: [][]byte{
-		// 					[]byte("void"),
-		// 					[]byte("String"),
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// },
 		{
-			Name: "valid - includes class, extends",
+			Input: types.File{
+				Name:      "Test1",
+				Extension: "java",
+				Code:      []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test1{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test1"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
+							},
+						},
+						Dependencies: [][]byte{
+							[]byte("void"),
+							[]byte("String"),
+						},
+					},
+				},
+			},
+		},
+		{
+			Input: types.File{
+				Name:      "Test2",
+				Extension: "java",
+				Code:      []byte("package com.houarizegai.calculator;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test2"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
+							},
+						},
+						Dependencies: [][]byte{
+							[]byte("void"),
+							[]byte("String"),
+						},
+					},
+				},
+			},
+		},
+		{
+			Input: types.File{
+				Name:      "Test3",
+				Extension: "java",
+				Code:      []byte("import java.awt.Cursor;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test3"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
+							},
+						},
+						Dependencies: [][]byte{
+							[]byte("void"),
+							[]byte("String"),
+						},
+					},
+				},
+			},
+		},
+		{
+			Input: types.File{
+				Name:      "Test4",
+				Extension: "java",
+				Code:      []byte("public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test4"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
+							},
+						},
+						Dependencies: [][]byte{
+							[]byte("void"),
+							[]byte("String"),
+						},
+					},
+				},
+			},
+		},
+		{
+			Input: types.File{
+				Name:      "Test5",
+				Extension: "java",
+				Code:      []byte("public class Test5 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name:    []byte("Test5"),
+						Extends: [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();System.out.println();"),
+							},
+						},
+						Dependencies: [][]byte{
+							[]byte("void"),
+							[]byte("String"),
+						},
+					},
+				},
+			},
+		},
+		{
 			Input: types.File{
 				Name:      "A",
 				Extension: "java",
@@ -1455,6 +1483,8 @@ func TestGetFileClasses(t *testing.T) {
 						},
 						Associations: [][]byte{
 							[]byte("boolean"),
+						},
+						Dependencies: [][]byte{
 							[]byte("void"),
 						},
 					},
@@ -1472,7 +1502,7 @@ func TestGetFileClasses(t *testing.T) {
 								Final:          false,
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 						},
 					},
@@ -1488,9 +1518,10 @@ func TestGetFileClasses(t *testing.T) {
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
+								Functionality:  []byte("System.out.println();"),
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 						},
 					},
@@ -1507,318 +1538,320 @@ func TestGetFileClasses(t *testing.T) {
 										Name: []byte("args"),
 									},
 								},
-								Abstract: false,
-								Static:   true,
-								Final:    false,
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println();Type1 var1 = new Type2(,new Type3());Type1 var2;ActionListener task = new ActionListener();boolean alreadyDisposed = false;public void actionPerformed(ActionEvent e);if(frame.isDisplayable());alreadyDisposed = true;frame.dispose();System.out.println();System.out.println();System.out.println(new int[][]{{20},{40}});"),
 							},
 						},
-						Associations: [][]byte{
+						Dependencies: [][]byte{
 							[]byte("void"),
 							[]byte("String"),
+							[]byte("boolean"),
+							[]byte("int"),
 							[]byte("Type1"),
 							[]byte("Type2"),
 							[]byte("Type3"),
 							[]byte("ActionListener"),
-							[]byte("boolean"),
 							[]byte("ActionEvent"),
 						},
 					},
 				},
 			},
 		},
-		// {
-		// 	Name: "valid - includes class, extends",
-		// 	Input: types.File{
-		// 		Name:      "A",
-		// 		Extension: "java",
-		// 		Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Map<String,String> var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
-		// 	},
-		// 	Output: &types.FileResponse{
-		// 		Package: []byte(""),
-		// 		Data: []any{
-		// 			types.JavaClass{
-		// 				Name:       []byte("Test"),
-		// 				Implements: nil,
-		// 				Extends:    nil,
-		// 				Variables:  nil,
-		// 				Methods: []types.JavaMethod{
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("TestVoid"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         false,
-		// 						Final:          false,
-		// 					},
-		// 				},
-		// 				Associations: [][]byte{
-		// 					[]byte("void"),
-		// 				},
-		// 			},
-		// 			types.JavaInterface{
-		// 				DefinedWithin: []byte("Test"),
-		// 				Name:          []byte("Yes"),
-		// 				Extends:       nil,
-		// 				Variables:     nil,
-		// 				Methods: []types.JavaMethod{
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("show"),
-		// 						AccessModifier: []byte(""),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         false,
-		// 						Final:          false,
-		// 					},
-		// 				},
-		// 				Associations: [][]byte{
-		// 					[]byte("void"),
-		// 				},
-		// 			},
-		// 			types.JavaClass{
-		// 				Name:       []byte("Testing"),
-		// 				Implements: [][]byte{[]byte("Test.Yes")},
-		// 				Extends:    nil,
-		// 				Variables:  nil,
-		// 				Methods: []types.JavaMethod{
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("show"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         false,
-		// 						Final:          false,
-		// 					},
-		// 				},
-		// 				Associations: [][]byte{
-		// 					[]byte("void"),
-		// 				},
-		// 			},
-		// 			types.JavaClass{
-		// 				Name:       []byte("A"),
-		// 				Implements: nil,
-		// 				Extends:    nil,
-		// 				Variables: []types.JavaVariable{
-		// 					{
-		// 						Type:           []byte("Test"),
-		// 						Name:           []byte("inner1"),
-		// 						Value:          []byte(""),
-		// 						AccessModifier: []byte(""),
-		// 						Static:         false,
-		// 						Final:          false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Testing"),
-		// 						Name:           []byte("inner2"),
-		// 						Value:          []byte("new Testing()"),
-		// 						AccessModifier: []byte("public"),
-		// 						Static:         false,
-		// 						Final:          false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Test.Yes"),
-		// 						Name:           []byte("inner3"),
-		// 						Value:          []byte("new Testing()"),
-		// 						AccessModifier: []byte("private"),
-		// 						Static:         true,
-		// 						Final:          false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Test.Yes"),
-		// 						Name:           []byte("inner4"),
-		// 						Value:          []byte("\"Hello\""),
-		// 						AccessModifier: []byte("protected"),
-		// 						Static:         false,
-		// 						Final:          true,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Test.Yes"),
-		// 						Name:           []byte("inner5"),
-		// 						Value:          []byte("null"),
-		// 						AccessModifier: []byte(""),
-		// 						Static:         true,
-		// 						Final:          true,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Test.Yes"),
-		// 						Name:           []byte("inner6"),
-		// 						Value:          []byte("null"),
-		// 						AccessModifier: []byte("protected"),
-		// 						Static:         true,
-		// 						Final:          true,
-		// 					},
-		// 				},
-		// 				Methods: []types.JavaMethod{
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("main"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters: []types.JavaMethodParameter{
-		// 							{
-		// 								Type: []byte("String[]"),
-		// 								Name: []byte("args"),
-		// 							},
-		// 						},
-		// 						Abstract: false,
-		// 						Static:   true,
-		// 						Final:    false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Testing"),
-		// 						Name:           []byte("function1"),
-		// 						AccessModifier: []byte(""),
-		// 						Parameters: []types.JavaMethodParameter{
-		// 							{
-		// 								Type: []byte("Test.Yes"),
-		// 								Name: []byte("var1"),
-		// 							},
-		// 							{
-		// 								Type: []byte("Map<String,String>"),
-		// 								Name: []byte("var2"),
-		// 							},
-		// 						},
-		// 						Abstract: false,
-		// 						Static:   false,
-		// 						Final:    false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Testing"),
-		// 						Name:           []byte("function2"),
-		// 						AccessModifier: []byte(""),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         false,
-		// 						Final:          false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("function3"),
-		// 						AccessModifier: []byte(""),
-		// 						Parameters:     nil,
-		// 						Abstract:       true,
-		// 						Static:         false,
-		// 						Final:          false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Testing"),
-		// 						Name:           []byte("function4"),
-		// 						AccessModifier: []byte(""),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         true,
-		// 						Final:          false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Testing"),
-		// 						Name:           []byte("function5"),
-		// 						AccessModifier: []byte(""),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         false,
-		// 						Final:          true,
-		// 					},
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("function6"),
-		// 						AccessModifier: []byte(""),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         true,
-		// 						Final:          true,
-		// 					},
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("function7"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters:     nil,
-		// 						Abstract:       true,
-		// 						Static:         false,
-		// 						Final:          false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Testing"),
-		// 						Name:           []byte("function8"),
-		// 						AccessModifier: []byte("private"),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         true,
-		// 						Final:          false,
-		// 					},
-		// 					{
-		// 						Type:           []byte("Testing"),
-		// 						Name:           []byte("function9"),
-		// 						AccessModifier: []byte("protected"),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         false,
-		// 						Final:          true,
-		// 					},
-		// 					{
-		// 						Type:           []byte("void"),
-		// 						Name:           []byte("function10"),
-		// 						AccessModifier: []byte("public"),
-		// 						Parameters:     nil,
-		// 						Abstract:       false,
-		// 						Static:         true,
-		// 						Final:          true,
-		// 					},
-		// 				},
-		// 				Associations: [][]byte{
-		// 					[]byte("Test"),
-		// 					[]byte("Testing"),
-		// 					[]byte("Test.Yes"),
-		// 					[]byte("void"),
-		// 					[]byte("String"),
-		// 					[]byte("Map"),
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "valid - includes package, import, class",
-		// 	Input: types.File{
-		// 		Name:      "Test8",
-		// 		Extension: "java",
-		// 		Code:      []byte("enum Test8{H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label = label;}}"),
-		// 	},
-		// 	Output: &types.FileResponse{
-		// 		Package: []byte(""),
-		// 		Data: []any{
-		// 			types.JavaEnum{},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "valid - includes package, import, class",
-		// 	Input: types.File{
-		// 		Name:      "Test8",
-		// 		Extension: "java",
-		// 		Code:      []byte("enum Test9{Hello,}"),
-		// 	},
-		// 	Output: &types.FileResponse{
-		// 		Package: []byte(""),
-		// 		Data: []any{
-		// 			types.JavaEnum{},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "valid - includes package, import, class",
-		// 	Input: types.File{
-		// 		Name:      "Test8",
-		// 		Extension: "java",
-		// 		Code:      []byte("enum Test10{Hello;}"),
-		// 	},
-		// 	Output: &types.FileResponse{
-		// 		Package: []byte(""),
-		// 		Data: []any{
-		// 			types.JavaEnum{},
-		// 		},
-		// 	},
-		// },
+		{
+			Input: types.File{
+				Name:      "A",
+				Extension: "java",
+				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Map<String,String> var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaClass{
+						Name:       []byte("Test"),
+						Implements: nil,
+						Extends:    nil,
+						Variables:  nil,
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("TestVoid"),
+								AccessModifier: []byte("public"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+							},
+						},
+						Dependencies: [][]byte{
+							[]byte("void"),
+						},
+					},
+					types.JavaInterface{
+						DefinedWithin: []byte("Test"),
+						Name:          []byte("Yes"),
+						Extends:       nil,
+						Variables:     nil,
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("show"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+							},
+						},
+						Dependencies: [][]byte{
+							[]byte("void"),
+						},
+					},
+					types.JavaClass{
+						Name:       []byte("Testing"),
+						Implements: [][]byte{[]byte("Test.Yes")},
+						Extends:    nil,
+						Variables:  nil,
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("show"),
+								AccessModifier: []byte("public"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+								Functionality:  []byte("System.out.println();"),
+							},
+						},
+						Dependencies: [][]byte{
+							[]byte("void"),
+						},
+					},
+					types.JavaClass{
+						Name:       []byte("A"),
+						Implements: nil,
+						Extends:    nil,
+						Variables: []types.JavaVariable{
+							{
+								Type:           []byte("Test"),
+								Name:           []byte("inner1"),
+								Value:          []byte(""),
+								AccessModifier: []byte(""),
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("inner2"),
+								Value:          []byte("new Testing()"),
+								AccessModifier: []byte("public"),
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Test.Yes"),
+								Name:           []byte("inner3"),
+								Value:          []byte("new Testing()"),
+								AccessModifier: []byte("private"),
+								Static:         true,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Test.Yes"),
+								Name:           []byte("inner4"),
+								Value:          []byte("\"Hello\""),
+								AccessModifier: []byte("protected"),
+								Static:         false,
+								Final:          true,
+							},
+							{
+								Type:           []byte("Test.Yes"),
+								Name:           []byte("inner5"),
+								Value:          []byte("null"),
+								AccessModifier: []byte(""),
+								Static:         true,
+								Final:          true,
+							},
+							{
+								Type:           []byte("Test.Yes"),
+								Name:           []byte("inner6"),
+								Value:          []byte("null"),
+								AccessModifier: []byte("protected"),
+								Static:         true,
+								Final:          true,
+							},
+						},
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("Test.Yes obj;Testing t = new Testing();obj = t;obj.show();"),
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function1"),
+								AccessModifier: []byte(""),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("Test.Yes"),
+										Name: []byte("var1"),
+									},
+									{
+										Type: []byte("Map<String,String>"),
+										Name: []byte("var2"),
+									},
+								},
+								Abstract: false,
+								Static:   false,
+								Final:    false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function2"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("void"),
+								Name:           []byte("function3"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       true,
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function4"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         true,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function5"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          true,
+							},
+							{
+								Type:           []byte("void"),
+								Name:           []byte("function6"),
+								AccessModifier: []byte(""),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         true,
+								Final:          true,
+							},
+							{
+								Type:           []byte("void"),
+								Name:           []byte("function7"),
+								AccessModifier: []byte("public"),
+								Parameters:     nil,
+								Abstract:       true,
+								Static:         false,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function8"),
+								AccessModifier: []byte("private"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         true,
+								Final:          false,
+							},
+							{
+								Type:           []byte("Testing"),
+								Name:           []byte("function9"),
+								AccessModifier: []byte("protected"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         false,
+								Final:          true,
+							},
+							{
+								Type:           []byte("void"),
+								Name:           []byte("function10"),
+								AccessModifier: []byte("public"),
+								Parameters:     nil,
+								Abstract:       false,
+								Static:         true,
+								Final:          true,
+							},
+						},
+						Associations: [][]byte{
+							[]byte("Test"),
+							[]byte("Testing"),
+							[]byte("Test.Yes"),
+						},
+						Dependencies: [][]byte{
+							[]byte("void"),
+							[]byte("String"),
+							[]byte("Map"),
+						},
+					},
+				},
+			},
+		},
+		{
+			Input: types.File{
+				Name:      "Test8",
+				Extension: "java",
+				Code:      []byte("enum Test8{H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label = label;}}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaEnum{},
+				},
+			},
+		},
+		{
+			Input: types.File{
+				Name:      "Test8",
+				Extension: "java",
+				Code:      []byte("enum Test9{Hello,}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaEnum{},
+				},
+			},
+		},
+		{
+			Input: types.File{
+				Name:      "Test8",
+				Extension: "java",
+				Code:      []byte("enum Test10{Hello;}"),
+			},
+			Output: &types.FileResponse{
+				Package: []byte(""),
+				Data: []any{
+					types.JavaEnum{},
+				},
+			},
+		},
 	}
 
 	for testIndex, tt := range tests {
@@ -1857,6 +1890,9 @@ func TestGetFileClasses(t *testing.T) {
 						} else if len(expected.Associations) != len(response.Associations) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Associations)), strconv.Itoa(len(response.Associations)))
 							subtest.FailNow()
+						} else if len(expected.Dependencies) != len(response.Dependencies) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Dependencies)), strconv.Itoa(len(response.Dependencies)))
+							subtest.FailNow()
 						}
 
 						for index, word := range expected.Extends {
@@ -1900,6 +1936,8 @@ func TestGetFileClasses(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
 							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
+							} else if !bytes.Equal(response.Methods[index].Functionality, variable.Functionality) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
@@ -1919,6 +1957,12 @@ func TestGetFileClasses(t *testing.T) {
 						for index, association := range expected.Associations {
 							if !bytes.Equal(response.Associations[index], association) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response.Associations[index]))
+							}
+						}
+
+						for index, dependency := range expected.Dependencies {
+							if !bytes.Equal(response.Dependencies[index], dependency) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(dependency), string(response.Dependencies[index]))
 							}
 						}
 					default:
@@ -1950,6 +1994,9 @@ func TestGetFileClasses(t *testing.T) {
 						} else if len(expected.Associations) != len(response.Associations) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Associations)), strconv.Itoa(len(response.Associations)))
 							subtest.FailNow()
+						} else if len(expected.Dependencies) != len(response.Dependencies) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Dependencies)), strconv.Itoa(len(response.Dependencies)))
+							subtest.FailNow()
 						}
 
 						for index, word := range expected.Extends {
@@ -1993,6 +2040,8 @@ func TestGetFileClasses(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
 							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
+							} else if !bytes.Equal(response.Methods[index].Functionality, variable.Functionality) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
@@ -2009,9 +2058,15 @@ func TestGetFileClasses(t *testing.T) {
 							}
 						}
 
-						for index, association := range expected.Associations {
-							if !bytes.Equal(response.Associations[index], association) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response.Associations[index]))
+						for _, association := range expected.Associations {
+							if !byteSliceExists(response.Associations, association) {
+								subtest.Errorf("bytes are not equal")
+							}
+						}
+
+						for _, dependency := range expected.Dependencies {
+							if !byteSliceExists(response.Dependencies, dependency) {
+								subtest.Errorf("bytes are not equal")
 							}
 						}
 					default:
@@ -2039,6 +2094,9 @@ func TestGetFileClasses(t *testing.T) {
 							subtest.FailNow()
 						} else if len(expected.Associations) != len(response.Associations) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Associations)), strconv.Itoa(len(response.Associations)))
+							subtest.FailNow()
+						} else if len(expected.Dependencies) != len(response.Dependencies) {
+							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Dependencies)), strconv.Itoa(len(response.Dependencies)))
 							subtest.FailNow()
 						}
 
@@ -2077,6 +2135,8 @@ func TestGetFileClasses(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
 							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
+							} else if !bytes.Equal(response.Methods[index].Functionality, variable.Functionality) {
+								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
@@ -2093,9 +2153,15 @@ func TestGetFileClasses(t *testing.T) {
 							}
 						}
 
-						for index, association := range expected.Associations {
-							if !bytes.Equal(response.Associations[index], association) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(association), string(response.Associations[index]))
+						for _, association := range expected.Associations {
+							if !byteSliceExists(response.Associations, association) {
+								subtest.Errorf("bytes are not equal")
+							}
+						}
+
+						for _, dependency := range expected.Dependencies {
+							if !byteSliceExists(response.Dependencies, dependency) {
+								subtest.Errorf("bytes are not equal")
 							}
 						}
 					default:
@@ -2193,13 +2259,13 @@ func TestGetClassRelationTypes(t *testing.T) {
 		Methods   []types.JavaMethod
 	}
 
-	type AssociationsTest struct {
+	type RelationTypesTest struct {
 		Input              Input
 		AssociationsOutput [][]byte
 		DependenciesOutput [][]byte
 	}
 
-	var tests = []AssociationsTest{
+	var tests = []RelationTypesTest{
 		{
 			Input{
 				Variables: []types.JavaVariable{
