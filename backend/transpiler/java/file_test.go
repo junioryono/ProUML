@@ -1174,12 +1174,22 @@ func TestRemoveSpacing(t *testing.T) {
 		{
 			Input: []byte(`
 			public class Test {
-				if (  true     &&    true  &&    (  true   ||  false)   ) {}
-				if (  true     &&    true  &&(  true   ||  false)   ) {}
+				if(  true     &&    true  &&    (  true   ||  false)   ) {}
+				if   (  true     &&    true  &&(  true   ||  false)   ) {}
 				if (  true     ||    true  ||    (  true   &&  false)   ) {}
 				if (  true     ||    true  ||(  true   &&  false)   ) {}
 			}`),
 			Output: []byte("public class Test{if(true && true && (true || false)){}if(true && true && (true || false)){}if(true || true || (true && false)){}if(true || true || (true && false)){}}"),
+		},
+		{
+			Input: []byte(`
+			package hello    ;
+			
+			@ Annotation
+			class Test {
+				String test = " @   "   "   ;
+			}`),
+			Output: []byte("package hello;@Annotation class Test{String test = \" @   \"   \";}"),
 		},
 		{
 			Input: []byte(`

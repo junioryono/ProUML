@@ -2,6 +2,7 @@ package java
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
@@ -99,88 +100,160 @@ func removeComments(text []byte) []byte {
 	return text
 }
 
+func ignoreQuotes(text *[]byte, function func(i int)) {
+	var (
+		currentStyle byte = NoQuote
+	)
+
+	for i := 0; i < len(*text); i++ {
+		if currentStyle == SingleQuote && (*text)[i] == SingleQuote ||
+			currentStyle == DoubleQuote && (*text)[i] == DoubleQuote ||
+			currentStyle == TickerQuote && (*text)[i] == TickerQuote {
+			currentStyle = NoQuote
+		} else if currentStyle == NoQuote {
+			if (*text)[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if (*text)[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if (*text)[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else {
+				function(i)
+			}
+		}
+	}
+}
+
+// else if text[i] == '\n' {
+// 	text[i] = ' '
+// } else if text[i] == '\t' {
+// 	text[i] = ' '
+// } else if text[i] == ' ' && i+1 < len(text) && text[i+1] == ' ' {
+// 	text = append(text[:i], text[i+1:]...)
+// }
+
 // Remove all extra spacing from code
 func removeSpacing(text []byte) []byte {
-	// TODO - Need to make sure these things arent being applied to strings
-	// NEED TO FIX THIS FOR IF STATEMENTS && (
-	// [^"^'*](?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)(?=([^'\\]*(\\.|'([^'\\]*\\.)*[^'\\]*'))*[^']*$)(?=([^`\\]*(\\.|`([^'\\]*\\.)*[^`\\]*`))*[^`]*$)
-	// [^"'`](?=\\"|"(?:\\"|[^"])*"|(\+))
-	// https://stackoverflow.com/questions/6462578/regex-to-match-all-instances-not-inside-quotes
 
-	// Remove all imports
-	REGEX_Imports := regexp.MustCompile(`[\s\S]*?import[\s\S]*?;[\s]*`)
-	text = REGEX_Imports.ReplaceAll(text, []byte(" "))
+	fmt.Printf("before: %s\n", string(text))
+
+	// // Remove all imports
+	// REGEX_Imports := regexp.MustCompile(`[\s\S]*?import[\s\S]*?;[\s]*` + ignoreQuotes)
+	// text = REGEX_Imports.ReplaceAll(text, []byte(" "))
 
 	// Replace all new lines with a space
-	REGEX_NewLine := regexp.MustCompile(`\r?\n|\r`)
-	text = REGEX_NewLine.ReplaceAll(text, []byte(" "))
+	ignoreQuotes(&text, func(i int) {
+		if text[i] == '\n' {
+			text[i] = ' '
+		}
+	})
+
+	// Replace all tabs with a space
+	ignoreQuotes(&text, func(i int) {
+		if text[i] == '\t' {
+			text[i] = ' '
+		}
+	})
 
 	// Replace all double spaces with a single space
-	REGEX_DoubleSpace := regexp.MustCompile(`\s\s+`)
-	text = REGEX_DoubleSpace.ReplaceAll(text, []byte(" "))
+	ignoreQuotes(&text, func(i int) {
+		if text[i] == ' ' {
+			endSpaceIndex := i
+
+			for j := i + 1; j < len(text); j++ {
+				if text[j] != ' ' {
+					break
+				}
+
+				endSpaceIndex++
+			}
+
+			if i != endSpaceIndex {
+				text = append(text[:i], text[endSpaceIndex+1:]...)
+			}
+		}
+	})
 
 	// Remove all spaces before and after ,
-	REGEX_CommaSpace := regexp.MustCompile(`\s*,\s*`)
-	text = REGEX_CommaSpace.ReplaceAll(text, []byte(","))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Remove all spaces before and after ;
-	REGEX_SemiColonSpace := regexp.MustCompile(`\s*;\s*`)
-	text = REGEX_SemiColonSpace.ReplaceAll(text, []byte(";"))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Remove all spaces before and after @
-	REGEX_AsperandSpace := regexp.MustCompile(`\s*@\s*`)
-	text = REGEX_AsperandSpace.ReplaceAll(text, []byte("@"))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Remove all spaces before and after [
-	REGEX_OpenBracketSpace := regexp.MustCompile(`\s*\[\s*`)
-	text = REGEX_OpenBracketSpace.ReplaceAll(text, []byte("["))
+	ignoreQuotes(&text, func(i int) {
 
+	})
+
+	// DO THIS ONE
 	// Remove all spaces before ]
-	REGEX_ClosedBracketSpace := regexp.MustCompile(`\s*\]`)
-	text = REGEX_ClosedBracketSpace.ReplaceAll(text, []byte("]"))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Remove all spaces before and after {
-	REGEX_OpenCurlySpace := regexp.MustCompile(`\s*{\s*`)
-	text = REGEX_OpenCurlySpace.ReplaceAll(text, []byte("{"))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Remove all spaces before and after }
-	REGEX_ClosedCurlySpace := regexp.MustCompile(`\s*}\s*`)
-	text = REGEX_ClosedCurlySpace.ReplaceAll(text, []byte("}"))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Remove all spaces before and after (
-	REGEX_OpenParenthesisSpace := regexp.MustCompile(`\s*\(\s*`)
-	text = REGEX_OpenParenthesisSpace.ReplaceAll(text, []byte("("))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Remove all spaces before and after )
-	REGEX_ClosedParenthesisSpace := regexp.MustCompile(`\s*\)\s*`)
-	text = REGEX_ClosedParenthesisSpace.ReplaceAll(text, []byte(")"))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Remove all spaces before and after <
-	REGEX_LeftArrowSpace := regexp.MustCompile(`\s*\<\s*`)
-	text = REGEX_LeftArrowSpace.ReplaceAll(text, []byte("<"))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Remove all spaces before and after >
-	REGEX_RightArrowSpace := regexp.MustCompile(`\s*\>\s*`)
-	text = REGEX_RightArrowSpace.ReplaceAll(text, []byte(">"))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Replace all double semicolons with just one
-	REGEX_DoubleSemiColon := regexp.MustCompile(`;{2,}`)
-	text = REGEX_DoubleSemiColon.ReplaceAll(text, []byte(";"))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Replace all "=", " =", and "= " with " = "
-	REGEX_EqualSpace := regexp.MustCompile(`[\s]*=[\s]*`)
-	text = REGEX_EqualSpace.ReplaceAll(text, []byte(" = "))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Replace all "&&", " &&", and "&& " with " && "
-	REGEX_AndSpace := regexp.MustCompile(`[\s]*&&[\s]*`)
-	text = REGEX_AndSpace.ReplaceAll(text, []byte(" && "))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Replace all "||", " ||", and "|| " with " || "
-	REGEX_OrSpace := regexp.MustCompile(`[\s]*\|\|[\s]*`)
-	text = REGEX_OrSpace.ReplaceAll(text, []byte(" || "))
+	ignoreQuotes(&text, func(i int) {
+
+	})
 
 	// Trim left and right spacing
 	text = bytes.TrimSpace(text)
+
+	fmt.Printf("after: %s\n", string(text))
 
 	return text
 }
@@ -396,7 +469,13 @@ func getEnumDeclarations(text []byte) [][]byte {
 			currentStyle == TickerQuote && text[i] == TickerQuote {
 			currentStyle = NoQuote
 		} else if currentStyle == NoQuote {
-			if text[i] == ClosedParenthesis {
+			if text[i] == SingleQuote {
+				currentStyle = SingleQuote
+			} else if text[i] == DoubleQuote {
+				currentStyle = DoubleQuote
+			} else if text[i] == TickerQuote {
+				currentStyle = TickerQuote
+			} else if text[i] == ClosedParenthesis {
 				parenthesisScope--
 			} else if sectionUsedParenthesis {
 				if text[i] == Comma {
