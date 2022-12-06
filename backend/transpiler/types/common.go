@@ -18,6 +18,7 @@ type File struct {
 
 type FileResponse struct {
 	Package []byte
+	Imports [][]byte
 	Data    []any // Holds JavaAbstract | JavaClass | JavaInterface | JavaEnum
 }
 

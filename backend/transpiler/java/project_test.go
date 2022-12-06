@@ -31,7 +31,7 @@ func TestProjectParse(t *testing.T) {
 
 func TestGetRelations(t *testing.T) {
 	type TestClassRelations struct {
-		Input  []types.FileResponse
+		Input  []types.FileResponse // TODO need to add imports
 		Output []types.Relation
 	}
 

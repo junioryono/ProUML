@@ -26,6 +26,7 @@ func ParseProject(files []types.File) types.Project {
 func getClassRelations(files []types.FileResponse) []types.Relation {
 	type Class struct {
 		Package []byte
+		Imports [][]byte
 		Data    any
 	}
 
@@ -35,6 +36,7 @@ func getClassRelations(files []types.FileResponse) []types.Relation {
 		for _, class := range file.Data {
 			classes = append(classes, Class{
 				Package: file.Package,
+				Imports: file.Imports,
 				Data:    class,
 			})
 		}

@@ -2,7 +2,6 @@ package java
 
 import (
 	"bytes"
-	"fmt"
 	"regexp"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
@@ -45,11 +44,13 @@ func parseFile(file types.File) types.FileResponse {
 	parsedText = removeComments(parsedText)
 	parsedText = removeSpacing(parsedText)
 	parsedText = removeAnnotations(parsedText)
+	packageImports := getPackageImports(parsedText)
 	packageName := getPackageName(parsedText)
 
-	classes := getFileClasses(file.Name, parsedText)
+	classes := getFileClasses(parsedText)
 
 	response.Package = packageName
+	response.Imports = packageImports
 	response.Data = append(response.Data, classes...)
 
 	return response
@@ -68,9 +69,10 @@ func removeComments(text []byte) []byte {
 	}
 
 	for i := 0; i < len(text); i++ {
-		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
 			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle == TickerQuote && text[i] == TickerQuote) &&
+			(i == 0 || text[i-1] != '\\') {
 			currentStyle = NoQuote
 		} else if currentStyle == NoQuote {
 			if text[i] == SingleQuote {
@@ -100,160 +102,351 @@ func removeComments(text []byte) []byte {
 	return text
 }
 
-func ignoreQuotes(text *[]byte, function func(i int)) {
-	var (
-		currentStyle byte = NoQuote
-	)
-
-	for i := 0; i < len(*text); i++ {
-		if currentStyle == SingleQuote && (*text)[i] == SingleQuote ||
-			currentStyle == DoubleQuote && (*text)[i] == DoubleQuote ||
-			currentStyle == TickerQuote && (*text)[i] == TickerQuote {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if (*text)[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if (*text)[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if (*text)[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else {
-				function(i)
-			}
-		}
-	}
-}
-
-// else if text[i] == '\n' {
-// 	text[i] = ' '
-// } else if text[i] == '\t' {
-// 	text[i] = ' '
-// } else if text[i] == ' ' && i+1 < len(text) && text[i+1] == ' ' {
-// 	text = append(text[:i], text[i+1:]...)
-// }
-
 // Remove all extra spacing from code
 func removeSpacing(text []byte) []byte {
-
-	fmt.Printf("before: %s\n", string(text))
-
 	// // Remove all imports
 	// REGEX_Imports := regexp.MustCompile(`[\s\S]*?import[\s\S]*?;[\s]*` + ignoreQuotes)
 	// text = REGEX_Imports.ReplaceAll(text, []byte(" "))
 
-	// Replace all new lines with a space
-	ignoreQuotes(&text, func(i int) {
-		if text[i] == '\n' {
-			text[i] = ' '
+	needsSpace := func(b byte) bool {
+		if b == '=' || b == '&' || b == '|' || b == ':' {
+			return true
 		}
-	})
 
-	// Replace all tabs with a space
-	ignoreQuotes(&text, func(i int) {
-		if text[i] == '\t' {
-			text[i] = ' '
+		return false
+	}
+
+	isSpace := func(b byte) bool {
+		if b == ' ' || b == '\t' || b == '\n' {
+			return true
 		}
-	})
 
-	// Replace all double spaces with a single space
-	ignoreQuotes(&text, func(i int) {
-		if text[i] == ' ' {
-			endSpaceIndex := i
+		return false
+	}
 
-			for j := i + 1; j < len(text); j++ {
-				if text[j] != ' ' {
+	replaceWithSpaceOrRemove := func(i *int, b byte) bool {
+		if text[*i] == b {
+			if (*i > 0 && text[*i-1] == ' ' && !(*i > 1 && needsSpace(text[*i-2]))) || (*i+1 < len(text) && isSpace(text[*i+1])) {
+				text = append(text[:*i], text[*i+1:]...)
+				*i--
+			} else {
+				text[*i] = ' '
+			}
+
+			return true
+		}
+
+		return false
+	}
+
+	replaceRepeatingWithSingleByte := func(i *int, b byte) bool {
+		if text[*i] == b {
+			endSpaceIndex := *i
+
+			for j := *i + 1; j < len(text); j++ {
+				if text[j] != b {
 					break
 				}
 
 				endSpaceIndex++
 			}
 
-			if i != endSpaceIndex {
-				text = append(text[:i], text[endSpaceIndex+1:]...)
+			if *i != endSpaceIndex {
+				text = append(text[:*i+1], text[endSpaceIndex+1:]...)
+				*i--
+				return true
 			}
 		}
-	})
 
-	// Remove all spaces before and after ,
-	ignoreQuotes(&text, func(i int) {
+		return false
+	}
 
-	})
+	removeSpaceBeforeAndAfterByte := func(i *int, b byte) bool {
+		if text[*i] == b {
+			changed := false
 
-	// Remove all spaces before and after ;
-	ignoreQuotes(&text, func(i int) {
+			if *i > 0 && text[*i-1] == ' ' && !(*i > 1 && needsSpace(text[*i-2])) {
+				text = append(text[:*i-1], text[*i:]...)
+				changed = true
+				*i--
+			}
 
-	})
+			if *i+1 < len(text) && isSpace(text[*i+1]) {
+				text = append(text[:*i+1], text[*i+2:]...)
+				changed = true
+				*i--
+			}
 
-	// Remove all spaces before and after @
-	ignoreQuotes(&text, func(i int) {
+			if changed {
+				return true
+			}
+		}
 
-	})
+		return false
+	}
 
-	// Remove all spaces before and after [
-	ignoreQuotes(&text, func(i int) {
+	removeSpaceBefore := func(i *int, b byte) bool {
+		if text[*i] == b && *i > 0 && text[*i-1] == ' ' && !(*i > 1 && needsSpace(text[*i-2])) {
+			text = append(text[:*i-1], text[*i:]...)
+			*i--
+			return true
+		}
 
-	})
+		return false
+	}
 
-	// DO THIS ONE
-	// Remove all spaces before ]
-	ignoreQuotes(&text, func(i int) {
+	ensureLeftAndRightSpacingAfterDoubleByte := func(i *int, b byte) bool {
+		if text[*i] == b && *i+1 < len(text) && text[*i+1] == b {
+			changed := false
 
-	})
+			if (*i == 0 || text[*i-1] != ' ') && (*i+2 >= len(text) || !isSpace(text[*i+2])) {
+				text = append(text[:*i+2], text[*i:]...)
+				text[*i] = ' '
+				text[*i+3] = ' '
+				*i -= 2
+				changed = true
+			} else if *i == 0 || text[*i-1] != ' ' {
+				text = append(text[:*i+1], text[*i:]...)
+				text[*i] = ' '
+				*i--
+				changed = true
+			} else if *i+2 >= len(text) || !isSpace(text[*i+2]) {
+				text = append(text[:*i+1], text[*i:]...)
+				text[*i+2] = ' '
+				*i--
+				changed = true
+			}
 
-	// Remove all spaces before and after {
-	ignoreQuotes(&text, func(i int) {
+			if changed {
+				return true
+			}
+		}
 
-	})
+		return false
+	}
 
-	// Remove all spaces before and after }
-	ignoreQuotes(&text, func(i int) {
+	ensureLeftAndRightSpacingAfterByte := func(i *int, b byte) bool {
+		if text[*i] != b ||
+			((*i > 0 && text[*i-1] == b) ||
+				(*i+1 < len(text) && text[*i+1] == b)) {
+			return false
+		}
 
-	})
+		if (*i == 0 || text[*i-1] != ' ') && (*i+1 >= len(text) || text[*i+1] != ' ') {
+			text = append(text[:*i+2], text[*i:]...)
+			text[*i] = ' '
+			text[*i+1] = b
+			text[*i+2] = ' '
+			return true
+		} else if *i == 0 || text[*i-1] != ' ' {
+			text = append(text[:*i+1], text[*i:]...)
+			text[*i] = ' '
+			return true
+		} else if *i+1 >= len(text) || text[*i+1] != ' ' {
+			text = append(text[:*i+1], text[*i:]...)
+			text[*i+1] = ' '
+			return true
+		}
 
-	// Remove all spaces before and after (
-	ignoreQuotes(&text, func(i int) {
+		return false
+	}
 
-	})
+	for i, f := 0, ignoreQuotes(&text); i < len(text); i++ {
+		isInsideQuotation := f(i)
+		if isInsideQuotation {
+			continue
+		}
 
-	// Remove all spaces before and after )
-	ignoreQuotes(&text, func(i int) {
+		// Replace all new lines with a space
+		ok := replaceWithSpaceOrRemove(&i, '\n')
+		if ok {
+			continue
+		}
 
-	})
+		// Replace all tabs with a space
+		ok = replaceWithSpaceOrRemove(&i, '\t')
+		if ok {
+			continue
+		}
 
-	// Remove all spaces before and after <
-	ignoreQuotes(&text, func(i int) {
+		// Replace all repeating spaces with just one
+		ok = replaceRepeatingWithSingleByte(&i, ' ')
+		if ok {
+			continue
+		}
 
-	})
+		// Replace all repeating semicolons with just one
+		ok = replaceRepeatingWithSingleByte(&i, ';')
+		if ok {
+			continue
+		}
 
-	// Remove all spaces before and after >
-	ignoreQuotes(&text, func(i int) {
+		// Remove space before and after *
+		ok = removeSpaceBeforeAndAfterByte(&i, '*')
+		if ok {
+			continue
+		}
 
-	})
+		// Remove space before and after ,
+		ok = removeSpaceBeforeAndAfterByte(&i, ',')
+		if ok {
+			continue
+		}
 
-	// Replace all double semicolons with just one
-	ignoreQuotes(&text, func(i int) {
+		// Remove space before and after ;
+		ok = removeSpaceBeforeAndAfterByte(&i, ';')
+		if ok {
+			continue
+		}
 
-	})
+		// Remove all spaces before and after @
+		ok = removeSpaceBeforeAndAfterByte(&i, '@')
+		if ok {
+			continue
+		}
 
-	// Replace all "=", " =", and "= " with " = "
-	ignoreQuotes(&text, func(i int) {
+		// Remove all spaces before and after [
+		ok = removeSpaceBeforeAndAfterByte(&i, '[')
+		if ok {
+			continue
+		}
 
-	})
+		// Remove all spaces before and after {
+		ok = removeSpaceBeforeAndAfterByte(&i, '{')
+		if ok {
+			continue
+		}
 
-	// Replace all "&&", " &&", and "&& " with " && "
-	ignoreQuotes(&text, func(i int) {
+		// Remove all spaces before and after }
+		ok = removeSpaceBeforeAndAfterByte(&i, '}')
+		if ok {
+			continue
+		}
 
-	})
+		// Remove all spaces before and after (
+		ok = removeSpaceBeforeAndAfterByte(&i, '(')
+		if ok {
+			continue
+		}
 
-	// Replace all "||", " ||", and "|| " with " || "
-	ignoreQuotes(&text, func(i int) {
+		// Remove all spaces before and after )
+		ok = removeSpaceBeforeAndAfterByte(&i, ')')
+		if ok {
+			continue
+		}
 
-	})
+		// Remove all spaces before and after <
+		ok = removeSpaceBeforeAndAfterByte(&i, '<')
+		if ok {
+			continue
+		}
+
+		// Remove all spaces before and after >
+		ok = removeSpaceBeforeAndAfterByte(&i, '>')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after -
+		ok = removeSpaceBeforeAndAfterByte(&i, '-')
+		if ok {
+			continue
+		}
+
+		// Remove all spaces before ]
+		ok = removeSpaceBefore(&i, ']')
+		if ok {
+			continue
+		}
+
+		// Replace all "==", " ==", and "== " with " == "
+		ok = ensureLeftAndRightSpacingAfterDoubleByte(&i, '=')
+		if ok {
+			continue
+		}
+
+		// Replace all "&&", " &&", and "&& " with " && "
+		ok = ensureLeftAndRightSpacingAfterDoubleByte(&i, '&')
+		if ok {
+			continue
+		}
+
+		// Replace all "||", " ||", and "|| " with " || "
+		ok = ensureLeftAndRightSpacingAfterDoubleByte(&i, '|')
+		if ok {
+			continue
+		}
+
+		// Replace all "::", " ::", and ":: " with " :: "
+		ok = ensureLeftAndRightSpacingAfterDoubleByte(&i, ':')
+		if ok {
+			continue
+		}
+
+		// Replace all "=", " =", and "= " with " = "
+		ok = ensureLeftAndRightSpacingAfterByte(&i, '=')
+		if ok {
+			continue
+		}
+
+		// Replace all "&", " &", and "& " with " & "
+		ok = ensureLeftAndRightSpacingAfterByte(&i, '&')
+		if ok {
+			continue
+		}
+
+		// Replace all "|", " |", and "| " with " | "
+		ok = ensureLeftAndRightSpacingAfterByte(&i, '|')
+		if ok {
+			continue
+		}
+
+		// Replace all ":", " :", and ": " with " : "
+		ensureLeftAndRightSpacingAfterByte(&i, ':')
+	}
+
+	// ALL POSSIBLE LAMBDA CALLS
+	// Replace all "->" with ";" TODO
+	// Integer test = (int x, int y) -> (x + y) / (x - y);
+	// Integer test = (int x) -> x + x;
+	// Integer test = (x) -> (x + x);
+	// Integer test = (x) -> x + x;
+	// Integer test = x -> x + x;
+	// Integer test = x -> (x + x);
+	// Integer test = () -> 7;
+	// (parameter1, parameter2) -> { code block }
+
+	// var numberOfValidOpenCurlies = 0
+	// for i := 0; i < len(method.Functionality); i++ {
+	// 	if (currentStyle == SingleQuote && method.Functionality[i] == SingleQuote ||
+	// 		currentStyle == DoubleQuote && method.Functionality[i] == DoubleQuote ||
+	// 		currentStyle == TickerQuote && method.Functionality[i] == TickerQuote) &&
+	// 		(i == 0 || text[i-1] != '\\') {
+	// 		currentStyle = NoQuote
+	// 	} else if currentStyle == NoQuote {
+	// 		if method.Functionality[i] == SingleQuote {
+	// 			currentStyle = SingleQuote
+	// 		} else if method.Functionality[i] == DoubleQuote {
+	// 			currentStyle = DoubleQuote
+	// 		} else if method.Functionality[i] == TickerQuote {
+	// 			currentStyle = TickerQuote
+	// 		} else if i+1 < len(method.Functionality) &&
+	// 			method.Functionality[i] == ClosedParenthesis &&
+	// 			method.Functionality[i+1] == OpenCurly {
+	// 			method.Functionality[i+1] = SemiColon
+	// 			continue
+	// 		} else if numberOfValidOpenCurlies == 0 && method.Functionality[i] == ClosedCurly {
+	// 			method.Functionality[i] = SemiColon
+	// 		} else if method.Functionality[i] == OpenCurly {
+	// 			numberOfValidOpenCurlies++
+	// 		} else if method.Functionality[i] == ClosedCurly {
+	// 			numberOfValidOpenCurlies--
+	// 		}
+	// 	}
+	// }
 
 	// Trim left and right spacing
 	text = bytes.TrimSpace(text)
-
-	fmt.Printf("after: %s\n", string(text))
 
 	return text
 }
@@ -273,9 +466,10 @@ func removeAnnotations(text []byte) []byte {
 	}
 
 	for i := 0; i < len(text); i++ {
-		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
 			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle == TickerQuote && text[i] == TickerQuote) &&
+			(i == 0 || text[i-1] != '\\') {
 			currentStyle = NoQuote
 		} else if currentStyle == NoQuote {
 			if text[i] == SingleQuote {
@@ -307,6 +501,38 @@ func removeAnnotations(text []byte) []byte {
 	}
 
 	return text
+}
+
+func getPackageImports(text []byte) [][]byte {
+	var (
+		response             [][]byte
+		importNameStartIndex int = -1
+	)
+
+	for i := 0; i < len(text); i++ {
+		if text[i] == OpenCurly {
+			break
+		}
+
+		if importNameStartIndex != -1 && text[i] == SemiColon {
+			response = append(response, text[importNameStartIndex:i])
+			continue
+		}
+
+		if i+7 < len(text) &&
+			(i == 0 || text[i-1] == SemiColon) &&
+			text[i] == 'i' &&
+			text[i+1] == 'm' &&
+			text[i+2] == 'p' &&
+			text[i+3] == 'o' &&
+			text[i+4] == 'r' &&
+			text[i+5] == 't' &&
+			text[i+6] == Space {
+			importNameStartIndex = i + 7
+		}
+	}
+
+	return response
 }
 
 // Get package name from code if one exists
@@ -348,7 +574,7 @@ func getPackageName(text []byte) []byte {
 	return text
 }
 
-func getFileClasses(fileName string, text []byte) []any {
+func getFileClasses(text []byte) []any {
 	// Search for file name
 	// Example return: "public class Test5"
 	var (
@@ -464,9 +690,10 @@ func getEnumDeclarations(text []byte) [][]byte {
 	)
 
 	for i := 0; i < textLength; i++ {
-		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
 			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle == TickerQuote && text[i] == TickerQuote) &&
+			(i == 0 || text[i-1] != '\\') {
 			currentStyle = NoQuote
 		} else if currentStyle == NoQuote {
 			if text[i] == SingleQuote {
@@ -521,9 +748,10 @@ func getInnerClasses(classesText *[]types.JavaClassText, text []byte, isNested b
 	}
 
 	for i := 0; i < len(text); i++ {
-		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
 			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle == TickerQuote && text[i] == TickerQuote) &&
+			(i == 0 || text[i-1] != '\\') {
 			currentStyle = NoQuote
 		} else if currentStyle == NoQuote {
 			if text[i] == SingleQuote {
@@ -579,9 +807,10 @@ func getInnerClasses(classesText *[]types.JavaClassText, text []byte, isNested b
 										)
 
 										for k := index; k < len(previousInnerText); k++ {
-											if currentInnerStyle == SingleQuote && previousInnerText[k] == SingleQuote ||
+											if (currentInnerStyle == SingleQuote && previousInnerText[k] == SingleQuote ||
 												currentInnerStyle == DoubleQuote && previousInnerText[k] == DoubleQuote ||
-												currentInnerStyle == TickerQuote && previousInnerText[k] == TickerQuote {
+												currentInnerStyle == TickerQuote && previousInnerText[k] == TickerQuote) &&
+												(i == 0 || text[i-1] != '\\') {
 												currentInnerStyle = NoQuote
 											} else if currentInnerStyle == NoQuote {
 												if previousInnerText[k] == SingleQuote {
@@ -676,9 +905,10 @@ func splitVariablesAndMethods(t []byte) [][]byte {
 	}
 
 	for i := 0; i < len(text); i++ {
-		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
 			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle == TickerQuote && text[i] == TickerQuote) &&
+			(i == 0 || text[i-1] != '\\') {
 			currentStyle = NoQuote
 		} else if currentStyle == NoQuote {
 			if text[i] == SingleQuote {
@@ -829,9 +1059,10 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		// Type var9 = (true == true) || (true == false)
 
 		for i := 0; i < len(vSText); i++ {
-			if currentStyle == SingleQuote && vSText[i] == SingleQuote ||
+			if (currentStyle == SingleQuote && vSText[i] == SingleQuote ||
 				currentStyle == DoubleQuote && vSText[i] == DoubleQuote ||
-				currentStyle == TickerQuote && vSText[i] == TickerQuote {
+				currentStyle == TickerQuote && vSText[i] == TickerQuote) &&
+				(i == 0 || text[i-1] != '\\') {
 				currentStyle = NoQuote
 			} else if currentStyle == NoQuote {
 				if vSText[i] == SingleQuote {
@@ -886,9 +1117,10 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	)
 
 	for i := openParamIndex; i < len(text); i++ {
-		if currentStyle == SingleQuote && text[i] == SingleQuote ||
+		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
 			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote {
+			currentStyle == TickerQuote && text[i] == TickerQuote) &&
+			(i == 0 || text[i-1] != '\\') {
 			currentStyle = NoQuote
 		} else if currentStyle == NoQuote {
 			if text[i] == SingleQuote {
@@ -915,9 +1147,10 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 
 	var numberOfValidOpenCurlies = 0
 	for i := 0; i < len(method.Functionality); i++ {
-		if currentStyle == SingleQuote && method.Functionality[i] == SingleQuote ||
+		if (currentStyle == SingleQuote && method.Functionality[i] == SingleQuote ||
 			currentStyle == DoubleQuote && method.Functionality[i] == DoubleQuote ||
-			currentStyle == TickerQuote && method.Functionality[i] == TickerQuote {
+			currentStyle == TickerQuote && method.Functionality[i] == TickerQuote) &&
+			(i == 0 || text[i-1] != '\\') {
 			currentStyle = NoQuote
 		} else if currentStyle == NoQuote {
 			if method.Functionality[i] == SingleQuote {
@@ -1123,9 +1356,10 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 		)
 
 		for i := 0; i < len(text); i++ {
-			if currentValueStyle == SingleQuote && text[i] == SingleQuote ||
+			if (currentValueStyle == SingleQuote && text[i] == SingleQuote ||
 				currentValueStyle == DoubleQuote && text[i] == DoubleQuote ||
-				currentValueStyle == TickerQuote && text[i] == TickerQuote {
+				currentValueStyle == TickerQuote && text[i] == TickerQuote) &&
+				(i == 0 || text[i-1] != '\\') {
 				currentValueStyle = NoQuote
 			} else if currentValueStyle == NoQuote {
 				if newClassStartIndex != -1 && (text[i] == OpenParenthesis || text[i] == OpenBracket) {
@@ -1156,6 +1390,12 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 		for i := 0; i < len(lines); i++ {
 			isIfStatement := bytes.HasPrefix(lines[i], []byte("if("))
 			isElseIfStatement := bytes.HasPrefix(lines[i], []byte("else if("))
+			// TODO
+			// if (p.getAge() > age)
+			// if (p.getAge() >= age)
+			// TODO for loops
+			// for (Person p : roster) {}
+			// for (int i = 0; i < people.length; i++) {}
 
 			if isIfStatement || isElseIfStatement {
 				if isIfStatement {
@@ -1193,7 +1433,8 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 						(lines[i][j+1] == OrCondition && lines[i][j+2] == OrCondition)) {
 					lines = append(lines, lines[i][j+4:])
 					lines[i] = lines[i][0:j]
-				} else if j+2 < len(lines[i]) && lines[i][j] == Space && lines[i][j+1] == EqualSign && lines[i][j+2] == Space {
+				} else if j+2 < len(lines[i]) && lines[i][j] == Space && lines[i][j+2] == Space &&
+					(lines[i][j+1] == EqualSign || lines[i][j+1] == AndCondition || lines[i][j+1] == OrCondition) {
 					lines = append(lines, lines[i][j+3:])
 					lines[i] = lines[i][0:j]
 				}
@@ -1273,4 +1514,32 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 	}
 
 	return associations, dependencies
+}
+
+// Returns isInsideQuotation
+func ignoreQuotes(text *[]byte) func(i int) bool {
+	var currentStyle byte = NoQuote
+
+	return func(i int) (isInsideQuotation bool) {
+		if (currentStyle == SingleQuote && (*text)[i] == SingleQuote ||
+			currentStyle == DoubleQuote && (*text)[i] == DoubleQuote ||
+			currentStyle == TickerQuote && (*text)[i] == TickerQuote) &&
+			(i == 0 || (*text)[i-1] != '\\') {
+			currentStyle = NoQuote
+			return true
+		}
+
+		if (*text)[i] == SingleQuote {
+			currentStyle = SingleQuote
+			return true
+		} else if (*text)[i] == DoubleQuote {
+			currentStyle = DoubleQuote
+			return true
+		} else if (*text)[i] == TickerQuote {
+			currentStyle = TickerQuote
+			return true
+		}
+
+		return currentStyle != NoQuote
+	}
 }
