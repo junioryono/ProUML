@@ -195,62 +195,6 @@ func removeSpacing(text []byte) []byte {
 		return false
 	}
 
-	ensureLeftAndRightSpacingAfterDoubleByte := func(i *int, b byte) bool {
-		if text[*i] == b && *i+1 < len(text) && text[*i+1] == b {
-			changed := false
-
-			if (*i == 0 || text[*i-1] != ' ') && (*i+2 >= len(text) || !isSpace(text[*i+2])) {
-				text = append(text[:*i+2], text[*i:]...)
-				text[*i] = ' '
-				text[*i+3] = ' '
-				*i -= 2
-				changed = true
-			} else if *i == 0 || text[*i-1] != ' ' {
-				text = append(text[:*i+1], text[*i:]...)
-				text[*i] = ' '
-				*i--
-				changed = true
-			} else if *i+2 >= len(text) || !isSpace(text[*i+2]) {
-				text = append(text[:*i+1], text[*i:]...)
-				text[*i+2] = ' '
-				*i--
-				changed = true
-			}
-
-			if changed {
-				return true
-			}
-		}
-
-		return false
-	}
-
-	ensureLeftAndRightSpacingAfterByte := func(i *int, b byte) bool {
-		if text[*i] != b ||
-			((*i > 0 && text[*i-1] == b) ||
-				(*i+1 < len(text) && text[*i+1] == b)) {
-			return false
-		}
-
-		if (*i == 0 || text[*i-1] != ' ') && (*i+1 >= len(text) || text[*i+1] != ' ') {
-			text = append(text[:*i+2], text[*i:]...)
-			text[*i] = ' '
-			text[*i+1] = b
-			text[*i+2] = ' '
-			return true
-		} else if *i == 0 || text[*i-1] != ' ' {
-			text = append(text[:*i+1], text[*i:]...)
-			text[*i] = ' '
-			return true
-		} else if *i+1 >= len(text) || text[*i+1] != ' ' {
-			text = append(text[:*i+1], text[*i:]...)
-			text[*i+1] = ' '
-			return true
-		}
-
-		return false
-	}
-
 	for i, f := 0, ignoreQuotes(&text); i < len(text); i++ {
 		isInsideQuotation := f(i)
 		if isInsideQuotation {
@@ -289,6 +233,18 @@ func removeSpacing(text []byte) []byte {
 
 		// Remove space before and after ,
 		ok = removeSpaceBeforeAndAfterByte(&i, ',')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after =
+		ok = removeSpaceBeforeAndAfterByte(&i, '=')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after :
+		ok = removeSpaceBeforeAndAfterByte(&i, ':')
 		if ok {
 			continue
 		}
@@ -353,56 +309,56 @@ func removeSpacing(text []byte) []byte {
 			continue
 		}
 
+		// Remove space before and after +
+		ok = removeSpaceBeforeAndAfterByte(&i, '+')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after ~
+		ok = removeSpaceBeforeAndAfterByte(&i, '~')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after !
+		ok = removeSpaceBeforeAndAfterByte(&i, '!')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after |
+		ok = removeSpaceBeforeAndAfterByte(&i, '|')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after /
+		ok = removeSpaceBeforeAndAfterByte(&i, '/')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after %
+		ok = removeSpaceBeforeAndAfterByte(&i, '%')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after ^
+		ok = removeSpaceBeforeAndAfterByte(&i, '^')
+		if ok {
+			continue
+		}
+
+		// Remove space before and after ^
+		ok = removeSpaceBeforeAndAfterByte(&i, '&')
+		if ok {
+			continue
+		}
+
 		// Remove all spaces before ]
-		ok = removeSpaceBefore(&i, ']')
-		if ok {
-			continue
-		}
-
-		// Replace all "==", " ==", and "== " with " == "
-		ok = ensureLeftAndRightSpacingAfterDoubleByte(&i, '=')
-		if ok {
-			continue
-		}
-
-		// Replace all "&&", " &&", and "&& " with " && "
-		ok = ensureLeftAndRightSpacingAfterDoubleByte(&i, '&')
-		if ok {
-			continue
-		}
-
-		// Replace all "||", " ||", and "|| " with " || "
-		ok = ensureLeftAndRightSpacingAfterDoubleByte(&i, '|')
-		if ok {
-			continue
-		}
-
-		// Replace all "::", " ::", and ":: " with " :: "
-		ok = ensureLeftAndRightSpacingAfterDoubleByte(&i, ':')
-		if ok {
-			continue
-		}
-
-		// Replace all "=", " =", and "= " with " = "
-		ok = ensureLeftAndRightSpacingAfterByte(&i, '=')
-		if ok {
-			continue
-		}
-
-		// Replace all "&", " &", and "& " with " & "
-		ok = ensureLeftAndRightSpacingAfterByte(&i, '&')
-		if ok {
-			continue
-		}
-
-		// Replace all "|", " |", and "| " with " | "
-		ok = ensureLeftAndRightSpacingAfterByte(&i, '|')
-		if ok {
-			continue
-		}
-
-		// Replace all ":", " :", and ": " with " : "
-		ensureLeftAndRightSpacingAfterByte(&i, ':')
+		removeSpaceBefore(&i, ']')
 	}
 
 	// ALL POSSIBLE LAMBDA CALLS
@@ -415,6 +371,10 @@ func removeSpacing(text []byte) []byte {
 	// Integer test = x -> (x + x);
 	// Integer test = () -> 7;
 	// String s = invoke(() -> "done");
+
+	// All equality sign will have a space before and after them except for < and >
+	// Boolean t = 5 >= 5
+	// Boolean t = 5>5
 
 	// Use Aggregate Operations That Accept Lambda Expressions as Parameters
 	// roster

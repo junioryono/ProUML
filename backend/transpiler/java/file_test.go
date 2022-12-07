@@ -1055,6 +1055,35 @@ func TestRemoveSpacing(t *testing.T) {
 		{
 			Input: []byte(`
 			public class Test {
+				Integer test = (int x, int y) -> (x + y) / (x - y);
+				Integer test = (int x) -> x + x;
+				Integer test = (x) -> (x + x);
+				Integer test = (x) -> x + x;
+				Integer test = x -> x + x;
+				Integer test = x -> (x + x);
+				Integer test = () -> 7;
+				String s = invoke(() -> 'done');
+			}`),
+			Output: []byte("public class Test{Integer test=(int x,int y)->(x+y)/(x-y);Integer test=(int x)->x+x;Integer test=(x)->(x+x);Integer test=(x)->x+x;Integer test=x->x+x;Integer test=x->(x+x);Integer test=()->7;String s=invoke(()->'done');}"),
+		},
+		{
+			Input: []byte(`
+			public class Test {
+				button.addActionListener(e -> System.out.println('Hello'));
+				button.addActionListener(e -> {
+					System.out.println('Hello');
+					System.out.println('Hello');
+				});
+				button.addActionListener((e) -> {
+					System.out.println('Hello');
+					System.out.println('Hello');
+				});
+			}`),
+			Output: []byte("public class Test{button.addActionListener(e->System.out.println('Hello'));button.addActionListener(e->{System.out.println('Hello');System.out.println('Hello');});button.addActionListener((e)->{System.out.println('Hello');System.out.println('Hello');});}"),
+		},
+		{
+			Input: []byte(`
+			public class Test {
 
 				word;;;;; , double     , the      , 
 				word;;     ,    double        , the         ,  
@@ -1073,7 +1102,7 @@ func TestRemoveSpacing(t *testing.T) {
 				Hello= Yes
 				Hello=Yes
 			}`),
-			Output: []byte("public class Test{word;,double,the,word;,double,the,the;comma;the;yelp;hello;the@comma@the@yelp@hello@the)comma)the(yelp)hello(\"   Hello\\\"   \" \"   Yes   \" c == v == v c == d Hello == Yes Hello = Yes Hello = Yes Hello = Yes Hello = Yes}"),
+			Output: []byte("public class Test{word;,double,the,word;,double,the,the;comma;the;yelp;hello;the@comma@the@yelp@hello@the)comma)the(yelp)hello(\"   Hello\\\"   \" \"   Yes   \" c==v==v c==d Hello==Yes Hello=Yes Hello=Yes Hello=Yes Hello=Yes}"),
 		},
 		{
 			Input: []byte(`
@@ -1083,7 +1112,7 @@ func TestRemoveSpacing(t *testing.T) {
 				if (  true     ||    true  ||    (  true   &&  false)   ) {}
 				if (  true     ||    true  ||(  true   &&  false)   ) {}
 			}`),
-			Output: []byte("public class Test{if(true && true && (true || false)){}if(true && true && (true || false)){}if(true || true || (true && false)){}if(true || true || (true && false)){}}"),
+			Output: []byte("public class Test{if(true&&true&&(true||false)){}if(true&&true&&(true||false)){}if(true||true||(true&&false)){}if(true||true||(true&&false)){}}"),
 		},
 		{
 			Input: []byte(`
@@ -1093,7 +1122,7 @@ func TestRemoveSpacing(t *testing.T) {
 			class Test {
 				String test = " @   \"   "   ;
 			}`),
-			Output: []byte("package hello;@Annotation class Test{String test = \" @   \\\"   \";}"),
+			Output: []byte("package hello;@Annotation class Test{String test=\" @   \\\"   \";}"),
 		},
 		{
 			Input: []byte(`
@@ -1109,7 +1138,7 @@ func TestRemoveSpacing(t *testing.T) {
 				}
 
 										}   `),
-			Output: []byte("public class Test{private Test test = new Test[5];public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+			Output: []byte("public class Test{private Test test=new Test[5];public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 		},
 		{
 			Input: []byte(`
@@ -1131,23 +1160,23 @@ func TestRemoveSpacing(t *testing.T) {
 
 				void Test3(  String  var1  );
 			}`),
-			Output: []byte("public class Test2{String var1;String var2 = \"Hello\";String var3 = \"Hello\",var4;String var5 = \"Hello\",var6 = \"Hello\",var7;List<ClassName>;List<ClassName<ClassName>>;List<ClassName1,ClassName2>;Test2(){this.var4 = \"J\";System.out.println(\"Hello\");}void Test3(String var1);}"),
+			Output: []byte("public class Test2{String var1;String var2=\"Hello\";String var3=\"Hello\",var4;String var5=\"Hello\",var6=\"Hello\",var7;List<ClassName>;List<ClassName<ClassName>>;List<ClassName1,ClassName2>;Test2(){this.var4=\"J\";System.out.println(\"Hello\");}void Test3(String var1);}"),
 		},
 		{
 			Input:  []byte("import java.util.*  ;     @   Annotation  {qi = \"ddd\", qd  }  class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
-			Output: []byte("import java.util.*;@Annotation{qi = \"ddd\",qd}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Output: []byte("import java.util.*;@Annotation{qi=\"ddd\",qd}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 		},
 		{
 			Input:  []byte("import java.util.*  ;     @   Annotation  (qi = \"ddd\", qd  )  class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
-			Output: []byte("import java.util.*;@Annotation(qi = \"ddd\",qd)class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Output: []byte("import java.util.*;@Annotation(qi=\"ddd\",qd)class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 		},
 		{
 			Input:  []byte("import java.util.*  ;     @   Annotation    class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
-			Output: []byte("import java.util.*;@Annotation class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Output: []byte("import java.util.*;@Annotation class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 		},
 		{
 			Input:  []byte("import java.util.*;class Test{public static void main(String[] args   ,  Test hello ){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
-			Output: []byte("import java.util.*;class Test{public static void main(String[] args,Test hello){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Output: []byte("import java.util.*;class Test{public static void main(String[] args,Test hello){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 		},
 	}
 
