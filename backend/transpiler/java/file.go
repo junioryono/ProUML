@@ -414,7 +414,28 @@ func removeSpacing(text []byte) []byte {
 	// Integer test = x -> x + x;
 	// Integer test = x -> (x + x);
 	// Integer test = () -> 7;
-	// (parameter1, parameter2) -> { code block }
+	// String s = invoke(() -> "done");
+
+	// Use Aggregate Operations That Accept Lambda Expressions as Parameters
+	// roster
+	// .stream()
+	// .filter(
+	//     p -> p.getGender() == Person.Sex.MALE
+	//         && p.getAge() >= 18
+	//         && p.getAge() <= 25)
+	// .map(p -> p.getEmailAddress())
+
+	// Another issue; semi related; new function is opening inside parameters
+	// btn.setOnAction(new EventHandler<ActionEvent>() {
+	// 	@Override
+	// 	public void handle(ActionEvent event) {
+	// 		System.out.println("Hello World!");
+	// 	}
+	// });
+
+	// btn.setOnAction(
+	// 	event -> System.out.println("Hello World!")
+	//   );
 
 	// var numberOfValidOpenCurlies = 0
 	// for i := 0; i < len(method.Functionality); i++ {
