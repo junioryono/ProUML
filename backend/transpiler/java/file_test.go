@@ -208,7 +208,7 @@ func TestParseFile(t *testing.T) {
 			Input: types.File{
 				Name:      "A",
 				Extension: "java",
-				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 			},
 			Output: &types.FileResponse{
 				Package: []byte(""),
@@ -286,7 +286,7 @@ func TestParseFile(t *testing.T) {
 								Abstract:      false,
 								Static:        true,
 								Final:         false,
-								Functionality: []byte("Test.Yes obj;Testing t = new Testing();obj = t;obj.show();"),
+								Functionality: []byte("Test.Yes obj;Testing t=new Testing();obj=t;obj.show();"),
 							},
 						},
 						Dependencies: [][]byte{
@@ -303,7 +303,7 @@ func TestParseFile(t *testing.T) {
 			Input: types.File{
 				Name:      "A",
 				Extension: "java",
-				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
+				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2=new Testing();private static Test.Yes inner3=new Testing();protected final Test.Yes inner4=\"Hello\";static final Test.Yes inner5 =null;protected static final Test.Yes inner6=null;public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
 			},
 			Output: &types.FileResponse{
 				Package: []byte(""),
@@ -440,7 +440,7 @@ func TestParseFile(t *testing.T) {
 								Abstract:      false,
 								Static:        true,
 								Final:         false,
-								Functionality: []byte("Test.Yes obj;Testing t = new Testing();obj = t;obj.show();"),
+								Functionality: []byte("Test.Yes obj;Testing t=new Testing();obj=t;obj.show();"),
 							},
 							{
 								Type:           []byte("Testing"),
@@ -1211,7 +1211,7 @@ func TestRemoveAnnotations(t *testing.T) {
 			Output: []byte("public void wordList();"),
 		},
 		{
-			Input:  []byte("@AnnotationName(elementName = \"elementValue\");"),
+			Input:  []byte("@AnnotationName(elementName=\"elementValue\");"),
 			Output: []byte(";"),
 		},
 		{
@@ -1227,28 +1227,28 @@ func TestRemoveAnnotations(t *testing.T) {
 			Output: []byte("class Warning extends Message"),
 		},
 		{
-			Input:  []byte("newStr = (@NonNull String) str;"),
-			Output: []byte("newStr = (String) str;"),
+			Input:  []byte("newStr=(@NonNull String) str;"),
+			Output: []byte("newStr=(String) str;"),
 		},
 		{
-			Input:  []byte("import java.util.*;@Annotation{qi = \"ddd\", qd}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
-			Output: []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Input:  []byte("import java.util.*;@Annotation{qi=\"ddd\", qd}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
+			Output: []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 		},
 		{
-			Input:  []byte("@Annotation{qi = \"ddd\",qd}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
-			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Input:  []byte("@Annotation{qi=\"ddd\",qd}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
+			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 		},
 		{
-			Input:  []byte("@Annotation{qi = {{({\"ddd\",qd})}}}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
-			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Input:  []byte("@Annotation{qi={{({\"ddd\",qd})}}}class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
+			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 		},
 		{
-			Input:  []byte("@Annotation(qi = (\"ddd\",qd))class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
-			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Input:  []byte("@Annotation(qi=(\"ddd\",qd))class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
+			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 		},
 		{
-			Input:  []byte("@Annotation class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
-			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Input:  []byte("@Annotation class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
+			Output: []byte("class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 		},
 	}
 
@@ -1271,20 +1271,20 @@ func TestGetPackageImports(t *testing.T) {
 
 	var tests = []PackageImportsTest{
 		{
-			Input: []byte("import java.util.*;class Test{public static void main(String[] args,Test hello){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Input: []byte("import java.util.*;class Test{public static void main(String[] args,Test hello){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 			Output: [][]byte{
 				[]byte("java.util.*"),
 			},
 		},
 		{
-			Input: []byte("import java.util.*;import java.util.Scanner;class Test{public static void main(String[] args,Test hello){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Input: []byte("import java.util.*;import java.util.Scanner;class Test{public static void main(String[] args,Test hello){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 			Output: [][]byte{
 				[]byte("java.util.*"),
 				[]byte("java.util.Scanner"),
 			},
 		},
 		{
-			Input: []byte("package Test;import java.util.*;import java.util.Scanner;class Test{public static void main(String[] args,Test hello){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}}"),
+			Input: []byte("package Test;import java.util.*;import java.util.Scanner;class Test{public static void main(String[] args,Test hello){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 			Output: [][]byte{
 				[]byte("java.util.*"),
 				[]byte("java.util.Scanner"),
@@ -1332,9 +1332,9 @@ func TestGetPackageName(t *testing.T) {
 			
 			public class Calculator {
 			
-				private static final int WINDOW_WIDTH = 410;
-				private static final int WINDOW_HEIGHT = 600;
-				private static final int BUTTON_WIDTH = 80;
+				private static final int WINDOW_WIDTH=410;
+				private static final int WINDOW_HEIGHT=600;
+				private static final int BUTTON_WIDTH=80;
 			}`),
 			Output: []byte("com.houarizegai.calculator"),
 		},
@@ -1353,9 +1353,9 @@ func TestGetPackageName(t *testing.T) {
 			
 			public class Calculator {
 			
-				private static final int WINDOW_WIDTH = 410;
-				private static final int WINDOW_HEIGHT = 600;
-				private static final int BUTTON_WIDTH = 80;
+				private static final int WINDOW_WIDTH=410;
+				private static final int WINDOW_HEIGHT=600;
+				private static final int BUTTON_WIDTH=80;
 			}`),
 			Output: nil,
 		},
@@ -1374,9 +1374,9 @@ func TestGetPackageName(t *testing.T) {
 			
 			public class Calculator {package com.houarizegai.calculator  ;
 			
-				private static final int WINDOW_WIDTH = 410;
-				private static final int WINDOW_HEIGHT = 600;
-				private static final int BUTTON_WIDTH = 80;
+				private static final int WINDOW_WIDTH=410;
+				private static final int WINDOW_HEIGHT=600;
+				private static final int BUTTON_WIDTH=80;
 			}`),
 			Output: nil,
 		},
@@ -1548,7 +1548,7 @@ func TestGetFileClasses(t *testing.T) {
 			},
 		},
 		{
-			Input: []byte("import java.util.*;class Test{boolean testVar1 = true == true;boolean testVar2 = (true == true) || (true == false);protected interface Yes{void show();}public static void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println();}}class A{public static void main(String[] args){System.out.println();Type1 var1 = new Type2(,new Type3());Type1 var2;ActionListener task = new ActionListener(){boolean alreadyDisposed = false;public void actionPerformed(ActionEvent e){if(frame.isDisplayable()){alreadyDisposed = true;frame.dispose();}System.out.println();}System.out.println();};System.out.println(new int[][]{{20},{40}});}}"),
+			Input: []byte("import java.util.*;class Test{boolean testVar1=true==true;boolean testVar2=(true==true)||(true==false);protected interface Yes{void show();}public static void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println();}}class A{public static void main(String[] args){System.out.println();Type1 var1=new Type2(,new Type3());Type1 var2;ActionListener task=new ActionListener(){boolean alreadyDisposed=false;public void actionPerformed(ActionEvent e){if(frame.isDisplayable()){alreadyDisposed=true;frame.dispose();}System.out.println();}System.out.println();};System.out.println(new int[][]{{20},{40}});}}"),
 			Output: []any{
 				types.JavaClass{
 					Name: []byte("Test"),
@@ -1556,7 +1556,7 @@ func TestGetFileClasses(t *testing.T) {
 						{
 							Type:           []byte("boolean"),
 							Name:           []byte("testVar1"),
-							Value:          []byte("true == true"),
+							Value:          []byte("true==true"),
 							AccessModifier: []byte(""),
 							Static:         false,
 							Final:          false,
@@ -1564,7 +1564,7 @@ func TestGetFileClasses(t *testing.T) {
 						{
 							Type:           []byte("boolean"),
 							Name:           []byte("testVar2"),
-							Value:          []byte("(true == true) || (true == false)"),
+							Value:          []byte("(true==true)||(true==false)"),
 							AccessModifier: []byte(""),
 							Static:         false,
 							Final:          false,
@@ -1641,7 +1641,7 @@ func TestGetFileClasses(t *testing.T) {
 							Abstract:      false,
 							Static:        true,
 							Final:         false,
-							Functionality: []byte("System.out.println();Type1 var1 = new Type2(,new Type3());Type1 var2;ActionListener task = new ActionListener();boolean alreadyDisposed = false;public void actionPerformed(ActionEvent e);if(frame.isDisplayable());alreadyDisposed = true;frame.dispose();System.out.println();System.out.println();System.out.println(new int[][]{{20},{40}});"),
+							Functionality: []byte("System.out.println();Type1 var1=new Type2(,new Type3());Type1 var2;ActionListener task=new ActionListener();boolean alreadyDisposed=false;public void actionPerformed(ActionEvent e);if(frame.isDisplayable());alreadyDisposed=true;frame.dispose();System.out.println();System.out.println();System.out.println(new int[][]{{20},{40}});"),
 						},
 					},
 					Dependencies: [][]byte{
@@ -1659,7 +1659,7 @@ func TestGetFileClasses(t *testing.T) {
 			},
 		},
 		{
-			Input: []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2 = new Testing();private static Test.Yes inner3 = new Testing();protected final Test.Yes inner4 = \"Hello\";static final Test.Yes inner5 = null;protected static final Test.Yes inner6 = null;public static void main(String[] args){Test.Yes obj;Testing t = new Testing();obj = t;obj.show();}Testing function1(Test.Yes var1,Map<String,String> var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
+			Input: []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2=new Testing();private static Test.Yes inner3=new Testing();protected final Test.Yes inner4=\"Hello\";static final Test.Yes inner5=null;protected static final Test.Yes inner6=null;public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}Testing function1(Test.Yes var1,Map<String,String> var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
 			Output: []any{
 				types.JavaClass{
 					Name:       []byte("Test"),
@@ -1790,7 +1790,7 @@ func TestGetFileClasses(t *testing.T) {
 							Abstract:      false,
 							Static:        true,
 							Final:         false,
-							Functionality: []byte("Test.Yes obj;Testing t = new Testing();obj = t;obj.show();"),
+							Functionality: []byte("Test.Yes obj;Testing t=new Testing();obj=t;obj.show();"),
 						},
 						{
 							Type:           []byte("Testing"),
@@ -1906,7 +1906,7 @@ func TestGetFileClasses(t *testing.T) {
 			},
 		},
 		{
-			Input: []byte("enum Test8{H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label = label;}}"),
+			Input: []byte("enum Test8{H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label=label;}}"),
 			Output: []any{
 				types.JavaEnum{
 					Name: []byte("Test8"),
@@ -2293,7 +2293,7 @@ func TestGetEnumDeclarations(t *testing.T) {
 
 	var tests = []EnumTest{
 		{
-			[]byte("H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label = label;}"),
+			[]byte("H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label=label;}"),
 			[][]byte{
 				[]byte("H"),
 				[]byte("HE"),
@@ -2462,7 +2462,7 @@ func TestGetClassRelationTypes(t *testing.T) {
 						Abstract:      false,
 						Static:        true,
 						Final:         false,
-						Functionality: []byte("System.out.println();Type1 var1 = new Type2(,new Type3());Type1 var2;ActionListener task = new ActionListener();boolean alreadyDisposed = false;public void actionPerformed(ActionEvent1 e1,ActionEvent2 e2);if(frame.isDisplayable(new Type8()));if(frame.isDisplayable() == new Type4());else if(new Type5().value);else if(frame.isDisplayable() == true && new Type6().value && (true || false) && true);if(frame.isDisplayable() == true && frame.isDisplayable() == new Type7());alreadyDisposed = true;frame.dispose();System.out.println();System.out.println();System.out.println(new int[][]{{20},{40}},true);"),
+						Functionality: []byte("System.out.println();Type1 var1=new Type2(,new Type3());Type1 var2;ActionListener task=new ActionListener();boolean alreadyDisposed=false;public void actionPerformed(ActionEvent1 e1,ActionEvent2 e2);if(frame.isDisplayable(new Type8()));if(frame.isDisplayable()==new Type4());else if(new Type5().value);else if(frame.isDisplayable()==true&&new Type6().value&&(true||false)&&true);if(frame.isDisplayable()==true&&frame.isDisplayable()==new Type7());alreadyDisposed=true;frame.dispose();System.out.println();System.out.println();System.out.println(new int[][]{{20},{40}},true);"),
 					},
 				},
 			},
