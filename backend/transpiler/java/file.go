@@ -1417,6 +1417,8 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 			// TODO for loops
 			// for (Person p : roster) {}
 			// for (int i = 0; i < people.length; i++) {}
+			// TODO switch statements
+			// TODO switch with lambda
 
 			if isIfStatement || isElseIfStatement {
 				if isIfStatement {
