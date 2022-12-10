@@ -1318,66 +1318,15 @@ func TestGetPackageName(t *testing.T) {
 
 	var tests = []PackageNameTest{
 		{
-			Input: []byte(`   package com.houarizegai.calculator  ;
-	
-			import java.awt.Cursor;
-			import java.awt.Font;
-			import java.awt.event.ActionListener;
-			import java.awt.event.ItemEvent;
-			import java.util.function.Consumer;
-			import java.util.regex.Pattern;
-			import java.awt.Color;
-			import javax.swing.*;
-			import java.lang.Math;
-			
-			public class Calculator {
-			
-				private static final int WINDOW_WIDTH=410;
-				private static final int WINDOW_HEIGHT=600;
-				private static final int BUTTON_WIDTH=80;
-			}`),
+			Input:  []byte(`package com.houarizegai.calculator;import java.awt.Cursor;import java.awt.Font;import java.awt.event.ActionListener;import java.awt.event.ItemEvent;import java.util.function.Consumer;import java.util.regex.Pattern;import java.awt.Color;import javax.swing.*;import java.lang.Math;public class Calculator{private static final int WINDOW_WIDTH=410;private static final int WINDOW_HEIGHT=600;private static final int BUTTON_WIDTH=80;}`),
 			Output: []byte("com.houarizegai.calculator"),
 		},
 		{
-			Input: []byte(` 
-	
-			import java.awt.Cursor;
-			import java.awt.Font;
-			import java.awt.event.ActionListener;
-			import java.awt.event.ItemEvent;
-			import java.util.function.Consumer;
-			import java.util.regex.Pattern;
-			import java.awt.Color;
-			import javax.swing.*;
-			import java.lang.Math;
-			
-			public class Calculator {
-			
-				private static final int WINDOW_WIDTH=410;
-				private static final int WINDOW_HEIGHT=600;
-				private static final int BUTTON_WIDTH=80;
-			}`),
+			Input:  []byte(`import java.awt.Cursor;import java.awt.Font;import java.awt.event.ActionListener;import java.awt.event.ItemEvent;import java.util.function.Consumer;import java.util.regex.Pattern;import java.awt.Color;import javax.swing.*;import java.lang.Math;public class Calculator{private static final int WINDOW_WIDTH=410;private static final int WINDOW_HEIGHT=600;private static final int BUTTON_WIDTH=80;}`),
 			Output: nil,
 		},
 		{
-			Input: []byte(` 
-	
-			import java.awt.Cursor;
-			import java.awt.Font;
-			import java.awt.event.ActionListener;
-			import java.awt.event.ItemEvent;
-			import java.util.function.Consumer;
-			import java.util.regex.Pattern;
-			import java.awt.Color;
-			import javax.swing.*;
-			import java.lang.Math;
-			
-			public class Calculator {package com.houarizegai.calculator  ;
-			
-				private static final int WINDOW_WIDTH=410;
-				private static final int WINDOW_HEIGHT=600;
-				private static final int BUTTON_WIDTH=80;
-			}`),
+			Input:  []byte(`import java.awt.Cursor;import java.awt.Font;import java.awt.event.ActionListener;import java.awt.event.ItemEvent;import java.util.function.Consumer;import java.util.regex.Pattern;import java.awt.Color;import javax.swing.*;import java.lang.Math;public class Calculator{package com.houarizegai.calculator;private static final int WINDOW_WIDTH=410;private static final int WINDOW_HEIGHT=600;private static final int BUTTON_WIDTH=80;}`),
 			Output: nil,
 		},
 	}
@@ -1402,231 +1351,10 @@ func TestGetFileClasses(t *testing.T) {
 
 	var tests = []FileClassesTest{
 		{
-			Input: []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test1{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-			Output: []any{
-				types.JavaClass{
-					Name: []byte("Test1"),
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("main"),
-							AccessModifier: []byte("public"),
-							Parameters: []types.JavaMethodParameter{
-								{
-									Type: []byte("String[]"),
-									Name: []byte("args"),
-								},
-							},
-							Abstract:      false,
-							Static:        true,
-							Final:         false,
-							Functionality: []byte("System.out.println();System.out.println();"),
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-						[]byte("String"),
-					},
-				},
-			},
-		},
-		{
-			Input: []byte("package com.houarizegai.calculator;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-			Output: []any{
-				types.JavaClass{
-					Name: []byte("Test2"),
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("main"),
-							AccessModifier: []byte("public"),
-							Parameters: []types.JavaMethodParameter{
-								{
-									Type: []byte("String[]"),
-									Name: []byte("args"),
-								},
-							},
-							Abstract:      false,
-							Static:        true,
-							Final:         false,
-							Functionality: []byte("System.out.println();System.out.println();"),
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-						[]byte("String"),
-					},
-				},
-			},
-		},
-		{
-			Input: []byte("import java.awt.Cursor;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-			Output: []any{
-				types.JavaClass{
-					Name: []byte("Test3"),
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("main"),
-							AccessModifier: []byte("public"),
-							Parameters: []types.JavaMethodParameter{
-								{
-									Type: []byte("String[]"),
-									Name: []byte("args"),
-								},
-							},
-							Abstract:      false,
-							Static:        true,
-							Final:         false,
-							Functionality: []byte("System.out.println();System.out.println();"),
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-						[]byte("String"),
-					},
-				},
-			},
-		},
-		{
-			Input: []byte("public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-			Output: []any{
-				types.JavaClass{
-					Name: []byte("Test4"),
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("main"),
-							AccessModifier: []byte("public"),
-							Parameters: []types.JavaMethodParameter{
-								{
-									Type: []byte("String[]"),
-									Name: []byte("args"),
-								},
-							},
-							Abstract:      false,
-							Static:        true,
-							Final:         false,
-							Functionality: []byte("System.out.println();System.out.println();"),
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-						[]byte("String"),
-					},
-				},
-			},
-		},
-		{
-			Input: []byte("public class Test5 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
-			Output: []any{
-				types.JavaClass{
-					Name:    []byte("Test5"),
-					Extends: [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("main"),
-							AccessModifier: []byte("public"),
-							Parameters: []types.JavaMethodParameter{
-								{
-									Type: []byte("String[]"),
-									Name: []byte("args"),
-								},
-							},
-							Abstract:      false,
-							Static:        true,
-							Final:         false,
-							Functionality: []byte("System.out.println();System.out.println();"),
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-						[]byte("String"),
-					},
-				},
-			},
-		},
-		{
-			Input: []byte("import java.util.*;class Test{boolean testVar1=true==true;boolean testVar2=(true==true)||(true==false);protected interface Yes{void show();}public static void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println();}}class A{public static void main(String[] args){System.out.println();Type1 var1=new Type2(,new Type3());Type1 var2;ActionListener task=new ActionListener(){boolean alreadyDisposed=false;public void actionPerformed(ActionEvent e){if(frame.isDisplayable()){alreadyDisposed=true;frame.dispose();}System.out.println();}System.out.println();};System.out.println(new int[][]{{20},{40}});}}"),
+			Input: []byte("import java.util.*;class Test{public static void main(String[] args){try{System.out.println();}catch(new Type1()){System.out.println();}}}}"),
 			Output: []any{
 				types.JavaClass{
 					Name: []byte("Test"),
-					Variables: []types.JavaVariable{
-						{
-							Type:           []byte("boolean"),
-							Name:           []byte("testVar1"),
-							Value:          []byte("true==true"),
-							AccessModifier: []byte(""),
-							Static:         false,
-							Final:          false,
-						},
-						{
-							Type:           []byte("boolean"),
-							Name:           []byte("testVar2"),
-							Value:          []byte("(true==true)||(true==false)"),
-							AccessModifier: []byte(""),
-							Static:         false,
-							Final:          false,
-						},
-					},
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("Test"),
-							AccessModifier: []byte("public"),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         true,
-							Final:          false,
-						},
-					},
-					Associations: [][]byte{
-						[]byte("boolean"),
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-					},
-				},
-				types.JavaInterface{
-					DefinedWithin: []byte("Test"),
-					Name:          []byte("Yes"),
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("show"),
-							AccessModifier: []byte(""),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         false,
-							Final:          false,
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-					},
-				},
-				types.JavaClass{
-					Name:       []byte("Testing"),
-					Implements: [][]byte{[]byte("Test.Yes")},
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("show"),
-							AccessModifier: []byte("public"),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         false,
-							Final:          false,
-							Functionality:  []byte("System.out.println();"),
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-					},
-				},
-				types.JavaClass{
-					Name: []byte("A"),
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
@@ -1641,305 +1369,621 @@ func TestGetFileClasses(t *testing.T) {
 							Abstract:      false,
 							Static:        true,
 							Final:         false,
-							Functionality: []byte("System.out.println();Type1 var1=new Type2(,new Type3());Type1 var2;ActionListener task=new ActionListener();boolean alreadyDisposed=false;public void actionPerformed(ActionEvent e);if(frame.isDisplayable());alreadyDisposed=true;frame.dispose();System.out.println();System.out.println();System.out.println(new int[][]{{20},{40}});"),
+							Functionality: []byte(""),
 						},
 					},
 					Dependencies: [][]byte{
 						[]byte("void"),
 						[]byte("String"),
-						[]byte("boolean"),
-						[]byte("int"),
 						[]byte("Type1"),
 						[]byte("Type2"),
 						[]byte("Type3"),
-						[]byte("ActionListener"),
-						[]byte("ActionEvent"),
+						[]byte("Type4"),
+						[]byte("Type5"),
+						[]byte("Type6"),
+						[]byte("Type7"),
 					},
 				},
 			},
 		},
-		{
-			Input: []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2=new Testing();private static Test.Yes inner3=new Testing();protected final Test.Yes inner4=\"Hello\";static final Test.Yes inner5=null;protected static final Test.Yes inner6=null;public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}Testing function1(Test.Yes var1,Map<String,String> var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
-			Output: []any{
-				types.JavaClass{
-					Name:       []byte("Test"),
-					Implements: nil,
-					Extends:    nil,
-					Variables:  nil,
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("TestVoid"),
-							AccessModifier: []byte("public"),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         false,
-							Final:          false,
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-					},
-				},
-				types.JavaInterface{
-					DefinedWithin: []byte("Test"),
-					Name:          []byte("Yes"),
-					Extends:       nil,
-					Variables:     nil,
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("show"),
-							AccessModifier: []byte(""),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         false,
-							Final:          false,
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-					},
-				},
-				types.JavaClass{
-					Name:       []byte("Testing"),
-					Implements: [][]byte{[]byte("Test.Yes")},
-					Extends:    nil,
-					Variables:  nil,
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("show"),
-							AccessModifier: []byte("public"),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         false,
-							Final:          false,
-							Functionality:  []byte("System.out.println();"),
-						},
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-					},
-				},
-				types.JavaClass{
-					Name:       []byte("A"),
-					Implements: nil,
-					Extends:    nil,
-					Variables: []types.JavaVariable{
-						{
-							Type:           []byte("Test"),
-							Name:           []byte("inner1"),
-							Value:          []byte(""),
-							AccessModifier: []byte(""),
-							Static:         false,
-							Final:          false,
-						},
-						{
-							Type:           []byte("Testing"),
-							Name:           []byte("inner2"),
-							Value:          []byte("new Testing()"),
-							AccessModifier: []byte("public"),
-							Static:         false,
-							Final:          false,
-						},
-						{
-							Type:           []byte("Test.Yes"),
-							Name:           []byte("inner3"),
-							Value:          []byte("new Testing()"),
-							AccessModifier: []byte("private"),
-							Static:         true,
-							Final:          false,
-						},
-						{
-							Type:           []byte("Test.Yes"),
-							Name:           []byte("inner4"),
-							Value:          []byte("\"Hello\""),
-							AccessModifier: []byte("protected"),
-							Static:         false,
-							Final:          true,
-						},
-						{
-							Type:           []byte("Test.Yes"),
-							Name:           []byte("inner5"),
-							Value:          []byte("null"),
-							AccessModifier: []byte(""),
-							Static:         true,
-							Final:          true,
-						},
-						{
-							Type:           []byte("Test.Yes"),
-							Name:           []byte("inner6"),
-							Value:          []byte("null"),
-							AccessModifier: []byte("protected"),
-							Static:         true,
-							Final:          true,
-						},
-					},
-					Methods: []types.JavaMethod{
-						{
-							Type:           []byte("void"),
-							Name:           []byte("main"),
-							AccessModifier: []byte("public"),
-							Parameters: []types.JavaMethodParameter{
-								{
-									Type: []byte("String[]"),
-									Name: []byte("args"),
-								},
-							},
-							Abstract:      false,
-							Static:        true,
-							Final:         false,
-							Functionality: []byte("Test.Yes obj;Testing t=new Testing();obj=t;obj.show();"),
-						},
-						{
-							Type:           []byte("Testing"),
-							Name:           []byte("function1"),
-							AccessModifier: []byte(""),
-							Parameters: []types.JavaMethodParameter{
-								{
-									Type: []byte("Test.Yes"),
-									Name: []byte("var1"),
-								},
-								{
-									Type: []byte("Map<String,String>"),
-									Name: []byte("var2"),
-								},
-							},
-							Abstract: false,
-							Static:   false,
-							Final:    false,
-						},
-						{
-							Type:           []byte("Testing"),
-							Name:           []byte("function2"),
-							AccessModifier: []byte(""),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         false,
-							Final:          false,
-						},
-						{
-							Type:           []byte("void"),
-							Name:           []byte("function3"),
-							AccessModifier: []byte(""),
-							Parameters:     nil,
-							Abstract:       true,
-							Static:         false,
-							Final:          false,
-						},
-						{
-							Type:           []byte("Testing"),
-							Name:           []byte("function4"),
-							AccessModifier: []byte(""),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         true,
-							Final:          false,
-						},
-						{
-							Type:           []byte("Testing"),
-							Name:           []byte("function5"),
-							AccessModifier: []byte(""),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         false,
-							Final:          true,
-						},
-						{
-							Type:           []byte("void"),
-							Name:           []byte("function6"),
-							AccessModifier: []byte(""),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         true,
-							Final:          true,
-						},
-						{
-							Type:           []byte("void"),
-							Name:           []byte("function7"),
-							AccessModifier: []byte("public"),
-							Parameters:     nil,
-							Abstract:       true,
-							Static:         false,
-							Final:          false,
-						},
-						{
-							Type:           []byte("Testing"),
-							Name:           []byte("function8"),
-							AccessModifier: []byte("private"),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         true,
-							Final:          false,
-						},
-						{
-							Type:           []byte("Testing"),
-							Name:           []byte("function9"),
-							AccessModifier: []byte("protected"),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         false,
-							Final:          true,
-						},
-						{
-							Type:           []byte("void"),
-							Name:           []byte("function10"),
-							AccessModifier: []byte("public"),
-							Parameters:     nil,
-							Abstract:       false,
-							Static:         true,
-							Final:          true,
-						},
-					},
-					Associations: [][]byte{
-						[]byte("Test"),
-						[]byte("Testing"),
-						[]byte("Test.Yes"),
-					},
-					Dependencies: [][]byte{
-						[]byte("void"),
-						[]byte("String"),
-						[]byte("Map"),
-					},
-				},
-			},
-		},
-		{
-			Input: []byte("enum Test8{H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label=label;}}"),
-			Output: []any{
-				types.JavaEnum{
-					Name: []byte("Test8"),
-					Declarations: [][]byte{
-						[]byte("H"),
-						[]byte("HE"),
-						[]byte("NE"),
-					},
-				},
-			},
-		},
-		{
-			Input: []byte("enum Test9{Hello,}"),
-			Output: []any{
-				types.JavaEnum{
-					Name: []byte("Test9"),
-					Declarations: [][]byte{
-						[]byte("Hello"),
-					},
-				},
-			},
-		},
-		{
-			Input: []byte("enum Test10{Hello;}"),
-			Output: []any{
-				types.JavaEnum{
-					Name: []byte("Test10"),
-					Declarations: [][]byte{
-						[]byte("Hello"),
-					},
-				},
-			},
-		},
+		// {
+		// 	Input: []byte("import java.util.*;class Test{public static void main(String[] args){String str='A';switch(new Type1().get()){case new Type1().get():result=1;case(new Type2().get()):result=1;case new Type3()->result=1;case(new Type4())->new Type5();case new Type6()->{new Type7();}}}}"),
+		// 	Output: []any{
+		// 		types.JavaClass{
+		// 			Name: []byte("Test"),
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("main"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters: []types.JavaMethodParameter{
+		// 						{
+		// 							Type: []byte("String[]"),
+		// 							Name: []byte("args"),
+		// 						},
+		// 					},
+		// 					Abstract:      false,
+		// 					Static:        true,
+		// 					Final:         false,
+		// 					Functionality: []byte("String str;switch(new Type1().get());new Type1().get();result=1;(new Type2().get());result=1;new Type3();result=1;(new Type4());new Type5();new Type6();new Type7();"),
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 				[]byte("String"),
+		// 				[]byte("Type1"),
+		// 				[]byte("Type2"),
+		// 				[]byte("Type3"),
+		// 				[]byte("Type4"),
+		// 				[]byte("Type5"),
+		// 				[]byte("Type6"),
+		// 				[]byte("Type7"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Input: []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test1{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		// 	Output: []any{
+		// 		types.JavaClass{
+		// 			Name: []byte("Test1"),
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("main"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters: []types.JavaMethodParameter{
+		// 						{
+		// 							Type: []byte("String[]"),
+		// 							Name: []byte("args"),
+		// 						},
+		// 					},
+		// 					Abstract:      false,
+		// 					Static:        true,
+		// 					Final:         false,
+		// 					Functionality: []byte("System.out.println();System.out.println();"),
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 				[]byte("String"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Input: []byte("package com.houarizegai.calculator;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		// 	Output: []any{
+		// 		types.JavaClass{
+		// 			Name: []byte("Test2"),
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("main"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters: []types.JavaMethodParameter{
+		// 						{
+		// 							Type: []byte("String[]"),
+		// 							Name: []byte("args"),
+		// 						},
+		// 					},
+		// 					Abstract:      false,
+		// 					Static:        true,
+		// 					Final:         false,
+		// 					Functionality: []byte("System.out.println();System.out.println();"),
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 				[]byte("String"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Input: []byte("import java.awt.Cursor;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		// 	Output: []any{
+		// 		types.JavaClass{
+		// 			Name: []byte("Test3"),
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("main"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters: []types.JavaMethodParameter{
+		// 						{
+		// 							Type: []byte("String[]"),
+		// 							Name: []byte("args"),
+		// 						},
+		// 					},
+		// 					Abstract:      false,
+		// 					Static:        true,
+		// 					Final:         false,
+		// 					Functionality: []byte("System.out.println();System.out.println();"),
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 				[]byte("String"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Input: []byte("public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		// 	Output: []any{
+		// 		types.JavaClass{
+		// 			Name: []byte("Test4"),
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("main"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters: []types.JavaMethodParameter{
+		// 						{
+		// 							Type: []byte("String[]"),
+		// 							Name: []byte("args"),
+		// 						},
+		// 					},
+		// 					Abstract:      false,
+		// 					Static:        true,
+		// 					Final:         false,
+		// 					Functionality: []byte("System.out.println();System.out.println();"),
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 				[]byte("String"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Input: []byte("public class Test5 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
+		// 	Output: []any{
+		// 		types.JavaClass{
+		// 			Name:    []byte("Test5"),
+		// 			Extends: [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("main"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters: []types.JavaMethodParameter{
+		// 						{
+		// 							Type: []byte("String[]"),
+		// 							Name: []byte("args"),
+		// 						},
+		// 					},
+		// 					Abstract:      false,
+		// 					Static:        true,
+		// 					Final:         false,
+		// 					Functionality: []byte("System.out.println();System.out.println();"),
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 				[]byte("String"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// { // TODO was this
+		// 	Input: []byte("import java.util.*;class Test{boolean testVar1=true==true;boolean testVar2=(true==true)||(true==false);protected interface Yes{void show();}public static void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println();}}class A{public static void main(String[] args){System.out.println();Type1 var1=new Type2(,new Type3());Type1 var2;ActionListener task=new ActionListener(){boolean alreadyDisposed=false;public void actionPerformed(ActionEvent e){if(frame.isDisplayable()){alreadyDisposed=true;frame.dispose();}System.out.println();}System.out.println();};System.out.println(new Type26[][]{{20},{40}});if(new Type4()>new Type5()&&new Type20()){}if(new Type6().getTest()>=(new Type7().hello())){}for(Type8 p:roster){}for(Type9 t=new Type10(new Type11());t<new Type12(new Type13());t++){}switch(new Type14(new Type15()).get()){case new Type16(new Type17()).get():new Type18();new Type19();}while(new Type21()<new Type22()){new Type23();}do{new Type24();}while(new Type 25());}}"),
+		// 	Output: []any{
+		// 		types.JavaClass{
+		// 			Name: []byte("Test"),
+		// 			Variables: []types.JavaVariable{
+		// 				{
+		// 					Type:           []byte("boolean"),
+		// 					Name:           []byte("testVar1"),
+		// 					Value:          []byte("true==true"),
+		// 					AccessModifier: []byte(""),
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("boolean"),
+		// 					Name:           []byte("testVar2"),
+		// 					Value:          []byte("(true==true)||(true==false)"),
+		// 					AccessModifier: []byte(""),
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 			},
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("Test"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         true,
+		// 					Final:          false,
+		// 				},
+		// 			},
+		// 			Associations: [][]byte{
+		// 				[]byte("boolean"),
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 			},
+		// 		},
+		// 		types.JavaInterface{
+		// 			DefinedWithin: []byte("Test"),
+		// 			Name:          []byte("Yes"),
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("show"),
+		// 					AccessModifier: []byte(""),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 			},
+		// 		},
+		// 		types.JavaClass{
+		// 			Name:       []byte("Testing"),
+		// 			Implements: [][]byte{[]byte("Test.Yes")},
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("show"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         false,
+		// 					Final:          false,
+		// 					Functionality:  []byte("System.out.println();"),
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 			},
+		// 		},
+		// 		types.JavaClass{
+		// 			Name: []byte("A"),
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("main"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters: []types.JavaMethodParameter{
+		// 						{
+		// 							Type: []byte("String[]"),
+		// 							Name: []byte("args"),
+		// 						},
+		// 					},
+		// 					Abstract:      false,
+		// 					Static:        true,
+		// 					Final:         false,
+		// 					Functionality: []byte("System.out.println();Type1 var1=new Type2(,new Type3());Type1 var2;ActionListener task=new ActionListener();boolean alreadyDisposed=false;public void actionPerformed(ActionEvent e);if(frame.isDisplayable());alreadyDisposed=true;frame.dispose();System.out.println();System.out.println();System.out.println(new Type26[][]{{20},{40}});if(new Type4()>new Type5()&&new Type20());if(new Type6().getTest()>=(new Type7().hello()));for(Type8 p:roster);for(Type9 t=new Type10(new Type11());t<new Type12(new Type13());t++);switch(new Type14(new Type15()).get());case new Type16(new Type17()).get();new Type18();new Type19();while(new Type21()<new Type22());new Type23();do;new Type24();while(new Type 25());"),
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 				[]byte("String"),
+		// 				[]byte("boolean"),
+		// 				[]byte("int"),
+		// 				[]byte("Type1"),
+		// 				[]byte("Type2"),
+		// 				[]byte("Type3"),
+		// 				[]byte("Type4"),
+		// 				[]byte("Type5"),
+		// 				[]byte("Type6"),
+		// 				[]byte("Type7"),
+		// 				[]byte("Type8"),
+		// 				[]byte("Type9"),
+		// 				[]byte("Type10"),
+		// 				[]byte("Type11"),
+		// 				[]byte("Type12"),
+		// 				[]byte("Type13"),
+		// 				[]byte("Type14"),
+		// 				[]byte("Type15"),
+		// 				[]byte("Type16"),
+		// 				[]byte("Type17"),
+		// 				[]byte("Type18"),
+		// 				[]byte("Type19"),
+		// 				[]byte("Type20"),
+		// 				[]byte("Type21"),
+		// 				[]byte("Type22"),
+		// 				[]byte("Type23"),
+		// 				[]byte("Type24"),
+		// 				[]byte("Type25"),
+		// 				[]byte("Type26"),
+		// 				[]byte("ActionListener"),
+		// 				[]byte("ActionEvent"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Input: []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2=new Testing();private static Test.Yes inner3=new Testing();protected final Test.Yes inner4=\"Hello\";static final Test.Yes inner5=null;protected static final Test.Yes inner6=null;public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}Testing function1(Test.Yes var1,Map<String,String> var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
+		// 	Output: []any{
+		// 		types.JavaClass{
+		// 			Name:       []byte("Test"),
+		// 			Implements: nil,
+		// 			Extends:    nil,
+		// 			Variables:  nil,
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("TestVoid"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 			},
+		// 		},
+		// 		types.JavaInterface{
+		// 			DefinedWithin: []byte("Test"),
+		// 			Name:          []byte("Yes"),
+		// 			Extends:       nil,
+		// 			Variables:     nil,
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("show"),
+		// 					AccessModifier: []byte(""),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 			},
+		// 		},
+		// 		types.JavaClass{
+		// 			Name:       []byte("Testing"),
+		// 			Implements: [][]byte{[]byte("Test.Yes")},
+		// 			Extends:    nil,
+		// 			Variables:  nil,
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("show"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         false,
+		// 					Final:          false,
+		// 					Functionality:  []byte("System.out.println();"),
+		// 				},
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 			},
+		// 		},
+		// 		types.JavaClass{
+		// 			Name:       []byte("A"),
+		// 			Implements: nil,
+		// 			Extends:    nil,
+		// 			Variables: []types.JavaVariable{
+		// 				{
+		// 					Type:           []byte("Test"),
+		// 					Name:           []byte("inner1"),
+		// 					Value:          []byte(""),
+		// 					AccessModifier: []byte(""),
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Testing"),
+		// 					Name:           []byte("inner2"),
+		// 					Value:          []byte("new Testing()"),
+		// 					AccessModifier: []byte("public"),
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Test.Yes"),
+		// 					Name:           []byte("inner3"),
+		// 					Value:          []byte("new Testing()"),
+		// 					AccessModifier: []byte("private"),
+		// 					Static:         true,
+		// 					Final:          false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Test.Yes"),
+		// 					Name:           []byte("inner4"),
+		// 					Value:          []byte("\"Hello\""),
+		// 					AccessModifier: []byte("protected"),
+		// 					Static:         false,
+		// 					Final:          true,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Test.Yes"),
+		// 					Name:           []byte("inner5"),
+		// 					Value:          []byte("null"),
+		// 					AccessModifier: []byte(""),
+		// 					Static:         true,
+		// 					Final:          true,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Test.Yes"),
+		// 					Name:           []byte("inner6"),
+		// 					Value:          []byte("null"),
+		// 					AccessModifier: []byte("protected"),
+		// 					Static:         true,
+		// 					Final:          true,
+		// 				},
+		// 			},
+		// 			Methods: []types.JavaMethod{
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("main"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters: []types.JavaMethodParameter{
+		// 						{
+		// 							Type: []byte("String[]"),
+		// 							Name: []byte("args"),
+		// 						},
+		// 					},
+		// 					Abstract:      false,
+		// 					Static:        true,
+		// 					Final:         false,
+		// 					Functionality: []byte("Test.Yes obj;Testing t=new Testing();obj=t;obj.show();"),
+		// 				},
+		// 				{
+		// 					Type:           []byte("Testing"),
+		// 					Name:           []byte("function1"),
+		// 					AccessModifier: []byte(""),
+		// 					Parameters: []types.JavaMethodParameter{
+		// 						{
+		// 							Type: []byte("Test.Yes"),
+		// 							Name: []byte("var1"),
+		// 						},
+		// 						{
+		// 							Type: []byte("Map<String,String>"),
+		// 							Name: []byte("var2"),
+		// 						},
+		// 					},
+		// 					Abstract: false,
+		// 					Static:   false,
+		// 					Final:    false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Testing"),
+		// 					Name:           []byte("function2"),
+		// 					AccessModifier: []byte(""),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("function3"),
+		// 					AccessModifier: []byte(""),
+		// 					Parameters:     nil,
+		// 					Abstract:       true,
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Testing"),
+		// 					Name:           []byte("function4"),
+		// 					AccessModifier: []byte(""),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         true,
+		// 					Final:          false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Testing"),
+		// 					Name:           []byte("function5"),
+		// 					AccessModifier: []byte(""),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         false,
+		// 					Final:          true,
+		// 				},
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("function6"),
+		// 					AccessModifier: []byte(""),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         true,
+		// 					Final:          true,
+		// 				},
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("function7"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters:     nil,
+		// 					Abstract:       true,
+		// 					Static:         false,
+		// 					Final:          false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Testing"),
+		// 					Name:           []byte("function8"),
+		// 					AccessModifier: []byte("private"),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         true,
+		// 					Final:          false,
+		// 				},
+		// 				{
+		// 					Type:           []byte("Testing"),
+		// 					Name:           []byte("function9"),
+		// 					AccessModifier: []byte("protected"),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         false,
+		// 					Final:          true,
+		// 				},
+		// 				{
+		// 					Type:           []byte("void"),
+		// 					Name:           []byte("function10"),
+		// 					AccessModifier: []byte("public"),
+		// 					Parameters:     nil,
+		// 					Abstract:       false,
+		// 					Static:         true,
+		// 					Final:          true,
+		// 				},
+		// 			},
+		// 			Associations: [][]byte{
+		// 				[]byte("Test"),
+		// 				[]byte("Testing"),
+		// 				[]byte("Test.Yes"),
+		// 			},
+		// 			Dependencies: [][]byte{
+		// 				[]byte("void"),
+		// 				[]byte("String"),
+		// 				[]byte("Map"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Input: []byte("enum Test8{H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label=label;}}"),
+		// 	Output: []any{
+		// 		types.JavaEnum{
+		// 			Name: []byte("Test8"),
+		// 			Declarations: [][]byte{
+		// 				[]byte("H"),
+		// 				[]byte("HE"),
+		// 				[]byte("NE"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Input: []byte("enum Test9{Hello,}"),
+		// 	Output: []any{
+		// 		types.JavaEnum{
+		// 			Name: []byte("Test9"),
+		// 			Declarations: [][]byte{
+		// 				[]byte("Hello"),
+		// 			},
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Input: []byte("enum Test10{Hello;}"),
+		// 	Output: []any{
+		// 		types.JavaEnum{
+		// 			Name: []byte("Test10"),
+		// 			Declarations: [][]byte{
+		// 				[]byte("Hello"),
+		// 			},
+		// 		},
+		// 	},
+		// },
 	}
 
 	for testIndex, tt := range tests {

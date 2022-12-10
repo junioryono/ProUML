@@ -34,6 +34,7 @@ const (
 	AndCondition      byte = '&'
 	OrCondition       byte = '|'
 	ExclamationMark   byte = '!'
+	QuestionMark      byte = '?'
 	PlusSign          byte = '+'
 	Hyphen_MinusSign  byte = '-'
 	Tilde             byte = '~'
@@ -43,6 +44,7 @@ const (
 	Tab               byte = '\t'
 )
 
+// DONE
 func parseFile(file types.File) types.FileResponse {
 	var (
 		response   = types.FileResponse{}
@@ -56,18 +58,15 @@ func parseFile(file types.File) types.FileResponse {
 	parsedText = removeComments(parsedText)
 	parsedText = removeSpacing(parsedText)
 	parsedText = removeAnnotations(parsedText)
-	packageImports := getPackageImports(parsedText)
-	packageName := getPackageName(parsedText)
 
-	classes := getFileClasses(parsedText)
-
-	response.Package = packageName
-	response.Imports = packageImports
-	response.Data = append(response.Data, classes...)
+	response.Package = getPackageName(parsedText)
+	response.Imports = getPackageImports(parsedText)
+	response.Data = append(response.Data, getFileClasses(parsedText)...)
 
 	return response
 }
 
+// DONE
 // Remove all comments that are not inside of quotations from code
 func removeComments(text []byte) []byte {
 	var (
@@ -80,27 +79,19 @@ func removeComments(text []byte) []byte {
 		currentStyle = NoQuote
 	}
 
-	for i := 0; i < len(text); i++ {
-		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
-			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote) &&
-			(i == 0 || text[i-1] != Backslash) {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if text[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if text[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if text[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if i+1 < len(text) {
-				if text[i] == Slash && text[i+1] == Slash {
-					currentStyle = Slash
-					startCommentIndex = i
-				} else if text[i] == Slash && text[i+1] == Asterisk {
-					currentStyle = Asterisk
-					startCommentIndex = i
-				}
+	for i, f := 0, ignoreQuotes(&text); i < len(text); i++ {
+		isInsideQuotation := f(i)
+		if isInsideQuotation {
+			continue
+		}
+
+		if currentStyle == NoQuote {
+			if text[i] == Slash && text[i+1] == Slash {
+				currentStyle = Slash
+				startCommentIndex = i
+			} else if text[i] == Slash && text[i+1] == Asterisk {
+				currentStyle = Asterisk
+				startCommentIndex = i
 			}
 		} else if currentStyle == Slash && text[i] == NewLine {
 			removeText(i - 1)
@@ -114,12 +105,9 @@ func removeComments(text []byte) []byte {
 	return text
 }
 
+// DONE
 // Remove all extra spacing from code
 func removeSpacing(text []byte) []byte {
-	// // Remove all imports
-	// REGEX_Imports := regexp.MustCompile(`[\s\S]*?import[\s\S]*?;[\s]*` + ignoreQuotes)
-	// text = REGEX_Imports.ReplaceAll(text, []byte(" "))
-
 	needsSpace := func(b byte) bool {
 		if b == EqualSign || b == AndCondition || b == OrCondition || b == Colon {
 			return true
@@ -203,6 +191,12 @@ func removeSpacing(text []byte) []byte {
 			*i--
 			return true
 		}
+
+		return false
+	}
+
+	removeWord := func(i *int, b []byte) bool {
+		// bytes.Equal()
 
 		return false
 	}
@@ -345,6 +339,12 @@ func removeSpacing(text []byte) []byte {
 			continue
 		}
 
+		// Remove space before and after ?
+		ok = removeSpaceBeforeAndAfterByte(&i, QuestionMark)
+		if ok {
+			continue
+		}
+
 		// Remove space before and after |
 		ok = removeSpaceBeforeAndAfterByte(&i, OrCondition)
 		if ok {
@@ -376,73 +376,59 @@ func removeSpacing(text []byte) []byte {
 		}
 
 		// Remove all spaces before ]
-		removeSpaceBefore(&i, ClosedBracket)
+		ok = removeSpaceBefore(&i, ClosedBracket)
+		if ok {
+			continue
+		}
+
+		// TODO volatile
+		// TODO
+		// TODO transient
+
+		// Remove all "native"
+		ok = removeWord(&i, []byte{
+			byte('n'),
+			byte('a'),
+			byte('t'),
+			byte('i'),
+			byte('v'),
+			byte('e'),
+		})
+		if ok {
+			continue
+		}
+
+		// Remove all "strictfp"
+		ok = removeWord(&i, []byte{
+			byte('s'),
+			byte('t'),
+			byte('r'),
+			byte('i'),
+			byte('c'),
+			byte('t'),
+			byte('f'),
+			byte('p'),
+		})
+		if ok {
+			continue
+		}
+
+		// Remove all "synchronized"
+		ok = removeWord(&i, []byte{
+			byte('s'),
+			byte('t'),
+			byte('r'),
+			byte('i'),
+			byte('c'),
+			byte('t'),
+			byte('f'),
+			byte('p'),
+		})
+		if ok {
+			continue
+		}
+
 	}
-
-	// ALL POSSIBLE LAMBDA CALLS
-	// Replace all "->" with ";" TODO
-	// Integer test = (int x, int y) -> (x + y) / (x - y);
-	// Integer test = (int x) -> x + x;
-	// Integer test = (x) -> (x + x);
-	// Integer test = (x) -> x + x;
-	// Integer test = x -> x + x;
-	// Integer test = x -> (x + x);
-	// Integer test = () -> 7;
-	// String s = invoke(() -> "done");
-
-	// All equality sign will have a space before and after them except for < and >
-	// Boolean t = 5 >= 5
-	// Boolean t = 5>5
-
-	// Use Aggregate Operations That Accept Lambda Expressions as Parameters
-	// roster
-	// .stream()
-	// .filter(
-	//     p -> p.getGender() == Person.Sex.MALE
-	//         && p.getAge() >= 18
-	//         && p.getAge() <= 25)
-	// .map(p -> p.getEmailAddress())
-
-	// Another issue; semi related; new function is opening inside parameters
-	// btn.setOnAction(new EventHandler<ActionEvent>() {
-	// 	@Override
-	// 	public void handle(ActionEvent event) {
-	// 		System.out.println("Hello World!");
-	// 	}
-	// });
-
-	// btn.setOnAction(
-	// 	event -> System.out.println("Hello World!")
-	//   );
-
-	// var numberOfValidOpenCurlies = 0
-	// for i := 0; i < len(method.Functionality); i++ {
-	// 	if (currentStyle == SingleQuote && method.Functionality[i] == SingleQuote ||
-	// 		currentStyle == DoubleQuote && method.Functionality[i] == DoubleQuote ||
-	// 		currentStyle == TickerQuote && method.Functionality[i] == TickerQuote) &&
-	// 		(i == 0 || text[i-1] != Backslash) {
-	// 		currentStyle = NoQuote
-	// 	} else if currentStyle == NoQuote {
-	// 		if method.Functionality[i] == SingleQuote {
-	// 			currentStyle = SingleQuote
-	// 		} else if method.Functionality[i] == DoubleQuote {
-	// 			currentStyle = DoubleQuote
-	// 		} else if method.Functionality[i] == TickerQuote {
-	// 			currentStyle = TickerQuote
-	// 		} else if i+1 < len(method.Functionality) &&
-	// 			method.Functionality[i] == ClosedParenthesis &&
-	// 			method.Functionality[i+1] == OpenCurly {
-	// 			method.Functionality[i+1] = SemiColon
-	// 			continue
-	// 		} else if numberOfValidOpenCurlies == 0 && method.Functionality[i] == ClosedCurly {
-	// 			method.Functionality[i] = SemiColon
-	// 		} else if method.Functionality[i] == OpenCurly {
-	// 			numberOfValidOpenCurlies++
-	// 		} else if method.Functionality[i] == ClosedCurly {
-	// 			numberOfValidOpenCurlies--
-	// 		}
-	// 	}
-	// }
 
 	// Trim left and right spacing
 	text = bytes.TrimSpace(text)
@@ -450,11 +436,11 @@ func removeSpacing(text []byte) []byte {
 	return text
 }
 
+// DONE
 func removeAnnotations(text []byte) []byte {
 	var (
 		activeAsperand              bool = false
 		activeAsperandIndex         int  = 0
-		currentStyle                byte = NoQuote
 		currentAsperandBracket      byte = NoQuote
 		currentAsperandBracketCount int  = 1
 	)
@@ -464,44 +450,41 @@ func removeAnnotations(text []byte) []byte {
 		activeAsperand = false
 	}
 
-	for i := 0; i < len(text); i++ {
-		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
-			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote) &&
-			(i == 0 || text[i-1] != Backslash) {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if text[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if text[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if text[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if text[i] == Asperand {
-				activeAsperand = true
-				activeAsperandIndex = i
-			} else if activeAsperand {
-				if currentAsperandBracket == NoQuote && (text[i] == OpenParenthesis || text[i] == OpenCurly) {
-					currentAsperandBracket = text[i]
-				} else if (currentAsperandBracket == OpenParenthesis && text[i] == OpenParenthesis) || (currentAsperandBracket == OpenCurly && text[i] == OpenCurly) {
-					currentAsperandBracketCount++
-				} else if (currentAsperandBracket == OpenParenthesis && text[i] == ClosedParenthesis) ||
-					(currentAsperandBracket == OpenCurly && text[i] == ClosedCurly) {
-					currentAsperandBracketCount--
+	for i, f := 0, ignoreQuotes(&text); i < len(text); i++ {
+		isInsideQuotation := f(i)
+		if isInsideQuotation {
+			continue
+		}
 
-					if currentAsperandBracketCount == 0 {
-						removeText(i)
-					}
-				} else if currentAsperandBracket == NoQuote && text[i] == Space {
-					removeText(i)
-				}
+		if text[i] == Asperand {
+			activeAsperand = true
+			activeAsperandIndex = i
+			continue
+		}
+
+		if !activeAsperand {
+			continue
+		}
+
+		if currentAsperandBracket == NoQuote && (text[i] == OpenParenthesis || text[i] == OpenCurly) {
+			currentAsperandBracket = text[i]
+		} else if (currentAsperandBracket == OpenParenthesis && text[i] == OpenParenthesis) || (currentAsperandBracket == OpenCurly && text[i] == OpenCurly) {
+			currentAsperandBracketCount++
+		} else if (currentAsperandBracket == OpenParenthesis && text[i] == ClosedParenthesis) || (currentAsperandBracket == OpenCurly && text[i] == ClosedCurly) {
+			currentAsperandBracketCount--
+
+			if currentAsperandBracketCount == 0 {
+				removeText(i)
 			}
+		} else if currentAsperandBracket == NoQuote && text[i] == Space {
+			removeText(i)
 		}
 	}
 
 	return text
 }
 
+// DONE
 func getPackageImports(text []byte) [][]byte {
 	var (
 		response             [][]byte
@@ -534,54 +517,42 @@ func getPackageImports(text []byte) [][]byte {
 	return response
 }
 
+// DONE
 // Get package name from code if one exists
 func getPackageName(text []byte) []byte {
-	REGEX_FirstOpenCurly := regexp.MustCompile(`\{`)
-	firstOpenCurlyIndex := REGEX_FirstOpenCurly.FindIndex(text)
+	var packageNameStartIndex int = -1
 
-	// Find package declaration
-	// Example return: "  package   com.main.prouml  ;       "
-	// Make sure when finding 'package' keyword, we are on the outside scope
-	// If there is no scope increment in the code, return error
-	// If there is a scope increment, but there's no package declaration, return nil byte slice with no error
-	// If there is a scope increment, and there's a package declaration inside the scope, return nil byte slice with no error
-	REGEX_PackageDeclaration := regexp.MustCompile(`[\s\S]*?package[\s\S][^;]*`)
+	for i := 0; i < len(text); i++ {
+		if text[i] == OpenCurly {
+			break
+		}
 
-	packageDeclarationIndex := REGEX_PackageDeclaration.FindIndex(text)
+		if packageNameStartIndex != -1 && text[i] == SemiColon {
+			return text[packageNameStartIndex:i]
+		}
 
-	if len(firstOpenCurlyIndex) == 0 ||
-		len(packageDeclarationIndex) == 0 ||
-		packageDeclarationIndex[len(packageDeclarationIndex)-1] > firstOpenCurlyIndex[len(firstOpenCurlyIndex)-1] {
-		return nil
+		if i+8 < len(text) &&
+			text[i] == 'p' &&
+			text[i+1] == 'a' &&
+			text[i+2] == 'c' &&
+			text[i+3] == 'k' &&
+			text[i+4] == 'a' &&
+			text[i+5] == 'g' &&
+			text[i+6] == 'e' &&
+			text[i+7] == Space {
+			packageNameStartIndex = i + 8
+		}
 	}
 
-	text = REGEX_PackageDeclaration.Find(text)
-
-	// Remove package keyword and whitespacing
-	// Example return: "com.main.prouml       "
-	REGEX_PackageRemoval := regexp.MustCompile(`[\s]*package[\s]*`)
-	text = REGEX_PackageRemoval.ReplaceAll(text, nil)
-
-	// Remove package keyword and whitespacing
-	// Example return: "com.main.prouml"
-	REGEX_SemiColonRemoval := regexp.MustCompile(`[\s]*;[\s]*`)
-	text = REGEX_SemiColonRemoval.ReplaceAll(text, nil)
-
-	// Trim left and right spacing
-	text = bytes.TrimSpace(text)
-
-	return text
+	return nil
 }
 
+// DONE
 func getFileClasses(text []byte) []any {
-	// Search for file name
-	// Example return: "public class Test5"
 	var (
-		classesText   = make([]types.JavaClassText, 0)
+		classesText   = getNestedClasses(text, nil)
 		classesStruct = make([]any, 0)
 	)
-
-	getInnerClasses(&classesText, text, false)
 
 	findIndex := func(sWord string, dbArray [][]byte) int {
 		bWord := []byte(sWord)
@@ -678,49 +649,168 @@ func getFileClasses(text []byte) []any {
 	return classesStruct
 }
 
+// DONE
+func getNestedClasses(text []byte, previousClass *types.JavaClassText) []types.JavaClassText {
+	var (
+		classes         []types.JavaClassText
+		startScopeIndex int = 0
+		currentScope    int = 0
+	)
+
+	isClassDeclaration := func(word1, word2 []byte) bool {
+		return (bytes.Equal(word1, []byte("abstract")) && bytes.Equal(word2, []byte("class"))) || bytes.Equal(word1, []byte("class")) || bytes.Equal(word1, []byte("interface")) || bytes.Equal(word1, []byte("enum"))
+	}
+
+	for i, f := 0, ignoreQuotes(&text); i < len(text); i++ {
+		isInsideQuotation := f(i)
+		if isInsideQuotation {
+			continue
+		}
+
+		if text[i] == OpenCurly {
+			if currentScope == 0 {
+				startScopeIndex = i
+			}
+
+			currentScope++
+		}
+
+		if text[i] != ClosedCurly {
+			continue
+		}
+
+		currentScope--
+
+		if startScopeIndex == 0 || currentScope != 0 {
+			continue
+		}
+
+		if i+1 < len(text) && text[i+1] == SemiColon {
+			i++
+		}
+
+		for j := startScopeIndex; j >= 0; j-- {
+			if !(j == 0 || text[j-1] == SemiColon || text[j-1] == ClosedCurly) {
+				continue
+			}
+
+			var (
+				outerText []byte
+				innerText []byte
+			)
+
+			outerText = append(outerText, text[j:startScopeIndex]...)
+			outerTextSplit := bytes.Split(outerText, []byte(" "))
+			innerText = append(innerText, text[startScopeIndex+1:i]...)
+
+			if !(len(outerTextSplit) > 5 && isClassDeclaration(outerTextSplit[4], outerTextSplit[5]) ||
+				len(outerTextSplit) > 4 && isClassDeclaration(outerTextSplit[3], outerTextSplit[4]) ||
+				len(outerTextSplit) > 3 && isClassDeclaration(outerTextSplit[2], outerTextSplit[3]) ||
+				len(outerTextSplit) > 2 && isClassDeclaration(outerTextSplit[1], outerTextSplit[2]) ||
+				len(outerTextSplit) > 1 && isClassDeclaration(outerTextSplit[0], outerTextSplit[1])) {
+				break
+			}
+
+			addCurrentAndCheckForNext := func(DefinedWithin, Outside, Inside []byte) {
+				classes = append(classes, types.JavaClassText{
+					DefinedWithin: DefinedWithin,
+					Outside:       Outside,
+					Inside:        Inside,
+				})
+				classes = append(classes, getNestedClasses(Inside, &classes[len(classes)-1])...)
+			}
+
+			if previousClass == nil {
+				addCurrentAndCheckForNext(nil, outerText, innerText)
+				break
+			}
+
+			if text[i] == SemiColon {
+				innerText = text[startScopeIndex+1 : i-1]
+			}
+
+			index := bytes.Index(previousClass.Inside, outerText)
+			if index == -1 {
+				addCurrentAndCheckForNext(nil, outerText, innerText)
+				break
+			}
+
+			var (
+				innerScopeNumber int = 0
+				endingIndex      int = len(previousClass.Inside) - 1
+			)
+
+			for i2, f2 := 0, ignoreQuotes(&previousClass.Inside); i2 < len(previousClass.Inside); i2++ {
+				isInsideQuotation2 := f2(i2)
+				if isInsideQuotation2 {
+					continue
+				}
+
+				if previousClass.Inside[i2] == OpenCurly {
+					innerScopeNumber++
+				} else if previousClass.Inside[i2] == ClosedCurly {
+					innerScopeNumber--
+
+					if i2+1 < len(previousClass.Inside) && previousClass.Inside[i2+1] == SemiColon {
+						i2++
+					}
+
+					if innerScopeNumber == 0 {
+						endingIndex = i2
+						break
+					}
+				}
+			}
+
+			previousClass.Inside = append(previousClass.Inside[0:index], previousClass.Inside[endingIndex+1:]...)
+			previousOuterTextSplit := bytes.Split(previousClass.Outside, []byte(" "))
+			definedWithin := previousOuterTextSplit[len(previousOuterTextSplit)-1]
+
+			addCurrentAndCheckForNext(definedWithin, outerText, innerText)
+			break
+		}
+
+		startScopeIndex = 0
+	}
+
+	return classes
+}
+
+// DONE
 func getEnumDeclarations(text []byte) [][]byte {
 	var (
 		response               [][]byte
-		currentStyle           byte = NoQuote
 		parenthesisScope       int  = 0
 		textLength             int  = len(text)
 		startDeclarationIndex  int  = 0
 		sectionUsedParenthesis bool = false
 	)
 
-	for i := 0; i < textLength; i++ {
-		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
-			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote) &&
-			(i == 0 || text[i-1] != Backslash) {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if text[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if text[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if text[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if text[i] == ClosedParenthesis {
-				parenthesisScope--
-			} else if sectionUsedParenthesis {
-				if text[i] == Comma {
-					sectionUsedParenthesis = false
-					startDeclarationIndex = i + 1
-				} else if text[i] == SemiColon {
-					break
-				}
-			} else if parenthesisScope == 0 && (text[i] == OpenParenthesis || text[i] == Comma || text[i] == SemiColon) {
-				response = append(response, text[startDeclarationIndex:i])
+	for i, f := 0, ignoreQuotes(&text); i < len(text); i++ {
+		isInsideQuotation := f(i)
+		if isInsideQuotation {
+			continue
+		}
 
-				if text[i] == SemiColon {
-					break
-				} else if text[i] == OpenParenthesis {
-					parenthesisScope++
-					sectionUsedParenthesis = true
-				} else if text[i] == Comma {
-					startDeclarationIndex = i + 1
-				}
+		if text[i] == ClosedParenthesis {
+			parenthesisScope--
+		} else if sectionUsedParenthesis {
+			if text[i] == Comma {
+				sectionUsedParenthesis = false
+				startDeclarationIndex = i + 1
+			} else if text[i] == SemiColon {
+				break
+			}
+		} else if parenthesisScope == 0 && (text[i] == OpenParenthesis || text[i] == Comma || text[i] == SemiColon) {
+			response = append(response, text[startDeclarationIndex:i])
+
+			if text[i] == SemiColon {
+				break
+			} else if text[i] == OpenParenthesis {
+				parenthesisScope++
+				sectionUsedParenthesis = true
+			} else if text[i] == Comma {
+				startDeclarationIndex = i + 1
 			}
 		}
 	}
@@ -735,142 +825,14 @@ func getEnumDeclarations(text []byte) [][]byte {
 	return response
 }
 
-func getInnerClasses(classesText *[]types.JavaClassText, text []byte, isNested bool) {
-	var (
-		startScopeIndex int  = 0
-		currentStyle    byte = NoQuote
-		currentScope    int  = 0
-	)
-
-	isClassDeclaration := func(word1, word2 []byte) bool {
-		return (bytes.Equal(word1, []byte("abstract")) && bytes.Equal(word2, []byte("class"))) || bytes.Equal(word1, []byte("class")) || bytes.Equal(word1, []byte("interface")) || bytes.Equal(word1, []byte("enum"))
-	}
-
-	for i := 0; i < len(text); i++ {
-		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
-			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote) &&
-			(i == 0 || text[i-1] != Backslash) {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if text[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if text[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if text[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if text[i] == OpenCurly {
-				if currentScope == 0 {
-					startScopeIndex = i
-				}
-
-				currentScope++
-			} else if text[i] == ClosedCurly {
-				currentScope--
-
-				if startScopeIndex != 0 && currentScope == 0 {
-					if i+1 < len(text) && text[i+1] == SemiColon {
-						i++
-					}
-
-					for j := startScopeIndex; j >= 0; j-- {
-						if j == 0 || text[j-1] == SemiColon || text[j-1] == ClosedCurly {
-							var (
-								definedWithin []byte
-								outerText     []byte
-								innerText     []byte
-							)
-							outerText = append(outerText, text[j:startScopeIndex]...)
-							outerTextSplit := bytes.Split(outerText, []byte(" "))
-							innerText = append(innerText, text[startScopeIndex+1:i]...)
-
-							if len(outerTextSplit) > 5 && isClassDeclaration(outerTextSplit[4], outerTextSplit[5]) ||
-								len(outerTextSplit) > 4 && isClassDeclaration(outerTextSplit[3], outerTextSplit[4]) ||
-								len(outerTextSplit) > 3 && isClassDeclaration(outerTextSplit[2], outerTextSplit[3]) ||
-								len(outerTextSplit) > 2 && isClassDeclaration(outerTextSplit[1], outerTextSplit[2]) ||
-								len(outerTextSplit) > 1 && isClassDeclaration(outerTextSplit[0], outerTextSplit[1]) {
-
-								if isNested {
-									previousInnerText := (*classesText)[len(*classesText)-1].Inside
-
-									if text[i] == SemiColon {
-										innerText = text[startScopeIndex+1 : i-1]
-									}
-
-									index := bytes.Index(previousInnerText, outerText)
-									if index != -1 {
-										var (
-											currentInnerStyle byte = NoQuote
-											innerScopeNumber  int  = 0
-											endingIndex            = len(previousInnerText) - 1
-										)
-
-										for k := index; k < len(previousInnerText); k++ {
-											if (currentInnerStyle == SingleQuote && previousInnerText[k] == SingleQuote ||
-												currentInnerStyle == DoubleQuote && previousInnerText[k] == DoubleQuote ||
-												currentInnerStyle == TickerQuote && previousInnerText[k] == TickerQuote) &&
-												(i == 0 || text[i-1] != Backslash) {
-												currentInnerStyle = NoQuote
-											} else if currentInnerStyle == NoQuote {
-												if previousInnerText[k] == SingleQuote {
-													currentInnerStyle = SingleQuote
-												} else if previousInnerText[k] == DoubleQuote {
-													currentInnerStyle = DoubleQuote
-												} else if previousInnerText[k] == TickerQuote {
-													currentInnerStyle = TickerQuote
-												} else if previousInnerText[k] == OpenCurly {
-													innerScopeNumber++
-												} else if previousInnerText[k] == ClosedCurly {
-													innerScopeNumber--
-
-													if k+1 < len(previousInnerText) && previousInnerText[k+1] == SemiColon {
-														k++
-													}
-
-													if innerScopeNumber == 0 {
-														endingIndex = k
-														break
-													}
-												}
-											}
-										}
-
-										(*classesText)[len(*classesText)-1].Inside = append(previousInnerText[0:index], previousInnerText[endingIndex+1:]...)
-										previousOuterText := (*classesText)[len(*classesText)-1].Outside
-										previousOuterTextSplit := bytes.Split(previousOuterText, []byte(" "))
-										definedWithin = previousOuterTextSplit[len(previousOuterTextSplit)-1]
-									}
-								}
-
-								*classesText = append(*classesText, types.JavaClassText{
-									DefinedWithin: definedWithin,
-									Outside:       outerText,
-									Inside:        innerText,
-								})
-
-								getInnerClasses(classesText, innerText, true)
-							}
-
-							break
-						}
-					}
-
-					startScopeIndex = 0
-				}
-			}
-		}
-	}
-}
-
+// DONE
 func getVariablesAndMethods(text []byte) ([]types.JavaVariable, []types.JavaMethod) {
 	var (
-		linesSplit = splitVariablesAndMethods(text) // Split by line of execution
+		linesSplit = splitVariablesAndMethods(text)
 		variables  []types.JavaVariable
 		methods    []types.JavaMethod
 	)
 
-	// get variables or method
-	// push to this variables and methods
 	for i := 0; i < len(linesSplit); i++ {
 		v, m := getVariablesOrMethod(linesSplit[i])
 		variables = append(variables, v...)
@@ -883,65 +845,54 @@ func getVariablesAndMethods(text []byte) ([]types.JavaVariable, []types.JavaMeth
 	return variables, methods
 }
 
-func splitVariablesAndMethods(t []byte) [][]byte {
+// DONE
+// Split text into lines of execution
+func splitVariablesAndMethods(text []byte) [][]byte {
 	var (
-		text         = make([]byte, len(t))
-		response     [][]byte
-		currentStyle byte = NoQuote
-		currentScope int  = 0
+		response                [][]byte
+		currentCurlyScope       int = 0
+		currentParenthesisScope int = 0
+		appendStartIndex        int = 0
 	)
-	copy(text, t)
 
-	removeAndAppendText := func(i int) {
-		temp := make([]byte, len(text))
-		copy(temp, text)
-		temp = append([]byte(nil), temp[0:i+1]...)
+	for i, f := 0, ignoreQuotes(&text); i < len(text); i++ {
+		isInsideQuotation := f(i)
+		if isInsideQuotation {
+			continue
+		}
 
-		response = append(response, temp)
+		if text[i] == OpenParenthesis {
+			currentParenthesisScope++
+		} else if text[i] == ClosedParenthesis {
+			currentParenthesisScope--
+		} else if text[i] == OpenCurly {
+			currentCurlyScope++
+		} else if text[i] == ClosedCurly {
+			currentCurlyScope--
 
-		text = append(text[:0], text[i+1:]...)
-		currentStyle = NoQuote
-	}
-
-	for i := 0; i < len(text); i++ {
-		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
-			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote) &&
-			(i == 0 || text[i-1] != Backslash) {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if text[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if text[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if text[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if text[i] == OpenCurly {
-				currentScope++
-			} else if text[i] == ClosedCurly {
-				currentScope--
-
-				if currentScope == 0 {
-					if i+1 < len(text) {
-						if text[i+1] == ClosedParenthesis || text[i+1] == Comma {
-							// This is to prevent:
-							// System.out.println(new int[][] {{20}, {40}});
-							// from appending an extra value
-							continue
-						}
-
-						if text[i+1] == SemiColon {
-							i++
-						}
-					}
-
-					removeAndAppendText(i)
-					i = 0
-				}
-			} else if text[i] == SemiColon && currentScope == 0 {
-				removeAndAppendText(i)
-				i = 0
+			if currentCurlyScope != 0 {
+				continue
 			}
+
+			if i+1 < len(text) {
+				if text[i+1] == ClosedParenthesis || text[i+1] == Comma {
+					// This is to prevent:
+					// System.out.println(new int[][] {{20}, {40}});
+					//                                     ^
+					// from appending an extra value
+					continue
+				}
+
+				if text[i+1] == SemiColon {
+					i++
+				}
+			}
+
+			response = append(response, text[appendStartIndex:i+1])
+			appendStartIndex = i + 1
+		} else if currentCurlyScope == 0 && currentParenthesisScope == 0 && text[i] == SemiColon {
+			response = append(response, text[appendStartIndex:i+1])
+			appendStartIndex = i + 1
 		}
 	}
 
@@ -1041,14 +992,6 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		Type, _, _ = bytes.Cut(vSText, []byte(" "))
 		vSText = vSText[len(Type)+1:]
 
-		var (
-			currentStyle         byte = NoQuote
-			nameStartIndex       int  = 0
-			currentName          []byte
-			currentlyFindingName bool = true
-			valueStartIndex      int  = 0
-		)
-
 		// Example inputs:
 		// Type var1;
 		// Type var2 = "Hello";
@@ -1057,51 +1000,47 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		// Type var8 = true == true
 		// Type var9 = (true == true) || (true == false)
 
-		// TODO change Space Equals Equals Space
-		fmt.Printf("vSText: %s\n", string(vSText))
-		for i := 0; i < len(vSText); i++ {
-			if (currentStyle == SingleQuote && vSText[i] == SingleQuote ||
-				currentStyle == DoubleQuote && vSText[i] == DoubleQuote ||
-				currentStyle == TickerQuote && vSText[i] == TickerQuote) &&
-				(i == 0 || text[i-1] != Backslash) {
-				currentStyle = NoQuote
-			} else if currentStyle == NoQuote {
-				if vSText[i] == SingleQuote {
-					currentStyle = SingleQuote
-				} else if vSText[i] == DoubleQuote {
-					currentStyle = DoubleQuote
-				} else if vSText[i] == TickerQuote {
-					currentStyle = TickerQuote
-				} else if vSText[i] == Comma || vSText[i] == SemiColon {
-					var currentValue []byte
-					if valueStartIndex != 0 {
-						currentValue = vSText[valueStartIndex:i]
-					}
-					if currentlyFindingName {
-						currentName = vSText[nameStartIndex:i]
-					}
+		var (
+			nameStartIndex       int = 0
+			currentName          []byte
+			currentlyFindingName bool = true
+			valueStartIndex      int  = 0
+		)
 
-					variables = append(variables, types.JavaVariable{
-						Type:           Type,
-						Name:           currentName,
-						Value:          currentValue,
-						AccessModifier: AccessModifier,
-						Static:         Static,
-						Final:          Final,
-					})
+		for i, f := 0, ignoreQuotes(&vSText); i < len(vSText); i++ {
+			isInsideQuotation := f(i)
+			if isInsideQuotation {
+				continue
+			}
 
-					if vSText[i] == Comma {
-						nameStartIndex = i + 1
-						valueStartIndex = 0
-						currentlyFindingName = true
-					}
-
-				} else if currentlyFindingName && vSText[i] == EqualSign {
-					currentName = vSText[nameStartIndex:i]
-					currentlyFindingName = false
-					valueStartIndex = i + 1
-					fmt.Printf("hello: %s\n", string(vSText[i]))
+			if vSText[i] == Comma || vSText[i] == SemiColon {
+				var currentValue []byte
+				if valueStartIndex != 0 {
+					currentValue = vSText[valueStartIndex:i]
 				}
+				if currentlyFindingName {
+					currentName = vSText[nameStartIndex:i]
+				}
+
+				variables = append(variables, types.JavaVariable{
+					Type:           Type,
+					Name:           currentName,
+					Value:          currentValue,
+					AccessModifier: AccessModifier,
+					Static:         Static,
+					Final:          Final,
+				})
+
+				if vSText[i] == Comma {
+					nameStartIndex = i + 1
+					valueStartIndex = 0
+					currentlyFindingName = true
+				}
+
+			} else if currentlyFindingName && vSText[i] == EqualSign {
+				currentName = vSText[nameStartIndex:i]
+				currentlyFindingName = false
+				valueStartIndex = i + 1
 			}
 		}
 
@@ -1111,28 +1050,19 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	var (
 		methodDeclaration = text[0:openParamIndex]
 		paramDeclarations []byte
-		closedParamIndex  int  = 0
-		currentStyle      byte = NoQuote
+		closedParamIndex  int = 0
 	)
 
-	for i := openParamIndex; i < len(text); i++ {
-		if (currentStyle == SingleQuote && text[i] == SingleQuote ||
-			currentStyle == DoubleQuote && text[i] == DoubleQuote ||
-			currentStyle == TickerQuote && text[i] == TickerQuote) &&
-			(i == 0 || text[i-1] != Backslash) {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if text[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if text[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if text[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if text[i] == ClosedParenthesis {
-				closedParamIndex = i
-				paramDeclarations = append(paramDeclarations, text[openParamIndex+1:closedParamIndex]...)
-				break
-			}
+	for i, f := 0, ignoreQuotes(&text); i < len(text); i++ {
+		isInsideQuotation := f(i)
+		if isInsideQuotation {
+			continue
+		}
+
+		if text[i] == ClosedParenthesis {
+			closedParamIndex = i
+			paramDeclarations = append(paramDeclarations, text[openParamIndex+1:closedParamIndex]...)
+			break
 		}
 	}
 
@@ -1141,35 +1071,6 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 			method.Functionality = append(method.Functionality, text[closedParamIndex+2:len(text)-2]...)
 		} else {
 			method.Functionality = append(method.Functionality, text[closedParamIndex+2:len(text)-1]...)
-		}
-	}
-
-	var numberOfValidOpenCurlies = 0
-	for i := 0; i < len(method.Functionality); i++ {
-		if (currentStyle == SingleQuote && method.Functionality[i] == SingleQuote ||
-			currentStyle == DoubleQuote && method.Functionality[i] == DoubleQuote ||
-			currentStyle == TickerQuote && method.Functionality[i] == TickerQuote) &&
-			(i == 0 || text[i-1] != Backslash) {
-			currentStyle = NoQuote
-		} else if currentStyle == NoQuote {
-			if method.Functionality[i] == SingleQuote {
-				currentStyle = SingleQuote
-			} else if method.Functionality[i] == DoubleQuote {
-				currentStyle = DoubleQuote
-			} else if method.Functionality[i] == TickerQuote {
-				currentStyle = TickerQuote
-			} else if i+1 < len(method.Functionality) &&
-				method.Functionality[i] == ClosedParenthesis &&
-				method.Functionality[i+1] == OpenCurly {
-				method.Functionality[i+1] = SemiColon
-				continue
-			} else if numberOfValidOpenCurlies == 0 && method.Functionality[i] == ClosedCurly {
-				method.Functionality[i] = SemiColon
-			} else if method.Functionality[i] == OpenCurly {
-				numberOfValidOpenCurlies++
-			} else if method.Functionality[i] == ClosedCurly {
-				numberOfValidOpenCurlies--
-			}
 		}
 	}
 
@@ -1183,6 +1084,12 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		currentQuote = NoQuote
 	}
 
+	// Remove quotes and text inside quotes
+	// INPUT:
+	// String str='A';String str2='A',str3='B';
+
+	// OUTPUT:
+	// String str;String str2,str3;
 	for i := 0; i < len(method.Functionality); i++ {
 		if currentQuote == NoQuote {
 			if method.Functionality[i] == SingleQuote {
@@ -1195,6 +1102,11 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 				currentQuote = TickerQuote
 				lastQuoteIndex = i
 			}
+
+			if lastQuoteIndex > 0 && (method.Functionality[lastQuoteIndex-1] == EqualSign || method.Functionality[lastQuoteIndex-1] == Comma) {
+
+				lastQuoteIndex--
+			}
 		} else if currentQuote == SingleQuote && method.Functionality[i] == SingleQuote {
 			removeQuoteText(i)
 		} else if currentQuote == DoubleQuote && method.Functionality[i] == DoubleQuote {
@@ -1204,11 +1116,330 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 	}
 
+	var (
+		numberOfOpenParenthesis  int  = 0
+		numberOfValidOpenCurlies int  = 0
+		isInsideSwitch           bool = false
+	)
+
+	// Prevent scope incrementation. Change open curlies to semicolons.
+	for i := 0; i < len(method.Functionality); i++ {
+		if i+6 < len(method.Functionality) &&
+			method.Functionality[i] == 's' &&
+			method.Functionality[i+1] == 'w' &&
+			method.Functionality[i+2] == 'i' &&
+			method.Functionality[i+3] == 't' &&
+			method.Functionality[i+4] == 'c' &&
+			method.Functionality[i+5] == 'h' &&
+			method.Functionality[i+6] == OpenParenthesis &&
+			(i == 0 || method.Functionality[i-1] == SemiColon) {
+			isInsideSwitch = true
+		} else if method.Functionality[i] == Colon && isInsideSwitch {
+			for j := i - 1; j > 4; j-- {
+				if method.Functionality[j] == SemiColon {
+					break
+				} else if method.Functionality[j-5] == SemiColon &&
+					method.Functionality[j-4] == 'c' &&
+					method.Functionality[j-3] == 'a' &&
+					method.Functionality[j-2] == 's' &&
+					method.Functionality[j-1] == 'e' &&
+					(method.Functionality[j] == Space || method.Functionality[j] == OpenParenthesis) {
+					cutLimit := j
+					if method.Functionality[j] == Space {
+						cutLimit++
+					}
+					method.Functionality[i] = SemiColon
+					method.Functionality = append(method.Functionality[:j-4], method.Functionality[cutLimit:]...)
+					i = i - 5
+
+					break
+				}
+			}
+		} else if method.Functionality[i] == Hyphen_MinusSign && i+1 < len(method.Functionality) && method.Functionality[i+1] == RightArrow {
+			if isInsideSwitch {
+				// INPUT: case Type1->result=1;
+				// OUTPT: case Type1;result=1;
+
+				for j := i - 1; j > 4; j-- {
+					if method.Functionality[j] == SemiColon {
+						break
+					} else if method.Functionality[j-5] == SemiColon &&
+						method.Functionality[j-4] == 'c' &&
+						method.Functionality[j-3] == 'a' &&
+						method.Functionality[j-2] == 's' &&
+						method.Functionality[j-1] == 'e' &&
+						(method.Functionality[j] == Space || method.Functionality[j] == OpenParenthesis) {
+						cutLimit := j
+						if method.Functionality[j] == Space {
+							method.Functionality[i] = SemiColon
+							cutLimit++
+						} else {
+							method.Functionality[i+1] = SemiColon
+						}
+
+						method.Functionality[i] = SemiColon
+						method.Functionality = append(method.Functionality[:j-4], method.Functionality[cutLimit:]...)
+						i = i - 5
+
+						break
+					}
+				}
+
+				cutLimit := i + 2
+				if i+2 < len(method.Functionality) && method.Functionality[i+2] == OpenCurly {
+					cutLimit++
+				}
+
+				method.Functionality = append(method.Functionality[:i+1], method.Functionality[cutLimit:]...)
+			} else if numberOfOpenParenthesis > 0 {
+				// INPUT: String s=invoke(()->"Hello");
+				// OUTPT: String s;invoke();"Hello";
+
+				// INPUT: String s=invoke(()->{"Hello";"Hello2";});
+				// OUTPT: String s;invoke();"Hello";"Hello2";
+
+				// INPUT: btn.setOnAction(otherParam,event->System.out.println("Hello"))
+				// OUTPT: btn.setOnAction(otherParam);event;System.out.println("Hello");
+
+				method.Functionality = append(method.Functionality[:i], method.Functionality[i+2:]...)
+
+				if i <= 0 {
+					continue
+				}
+
+				if method.Functionality[i-1] != ClosedParenthesis {
+					// Need to add closing parenthesis
+					// Need to add opening parenthesis
+					method.Functionality = append(method.Functionality[:i+1], method.Functionality[i:]...)
+					method.Functionality[i] = ClosedParenthesis
+					i++
+
+					for j := i - 1; j >= 0; j-- {
+						if method.Functionality[j] == OpenParenthesis || method.Functionality[j] == Comma {
+							method.Functionality = append(method.Functionality[:j+1], method.Functionality[j:]...)
+							method.Functionality[j+1] = OpenParenthesis
+							i++
+							break
+						}
+					}
+				}
+
+				// String s=invoke(());
+				// We are here:     ^
+
+				// INPUT: String s=invoke(()->System.out.println());
+				// OUTPT: String s;invoke();System.out.println();
+
+				// INPUT: String s=invoke((t)->System.out.println());
+				// OUTPT: String s;invoke();t;System.out.println();
+
+				// INPUT: String s=invoke(p,(t)->System.out.println());
+				// OUTPT: String s;invoke(p);t;System.out.println();
+
+				// Remove this: String s=invoke(p,(t)System.out.println());
+				//                                  ^
+				method.Functionality = append(method.Functionality[:i-1], method.Functionality[i:]...)
+				i--
+
+				// Find this: String s=invoke(p,(tSystem.out.println());
+				//                              ^
+				var (
+					openParenthesisIndex int = 0
+					numberOfParenthesis1 int = 0
+				)
+				for j := i - 1; j >= 0; j-- {
+					if numberOfParenthesis1 == 0 && method.Functionality[j] == OpenParenthesis {
+						openParenthesisIndex = j
+						break
+					} else if method.Functionality[j] == ClosedParenthesis {
+						numberOfParenthesis1++
+					} else if method.Functionality[j] == OpenParenthesis {
+						numberOfParenthesis1--
+					}
+				}
+
+				// Find this: String s=invoke(p,(tSystem.out.println());
+				//                             ^
+				if openParenthesisIndex-1 > 0 && method.Functionality[openParenthesisIndex-1] == Comma {
+					// Remove this: String s=invoke(p,(tSystem.out.println());
+					//                               ^
+					method.Functionality = append(method.Functionality[:openParenthesisIndex-1], method.Functionality[openParenthesisIndex:]...)
+					i--
+				}
+
+				// Remove this: String s=invoke(p(tSystem.out.println());
+				//                               ^
+				method.Functionality = append(method.Functionality[:openParenthesisIndex-1], method.Functionality[openParenthesisIndex:]...)
+				i--
+
+				// INPUT: test.filter(p->p.getGender()==Person.Sex.MALE&&p.getAge()>=18)
+				// OUTPT: test.filter();p;p.getGender()==Person.Sex.MALE&&p.getAge()>=18;
+
+				// INPUT: btn.setOnAction(event->System.out.println("Hello"))
+				// OUTPT: btn.setOnAction();event;System.out.println("Hello");
+
+				// Remove open and close brackets
+				// INPUT: String s=invoke(p(t{System.out.println()});
+				// OUTPT: String s=invoke(p(tSystem.out.println());
+				if method.Functionality[i] == OpenCurly {
+					method.Functionality = append(method.Functionality[:i], method.Functionality[i+1:]...)
+					curlyScope := 0
+					ccIndex := i + 1
+
+					for j := ccIndex; j < len(method.Functionality); j++ {
+						if curlyScope == 0 && method.Functionality[j] == ClosedCurly {
+							ccIndex = j
+							break
+						} else if method.Functionality[j] == OpenCurly {
+							curlyScope++
+						} else if method.Functionality[j] == ClosedCurly {
+							curlyScope--
+						}
+					}
+
+					if ccIndex+1 < len(method.Functionality) && method.Functionality[ccIndex+1] == SemiColon {
+						method.Functionality = append(method.Functionality[:ccIndex+1], method.Functionality[ccIndex+2:]...)
+					}
+
+					method.Functionality = append(method.Functionality[:ccIndex], method.Functionality[ccIndex+1:]...)
+				}
+
+				// Find this: String s=invoke(ptSystem.out.println());
+				//                                                  ^
+				var (
+					closedParenthesisIndex int = 0
+					numberOfParenthesis2   int = 0
+				)
+				for j := i + 1; j < len(method.Functionality); j++ {
+					if numberOfParenthesis2 == 0 && method.Functionality[j] == ClosedParenthesis {
+						closedParenthesisIndex = j
+						break
+					} else if method.Functionality[j] == OpenParenthesis {
+						numberOfParenthesis2++
+					} else if method.Functionality[j] == ClosedParenthesis {
+						numberOfParenthesis2--
+					}
+				}
+
+				insertAtIndex := closedParenthesisIndex + 2
+				if insertAtIndex+1 < len(method.Functionality) && method.Functionality[insertAtIndex+1] == SemiColon {
+					insertAtIndex++
+				}
+
+				// Move functionality from inside to outside
+				// INPUT: String s=invoke(p(tSystem.out.println(););
+				// OUTPT: String s=invoke(p(t);System.out.println();
+				fLength := closedParenthesisIndex - i
+
+				method.Functionality = append(method.Functionality, method.Functionality[i:i+fLength]...)
+
+				// INPUT: String s=invoke(testint a,int bYes;System.out.println(););int c;Yes;System.out.println();
+				// OUTPT: String s=invoke(test);int c;Yes;System.out.println();
+				method.Functionality = append(method.Functionality[:openParenthesisIndex-1], method.Functionality[i+fLength:]...)
+			} else {
+				var equalSignIndex int = 0
+				for j := i - 1; j >= 0; j-- {
+					if method.Functionality[j] == EqualSign {
+						equalSignIndex = j
+						break
+					}
+				}
+
+				method.Functionality[equalSignIndex] = SemiColon
+
+				method.Functionality = append(method.Functionality[:i], method.Functionality[i+1:]...)
+				method.Functionality[i] = SemiColon
+
+				fmt.Printf("text: %s\n", string(method.Functionality[i-1]))
+
+				if i > 0 && method.Functionality[i-1] == ClosedParenthesis {
+					// INPUT: Integer test=(int x,int y)->{(x+y)/(x-y);System.out.println();};
+					// OUTPT: Integer test;int x;int y;(x+y)/(x-y);System.out.println();
+
+					// INPUT: Integer test=(int x,int y)->(x+y)/(x-y);
+					// OUTPT: Integer test;int x;int y;(x+y)/(x-y);
+
+					// INPUT: Integer test=(int x)->x+x;
+					// OUTPT: Integer test;int x;x+x;
+
+					// INPUT: Integer test=(int x,int y)->(x+y)/(x-y);
+					// OUTPT: Integer test;int x;int y;(x+y)/(x-y);
+
+					// INPUT: Integer test=(x)->(x+x);
+					// OUTPT: Integer test;x;(x+x);
+
+					// INPUT: Integer test=(x)->x+x;
+					// OUTPT: Integer test;x;x+x;
+
+					// INPUT: Integer test=()->7;
+					// OUTPT: Integer test;7;
+
+					for j := equalSignIndex + 2; j < i-2; j++ {
+						if method.Functionality[j] == Comma {
+							method.Functionality[j] = SemiColon
+						}
+					}
+
+					// TODO need to remove parenthesis
+					// INPUT: Integer test;(int x;int y);(x+y)/(x-y);
+					// OUTPT: Integer test;int x;int y;(x+y)/(x-y);
+				}
+
+				if i+1 < len(method.Functionality) && method.Functionality[i+1] == OpenCurly {
+					// INPUT: Integer test=(int x,int y)->{(x+y)/(x-y);System.out.println();};
+					// OUTPT: Integer test;int x;int y;(x+y)/(x-y);System.out.println();
+
+					// INPUT: Integer test=(int x,int y)->{(x+y)/(x-y);System.out.println();}
+					// OUTPT: Integer test;int x;int y;(x+y)/(x-y);System.out.println();
+
+					// INPUT: Integer test=(int x,int y)->{};
+					// OUTPT: Integer test;int x;int y;
+
+					// INPUT: Integer test=(int x,int y)->{}
+					// OUTPT: Integer test;int x;int y;
+
+					method.Functionality = append(method.Functionality[:i+1], method.Functionality[i+2:]...)
+					curlyScope := 0
+					ccIndex := i + 1
+
+					for j := ccIndex; j < len(method.Functionality); j++ {
+						if curlyScope == 0 && method.Functionality[j] == ClosedCurly {
+							ccIndex = j
+							break
+						} else if method.Functionality[j] == OpenCurly {
+							curlyScope++
+						} else if method.Functionality[j] == ClosedCurly {
+							curlyScope--
+						}
+					}
+
+					if ccIndex+1 < len(method.Functionality) && method.Functionality[ccIndex+1] == SemiColon {
+						method.Functionality = append(method.Functionality[:ccIndex+1], method.Functionality[ccIndex+2:]...)
+					}
+				}
+			}
+		} else if (i+1 < len(method.Functionality) && method.Functionality[i] == ClosedParenthesis && method.Functionality[i+1] == OpenCurly) ||
+			((i < 2 || method.Functionality[i-2] == SemiColon) && i > 0 && method.Functionality[i-1] == 'd' && method.Functionality[i] == 'o' && method.Functionality[i+1] == OpenCurly) ||
+			((i < 3 || method.Functionality[i-3] == SemiColon) && i > 1 && method.Functionality[i-2] == 't' && method.Functionality[i-1] == 'r' && method.Functionality[i] == 'y' && method.Functionality[i+1] == OpenCurly) {
+			method.Functionality[i+1] = SemiColon
+			continue
+		} else if numberOfValidOpenCurlies == 0 && method.Functionality[i] == ClosedCurly {
+			method.Functionality[i] = SemiColon
+			isInsideSwitch = false
+		} else if method.Functionality[i] == OpenCurly {
+			numberOfValidOpenCurlies++
+		} else if method.Functionality[i] == ClosedCurly {
+			numberOfValidOpenCurlies--
+		} else if method.Functionality[i] == OpenParenthesis {
+			numberOfOpenParenthesis++
+		} else if method.Functionality[i] == ClosedParenthesis {
+			numberOfOpenParenthesis--
+		}
+	}
+
 	// Replace all double semicolons with just one
 	REGEX_DoubleSemiColon := regexp.MustCompile(`;{2,}`)
 	method.Functionality = REGEX_DoubleSemiColon.ReplaceAll(method.Functionality, []byte(";"))
-
-	declarationSplit := bytes.Split(methodDeclaration, []byte(" "))
 
 	var (
 		allParamsSplit        [][]byte
@@ -1243,6 +1474,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 	}
 
+	declarationSplit := bytes.Split(methodDeclaration, []byte(" "))
 	if bytes.Equal(declarationSplit[0], []byte("public")) || bytes.Equal(declarationSplit[0], []byte("protected")) || bytes.Equal(declarationSplit[0], []byte("private")) {
 		method.AccessModifier = declarationSplit[0]
 	}
@@ -1273,6 +1505,20 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	return nil, method
 }
 
+// TODO throws
+
+// TODO: under this... "outer:"
+// outer:
+//         for (int i = 0; i < 10; i++) {
+//             for (int j = 0; j < 10; j++) {
+//                 if (j == 1)
+//                     break outer;
+//                 System.out.println(" value of j = " + j);
+//             }
+//         } // end of outer loop
+
+// TODO 'instanceof' keyword
+// TODO Fish fish = (Fish)animal;
 // Returns associations and dependencies
 func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaMethod) ([][]byte, [][]byte) {
 	// Include all types... even if it is int, char, etc.
@@ -1385,136 +1631,211 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 			getTypesFromType(parameter.Type, dependenciesMap)
 		}
 
-		lines := splitVariablesAndMethods(method.Functionality)
+		tempLines := splitVariablesAndMethods(method.Functionality)
+		lines := make([][]byte, len(tempLines))
+		for i := range tempLines {
+			lines[i] = make([]byte, len(tempLines[i]))
+			copy(lines[i], tempLines[i])
+			tempLines[i] = nil
+		}
+		tempLines = nil
+
 		for i := 0; i < len(lines); i++ {
-			isIfStatement := bytes.HasPrefix(lines[i], []byte("if("))
-			isElseIfStatement := bytes.HasPrefix(lines[i], []byte("else if("))
-			// TODO
-			// if (p.getAge() > age)
-			// if (p.getAge() >= age)
-			// TODO for loops
-			// for (Person p : roster) {}
-			// for (int i = 0; i < people.length; i++) {}
+			// TODO if statements
+			// TODO while statements
 			// TODO switch statements
 			// TODO switch with lambda
-			// TODO change Space Equals Equals Space
+			// TODO case statements
+			// TODO ternary... ? :
 
-			if isIfStatement || isElseIfStatement {
+			if hasOpenParen, hasClosingParen, hasClosingParenAndSemiColon := bytes.HasPrefix(lines[i], []byte("(")), bytes.HasSuffix(lines[i], []byte(")")), bytes.HasSuffix(lines[i], []byte(");")); hasOpenParen && (hasClosingParen || hasClosingParenAndSemiColon) {
+				if hasClosingParen {
+					// INPUT:
+					// (new Type1()==new Type2()&&new Type3()==new Type4())
+
+					// OUTPUT:
+					// new Type1()==new Type2()&&new Type3()==new Type4()
+					lines[i] = lines[i][1 : len(lines[i])-2]
+				} else {
+					// INPUT:
+					// (new Type1()==new Type2()&&new Type3()==new Type4());
+
+					// OUTPUT:
+					// new Type1()==new Type2()&&new Type3()==new Type4()
+					lines[i] = lines[i][1 : len(lines[i])-3]
+				}
+
+				lines = append(lines, lines[i])
+				continue
+			}
+
+			if isIfStatement, isElseIfStatement := bytes.HasPrefix(lines[i], []byte("if(")), bytes.HasPrefix(lines[i], []byte("else if(")); isIfStatement || isElseIfStatement {
 				if isIfStatement {
+					// INPUT:
+					// if(new Type1()==new Type2()&&new Type3()==new Type4());
+
+					// OUTPUT:
+					// new Type1()==new Type2()&&new Type3()==new Type4()
 					lines[i] = lines[i][3 : len(lines[i])-2]
 				} else {
+					// INPUT:
+					// else if(new Type1()==new Type2()&&new Type3()==new Type4());
+
+					// OUTPUT:
+					// new Type1()==new Type2()&&new Type3()==new Type4()
 					lines[i] = lines[i][8 : len(lines[i])-2]
 				}
 
-				var (
-					numberOfRemovedOpenParenthesis int = 0
-					numberOfValidOpenParenthesis   int = 0
-				)
-
-				for j := 0; j < len(lines[i]); j++ {
-					if j+1 < len(lines[i]) && lines[i][j+1] == OpenParenthesis &&
-						(j == 0 || lines[i][j] == EqualSign ||
-							lines[i][j] == AndCondition ||
-							lines[i][j] == OrCondition ||
-							lines[i][j] == LeftArrow ||
-							lines[i][j] == RightArrow ||
-							lines[i][j] == ExclamationMark ||
-							lines[i][j] == PlusSign ||
-							lines[i][j] == Hyphen_MinusSign ||
-							lines[i][j] == Tilde ||
-							lines[i][j] == Slash ||
-							lines[i][j] == Percent ||
-							lines[i][j] == Caret) {
-						lines[i] = append(lines[i][:j+1], lines[i][j+2:]...)
-						numberOfRemovedOpenParenthesis++
-					} else if numberOfRemovedOpenParenthesis != 0 {
-						if numberOfValidOpenParenthesis == 0 && lines[i][j] == ClosedParenthesis {
-							lines[i] = append(lines[i][:j], lines[i][j+1:]...)
-							numberOfRemovedOpenParenthesis--
-						} else if lines[i][j] == OpenParenthesis {
-							numberOfValidOpenParenthesis++
-						} else if lines[i][j] == ClosedParenthesis {
-							numberOfValidOpenParenthesis--
-						}
-					}
-				}
-			}
-
-			// TODO
-			// lines = append(lines, lines[i][j+2:])
-			// and
-			// lines = append(lines, lines[i][j+1:])
-			// could be wrong. might need to add one two each
-			for j := 0; j < len(lines[i]); j++ {
-				if j+1 < len(lines[i]) &&
-					((lines[i][j] == EqualSign && lines[i][j+1] == EqualSign) ||
-						(lines[i][j] == AndCondition && lines[i][j+1] == AndCondition) ||
-						(lines[i][j] == OrCondition && lines[i][j+1] == OrCondition)) {
-					lines = append(lines, lines[i][j+2:])
-					lines[i] = lines[i][0:j]
-				} else if lines[i][j] == EqualSign || lines[i][j] == AndCondition || lines[i][j] == OrCondition {
-					lines = append(lines, lines[i][j+1:])
-					lines[i] = lines[i][0:j]
-				}
-			}
-
-			openParenthesisIndex := bytes.IndexByte(lines[i], OpenParenthesis)
-			if openParenthesisIndex != -1 && openParenthesisIndex+1 < len(lines[i]) && lines[i][openParenthesisIndex+1] != ClosedParenthesis {
-				var inside []byte
-				if lines[i][len(lines[i])-1] == SemiColon {
-					inside = append(inside, lines[i][openParenthesisIndex+1:len(lines[i])-2]...)
-				} else {
-					inside = append(inside, lines[i][openParenthesisIndex+1:len(lines[i])-1]...)
-				}
-
-				var (
-					numberOfOpenParenthesis int = 0
-					numberOfOpenCurlies     int = 0
-					numberOfOpenBrackets    int = 0
-				)
-
-				for j := 0; j < len(inside); j++ {
-					if inside[j] == Comma {
-						if j == 0 {
-							inside = inside[1:]
-							continue
-						} else if numberOfOpenParenthesis != 0 || numberOfOpenCurlies != 0 || numberOfOpenBrackets != 0 {
-							continue
-						}
-
-						lines = append(lines, inside[:j])
-						inside = inside[j+1:]
-
-					} else if inside[j] == OpenParenthesis {
-						numberOfOpenParenthesis++
-					} else if inside[j] == ClosedParenthesis {
-						numberOfOpenParenthesis--
-					} else if inside[j] == OpenCurly {
-						numberOfOpenCurlies++
-					} else if inside[j] == ClosedCurly {
-						numberOfOpenCurlies--
-					} else if inside[j] == OpenBracket {
-						numberOfOpenBrackets++
-					} else if inside[j] == ClosedBracket {
-						numberOfOpenBrackets--
-					}
-				}
-
-				lines = append(lines, inside)
-
-				lines[i] = append(lines[i][0:openParenthesisIndex+1], ");"...)
-			}
-
-			if bytes.HasPrefix(lines[i], []byte("new ")) {
-				getTypesFromValue(lines[i], dependenciesMap)
+				lines = append(lines, lines[i])
 				continue
 			}
+
+			fmt.Printf("line1: %s\n", string(lines[i]))
+			// if isIfStatement, isElseIfStatement := bytes.HasPrefix(lines[i], []byte("if(")), bytes.HasPrefix(lines[i], []byte("else if(")); isIfStatement || isElseIfStatement {
+			// 	if isIfStatement {
+			// 		lines[i] = lines[i][3 : len(lines[i])-2]
+			// 	} else {
+			// 		lines[i] = lines[i][8 : len(lines[i])-2]
+			// 	}
+			// 	var (
+			// 		numberOfRemovedOpenParenthesis int = 0
+			// 		numberOfValidOpenParenthesis   int = 0
+			// 	)
+			// 	for j := 0; j < len(lines[i]); j++ {
+			// 		if j+1 < len(lines[i]) && lines[i][j+1] == OpenParenthesis &&
+			// 			(j == 0 || lines[i][j] == EqualSign ||
+			// 				lines[i][j] == AndCondition ||
+			// 				lines[i][j] == OrCondition ||
+			// 				lines[i][j] == LeftArrow ||
+			// 				lines[i][j] == RightArrow ||
+			// 				lines[i][j] == ExclamationMark ||
+			// 				lines[i][j] == PlusSign ||
+			// 				lines[i][j] == Hyphen_MinusSign ||
+			// 				lines[i][j] == Tilde ||
+			// 				lines[i][j] == Slash ||
+			// 				lines[i][j] == Percent ||
+			// 				lines[i][j] == Caret) {
+			// 			lines[i] = append(lines[i][:j+1], lines[i][j+2:]...)
+			// 			numberOfRemovedOpenParenthesis++
+			// 		} else if numberOfRemovedOpenParenthesis != 0 {
+			// 			if numberOfValidOpenParenthesis == 0 && lines[i][j] == ClosedParenthesis {
+			// 				lines[i] = append(lines[i][:j], lines[i][j+1:]...)
+			// 				numberOfRemovedOpenParenthesis--
+			// 			} else if lines[i][j] == OpenParenthesis {
+			// 				numberOfValidOpenParenthesis++
+			// 			} else if lines[i][j] == ClosedParenthesis {
+			// 				numberOfValidOpenParenthesis--
+			// 			}
+			// 		}
+			// 	}
+			// } else if bytes.HasPrefix(lines[i], []byte("for(")) {
+			// 	lines[i] = lines[i][4 : len(lines[i])-2]
+			// 	var (
+			// 		lastAddStartIndex int = 0
+			// 	)
+			// 	for j := 0; j < len(lines[i]); j++ {
+			// 		if lines[i][j] == SemiColon {
+			// 			fmt.Printf("ADDING: %s\n", string(lines[i][lastAddStartIndex:j+1]))
+			// 			lines = append(lines, lines[i][lastAddStartIndex:j+1])
+			// 			lastAddStartIndex = j + 1
+			// 		}
+			// 	}
+			// 	fmt.Printf("ADDING2: %s\n", string(lines[i][lastAddStartIndex:]))
+			// 	lines = append(lines, lines[i][lastAddStartIndex:])
+
+			// } else if bytes.HasPrefix(lines[i], []byte("switch(")) {
+			// 	lines[i] = lines[i][7 : len(lines[i])-2]
+			// }
+			// fmt.Printf("line2: %s\n", string(lines[i]))
+			// for j := 0; j < len(lines[i]); j++ {
+			// 	if lines[i][j] == EqualSign ||
+			// 		lines[i][j] == AndCondition ||
+			// 		lines[i][j] == OrCondition ||
+			// 		(j+1 < len(lines[i]) && lines[i][j+1] != EqualSign &&
+			// 			(lines[i][j] == LeftArrow ||
+			// 				lines[i][j] == RightArrow)) {
+			// 		var (
+			// 			wantToAddLine     []byte = lines[i][j+1:]
+			// 			lastAddStartIndex int    = 0
+			// 		)
+			// 		for k := 0; k < len(wantToAddLine); k++ {
+			// 			if wantToAddLine[k] == SemiColon {
+			// 				lines = append(lines, wantToAddLine[lastAddStartIndex:k+1])
+			// 				lastAddStartIndex = k + 1
+			// 			}
+			// 		}
+			// 		lines[i] = lines[i][0:j]
+			// 	}
+			// }
+
+			// openParenthesisIndex := bytes.IndexByte(lines[i], OpenParenthesis)
+			// if openParenthesisIndex != -1 && openParenthesisIndex+1 < len(lines[i]) && lines[i][openParenthesisIndex+1] != ClosedParenthesis {
+			// 	var inside []byte
+			// 	if lines[i][len(lines[i])-1] == SemiColon {
+			// 		inside = append(inside, lines[i][openParenthesisIndex+1:len(lines[i])-2]...)
+			// 	} else {
+			// 		inside = append(inside, lines[i][openParenthesisIndex+1:len(lines[i])-1]...)
+			// 	}
+			// 	var (
+			// 		numberOfOpenParenthesis int = 0
+			// 		numberOfOpenCurlies     int = 0
+			// 		numberOfOpenBrackets    int = 0
+			// 	)
+			// 	for j := 0; j < len(inside); j++ {
+			// 		if inside[j] == Comma {
+			// 			if j == 0 {
+			// 				inside = inside[1:]
+			// 				continue
+			// 			} else if numberOfOpenParenthesis != 0 || numberOfOpenCurlies != 0 || numberOfOpenBrackets != 0 {
+			// 				continue
+			// 			}
+			// 			lines = append(lines, inside[:j])
+			// 			inside = inside[j+1:]
+			// 		} else if inside[j] == OpenParenthesis {
+			// 			numberOfOpenParenthesis++
+			// 		} else if inside[j] == ClosedParenthesis {
+			// 			numberOfOpenParenthesis--
+			// 		} else if inside[j] == OpenCurly {
+			// 			numberOfOpenCurlies++
+			// 		} else if inside[j] == ClosedCurly {
+			// 			numberOfOpenCurlies--
+			// 		} else if inside[j] == OpenBracket {
+			// 			numberOfOpenBrackets++
+			// 		} else if inside[j] == ClosedBracket {
+			// 			numberOfOpenBrackets--
+			// 		}
+			// 	}
+			// 	lines = append(lines, inside)
+			// 	lines[i] = append(lines[i][0:openParenthesisIndex+1], ");"...)
+			// }
+
+			// fmt.Printf("line3: %s\n", string(lines[i]))
+
+			// Lines from here on out should be of these types:
+			// System.out.println(); << discard
+			// new Type2(new Type3()) && new Type2(new Type3());
+			// Type1<Type2> var2;
 
 			lineSplit := bytes.Split(lines[i], []byte(" "))
 			if len(lineSplit) <= 1 {
 				continue
 			}
 
+			if bytes.Equal(lineSplit[0], []byte("throw")) && bytes.Equal(lineSplit[1], []byte("new")) {
+				lines[i] = lines[i][6:] // Remove "throw "
+				getTypesFromValue(lines[i], dependenciesMap)
+				continue
+			}
+
+			// DONE
+			// new Type2(new Type3());
+			if bytes.Equal(lineSplit[0], []byte("new")) {
+				getTypesFromValue(lines[i], dependenciesMap)
+				continue
+			}
+
+			// DONE
+			// Type1<Type2> var2;
 			getTypesFromType(lineSplit[len(lineSplit)-2], dependenciesMap)
 		}
 	}
@@ -1527,6 +1848,7 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 	// Add map values to dependencies array
 	for key := range dependenciesMap {
 		if _, exists := associationsMap[key]; !exists {
+			fmt.Printf("got dependency: %s\n", key)
 			dependencies = append(dependencies, []byte(key))
 		}
 	}
@@ -1534,6 +1856,7 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 	return associations, dependencies
 }
 
+// DONE
 // Returns isInsideQuotation
 func ignoreQuotes(text *[]byte) func(i int) bool {
 	var currentStyle byte = NoQuote
