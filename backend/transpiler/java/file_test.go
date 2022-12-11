@@ -1053,6 +1053,22 @@ func TestRemoveSpacing(t *testing.T) {
 
 	var tests = []SpacingTest{
 		{
+			Input:  []byte(`boolean t=animal instanceof Animal;`),
+			Output: []byte("boolean t=animal&&Animal;"),
+		},
+		{
+			Input:  []byte(`public strictfp varT = false;`),
+			Output: []byte("public varT=false;"),
+		},
+		{
+			Input:  []byte(` strictfp `),
+			Output: []byte(""),
+		},
+		{
+			Input:  []byte(`public class Test{public void writeList()throws IOException,IndexOutOfBoundsException{System.out.println();};}`),
+			Output: []byte("public class Test{public void writeList(){System.out.println();};}"),
+		},
+		{
 			Input: []byte(`
 			public class Test {
 				Integer test = (int x, int y) -> (x + y) / (x - y);
@@ -1351,7 +1367,7 @@ func TestGetFileClasses(t *testing.T) {
 
 	var tests = []FileClassesTest{
 		{
-			Input: []byte("import java.util.*;class Test{public static void main(String[] args){try{System.out.println();}catch(new Type1()){System.out.println();}}}}"),
+			Input: []byte("import java.util.*;class Test{public static void main(String[] args){try{System.out.println();}catch(IOException){System.out.println(e);}try{System.out.println();}catch(IOException|SQLException ioe){System.out.println(e);}}}}"),
 			Output: []any{
 				types.JavaClass{
 					Name: []byte("Test"),
@@ -1375,13 +1391,7 @@ func TestGetFileClasses(t *testing.T) {
 					Dependencies: [][]byte{
 						[]byte("void"),
 						[]byte("String"),
-						[]byte("Type1"),
-						[]byte("Type2"),
-						[]byte("Type3"),
-						[]byte("Type4"),
-						[]byte("Type5"),
-						[]byte("Type6"),
-						[]byte("Type7"),
+						[]byte("IOException"),
 					},
 				},
 			},

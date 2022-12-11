@@ -195,8 +195,43 @@ func removeSpacing(text []byte) []byte {
 		return false
 	}
 
-	removeWord := func(i *int, b []byte) bool {
-		// bytes.Equal()
+	removeWord := func(i *int, s string) bool {
+		b := []byte(s)
+		b = append([]byte{Space}, b...)
+		b = append(b, Space)
+
+		if *i+len(b)-1 < len(text) && bytes.Equal(text[*i:*i+len(b)], b) {
+			text = append(text[:*i], text[*i+len(b)-1:]...)
+			return true
+		}
+
+		return false
+	}
+
+	replaceInstanceOfWithAndCondition := func(i *int) bool {
+		b := []byte(" instanceof ")
+
+		if *i+len(b)-1 < len(text) && bytes.Equal(text[*i:*i+len(b)], b) {
+			text = append(text[:*i+1], text[*i+len(b)-1:]...)
+			text[*i] = AndCondition
+			text[*i+1] = AndCondition
+			return true
+		}
+
+		return false
+	}
+
+	// Remove all exception throws: public void writeList()throws IOException,IndexOutOfBoundsException{
+	removeMethodThrowsExceptions := func(i *int) bool {
+		if *i+1 < len(text) && *i > 5 && text[*i-1] == ClosedParenthesis && text[*i] == 't' && text[*i+1] == 'h' && text[*i+2] == 'r' && text[*i+3] == 'o' && text[*i+4] == 'w' && text[*i+5] == 's' && text[*i+6] == Space {
+
+			for closingCurlyIndex := *i + 7; closingCurlyIndex < len(text); closingCurlyIndex++ {
+				if text[closingCurlyIndex] == OpenCurly || text[closingCurlyIndex] == SemiColon {
+					text = append(text[:*i], text[closingCurlyIndex:]...)
+					break
+				}
+			}
+		}
 
 		return false
 	}
@@ -381,53 +416,43 @@ func removeSpacing(text []byte) []byte {
 			continue
 		}
 
-		// TODO volatile
-		// TODO
-		// TODO transient
-
 		// Remove all "native"
-		ok = removeWord(&i, []byte{
-			byte('n'),
-			byte('a'),
-			byte('t'),
-			byte('i'),
-			byte('v'),
-			byte('e'),
-		})
+		ok = removeWord(&i, "native")
 		if ok {
 			continue
 		}
 
 		// Remove all "strictfp"
-		ok = removeWord(&i, []byte{
-			byte('s'),
-			byte('t'),
-			byte('r'),
-			byte('i'),
-			byte('c'),
-			byte('t'),
-			byte('f'),
-			byte('p'),
-		})
+		ok = removeWord(&i, "strictfp")
 		if ok {
 			continue
 		}
 
 		// Remove all "synchronized"
-		ok = removeWord(&i, []byte{
-			byte('s'),
-			byte('t'),
-			byte('r'),
-			byte('i'),
-			byte('c'),
-			byte('t'),
-			byte('f'),
-			byte('p'),
-		})
+		ok = removeWord(&i, "synchronized")
 		if ok {
 			continue
 		}
 
+		// Remove all "transient"
+		ok = removeWord(&i, "transient")
+		if ok {
+			continue
+		}
+
+		// Remove all "volatile"
+		ok = removeWord(&i, "volatile")
+		if ok {
+			continue
+		}
+
+		// Replace all "instanceof" with "&&"
+		ok = replaceInstanceOfWithAndCondition(&i)
+		if ok {
+			continue
+		}
+
+		removeMethodThrowsExceptions(&i)
 	}
 
 	// Trim left and right spacing
@@ -899,6 +924,7 @@ func splitVariablesAndMethods(text []byte) [][]byte {
 	return response
 }
 
+// TODO Need to clean up
 func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) {
 	var (
 		variables []types.JavaVariable
@@ -1124,7 +1150,43 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 
 	// Prevent scope incrementation. Change open curlies to semicolons.
 	for i := 0; i < len(method.Functionality); i++ {
-		if i+6 < len(method.Functionality) &&
+		if i+5 < len(method.Functionality) &&
+			method.Functionality[i] == 'c' &&
+			method.Functionality[i+1] == 'a' &&
+			method.Functionality[i+2] == 't' &&
+			method.Functionality[i+3] == 'c' &&
+			method.Functionality[i+4] == 'h' &&
+			method.Functionality[i+5] == OpenParenthesis &&
+			(i == 0 || method.Functionality[i-1] == SemiColon) {
+			// Input: catch(IOException|SQLException ex)
+			// Outpt: (IOException|SQLException)
+
+			// Input: catch(IOException ex)
+			// Outpt: (IOException)
+
+			// Input: catch(IOException)
+			// Outpt: (IOException)
+
+			// Input: catch()
+			// Outpt: ()
+
+			// Remove catch(
+			method.Functionality = append(method.Functionality[:i], method.Functionality[i+5:]...)
+
+			var spaceIndex int = -1
+			for j := i; j < len(method.Functionality); j++ {
+				if method.Functionality[j] == Space {
+					spaceIndex = j
+				} else if method.Functionality[j] == ClosedParenthesis {
+					if spaceIndex == -1 {
+						spaceIndex = j
+					}
+
+					method.Functionality = append(method.Functionality[:spaceIndex], method.Functionality[j:]...)
+					break
+				}
+			}
+		} else if i+6 < len(method.Functionality) &&
 			method.Functionality[i] == 's' &&
 			method.Functionality[i+1] == 'w' &&
 			method.Functionality[i+2] == 'i' &&
@@ -1134,7 +1196,26 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 			method.Functionality[i+6] == OpenParenthesis &&
 			(i == 0 || method.Functionality[i-1] == SemiColon) {
 			isInsideSwitch = true
+		} else if method.Functionality[i] == Colon &&
+			((i+6 < len(method.Functionality) && (method.Functionality[i+1] == 'w' && method.Functionality[i+2] == 'h' && method.Functionality[i+3] == 'i' && method.Functionality[i+4] == 'l' && method.Functionality[i+5] == 'e' && method.Functionality[i+6] == OpenParenthesis)) ||
+				(i+4 < len(method.Functionality) && (method.Functionality[i+1] == 'f' && method.Functionality[i+2] == 'o' && method.Functionality[i+3] == 'r' && method.Functionality[i+4] == OpenParenthesis))) {
+			// Remove labels from for and while loops
+			for j := i - 1; j >= 0; j-- {
+				if method.Functionality[j] == OpenCurly || method.Functionality[j] == ClosedCurly || method.Functionality[j] == ClosedParenthesis || method.Functionality[j] == SemiColon {
+					method.Functionality = append(method.Functionality[:j+1], method.Functionality[i+1:]...)
+					break
+				} else if j == 0 {
+					method.Functionality = append(method.Functionality[:j], method.Functionality[i+1:]...)
+				}
+			}
 		} else if method.Functionality[i] == Colon && isInsideSwitch {
+			// Remove default and colon
+			if i > 7 && method.Functionality[i-8] == SemiColon && method.Functionality[i-7] == 'd' && method.Functionality[i-6] == 'e' && method.Functionality[i-5] == 'f' && method.Functionality[i-4] == 'a' && method.Functionality[i-3] == 'u' && method.Functionality[i-2] == 'l' && method.Functionality[i-1] == 't' {
+				method.Functionality = append(method.Functionality[:i-7], method.Functionality[i+1:]...)
+				continue
+			}
+
+			// Remove case keyword and colon but keep type
 			for j := i - 1; j > 4; j-- {
 				if method.Functionality[j] == SemiColon {
 					break
@@ -1350,8 +1431,6 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 				method.Functionality = append(method.Functionality[:i], method.Functionality[i+1:]...)
 				method.Functionality[i] = SemiColon
 
-				fmt.Printf("text: %s\n", string(method.Functionality[i-1]))
-
 				if i > 0 && method.Functionality[i-1] == ClosedParenthesis {
 					// INPUT: Integer test=(int x,int y)->{(x+y)/(x-y);System.out.println();};
 					// OUTPT: Integer test;int x;int y;(x+y)/(x-y);System.out.println();
@@ -1379,10 +1458,6 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 							method.Functionality[j] = SemiColon
 						}
 					}
-
-					// TODO need to remove parenthesis
-					// INPUT: Integer test;(int x;int y);(x+y)/(x-y);
-					// OUTPT: Integer test;int x;int y;(x+y)/(x-y);
 				}
 
 				if i+1 < len(method.Functionality) && method.Functionality[i+1] == OpenCurly {
@@ -1418,9 +1493,15 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 					}
 				}
 			}
-		} else if (i+1 < len(method.Functionality) && method.Functionality[i] == ClosedParenthesis && method.Functionality[i+1] == OpenCurly) ||
+		} else if i+1 < len(method.Functionality) && method.Functionality[i] == ClosedParenthesis && regexp.MustCompile(`^[a-zA-Z]*$`).Match([]byte{method.Functionality[i+1]}) {
+			// This is to fix if and else if statements without scope brackets
+			method.Functionality = append(method.Functionality[:i+2], method.Functionality[i+1:]...)
+			method.Functionality[i+1] = SemiColon
+		} else if i+1 < len(method.Functionality) &&
+			(method.Functionality[i] == ClosedParenthesis && method.Functionality[i+1] == OpenCurly) ||
 			((i < 2 || method.Functionality[i-2] == SemiColon) && i > 0 && method.Functionality[i-1] == 'd' && method.Functionality[i] == 'o' && method.Functionality[i+1] == OpenCurly) ||
-			((i < 3 || method.Functionality[i-3] == SemiColon) && i > 1 && method.Functionality[i-2] == 't' && method.Functionality[i-1] == 'r' && method.Functionality[i] == 'y' && method.Functionality[i+1] == OpenCurly) {
+			((i < 3 || method.Functionality[i-3] == SemiColon) && i > 1 && method.Functionality[i-2] == 't' && method.Functionality[i-1] == 'r' && method.Functionality[i] == 'y' && method.Functionality[i+1] == OpenCurly) ||
+			((i < 4 || method.Functionality[i-4] == SemiColon) && i > 2 && method.Functionality[i-3] == 'e' && method.Functionality[i-2] == 'l' && method.Functionality[i-1] == 's' && method.Functionality[i] == 'e' && (method.Functionality[i+1] == OpenCurly || method.Functionality[i+1] == Space)) {
 			method.Functionality[i+1] = SemiColon
 			continue
 		} else if numberOfValidOpenCurlies == 0 && method.Functionality[i] == ClosedCurly {
@@ -1505,20 +1586,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	return nil, method
 }
 
-// TODO throws
-
-// TODO: under this... "outer:"
-// outer:
-//         for (int i = 0; i < 10; i++) {
-//             for (int j = 0; j < 10; j++) {
-//                 if (j == 1)
-//                     break outer;
-//                 System.out.println(" value of j = " + j);
-//             }
-//         } // end of outer loop
-
-// TODO 'instanceof' keyword
-// TODO Fish fish = (Fish)animal;
+// TODO
 // Returns associations and dependencies
 func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaMethod) ([][]byte, [][]byte) {
 	// Include all types... even if it is int, char, etc.
@@ -1552,6 +1620,23 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 	// if(frame.isDisplayable() == true && frame.isDisplayable() == new Type7());
 	// alreadyDisposed = true;
 	// frame.dispose();
+
+	// TODO
+	// // QUESTION
+	// Say I've a code like:
+	// import java.util.Date;
+	// import my.own.Date;
+	// class Test{
+	//   public static void main(String [] args){
+	//     // I want to choose my.own.Date here. How?
+	//     ..
+	//     // I want to choose util.Date here. How ?
+	//   }
+	// }
+	// // ANSWER
+	// You can omit the import statements and refer to them using the entire path. Eg:
+	// java.util.Date javaDate = new java.util.Date()
+	// my.own.Date myDate = new my.own.Date();
 
 	var (
 		associationsMap = make(map[string]struct{})
@@ -1640,13 +1725,32 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 		}
 		tempLines = nil
 
+		fmt.Printf("Functionality: %s\n", string(method.Functionality))
+
+		// TODO should loop backwards instead and keep deleting lines when using continue
+		// TODO Need to check all names.. not just 'new'... ex: System.out.println(s && SimpleClass1);
+		// TODO Fish fish = (Fish)animal;
 		for i := 0; i < len(lines); i++ {
 			// TODO if statements
+			// TODO if statements with no curlies
 			// TODO while statements
 			// TODO switch statements
 			// TODO switch with lambda
 			// TODO case statements
 			// TODO ternary... ? :
+
+			fmt.Printf("line1: %s\n", string(lines[i]))
+
+			// This is the newest thing im doing... not working tho
+			if openParenIndex, closedParenIndex := bytes.IndexByte(lines[i], OpenParenthesis), bytes.LastIndexByte(lines[i], ClosedParenthesis); openParenIndex != -1 && closedParenIndex != -1 {
+				wantToAdd := lines[i][openParenIndex+1 : closedParenIndex]
+				if len(wantToAdd) > 0 && wantToAdd[0] != SemiColon {
+					lines = append(lines, lines[i][openParenIndex+1:closedParenIndex])
+					lines[i] = append(lines[i][:openParenIndex], lines[i][closedParenIndex+1:]...)
+				}
+			}
+
+			fmt.Printf("line2: %s\n", string(lines[i]))
 
 			if hasOpenParen, hasClosingParen, hasClosingParenAndSemiColon := bytes.HasPrefix(lines[i], []byte("(")), bytes.HasSuffix(lines[i], []byte(")")), bytes.HasSuffix(lines[i], []byte(");")); hasOpenParen && (hasClosingParen || hasClosingParenAndSemiColon) {
 				if hasClosingParen {
@@ -1669,6 +1773,17 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 				continue
 			}
 
+			if bytes.HasPrefix(lines[i], []byte("return ")) {
+				// INPUT:
+				// return new Class();
+
+				// OUTPUT:
+				// new Class();
+				lines[i] = lines[i][7:]
+				continue
+			}
+
+			// TODO should not do this... need to include all methods.. if they have an open parenthesis
 			if isIfStatement, isElseIfStatement := bytes.HasPrefix(lines[i], []byte("if(")), bytes.HasPrefix(lines[i], []byte("else if(")); isIfStatement || isElseIfStatement {
 				if isIfStatement {
 					// INPUT:
@@ -1690,7 +1805,7 @@ func getClassRelationTypes(variables []types.JavaVariable, methods []types.JavaM
 				continue
 			}
 
-			fmt.Printf("line1: %s\n", string(lines[i]))
+			// fmt.Printf("line1: %s\n", string(lines[i]))
 			// if isIfStatement, isElseIfStatement := bytes.HasPrefix(lines[i], []byte("if(")), bytes.HasPrefix(lines[i], []byte("else if(")); isIfStatement || isElseIfStatement {
 			// 	if isIfStatement {
 			// 		lines[i] = lines[i][3 : len(lines[i])-2]
