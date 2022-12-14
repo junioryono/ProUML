@@ -6,6 +6,12 @@ type JavaClassText struct {
 	Inside        []byte
 }
 
+type JavaClassExports struct {
+	Package []byte
+	Name    []byte
+	Exports [][]byte
+}
+
 type JavaVariable struct {
 	Type           []byte
 	Name           []byte
@@ -33,6 +39,7 @@ type JavaMethod struct {
 
 type JavaAbstract struct {
 	DefinedWithin []byte
+	Package       []byte
 	Name          []byte
 	Implements    [][]byte
 	Extends       [][]byte
@@ -44,6 +51,7 @@ type JavaAbstract struct {
 
 type JavaClass struct {
 	DefinedWithin []byte
+	Package       []byte
 	Name          []byte
 	Implements    [][]byte
 	Extends       [][]byte
@@ -55,6 +63,7 @@ type JavaClass struct {
 
 type JavaInterface struct {
 	DefinedWithin []byte
+	Package       []byte
 	Name          []byte
 	Extends       [][]byte
 	Variables     []JavaVariable
@@ -65,6 +74,7 @@ type JavaInterface struct {
 
 type JavaEnum struct {
 	DefinedWithin []byte
+	Package       []byte
 	Name          []byte
 	Declarations  [][]byte
 	Implements    [][]byte

@@ -58,7 +58,7 @@ func parseFile(file types.File) types.FileResponse {
 
 	response.Package = getPackageName(parsedText)
 	response.Imports = getPackageImports(parsedText)
-	response.Data = append(response.Data, getFileClasses(parsedText)...)
+	response.Data = append(response.Data, getFileClasses(parsedText, response.Package)...)
 
 	return response
 }
@@ -567,7 +567,7 @@ func getPackageName(text []byte) []byte {
 }
 
 // Get all classes declared in the file
-func getFileClasses(text []byte) []any {
+func getFileClasses(text []byte, packageName []byte) []any {
 	var (
 		classesText   = getNestedClasses(text, nil)
 		classesStruct = make([]any, 0)
@@ -601,6 +601,7 @@ func getFileClasses(text []byte) []any {
 		if enumIndex != -1 {
 			classesStruct = append(classesStruct, types.JavaEnum{
 				DefinedWithin: classesText[i].DefinedWithin,
+				Package:       packageName,
 				Name:          textSplit[enumIndex+1],
 				Declarations:  getEnumDeclarations(classesText[i].Inside),
 			})
@@ -622,6 +623,7 @@ func getFileClasses(text []byte) []any {
 		if interfaceIndex != -1 {
 			classesStruct = append(classesStruct, types.JavaInterface{
 				DefinedWithin: classesText[i].DefinedWithin,
+				Package:       packageName,
 				Name:          textSplit[interfaceIndex+1],
 				Extends:       Extends,
 				Variables:     Variables,
@@ -639,6 +641,7 @@ func getFileClasses(text []byte) []any {
 		if abstractIndex != -1 {
 			classesStruct = append(classesStruct, types.JavaAbstract{
 				DefinedWithin: classesText[i].DefinedWithin,
+				Package:       packageName,
 				Name:          textSplit[classIndex+1],
 				Implements:    Implements,
 				Extends:       Extends,
@@ -650,6 +653,7 @@ func getFileClasses(text []byte) []any {
 
 		classesStruct = append(classesStruct, types.JavaClass{
 			DefinedWithin: classesText[i].DefinedWithin,
+			Package:       packageName,
 			Name:          textSplit[classIndex+1],
 			Implements:    Implements,
 			Extends:       Extends,
