@@ -56,6 +56,5 @@ func getProject1() ProjectParseTest {
 		Name:   "empty input string",
 		Input:  []types.File{file1, file2},
 		Output: nil,
-		Err:    &types.CannotParseText{},
 	}
 }
