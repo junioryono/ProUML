@@ -1298,7 +1298,6 @@ func TestGetFileClasses(t *testing.T) {
 	type FileClassesTest struct {
 		Input  []byte
 		Output []any
-		Err    error
 	}
 
 	var tests = []FileClassesTest{
