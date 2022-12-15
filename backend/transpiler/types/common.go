@@ -1,8 +1,8 @@
 package types
 
 type Project struct {
-	Packages  []Package
-	Relations []Relation
+	Nodes []any
+	Edges []Relation
 }
 
 type Package struct {
@@ -19,7 +19,12 @@ type File struct {
 type FileResponse struct {
 	Package []byte
 	Imports [][]byte
-	Data    []any // Holds JavaAbstract | JavaClass | JavaInterface | JavaEnum
+	Data    []any // Holds [](JavaAbstract | JavaClass | JavaInterface | JavaEnum)
+}
+
+type Node struct {
+	Type []byte
+	Data any // Holds JavaAbstract | JavaClass | JavaInterface | JavaEnum
 }
 
 type Relation struct {
@@ -36,80 +41,132 @@ type RelationData interface {
 }
 
 type Association struct {
-	fromArrow bool
-	toArrow   bool
+	FromArrow bool
+	ToArrow   bool
 }
 
 func (t Association) GetFromArrow() bool {
-	return t.fromArrow
+	return t.FromArrow
 }
 
 func (t Association) GetToArrow() bool {
-	if !t.fromArrow {
+	if !t.FromArrow {
 		return true
 	}
 
-	return t.toArrow
+	return t.ToArrow
 }
 
 func (t *Association) SetFromArrow(value bool) {
-	t.fromArrow = value
+	t.FromArrow = value
 }
 
 func (t *Association) SetToArrow(value bool) {
-	t.toArrow = value
+	t.ToArrow = value
+}
+
+type Dependency struct {
+	FromArrow bool
+	ToArrow   bool
+}
+
+func (t Dependency) GetFromArrow() bool {
+	return t.FromArrow
+}
+
+func (t Dependency) GetToArrow() bool {
+	if !t.FromArrow {
+		return true
+	}
+
+	return t.ToArrow
+}
+
+func (t *Dependency) SetFromArrow(value bool) {
+	t.FromArrow = value
+}
+
+func (t *Dependency) SetToArrow(value bool) {
+	t.ToArrow = value
 }
 
 type Realization struct {
-	fromArrow bool
-	toArrow   bool
+	FromArrow bool
+	ToArrow   bool
 }
 
 func (t Realization) GetFromArrow() bool {
-	return t.fromArrow
+	return t.FromArrow
 }
 
 func (t Realization) GetToArrow() bool {
-	if !t.fromArrow {
+	if !t.FromArrow {
 		return true
 	}
 
-	return t.toArrow
+	return t.ToArrow
 }
 
 func (t *Realization) SetFromArrow(value bool) {
-	t.fromArrow = value
-	t.toArrow = !value
+	t.FromArrow = value
+	t.ToArrow = !value
 }
 
 func (t *Realization) SetToArrow(value bool) {
-	t.fromArrow = !value
-	t.toArrow = value
+	t.FromArrow = !value
+	t.ToArrow = value
 }
 
 type Generalization struct {
-	fromArrow bool
-	toArrow   bool
+	FromArrow bool
+	ToArrow   bool
 }
 
 func (t Generalization) GetFromArrow() bool {
-	return t.fromArrow
+	return t.FromArrow
 }
 
 func (t Generalization) GetToArrow() bool {
-	if !t.fromArrow {
+	if !t.FromArrow {
 		return true
 	}
 
-	return t.toArrow
+	return t.ToArrow
 }
 
 func (t *Generalization) SetFromArrow(value bool) {
-	t.fromArrow = value
-	t.toArrow = !value
+	t.FromArrow = value
+	t.ToArrow = !value
 }
 
 func (t *Generalization) SetToArrow(value bool) {
-	t.fromArrow = !value
-	t.toArrow = value
+	t.FromArrow = !value
+	t.ToArrow = value
+}
+
+type NestedOwnership struct {
+	FromArrow bool
+	ToArrow   bool
+}
+
+func (t NestedOwnership) GetFromArrow() bool {
+	return t.FromArrow
+}
+
+func (t NestedOwnership) GetToArrow() bool {
+	if !t.FromArrow {
+		return true
+	}
+
+	return t.ToArrow
+}
+
+func (t *NestedOwnership) SetFromArrow(value bool) {
+	t.FromArrow = value
+	t.ToArrow = !value
+}
+
+func (t *NestedOwnership) SetToArrow(value bool) {
+	t.FromArrow = !value
+	t.ToArrow = value
 }
