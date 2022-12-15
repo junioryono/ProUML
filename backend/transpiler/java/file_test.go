@@ -35,6 +35,43 @@ func TestParseFile(t *testing.T) {
 		},
 		{
 			Input: types.File{
+				Name:      "Test",
+				Extension: "java",
+				Code: []byte(`
+				class Test<T> {
+					// An object of type T is declared
+					T obj;
+					Test(T obj) { this.obj = obj; } // constructor
+					public T getObject() { return this.obj; }
+				}`),
+			},
+			Output: &types.FileResponse{
+				Data: []any{
+					types.JavaClass{
+						Name: []byte("Test"),
+						Methods: []types.JavaMethod{
+							{
+								Type:           []byte("void"),
+								Name:           []byte("main"),
+								AccessModifier: []byte("public"),
+								Parameters: []types.JavaMethodParameter{
+									{
+										Type: []byte("String[]"),
+										Name: []byte("args"),
+									},
+								},
+								Abstract:      false,
+								Static:        true,
+								Final:         false,
+								Functionality: []byte("System.out.println('Hello');System.out.println('Hello');"),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			Input: types.File{
 				Name:      "Test2",
 				Extension: "java",
 				Code:      []byte("import java.awt.Cursor;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
@@ -216,7 +253,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("void"),
 								Name:           []byte("Test"),
 								AccessModifier: []byte("public"),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
@@ -231,7 +267,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("void"),
 								Name:           []byte("show"),
 								AccessModifier: []byte(""),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
@@ -246,7 +281,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("void"),
 								Name:           []byte("show"),
 								AccessModifier: []byte("public"),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
@@ -290,16 +324,12 @@ func TestParseFile(t *testing.T) {
 				},
 				Data: []any{
 					types.JavaClass{
-						Name:       []byte("Test"),
-						Implements: nil,
-						Extends:    nil,
-						Variables:  nil,
+						Name: []byte("Test"),
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
 								Name:           []byte("TestVoid"),
 								AccessModifier: []byte("public"),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
@@ -309,14 +339,11 @@ func TestParseFile(t *testing.T) {
 					types.JavaInterface{
 						DefinedWithin: []byte("Test"),
 						Name:          []byte("Yes"),
-						Extends:       nil,
-						Variables:     nil,
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
 								Name:           []byte("show"),
 								AccessModifier: []byte(""),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
@@ -326,14 +353,11 @@ func TestParseFile(t *testing.T) {
 					types.JavaClass{
 						Name:       []byte("Testing"),
 						Implements: [][]byte{[]byte("Test.Yes")},
-						Extends:    nil,
-						Variables:  nil,
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
 								Name:           []byte("show"),
 								AccessModifier: []byte("public"),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
@@ -342,9 +366,7 @@ func TestParseFile(t *testing.T) {
 						},
 					},
 					types.JavaClass{
-						Name:       []byte("A"),
-						Implements: nil,
-						Extends:    nil,
+						Name: []byte("A"),
 						Variables: []types.JavaVariable{
 							{
 								Type:           []byte("Test"),
@@ -433,7 +455,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("Testing"),
 								Name:           []byte("function2"),
 								AccessModifier: []byte(""),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          false,
@@ -442,7 +463,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("void"),
 								Name:           []byte("function3"),
 								AccessModifier: []byte(""),
-								Parameters:     nil,
 								Abstract:       true,
 								Static:         false,
 								Final:          false,
@@ -451,7 +471,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("Testing"),
 								Name:           []byte("function4"),
 								AccessModifier: []byte(""),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         true,
 								Final:          false,
@@ -460,7 +479,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("Testing"),
 								Name:           []byte("function5"),
 								AccessModifier: []byte(""),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          true,
@@ -469,7 +487,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("void"),
 								Name:           []byte("function6"),
 								AccessModifier: []byte(""),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         true,
 								Final:          true,
@@ -478,7 +495,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("void"),
 								Name:           []byte("function7"),
 								AccessModifier: []byte("public"),
-								Parameters:     nil,
 								Abstract:       true,
 								Static:         false,
 								Final:          false,
@@ -487,7 +503,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("Testing"),
 								Name:           []byte("function8"),
 								AccessModifier: []byte("private"),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         true,
 								Final:          false,
@@ -496,7 +511,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("Testing"),
 								Name:           []byte("function9"),
 								AccessModifier: []byte("protected"),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         false,
 								Final:          true,
@@ -505,7 +519,6 @@ func TestParseFile(t *testing.T) {
 								Type:           []byte("void"),
 								Name:           []byte("function10"),
 								AccessModifier: []byte("public"),
-								Parameters:     nil,
 								Abstract:       false,
 								Static:         true,
 								Final:          true,
@@ -1459,7 +1472,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("void"),
 							Name:           []byte("Test"),
 							AccessModifier: []byte("public"),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         true,
 							Final:          false,
@@ -1474,7 +1486,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("void"),
 							Name:           []byte("show"),
 							AccessModifier: []byte(""),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         false,
 							Final:          false,
@@ -1489,7 +1500,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("void"),
 							Name:           []byte("show"),
 							AccessModifier: []byte("public"),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         false,
 							Final:          false,
@@ -1523,16 +1533,12 @@ func TestGetFileClasses(t *testing.T) {
 			Input: []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2=new Testing();private static Test.Yes inner3=new Testing();protected final Test.Yes inner4=\"Hello\";static final Test.Yes inner5=null;protected static final Test.Yes inner6=null;public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}Testing function1(Test.Yes var1,Map<String,String> var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
 			Output: []any{
 				types.JavaClass{
-					Name:       []byte("Test"),
-					Implements: nil,
-					Extends:    nil,
-					Variables:  nil,
+					Name: []byte("Test"),
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
 							Name:           []byte("TestVoid"),
 							AccessModifier: []byte("public"),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         false,
 							Final:          false,
@@ -1542,14 +1548,11 @@ func TestGetFileClasses(t *testing.T) {
 				types.JavaInterface{
 					DefinedWithin: []byte("Test"),
 					Name:          []byte("Yes"),
-					Extends:       nil,
-					Variables:     nil,
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
 							Name:           []byte("show"),
 							AccessModifier: []byte(""),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         false,
 							Final:          false,
@@ -1559,14 +1562,11 @@ func TestGetFileClasses(t *testing.T) {
 				types.JavaClass{
 					Name:       []byte("Testing"),
 					Implements: [][]byte{[]byte("Test.Yes")},
-					Extends:    nil,
-					Variables:  nil,
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
 							Name:           []byte("show"),
 							AccessModifier: []byte("public"),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         false,
 							Final:          false,
@@ -1575,9 +1575,7 @@ func TestGetFileClasses(t *testing.T) {
 					},
 				},
 				types.JavaClass{
-					Name:       []byte("A"),
-					Implements: nil,
-					Extends:    nil,
+					Name: []byte("A"),
 					Variables: []types.JavaVariable{
 						{
 							Type:           []byte("Test"),
@@ -1666,7 +1664,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("Testing"),
 							Name:           []byte("function2"),
 							AccessModifier: []byte(""),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         false,
 							Final:          false,
@@ -1675,7 +1672,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("void"),
 							Name:           []byte("function3"),
 							AccessModifier: []byte(""),
-							Parameters:     nil,
 							Abstract:       true,
 							Static:         false,
 							Final:          false,
@@ -1684,7 +1680,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("Testing"),
 							Name:           []byte("function4"),
 							AccessModifier: []byte(""),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         true,
 							Final:          false,
@@ -1693,7 +1688,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("Testing"),
 							Name:           []byte("function5"),
 							AccessModifier: []byte(""),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         false,
 							Final:          true,
@@ -1702,7 +1696,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("void"),
 							Name:           []byte("function6"),
 							AccessModifier: []byte(""),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         true,
 							Final:          true,
@@ -1711,7 +1704,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("void"),
 							Name:           []byte("function7"),
 							AccessModifier: []byte("public"),
-							Parameters:     nil,
 							Abstract:       true,
 							Static:         false,
 							Final:          false,
@@ -1720,7 +1712,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("Testing"),
 							Name:           []byte("function8"),
 							AccessModifier: []byte("private"),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         true,
 							Final:          false,
@@ -1729,7 +1720,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("Testing"),
 							Name:           []byte("function9"),
 							AccessModifier: []byte("protected"),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         false,
 							Final:          true,
@@ -1738,7 +1728,6 @@ func TestGetFileClasses(t *testing.T) {
 							Type:           []byte("void"),
 							Name:           []byte("function10"),
 							AccessModifier: []byte("public"),
-							Parameters:     nil,
 							Abstract:       false,
 							Static:         true,
 							Final:          true,

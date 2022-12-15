@@ -8,11 +8,6 @@ import (
 	types "github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-type ParseProjectTest struct {
-	Input  []types.File
-	Output []byte
-}
-
 func TestParseProject(t *testing.T) {
 	type Output struct {
 		Nodes []any
