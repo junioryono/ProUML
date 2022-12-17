@@ -1,51 +1,51 @@
 package transpiler
 
 import (
-	"context"
 	"errors"
+	"fmt"
 
+	cognito "github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 	"github.com/google/uuid"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/junioryono/ProUML/backend/auth"
 	java "github.com/junioryono/ProUML/backend/transpiler/java"
 	"github.com/junioryono/ProUML/backend/transpiler/types"
-	supabase "github.com/nedpals/supabase-go"
 )
 
-type Status struct {
-	Success  bool          `json:"success"`
-	Reason   string        `json:"reason,omitempty"`
-	Response types.Project `json:"response,omitempty"`
-}
-
-func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]byte, error) {
-	userUUID, err := getUser(SupabaseClient, jwt)
+func ToJson(cgn auth.Cognito, projectId string, jwt string) ([]byte, error) {
+	fmt.Printf("1\n")
+	userUUID, err := getUser(cgn, jwt)
 	if err != nil {
 		return handleError(err)
 	}
 
-	projectId, err = validateProjectId(SupabaseClient, projectId, userUUID)
+	fmt.Printf("2\n")
+	projectId, err = validateProjectId(cgn, projectId, userUUID)
 	if err != nil {
 		return handleError(err)
 	}
 
-	files, err := downloadProject(SupabaseClient, projectId)
+	fmt.Printf("3\n")
+	files, err := downloadProject(cgn, projectId)
 	if err != nil {
 		return handleError(err)
 	}
 
+	fmt.Printf("4\n")
 	language, err := getProjectLanguage(files)
 	if err != nil {
 		return handleError(err)
 	}
 
+	fmt.Printf("5\n")
 	parsedProject, err := parseProjectByLanguage(language, files)
 	if err != nil {
 		return handleError(err)
 	}
 
-	jsonResponse, err := jsoniter.Marshal(Status{
+	jsonResponse, err := jsoniter.Marshal(types.Status{
 		Success:  true,
-		Response: parsedProject,
+		Response: &parsedProject,
 	})
 	if err != nil {
 		return handleError(err)
@@ -56,7 +56,7 @@ func ToJson(SupabaseClient *supabase.Client, projectId string, jwt string) ([]by
 
 // Handle all errors inside ToJSON() function
 func handleError(err error) ([]byte, error) {
-	jsonResponse, mErr := jsoniter.Marshal(Status{
+	jsonResponse, mErr := jsoniter.Marshal(types.Status{
 		Success: false,
 		Reason:  err.Error(),
 	})
@@ -75,7 +75,7 @@ func jsonMarshalError() ([]byte, error) {
 		err      error
 	)
 
-	response, err = jsoniter.Marshal(Status{
+	response, err = jsoniter.Marshal(types.Status{
 		Success: false,
 		Reason:  "Internal Error. Could not marshal JSON.",
 	})
@@ -88,18 +88,20 @@ func jsonMarshalError() ([]byte, error) {
 }
 
 // Check if user is authenticated
-func getUser(sb *supabase.Client, jwt string) (string, error) {
-	user, err := sb.Auth.User(context.Background(), jwt)
-	if err != nil || user.ID == "" {
+func getUser(cgn auth.Cognito, jwt string) (string, error) {
+	user, err := cgn.CognitoClient.GetUser(&cognito.GetUserInput{
+		AccessToken: &jwt,
+	})
+	if err != nil { // || user.ID == ""
 		return "", err
 	}
 
-	return user.ID, nil
+	return user.String(), nil
 }
 
 // Check if projectId belongs to user.
 // If projectId is not specified, generate a new one and assign it to user.
-func validateProjectId(SupabaseClient *supabase.Client, projectId string, userUUID string) (string, error) {
+func validateProjectId(cgn auth.Cognito, projectId string, userUUID string) (string, error) {
 	if projectId == "" {
 		// Generate projectId
 		projectId := uuid.New().String()
@@ -113,7 +115,8 @@ func validateProjectId(SupabaseClient *supabase.Client, projectId string, userUU
 
 	// Query projectId and SELECT owner
 	var DocumentQueryResult map[string]interface{}
-	err := SupabaseClient.DB.From("document").Select("id").Eq("owner", userUUID).Execute(&DocumentQueryResult)
+	// err := cgn.DB.From("document").Select("id").Eq("owner", userUUID).Execute(&DocumentQueryResult)
+	err := errors.New("error")
 	if err != nil {
 		return "", err
 	}
@@ -138,7 +141,7 @@ func projectIdExists(projectId string, queryResults map[string]interface{}) bool
 	return false
 }
 
-func downloadProject(SupabaseClient *supabase.Client, projectId string) ([]types.File, error) {
+func downloadProject(cgn auth.Cognito, projectId string) ([]types.File, error) {
 	// Download {projectId}.zip project from "projects" bucket
 	// supabase.Storage.From("").Download("")
 
