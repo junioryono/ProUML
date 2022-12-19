@@ -1,68 +1,53 @@
-package router
+package auth
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	cognito "github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
+	"github.com/go-redis/redis/v9"
 	"github.com/gofiber/fiber/v2"
-	"github.com/junioryono/ProUML/backend/auth"
+	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func Verify(cgn auth.Cognito) func(*fiber.Ctx) error {
+func Verify(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// use redis to store
-		// key will be "email:confirmationCode-jryono123@gmail.com"
-		// value will be "123456" < the confirmation code
-		// need to encrypt the value using their password
+		confirmationCode := fbCtx.Params("confirmationCode") // confirmationCode will never be empty
 
-		// change implementation to use redis
-		// search for the key
-		// decrypt the value using their password
-
-		email := "jryono123@gmail.com"
-		confirmationCode := fbCtx.Params("confirmationCode")
-
-		confirmSignUpInput := &cognito.ConfirmSignUpInput{
-			ClientId:         aws.String(cgn.AppClientID),
-			ConfirmationCode: aws.String(confirmationCode),
-			SecretHash:       aws.String(cgn.ComputeSecretHash(email)),
-			Username:         aws.String(email),
-		}
-
-		err := confirmSignUpInput.Validate()
-		if err != nil {
-			if awsErr, ok := err.(awserr.Error); ok {
-				return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
-					Success: false,
-					Reason:  awsErr.Message(),
-				})
-			}
-
+		email, err := sdkP.Redis.Client.Get(sdkP.Redis.Context, confirmationCode).Result()
+		if err == redis.Nil {
+			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+				Success: false,
+				Reason:  "Invalid confirmation code.",
+			})
+		} else if err != nil {
 			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
 				Success: false,
 				Reason:  err.Error(),
 			})
 		}
 
-		user, err := cgn.CognitoClient.ConfirmSignUp(confirmSignUpInput)
-		if err != nil {
-			if awsErr, ok := err.(awserr.Error); ok {
-				return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
-					Success: false,
-					Reason:  awsErr.Message(),
-				})
-			}
+		go func() {
+			// Remove key from Redis
+			sdkP.Redis.Client.Del(sdkP.Redis.Context, confirmationCode)
+		}()
 
-			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
-				Success: false,
-				Reason:  err.Error(),
+		go func() {
+			// Set email_verified attribute to true
+			sdkP.AWS.Cognito.AdminUpdateUserAttributes(&cognito.AdminUpdateUserAttributesInput{
+				UserPoolId: &sdkP.AWS.UserPoolID,
+				Username:   &email,
+				UserAttributes: []*cognito.AttributeType{
+					{
+						Name:  aws.String("email_verified"),
+						Value: aws.String("true"),
+					},
+				},
 			})
-		}
+		}()
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
 			Success:  true,
-			Response: user,
+			Response: email + " is now verified.",
 		})
 	}
 }

@@ -2,42 +2,36 @@ package transpiler
 
 import (
 	"errors"
-	"fmt"
 
 	cognito "github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 	"github.com/google/uuid"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/junioryono/ProUML/backend/auth"
+	"github.com/junioryono/ProUML/backend/sdk"
 	java "github.com/junioryono/ProUML/backend/transpiler/java"
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func ToJson(cgn auth.Cognito, projectId string, jwt string) ([]byte, error) {
-	fmt.Printf("1\n")
-	userUUID, err := getUser(cgn, jwt)
+func ToJson(sdkP *sdk.SDK, projectId string, jwt string) ([]byte, error) {
+	userUUID, err := getUser(sdkP, jwt)
 	if err != nil {
 		return handleError(err)
 	}
 
-	fmt.Printf("2\n")
-	projectId, err = validateProjectId(cgn, projectId, userUUID)
+	projectId, err = validateProjectId(sdkP, projectId, userUUID)
 	if err != nil {
 		return handleError(err)
 	}
 
-	fmt.Printf("3\n")
-	files, err := downloadProject(cgn, projectId)
+	files, err := downloadProject(sdkP, projectId)
 	if err != nil {
 		return handleError(err)
 	}
 
-	fmt.Printf("4\n")
 	language, err := getProjectLanguage(files)
 	if err != nil {
 		return handleError(err)
 	}
 
-	fmt.Printf("5\n")
 	parsedProject, err := parseProjectByLanguage(language, files)
 	if err != nil {
 		return handleError(err)
@@ -88,8 +82,8 @@ func jsonMarshalError() ([]byte, error) {
 }
 
 // Check if user is authenticated
-func getUser(cgn auth.Cognito, jwt string) (string, error) {
-	user, err := cgn.CognitoClient.GetUser(&cognito.GetUserInput{
+func getUser(sdkP *sdk.SDK, jwt string) (string, error) {
+	user, err := sdkP.AWS.Cognito.GetUser(&cognito.GetUserInput{
 		AccessToken: &jwt,
 	})
 	if err != nil { // || user.ID == ""
@@ -101,7 +95,7 @@ func getUser(cgn auth.Cognito, jwt string) (string, error) {
 
 // Check if projectId belongs to user.
 // If projectId is not specified, generate a new one and assign it to user.
-func validateProjectId(cgn auth.Cognito, projectId string, userUUID string) (string, error) {
+func validateProjectId(sdkP *sdk.SDK, projectId string, userUUID string) (string, error) {
 	if projectId == "" {
 		// Generate projectId
 		projectId := uuid.New().String()
@@ -141,7 +135,7 @@ func projectIdExists(projectId string, queryResults map[string]interface{}) bool
 	return false
 }
 
-func downloadProject(cgn auth.Cognito, projectId string) ([]types.File, error) {
+func downloadProject(sdkP *sdk.SDK, projectId string) ([]types.File, error) {
 	// Download {projectId}.zip project from "projects" bucket
 	// supabase.Storage.From("").Download("")
 
