@@ -1,8 +1,9 @@
-package sdk
+package redis
 
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/go-redis/redis/v9"
@@ -13,7 +14,7 @@ type Redis_SDK struct {
 	Context context.Context
 }
 
-func initRedis() (*Redis_SDK, error) {
+func Init() (*Redis_SDK, error) {
 	Username := os.Getenv("REDIS_USERNAME")
 	Password := os.Getenv("REDIS_PASSWORD")
 	Host := os.Getenv("REDIS_HOST")
@@ -35,7 +36,7 @@ func initRedis() (*Redis_SDK, error) {
 		return nil, errors.New("redis port is empty")
 	}
 
-	t, err := redis.ParseURL("rediss://default:AVNS_ATgD0ccu3JaGmrWSzHf@db-redis-sfo3-32384-do-user-2346086-0.b.db.ondigitalocean.com:25061")
+	t, err := redis.ParseURL(fmt.Sprintf("rediss://%s:%s@%s:%s", Username, Password, Host, Port))
 	if err != nil {
 		return nil, err
 	}

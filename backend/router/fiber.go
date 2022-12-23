@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -11,6 +12,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/websocket/v2"
 	"github.com/junioryono/ProUML/backend/router/routes/auth"
+	"github.com/junioryono/ProUML/backend/router/routes/diagram"
+	diagramUsers "github.com/junioryono/ProUML/backend/router/routes/diagram/users"
+	"github.com/junioryono/ProUML/backend/router/routes/diagrams"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/transpiler"
 	"github.com/junioryono/ProUML/backend/transpiler/types"
@@ -42,6 +46,18 @@ func Init(sdkP *sdk.SDK) {
 	Router.Use(compress.New(compress.Config{
 		Level: compress.LevelBestCompression,
 	}))
+	Router.Use(func(fbCtx *fiber.Ctx) error {
+		fbCtx.Set("X-Frame-Options", "SAMEORIGIN")
+		fbCtx.Set("X-XSS-Protection", "1; mode=block")
+		fbCtx.Set("X-Content-Type-Options", "nosniff")
+		fbCtx.Set("Referrer-Policy", "no-referrer")
+		fbCtx.Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+		fbCtx.Set("X-Download-Options", "noopen")
+		fbCtx.Set("X-Permitted-Cross-Domain-Policies", "none")
+		fbCtx.Set("X-DNS-Prefetch-Control", "off")
+
+		return fbCtx.Next()
+	})
 
 	handleRoutes(Router, sdkP)
 
@@ -53,13 +69,25 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 
 	AuthRouter.Post("/register", auth.Register(sdkP))
 	AuthRouter.Post("/login", auth.Login(sdkP))
+	AuthRouter.Post("/delete-account", isAuthenticated(sdkP), auth.DeleteAccount(sdkP))
 	AuthRouter.Get("/get-profile", isAuthenticated(sdkP), auth.GetProfile(sdkP))
-	AuthRouter.Get("/verify/:confirmationCode", auth.Verify(sdkP))
+	AuthRouter.Get("/resend-verification-email", isAuthenticated(sdkP), auth.ResendVerificationEmail(sdkP))
 
-	// DiagramRouter := Router.Group("/diagram", isAuthenticated(sdkP))
+	DiagramRouter := Router.Group("/diagram", isAuthenticated(sdkP))
 
-	// DiagramRouter.Post("/new")
-	// DiagramRouter.Get("/get/:diagramId")
+	DiagramRouter.Post("/", diagram.Post(sdkP))
+	DiagramRouter.Put("/", diagram.Put(sdkP))
+	DiagramRouter.Get("/", diagram.Get(sdkP))
+	DiagramRouter.Delete("/", diagram.Delete(sdkP))
+
+	DiagramRouter.Post("/users", diagramUsers.Put(sdkP))
+	DiagramRouter.Get("/users", diagramUsers.Get(sdkP))
+	DiagramRouter.Delete("/users", diagramUsers.Delete(sdkP))
+
+	DiagramsRouter := Router.Group("/diagrams", isAuthenticated(sdkP))
+	DiagramsRouter.Get("/", diagrams.Get(sdkP))
+
+	Router.Get("/.well-known/jwks.json", JWKSet(sdkP))
 
 	Router.Get("/to-json", func(fbCtx *fiber.Ctx) error {
 		json, err := transpiler.ToJson(sdkP, "", "") // DELETE THIS
@@ -120,6 +148,7 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 		refreshToken := fbCtx.Cookies("refresh_token")
 
 		if idToken == "" || refreshToken == "" {
+			fmt.Printf("hello1\n")
 			return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
 				Success: false,
 				Reason:  "Unauthorized",
@@ -127,31 +156,21 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Check if id token is valid
-		idTokenClaims, idTokenError := sdkP.AWS.ParseClaims(idToken)
+		userId, idTokenError := sdkP.Postgres.Auth.GetUserIdFromToken(idToken)
+
 		if idTokenError == nil {
-			// id token is valid, check when it is expiring and get a new one if needed
-			idTokenExpirationTime := idTokenClaims["exp"].(float64)
-
-			// If within 5 days of expiration, refresh id token
-			if time.Now().Unix() > int64(idTokenExpirationTime)-60*24*5 {
-				_, err := sdkP.AWS.RefreshIdToken(fbCtx, refreshToken)
-				if err != nil {
-					return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
-						Success: false,
-						Reason:  "Unauthorized",
-					})
-				}
-			}
-
-			fbCtx.Locals("token_claims", idTokenClaims)
+			fbCtx.Locals("user_id", userId)
 			return fbCtx.Next()
 		}
 
-		// id token is expired, check if refresh token is valid
-		_, refreshTokenError := sdkP.AWS.ParseClaims(refreshToken)
+		// print the error
+		fmt.Printf("error: %s\n", idTokenError)
+
+		// id token is invalid, check if refresh token is valid
+		_, refreshTokenError := sdkP.Postgres.Auth.GetUserIdFromToken(refreshToken)
 		if refreshTokenError == nil {
 			// refresh token is valid, refresh id token
-			user, err := sdkP.AWS.RefreshIdToken(fbCtx, refreshToken)
+			idToken, err := sdkP.Postgres.Auth.RefreshIdToken(refreshToken)
 			if err != nil {
 				return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
 					Success: false,
@@ -159,21 +178,22 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 				})
 			}
 
-			idTokenClaims, idTokenError = sdkP.AWS.ParseClaims(*user.AuthenticationResult.IdToken)
-			if idTokenError != nil {
-				return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
-					Success: false,
-					Reason:  idTokenError.Error(),
-				})
-			}
+			// Store id token in http only cookie
+			fbCtx.Cookie(&fiber.Cookie{
+				Name:  "id_token",
+				Value: idToken,
+				// Domain:   "prouml.com", // TODO remove this
+				Expires:  time.Now().Add(7 * 24 * time.Hour),
+				HTTPOnly: true,
+				// Secure:   true, // TODO remove this
+			})
 
-			fbCtx.Locals("token_claims", idTokenClaims)
+			fbCtx.Locals("user_id", userId)
 			return fbCtx.Next()
 		}
 
-		// refresh token is valid
-		// refresh id token
-
+		fmt.Printf("hello3\n")
+		// refresh token is invalid, user needs to login again
 		return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
 			Success: false,
 			Reason:  "Unauthorized",

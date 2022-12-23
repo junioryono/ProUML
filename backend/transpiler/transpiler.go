@@ -3,7 +3,6 @@ package transpiler
 import (
 	"errors"
 
-	cognito "github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 	"github.com/google/uuid"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/junioryono/ProUML/backend/sdk"
@@ -83,14 +82,12 @@ func jsonMarshalError() ([]byte, error) {
 
 // Check if user is authenticated
 func getUser(sdkP *sdk.SDK, jwt string) (string, error) {
-	user, err := sdkP.AWS.Cognito.GetUser(&cognito.GetUserInput{
-		AccessToken: &jwt,
-	})
-	if err != nil { // || user.ID == ""
+	user, err := sdkP.Auth0.ParseClaims(jwt)
+	if err != nil {
 		return "", err
 	}
 
-	return user.String(), nil
+	return user["sub"].(string), nil
 }
 
 // Check if projectId belongs to user.
