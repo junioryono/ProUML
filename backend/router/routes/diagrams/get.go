@@ -10,9 +10,6 @@ import (
 
 func Get(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Get user id from fiber context
-		userId := fbCtx.Locals("user_id").(string)
-
 		// Get offset from query string
 		offset := fbCtx.Query("offset")
 
@@ -30,7 +27,7 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Get the diagrams
-		diagram, err := sdkP.Postgres.Diagrams.GetAllWithAccessRole(userId, offsetInt)
+		diagram, err := sdkP.Postgres.Diagrams.GetAllWithAccessRole(fbCtx.Cookies("id_token"), offsetInt)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

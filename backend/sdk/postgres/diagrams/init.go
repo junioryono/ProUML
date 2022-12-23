@@ -1,23 +1,33 @@
 package diagrams
 
 import (
+	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
 	"github.com/junioryono/ProUML/backend/sdk/types"
 	"gorm.io/gorm"
 )
 
 type Diagrams_SDK struct {
-	db *gorm.DB
+	Auth *auth.Auth_SDK
+	db   *gorm.DB
 }
 
-func Init(db *gorm.DB) *Diagrams_SDK {
-	return &Diagrams_SDK{db: db}
+func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagrams_SDK {
+	return &Diagrams_SDK{
+		Auth: Auth,
+		db:   db,
+	}
 }
 
-func (d *Diagrams_SDK) GetAllWithAccessRole(userId string, offset int) ([]types.DiagramModelNoContent, error) {
+func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]types.DiagramModelNoContent, error) {
+	userId, err := d.Auth.GetUserIdFromToken(idToken)
+	if err != nil {
+		return nil, err
+	}
+
 	var diagrams []types.DiagramModelNoContent
 
 	// Get all diagrams the user has access to (dont use public to query)
-	err := d.db.Transaction(func(tx *gorm.DB) error {
+	err = d.db.Transaction(func(tx *gorm.DB) error {
 		var userDiagrams []types.DiagramUserRoleModel
 
 		err := tx.Where("user_id = ?", userId).Find(&userDiagrams).Error

@@ -65,6 +65,11 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	// 	db.Exec("DROP TABLE " + table)
 	// }
 
+	// Print all table names
+	var tables []string
+	db.Raw("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").Pluck("table_name", &tables)
+	fmt.Println(tables)
+
 	if err := db.AutoMigrate(
 		&types.UserModel{},
 		&types.DiagramModel{},
@@ -81,8 +86,8 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	}
 
 	Auth := auth.Init(db, jwk, ses)
-	Diagram := diagram.Init(db)
-	Diagrams := diagrams.Init(db)
+	Diagram := diagram.Init(db, Auth)
+	Diagrams := diagrams.Init(db, Auth)
 
 	p := &Postgres_SDK{
 		Auth:     Auth,

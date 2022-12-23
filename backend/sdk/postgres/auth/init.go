@@ -36,9 +36,6 @@ func (authSDK *Auth_SDK) AuthenticateUser(userIPAddress, email, password string)
 		return "", "", err
 	}
 
-	// Print user.Password
-	fmt.Printf("User password: %s\n", user.Password)
-
 	// Check if the user's email has been verified
 	// if !user.EmailVerified {
 	// 	return "", "", fmt.Errorf("email has not been verified")
@@ -81,8 +78,6 @@ func (authSDK *Auth_SDK) CreateUser(userIPAddress, email, password, firstName, l
 	if err != nil {
 		return "", "", err
 	}
-
-	fmt.Printf("Creating user with email: %s\n", email)
 
 	// Create the user
 	user = types.UserModel{
@@ -148,35 +143,64 @@ func (authSDK *Auth_SDK) DeleteUser(idToken string) error {
 	// Delete all DiagramModels the user owns
 	// Delete all DiagramUserRoleModels for the user
 	// Delete the user
+	var count1 int64
+	var count2 int64
+	var count3 int64
+
+	// Get count of DiagramUserRoleModels
+	err = authSDK.db.Model(&types.DiagramUserRoleModel{}).Count(&count1).Error
+	if err != nil {
+		return err
+	}
+
+	// Get count of DiagramModels
+	err = authSDK.db.Model(&types.DiagramModel{}).Count(&count2).Error
+	if err != nil {
+		return err
+	}
+
+	// Get count of Users
+	err = authSDK.db.Model(&types.UserModel{}).Count(&count3).Error
+	if err != nil {
+		return err
+	}
+
 	return authSDK.db.Transaction(func(tx *gorm.DB) error {
-		// Get all DiagramUserRoleModels for the user
-		var diagramUserRoleModels []types.DiagramUserRoleModel
-		err := tx.Where("user_id = ?", userId).Find(&diagramUserRoleModels).Error
+		// Use tx.Table and joins to select the diagram_user_role_models.diagram_id where diagram_user_role_models.user_id = userId and diagram_user_role_models.role = "owner" using joins
+		diagramUserRoleModels := []types.DiagramUserRoleModel{}
+		err := tx.Table("diagram_user_role_models").
+			Select("diagram_user_role_models.diagram_id").
+			Joins("JOIN diagram_models ON diagram_models.id = diagram_user_role_models.diagram_id").
+			Where("diagram_user_role_models.user_id = ? AND diagram_user_role_models.role = ?", userId, "owner").
+			Find(&diagramUserRoleModels).Error
+
 		if err != nil {
 			return err
 		}
 
-		// Delete all DiagramModels the user owns
-		for _, diagramUserRoleModel := range diagramUserRoleModels {
-			if diagramUserRoleModel.Role == "owner" {
-				err := tx.Where("id = ?", diagramUserRoleModel.DiagramID).Delete(&types.DiagramModel{}).Error
-				if err != nil {
-					return err
-				}
-			}
+		// Create a slice of diagramIDs
+		diagramIDs := make([]string, len(diagramUserRoleModels))
+		for i, durm := range diagramUserRoleModels {
+			diagramIDs[i] = durm.DiagramID
 		}
 
-		// Delete all DiagramUserRoleModels for the user
-		err = tx.Where("user_id = ?", userId).Delete(&types.DiagramUserRoleModel{}).Error
+		// Delete all diagram_user_role_models where diagram_user_role_models.diagram_id is in diagramIDs
+		err = tx.Where("diagram_id IN (?)", diagramIDs).Delete(&types.DiagramUserRoleModel{}).Error
 		if err != nil {
 			return err
 		}
 
-		// Delete the user
-		err = tx.Where("id = ?", userId).Delete(&types.UserModel{}).Error
+		// Delete all diagram_models where diagram_models.id is in diagramIDs
+		err = tx.Where("id IN (?)", diagramIDs).Delete(&types.DiagramModel{}).Error
 		if err != nil {
 			return err
 		}
+
+		// // Delete the user
+		// err = tx.Where("id = ?", userId).Delete(&types.UserModel{}).Error
+		// if err != nil {
+		// 	return err
+		// }
 
 		return nil
 	})

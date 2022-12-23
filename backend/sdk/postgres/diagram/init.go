@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/diagram/users"
 	"github.com/junioryono/ProUML/backend/sdk/types"
 	"gorm.io/datatypes"
@@ -13,18 +14,26 @@ import (
 )
 
 type Diagram_SDK struct {
+	Auth  *auth.Auth_SDK
 	Users *users.Users_SDK
 	db    *gorm.DB
 }
 
-func Init(db *gorm.DB) *Diagram_SDK {
+func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagram_SDK {
 	return &Diagram_SDK{
+		Auth:  Auth,
 		Users: users.Init(db),
 		db:    db,
 	}
 }
 
-func (d *Diagram_SDK) Create(userId string) (string, error) {
+func (d *Diagram_SDK) Create(idToken string) (string, error) {
+	// Get the user id from the id token
+	userId, err := d.Auth.GetUserIdFromToken(idToken)
+	if err != nil {
+		return "", err
+	}
+
 	diagramId := uuid.New().String()
 
 	// Create a new diagram model
@@ -41,7 +50,7 @@ func (d *Diagram_SDK) Create(userId string) (string, error) {
 	}
 
 	// Save the diagram and the user diagram to the database
-	err := d.db.Transaction(func(tx *gorm.DB) error {
+	err = d.db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Create(&diagram).Error
 		if err != nil {
 			return err

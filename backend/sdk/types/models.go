@@ -8,8 +8,8 @@ import (
 )
 
 type UserModel struct {
-	ID            string `gorm:"primaryKey" json:"user_id"`
-	Email         string `gorm:"primaryKey" json:"email"`
+	ID            string `gorm:"uniqueIndex" json:"user_id"`
+	Email         string `gorm:"uniqueIndex" json:"email"`
 	EmailVerified bool   `gorm:"default:false" json:"email_verified"`
 	Password      string `json:"-"`
 	CreatedAt     int64  `gorm:"autoCreateTime" json:"created_at"`
@@ -26,7 +26,7 @@ type UserModel struct {
 }
 
 type DiagramModel struct {
-	ID        string         `gorm:"primaryKey" json:"id"`
+	ID        string         `gorm:"uniqueIndex" json:"id"`
 	CreatedAt time.Time      `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
 	Public    bool           `gorm:"default:false" json:"public"`
@@ -35,15 +35,18 @@ type DiagramModel struct {
 }
 
 type DiagramUserRoleModel struct {
-	UserID    string `gorm:"primaryKey" json:"user_id"`
-	DiagramID string `gorm:"primaryKey" json:"diagram_id"`
-	Role      string `gorm:"default:'viewer'" json:"role"`
+	UserID    string       `gorm:"primaryKey" json:"-"`
+	DiagramID string       `gorm:"primaryKey" json:"-"`
+	User      UserModel    `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	Diagram   DiagramModel `gorm:"foreignKey:DiagramID;references:ID" json:"diagram"`
+	Role      string       `gorm:"default:'viewer'" json:"role"`
 }
 
 type EmailVerificationTokenModel struct {
-	Token     string `gorm:"primaryKey" json:"token"`
-	UserID    string `json:"user_id"`
-	ExpiresAt int64  `json:"expires_at"`
+	Token     string    `gorm:"primaryKey" json:"token"`
+	UserID    string    `json:"user_id"`
+	User      UserModel `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	ExpiresAt int64     `json:"expires_at"`
 }
 
 type JWTModel struct {
