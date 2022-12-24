@@ -8,9 +8,6 @@ import (
 
 func Get(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Get user id from fiber context
-		userId := fbCtx.Locals("user_id").(string)
-
 		// Get the diagram id from query string
 		diagramId := fbCtx.Query("id")
 
@@ -22,7 +19,7 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Get all users that have access to the diagram
-		users, err := sdkP.Postgres.Diagram.Users.GetAllWithAccessRole(diagramId, userId)
+		users, err := sdkP.Postgres.Diagram.Users.GetAllWithAccessRole(diagramId, fbCtx.Cookies("id_token"))
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

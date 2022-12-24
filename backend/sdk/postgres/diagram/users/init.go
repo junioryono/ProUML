@@ -3,29 +3,51 @@ package users
 import (
 	"errors"
 
-	"github.com/junioryono/ProUML/backend/sdk/types"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"gorm.io/gorm"
 )
 
 type Users_SDK struct {
-	db *gorm.DB
+	Auth *auth.Auth_SDK
+	db   *gorm.DB
 }
 
-func Init(db *gorm.DB) *Users_SDK {
-	return &Users_SDK{db: db}
+func Init(Auth *auth.Auth_SDK, db *gorm.DB) *Users_SDK {
+	return &Users_SDK{
+		Auth: Auth,
+		db:   db,
+	}
 }
 
-func (u *Users_SDK) AddToDiagram(diagramId, userId, newUserId, role string) error {
+func (u *Users_SDK) AddToDiagram(diagramId, idToken, newUserEmail, role string) error {
+	// Get the user id from the id token
+	userId, err := u.Auth.GetUserIdFromToken(idToken)
+	if err != nil {
+		return err
+	}
+
 	// Check if the role is valid
 	if role != "editor" && role != "viewer" {
 		return errors.New("invalid role")
 	}
 
 	// Add a newUserId to the diagram if userId is the owner or editor
-	err := u.db.Transaction(func(tx *gorm.DB) error {
-		var userDiagram types.DiagramUserRoleModel
+	err = u.db.Transaction(func(tx *gorm.DB) error {
+		var newUserId string
+		err := tx.Where("email = ?", newUserEmail).First(&models.UserModel{}).Pluck("id", &newUserId).Error
+		if err != nil {
+			// If the error is not "record not found", return the error
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return errors.New("invalid user")
+			}
 
-		err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error
+			return err
+		}
+
+		var userDiagram models.DiagramUserRoleModel
+
+		err = tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error
 		if err != nil {
 			return err
 		}
@@ -34,7 +56,7 @@ func (u *Users_SDK) AddToDiagram(diagramId, userId, newUserId, role string) erro
 			return errors.New("user is not the owner or editor of the diagram")
 		}
 
-		var newUserDiagram types.DiagramUserRoleModel
+		var newUserDiagram models.DiagramUserRoleModel
 
 		err = tx.Where("user_id = ? AND diagram_id = ?", newUserId, diagramId).First(&newUserDiagram).Error
 		if err != nil {
@@ -45,30 +67,28 @@ func (u *Users_SDK) AddToDiagram(diagramId, userId, newUserId, role string) erro
 			return errors.New("user already has access to the diagram")
 		}
 
-		newUserDiagram = types.DiagramUserRoleModel{
+		newUserDiagram = models.DiagramUserRoleModel{
 			UserID:    newUserId,
 			DiagramID: diagramId,
 			Role:      role,
 		}
 
-		err = tx.Create(&newUserDiagram).Error
-		if err != nil {
-			return err
-		}
-		return nil
+		return tx.Create(&newUserDiagram).Error
 	})
 
+	return err
+}
+
+func (u *Users_SDK) RemoveFromDiagram(diagramId, idToken, removerUserId string) error {
+	// Get the user id from the id token
+	userId, err := u.Auth.GetUserIdFromToken(idToken)
 	if err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func (u *Users_SDK) RemoveFromDiagram(diagramId, userId, removerUserId string) error {
 	// Remove removerUserId from the diagram if userId is the owner or editor and removerUserId is not the owner
-	err := u.db.Transaction(func(tx *gorm.DB) error {
-		var userDiagram types.DiagramUserRoleModel
+	err = u.db.Transaction(func(tx *gorm.DB) error {
+		var userDiagram models.DiagramUserRoleModel
 
 		err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error
 		if err != nil {
@@ -79,7 +99,7 @@ func (u *Users_SDK) RemoveFromDiagram(diagramId, userId, removerUserId string) e
 			return errors.New("user is not the owner or editor of the diagram")
 		}
 
-		var removerUserDiagram types.DiagramUserRoleModel
+		var removerUserDiagram models.DiagramUserRoleModel
 
 		err = tx.Where("user_id = ? AND diagram_id = ?", removerUserId, diagramId).First(&removerUserDiagram).Error
 		if err != nil {
@@ -90,22 +110,19 @@ func (u *Users_SDK) RemoveFromDiagram(diagramId, userId, removerUserId string) e
 			return errors.New("user is the owner of the diagram")
 		}
 
-		err = tx.Delete(&removerUserDiagram).Error
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return tx.Delete(&removerUserDiagram).Error
 	})
 
+	return err
+}
+
+func (u *Users_SDK) UpdateAccessRole(diagramId, idToken, updateUserId, role string) error {
+	// Get the user id from the id token
+	userId, err := u.Auth.GetUserIdFromToken(idToken)
 	if err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func (u *Users_SDK) UpdateAccessRole(diagramId, userId, updateUserId, role string) error {
 	// Update the role of updateUserId to the diagram if:
 	// updateUserId is not the owner
 	// userId is the owner
@@ -115,8 +132,8 @@ func (u *Users_SDK) UpdateAccessRole(diagramId, userId, updateUserId, role strin
 		return errors.New("invalid role")
 	}
 
-	err := u.db.Transaction(func(tx *gorm.DB) error {
-		var userDiagram types.DiagramUserRoleModel
+	err = u.db.Transaction(func(tx *gorm.DB) error {
+		var userDiagram models.DiagramUserRoleModel
 
 		err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error
 		if err != nil {
@@ -127,7 +144,7 @@ func (u *Users_SDK) UpdateAccessRole(diagramId, userId, updateUserId, role strin
 			return errors.New("user is not the owner or editor of the diagram")
 		}
 
-		var updateUserDiagram types.DiagramUserRoleModel
+		var updateUserDiagram models.DiagramUserRoleModel
 
 		err = tx.Where("user_id = ? AND diagram_id = ?", updateUserId, diagramId).First(&updateUserDiagram).Error
 		if err != nil {
@@ -144,27 +161,24 @@ func (u *Users_SDK) UpdateAccessRole(diagramId, userId, updateUserId, role strin
 
 		updateUserDiagram.Role = role
 
-		err = tx.Save(&updateUserDiagram).Error
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return tx.Save(&updateUserDiagram).Error
 	})
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
-func (u *Users_SDK) GetAllWithAccessRole(diagramId, userId string) ([]types.DiagramUserRoleModel, error) {
-	// Get all users with access to the diagram if public or userId is the owner, editor or viewer
-	var userDiagrams []types.DiagramUserRoleModel
+func (u *Users_SDK) GetAllWithAccessRole(diagramId, idToken string) ([]models.DiagramUserRoleModel, error) {
+	// Get the user id from the id token
+	userId, err := u.Auth.GetUserIdFromToken(idToken)
+	if err != nil {
+		return nil, err
+	}
 
-	err := u.db.Transaction(func(tx *gorm.DB) error {
-		var diagram types.DiagramModel
+	// Get all users with access to the diagram if public or userId is the owner, editor or viewer
+	var userDiagrams []models.DiagramUserRoleModel
+
+	err = u.db.Transaction(func(tx *gorm.DB) error {
+		var diagram models.DiagramModel
 
 		err := tx.Where("id = ?", diagramId).First(&diagram).Error
 		if err != nil {
@@ -179,7 +193,7 @@ func (u *Users_SDK) GetAllWithAccessRole(diagramId, userId string) ([]types.Diag
 			return nil
 		}
 
-		var userDiagram types.DiagramUserRoleModel
+		var userDiagram models.DiagramUserRoleModel
 
 		err = tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error
 		if err != nil {
@@ -190,12 +204,7 @@ func (u *Users_SDK) GetAllWithAccessRole(diagramId, userId string) ([]types.Diag
 			return errors.New("user is not the owner, editor or viewer of the diagram")
 		}
 
-		err = tx.Where("diagram_id = ?", diagramId).Find(&userDiagrams).Error
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return tx.Where("diagram_id = ?", diagramId).Find(&userDiagrams).Error
 	})
 
 	if err != nil {

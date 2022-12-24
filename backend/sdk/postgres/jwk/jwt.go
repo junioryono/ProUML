@@ -8,18 +8,18 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
-	"github.com/junioryono/ProUML/backend/sdk/types"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 )
 
-func (jwkSDK *JWK_SDK) CreateUserIdToken(user types.UserModel) (string, error) {
+func (jwkSDK *JWK_SDK) CreateUserIdToken(user models.UserModel) (string, error) {
 	return jwkSDK.createUserToken(user, time.Now().Add(time.Hour*10).Unix(), true)
 }
 
-func (jwkSDK *JWK_SDK) CreateUserRefreshToken(user types.UserModel) (string, error) {
+func (jwkSDK *JWK_SDK) CreateUserRefreshToken(user models.UserModel) (string, error) {
 	return jwkSDK.createUserToken(user, time.Now().Add(time.Hour*24*365).Unix(), false)
 }
 
-func (jwkSDK *JWK_SDK) createUserToken(user types.UserModel, exp int64, includeUserMetadata bool) (string, error) {
+func (jwkSDK *JWK_SDK) createUserToken(user models.UserModel, exp int64, includeUserMetadata bool) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": user.ID,
 		"iss": "https://api.prouml.com",

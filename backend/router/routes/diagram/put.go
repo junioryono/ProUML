@@ -10,9 +10,6 @@ import (
 
 func Put(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Get user id from fiber context
-		userId := fbCtx.Locals("user_id").(string)
-
 		// Get the diagram id from query string
 		diagramId := fbCtx.Query("id")
 
@@ -25,9 +22,9 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 
 		// need to get public and content from body
 		type body struct {
-			Public  bool            `json:"public"`
-			Name    string          `json:"name"`
-			Content json.RawMessage `json:"content"`
+			Public  *bool            `json:"public"`
+			Name    string           `json:"name"`
+			Content *json.RawMessage `json:"content"`
 		}
 
 		b := body{}
@@ -40,7 +37,7 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Make changes to the diagram
-		err = sdkP.Postgres.Diagram.Update(diagramId, userId, b.Public, b.Name, b.Content)
+		err = sdkP.Postgres.Diagram.Update(diagramId, fbCtx.Cookies("id_token"), b.Public, b.Name, b.Content)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

@@ -8,14 +8,14 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/junioryono/ProUML/backend/sdk/types"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/lestrrat-go/jwx/jwk"
 	"gorm.io/gorm"
 )
 
 func (jwkSDK *JWK_SDK) GetSet() (jwk.Set, error) {
 	// Get the JWT models from the database
-	var jwt []types.JWTModel
+	var jwt []models.JWTModel
 	err := jwkSDK.db.Find(&jwt).Error
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (jwkSDK *JWK_SDK) GetSet() (jwk.Set, error) {
 }
 
 // Add the new JWT token to the JWK set
-func (jwkSDK *JWK_SDK) addJWTToSet(token types.JWTModel) error {
+func (jwkSDK *JWK_SDK) addJWTToSet(token models.JWTModel) error {
 	publicKey, err := x509.ParsePKCS1PublicKey(token.PublicKey)
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func (jwkSDK *JWK_SDK) rotateJWT() error {
 	}
 
 	// Create a new JWT model
-	jwtModel := types.JWTModel{
+	jwtModel := models.JWTModel{
 		ID:             uuid.New().String(),
 		PrivateKey:     x509.MarshalPKCS1PrivateKey(privateKey),
 		PublicKey:      x509.MarshalPKCS1PublicKey(&privateKey.PublicKey),
@@ -118,9 +118,9 @@ func (jwkSDK *JWK_SDK) rotateJWT() error {
 }
 
 // Get the currently active JWT token from the database
-func (jwkSDK *JWK_SDK) getActiveJWT() (*types.JWTModel, error) {
+func (jwkSDK *JWK_SDK) getActiveJWT() (*models.JWTModel, error) {
 	// Create a new JWT model
-	jwtModel := &types.JWTModel{}
+	jwtModel := &models.JWTModel{}
 
 	// Get the currently active JWT token from the database
 	result := jwkSDK.db.Where("active = ?", true).First(jwtModel)
@@ -146,5 +146,5 @@ func (jwkSDK *JWK_SDK) getActiveJWT() (*types.JWTModel, error) {
 // Remove all JWT tokens from the database
 func (jwkSDK *JWK_SDK) RemoveAllJWTs() error {
 	// Remove all JWT tokens from the database
-	return jwkSDK.db.Where("true = true").Delete(&types.JWTModel{}).Error
+	return jwkSDK.db.Where("true = true").Delete(&models.JWTModel{}).Error
 }

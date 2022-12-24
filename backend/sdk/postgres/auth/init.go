@@ -1,13 +1,14 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/sdk/ses"
-	"github.com/junioryono/ProUML/backend/sdk/types"
 	jwkT "github.com/lestrrat-go/jwx/jwk"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -28,11 +29,17 @@ func Init(db *gorm.DB, jwk *jwk.JWK_SDK, ses *ses.SES_SDK) *Auth_SDK {
 }
 
 // Function that will authenticate the user
+// Returns the users id token and refresh token
 func (authSDK *Auth_SDK) AuthenticateUser(userIPAddress, email, password string) (string, string, error) {
 	// Get the user from the database
-	var user types.UserModel
+	var user models.UserModel
 	err := authSDK.db.Where("email = ?", email).First(&user).Error
 	if err != nil {
+		// If error is record not found, return incorrect email or password
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", "", fmt.Errorf("incorrect email or password")
+		}
+
 		return "", "", err
 	}
 
@@ -43,7 +50,7 @@ func (authSDK *Auth_SDK) AuthenticateUser(userIPAddress, email, password string)
 
 	// Check if the user's password is correct
 	if ok := authSDK.CheckPasswordHash(password, user.Password); !ok {
-		return "", "", fmt.Errorf("incorrect password")
+		return "", "", fmt.Errorf("incorrect email or password")
 	}
 
 	// Update the user's last ip address
@@ -67,7 +74,7 @@ func (authSDK *Auth_SDK) AuthenticateUser(userIPAddress, email, password string)
 // Returns the users access token, id token, and refresh token
 func (authSDK *Auth_SDK) CreateUser(userIPAddress, email, password, firstName, lastName string) (string, string, error) {
 	// Check if the user already exists
-	var user types.UserModel
+	var user models.UserModel
 	err := authSDK.db.Where("email = ?", email).First(&user).Error
 	if err == nil {
 		return "", "", fmt.Errorf("user already exists")
@@ -80,7 +87,7 @@ func (authSDK *Auth_SDK) CreateUser(userIPAddress, email, password, firstName, l
 	}
 
 	// Create the user
-	user = types.UserModel{
+	user = models.UserModel{
 		ID:        uuid.New().String(),
 		Email:     email,
 		Password:  password,
@@ -115,7 +122,7 @@ func (authSDK *Auth_SDK) CreateUser(userIPAddress, email, password, firstName, l
 	return idToken, refreshToken, nil
 }
 
-func (authSDK *Auth_SDK) createUserTokens(user types.UserModel) (string, string, error) {
+func (authSDK *Auth_SDK) createUserTokens(user models.UserModel) (string, string, error) {
 	// Create the user's id token, access token, and refresh token using postgres
 	idToken, err := authSDK.jwk.CreateUserIdToken(user)
 	if err != nil {
@@ -138,36 +145,9 @@ func (authSDK *Auth_SDK) DeleteUser(idToken string) error {
 		return err
 	}
 
-	// Delete all DiagramModels the user owns and all DiagramUserRoleModels for the user
-	// Get all DiagramUserRoleModels for the user
-	// Delete all DiagramModels the user owns
-	// Delete all DiagramUserRoleModels for the user
-	// Delete the user
-	var count1 int64
-	var count2 int64
-	var count3 int64
-
-	// Get count of DiagramUserRoleModels
-	err = authSDK.db.Model(&types.DiagramUserRoleModel{}).Count(&count1).Error
-	if err != nil {
-		return err
-	}
-
-	// Get count of DiagramModels
-	err = authSDK.db.Model(&types.DiagramModel{}).Count(&count2).Error
-	if err != nil {
-		return err
-	}
-
-	// Get count of Users
-	err = authSDK.db.Model(&types.UserModel{}).Count(&count3).Error
-	if err != nil {
-		return err
-	}
-
 	return authSDK.db.Transaction(func(tx *gorm.DB) error {
 		// Use tx.Table and joins to select the diagram_user_role_models.diagram_id where diagram_user_role_models.user_id = userId and diagram_user_role_models.role = "owner" using joins
-		diagramUserRoleModels := []types.DiagramUserRoleModel{}
+		diagramUserRoleModels := []models.DiagramUserRoleModel{}
 		err := tx.Table("diagram_user_role_models").
 			Select("diagram_user_role_models.diagram_id").
 			Joins("JOIN diagram_models ON diagram_models.id = diagram_user_role_models.diagram_id").
@@ -185,35 +165,63 @@ func (authSDK *Auth_SDK) DeleteUser(idToken string) error {
 		}
 
 		// Delete all diagram_user_role_models where diagram_user_role_models.diagram_id is in diagramIDs
-		err = tx.Where("diagram_id IN (?)", diagramIDs).Delete(&types.DiagramUserRoleModel{}).Error
+		err = tx.Where("diagram_id IN (?)", diagramIDs).Delete(&models.DiagramUserRoleModel{}).Error
 		if err != nil {
 			return err
 		}
 
 		// Delete all diagram_models where diagram_models.id is in diagramIDs
-		err = tx.Where("id IN (?)", diagramIDs).Delete(&types.DiagramModel{}).Error
+		err = tx.Where("id IN (?)", diagramIDs).Delete(&models.DiagramModel{}).Error
 		if err != nil {
 			return err
 		}
 
-		// // Delete the user
-		// err = tx.Where("id = ?", userId).Delete(&types.UserModel{}).Error
-		// if err != nil {
-		// 	return err
-		// }
+		// Use tx.Table and joins to select the email_verification_token_models.token where email_verification_token_models.user_id = userId using joins
+		emailVerificationTokenModels := []models.EmailVerificationTokenModel{}
+		err = tx.Table("email_verification_token_models").
+			Select("email_verification_token_models.token").
+			Joins("JOIN user_models ON user_models.id = email_verification_token_models.user_id").
+			Where("email_verification_token_models.user_id = ?", userId).
+			Find(&emailVerificationTokenModels).Error
 
-		return nil
+		if err != nil {
+			return err
+		}
+
+		// Create a slice of tokens
+		tokens := make([]string, len(emailVerificationTokenModels))
+		for i, evtm := range emailVerificationTokenModels {
+			tokens[i] = evtm.Token
+		}
+
+		// Delete all email_verification_token_models where email_verification_token_models.token is in tokens
+		err = tx.Where("token IN (?)", tokens).Delete(&models.EmailVerificationTokenModel{}).Error
+		if err != nil {
+			return err
+		}
+
+		// Delete the user
+		return tx.Where("id = ?", userId).Delete(&models.UserModel{}).Error
 	})
 }
 
 // Function to resend the user an email verification email
-func (authSDK *Auth_SDK) ResendEmailVerificationEmail(email string) error {
-	// Check if the user exists
-	var user types.UserModel
-	err := authSDK.db.Where("email = ?", email).First(&user).Error
+func (authSDK *Auth_SDK) ResendEmailVerificationEmail(idToken string) error {
+	// Get the user id from the id token
+	userId, err := authSDK.GetUserIdFromToken(idToken)
 	if err != nil {
 		return err
 	}
+
+	// Check if the user exists
+	var user models.UserModel
+	err = authSDK.db.Where("id = ?", userId).First(&user).Error
+	if err != nil {
+		return err
+	}
+
+	// Print uses's email address
+	fmt.Println(user.Email)
 
 	// Check if the user's email has already been verified
 	if user.EmailVerified {
@@ -229,7 +237,7 @@ func (authSDK *Auth_SDK) ResendEmailVerificationEmail(email string) error {
 // Function that will verify the user's email address
 func (authSDK *Auth_SDK) VerifyEmail(emailVerificationToken string) error {
 	// Get the email verification token from the database
-	var emailVerificationTokenModel types.EmailVerificationTokenModel
+	var emailVerificationTokenModel models.EmailVerificationTokenModel
 	err := authSDK.db.Where("token = ?", emailVerificationToken).First(&emailVerificationTokenModel).Error
 	if err != nil {
 		return err
@@ -241,7 +249,7 @@ func (authSDK *Auth_SDK) VerifyEmail(emailVerificationToken string) error {
 	}
 
 	// Get the user from the database
-	var user types.UserModel
+	var user models.UserModel
 	err = authSDK.db.Where("id = ?", emailVerificationTokenModel.UserID).First(&user).Error
 	if err != nil {
 		return err
@@ -250,19 +258,20 @@ func (authSDK *Auth_SDK) VerifyEmail(emailVerificationToken string) error {
 	// Update the user's email verified status
 	user.EmailVerified = true
 
-	err = authSDK.db.Save(&user).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return authSDK.db.Save(&user).Error
 }
 
 // Function that will get a user from the database
-func (authSDK *Auth_SDK) GetUser(userId string) (*types.UserModel, error) {
-	var user types.UserModel
+func (authSDK *Auth_SDK) GetUser(idToken string) (*models.UserModel, error) {
+	// Get the user id from the id token
+	userId, err := authSDK.GetUserIdFromToken(idToken)
+	if err != nil {
+		return nil, err
+	}
 
-	err := authSDK.db.Where("id = ?", userId).First(&user).Error
+	var user models.UserModel
+
+	err = authSDK.db.Where("id = ?", userId).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -271,10 +280,16 @@ func (authSDK *Auth_SDK) GetUser(userId string) (*types.UserModel, error) {
 }
 
 // Function that will update a user in the database
-func (authSDK *Auth_SDK) UpdateUser(userId, email, firstName, lastName string) error {
-	var user types.UserModel
+func (authSDK *Auth_SDK) UpdateUser(idToken, email, firstName, lastName string) error {
+	// Get the user id from the id token
+	userId, err := authSDK.GetUserIdFromToken(idToken)
+	if err != nil {
+		return err
+	}
 
-	err := authSDK.db.Where("id = ?", userId).First(&user).Error
+	var user models.UserModel
+
+	err = authSDK.db.Where("id = ?", userId).First(&user).Error
 	if err != nil {
 		return err
 	}
@@ -283,16 +298,11 @@ func (authSDK *Auth_SDK) UpdateUser(userId, email, firstName, lastName string) e
 	user.FirstName = firstName
 	user.LastName = lastName
 
-	err = authSDK.db.Save(&user).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return authSDK.db.Save(&user).Error
 }
 
 // Function that will send the user an email to verify their email address
-func (authSDK *Auth_SDK) SendEmailVerificationEmail(user types.UserModel) error {
+func (authSDK *Auth_SDK) SendEmailVerificationEmail(user models.UserModel) error {
 	// Create the email verification token
 	emailVerificationToken, err := authSDK.CreateEmailVerificationToken(user)
 	if err != nil {
@@ -310,23 +320,19 @@ func (authSDK *Auth_SDK) SendEmailVerificationEmail(user types.UserModel) error 
 
 	_, err = authSDK.ses.SendEmail(Sender, Subject, HtmlBody, TextBody, ToAddresses, CcAddresses)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // Function that will create an email verification token
-func (authSDK *Auth_SDK) CreateEmailVerificationToken(user types.UserModel) (string, error) {
+func (authSDK *Auth_SDK) CreateEmailVerificationToken(user models.UserModel) (string, error) {
 	// Create the email verification token
 	emailVerificationToken := uuid.New().String()
 
 	// Create the email verification token in the database
-	err := authSDK.db.Create(&types.EmailVerificationTokenModel{
-		Token:  emailVerificationToken,
-		UserID: user.ID,
-		ExpiresAt:/* Expires in 7 days from now */ time.Now().Add(time.Hour * 24 * 7).Unix(),
+	err := authSDK.db.Create(&models.EmailVerificationTokenModel{
+		Token:     emailVerificationToken,
+		UserID:    user.ID,
+		ExpiresAt: time.Now().Add(time.Hour * 24 * 7).Unix(),
 	}).Error
 	if err != nil {
 		return "", err
@@ -361,7 +367,7 @@ func (authSDK *Auth_SDK) RefreshIdToken(refreshToken string) (string, error) {
 	}
 
 	// Get the user from the database
-	var user types.UserModel
+	var user models.UserModel
 	err = authSDK.db.Where("id = ?", userId).First(&user).Error
 	if err != nil {
 		return "", err

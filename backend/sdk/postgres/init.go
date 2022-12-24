@@ -12,8 +12,8 @@ import (
 	"github.com/junioryono/ProUML/backend/sdk/postgres/diagram"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/diagrams"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/sdk/ses"
-	"github.com/junioryono/ProUML/backend/sdk/types"
 )
 
 type Postgres_SDK struct {
@@ -71,11 +71,11 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	fmt.Println(tables)
 
 	if err := db.AutoMigrate(
-		&types.UserModel{},
-		&types.DiagramModel{},
-		&types.DiagramUserRoleModel{},
-		&types.JWTModel{},
-		&types.EmailVerificationTokenModel{},
+		&models.UserModel{},
+		&models.DiagramModel{},
+		&models.DiagramUserRoleModel{},
+		&models.JWTModel{},
+		&models.EmailVerificationTokenModel{},
 	); err != nil {
 		return nil, err
 	}

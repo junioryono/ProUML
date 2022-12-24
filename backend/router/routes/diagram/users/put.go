@@ -8,9 +8,6 @@ import (
 
 func Put(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Get user id from fiber context
-		userId := fbCtx.Locals("user_id").(string)
-
 		// Get the diagram id from query string
 		diagramId := fbCtx.Query("id")
 		updateUserId := fbCtx.Query("user")
@@ -33,7 +30,7 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		err := sdkP.Postgres.Diagram.Users.UpdateAccessRole(diagramId, userId, updateUserId, role)
+		err := sdkP.Postgres.Diagram.Users.UpdateAccessRole(diagramId, fbCtx.Cookies("id_token"), updateUserId, role)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

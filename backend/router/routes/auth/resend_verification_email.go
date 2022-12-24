@@ -8,10 +8,8 @@ import (
 
 func ResendVerificationEmail(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Get user id from fiber context
-		userId := fbCtx.Locals("user_id").(string)
-
-		err := sdkP.Auth0.ResendVerificationEmail(userId, fbCtx.IP())
+		// Resend verification email
+		err := sdkP.Postgres.Auth.ResendEmailVerificationEmail(fbCtx.Cookies("id_token"))
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

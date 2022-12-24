@@ -8,9 +8,6 @@ import (
 
 func Delete(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Get user id from fiber context
-		userId := fbCtx.Locals("user_id").(string)
-
 		// Get the diagram id from query string
 		diagramId := fbCtx.Query("id")
 
@@ -21,7 +18,7 @@ func Delete(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		err := sdkP.Postgres.Diagram.Delete(diagramId, userId)
+		err := sdkP.Postgres.Diagram.Delete(diagramId, fbCtx.Cookies("id_token"))
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

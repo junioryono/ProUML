@@ -11,7 +11,7 @@ import (
 )
 
 func ToJson(sdkP *sdk.SDK, projectId string, jwt string) ([]byte, error) {
-	userUUID, err := getUser(sdkP, jwt)
+	userUUID, err := sdkP.Postgres.Auth.GetUserIdFromToken(jwt)
 	if err != nil {
 		return handleError(err)
 	}
@@ -78,16 +78,6 @@ func jsonMarshalError() ([]byte, error) {
 	}
 
 	return response, nil
-}
-
-// Check if user is authenticated
-func getUser(sdkP *sdk.SDK, jwt string) (string, error) {
-	user, err := sdkP.Auth0.ParseClaims(jwt)
-	if err != nil {
-		return "", err
-	}
-
-	return user["sub"].(string), nil
 }
 
 // Check if projectId belongs to user.

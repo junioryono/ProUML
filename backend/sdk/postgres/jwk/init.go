@@ -1,14 +1,14 @@
 package jwk
 
 import (
-	"github.com/junioryono/ProUML/backend/sdk/types"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/lestrrat-go/jwx/jwk"
 	"gorm.io/gorm"
 )
 
 type JWK_SDK struct {
 	db   *gorm.DB
-	JWT  *types.JWTModel
+	JWT  *models.JWTModel
 	JWKs jwk.Set
 }
 
