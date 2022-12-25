@@ -183,6 +183,7 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 				Expires:  time.Now().Add(7 * 24 * time.Hour),
 				HTTPOnly: true,
 				Secure:   true,
+				SameSite: "Strict",
 				Path:     "/",
 			})
 
