@@ -40,9 +40,8 @@ func Init(sdkP *sdk.SDK) {
 
 	Router.Use(recover.New())
 	Router.Use(cors.New(cors.Config{
-		AllowCredentials: true,
-		AllowOrigins:     "https://api.prouml.com, https://prouml.com",
-		AllowHeaders:     "Origin, Content-Type, Accept, Accept-Language, Content-Length",
+		AllowOrigins: "https://prouml.com",
+		AllowHeaders: "Origin, Content-Type, Accept, Accept-Language, Content-Length",
 	}))
 	Router.Use(compress.New(compress.Config{
 		Level: compress.LevelBestCompression,
