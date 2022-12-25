@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -150,7 +149,6 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 		refreshToken := fbCtx.Cookies("refresh_token")
 
 		if idToken == "" || refreshToken == "" {
-			fmt.Printf("hello1\n")
 			return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
 				Success: false,
 				Reason:  "Unauthorized",
@@ -164,9 +162,6 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 			fbCtx.Locals("user_id", userId)
 			return fbCtx.Next()
 		}
-
-		// print the error
-		fmt.Printf("error: %s\n", idTokenError)
 
 		// id token is invalid, check if refresh token is valid
 		_, refreshTokenError := sdkP.Postgres.Auth.GetUserIdFromToken(refreshToken)
@@ -182,19 +177,19 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 
 			// Store id token in http only cookie
 			fbCtx.Cookie(&fiber.Cookie{
-				Name:  "id_token",
-				Value: idToken,
-				// Domain:   "prouml.com", // TODO remove this
+				Name:     "id_token",
+				Value:    idToken,
+				Domain:   "prouml.com",
 				Expires:  time.Now().Add(7 * 24 * time.Hour),
 				HTTPOnly: true,
-				// Secure:   true, // TODO remove this
+				Secure:   true,
+				Path:     "/",
 			})
 
 			fbCtx.Locals("user_id", userId)
 			return fbCtx.Next()
 		}
 
-		fmt.Printf("hello3\n")
 		// refresh token is invalid, user needs to login again
 		return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
 			Success: false,

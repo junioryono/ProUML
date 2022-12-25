@@ -44,6 +44,8 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
     })
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
+
         if (data && data.success === true) {
           return true;
         }

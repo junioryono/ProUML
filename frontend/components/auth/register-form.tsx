@@ -46,6 +46,8 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
     })
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
+
         if (data && data.success === true) {
           return true;
         }
