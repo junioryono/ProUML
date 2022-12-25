@@ -4,7 +4,7 @@
       "name": "gcr.io/kaniko-project/executor:latest",
       "id": "agent",
       "args": [
-        "--dockerfile=./Dockerfile",
+        "--dockerfile=backend/Dockerfile",
         "--context=./agent",
         "--destination=gcr.io/prouml/agent:$SHORT_SHA",
         "--build-arg=SHORT_SHA=$SHORT_SHA",
