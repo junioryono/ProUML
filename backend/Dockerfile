@@ -26,11 +26,11 @@ WORKDIR /app
 # Retrieve application dependencies.
 # This allows the container build to reuse cached dependencies.
 # Expecting to copy go.mod and if present go.sum.
-COPY go.* ./
+COPY backend/go.* ./
 RUN go mod download
 
 # Copy local code to the container image.
-COPY . ./
+COPY backend/. ./
 
 # Build the binary.
 RUN go build -v -o server
