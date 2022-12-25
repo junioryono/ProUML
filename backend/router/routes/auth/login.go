@@ -31,16 +31,18 @@ func Login(sdkP *sdk.SDK) fiber.Handler {
 			Expires:  time.Now().Add(7 * 24 * time.Hour),
 			HTTPOnly: true,
 			// Secure:   true, // TODO remove this
+			Path: "/",
 		})
 
 		// Store refresh token in http only cookie
 		fbCtx.Cookie(&fiber.Cookie{
-			Name:  "refresh_token",
-			Value: refreshToken,
-			// Domain:   "prouml.com", // TODO remove this
+			Name:     "refresh_token",
+			Value:    refreshToken,
+			Domain:   "prouml.com", // TODO remove this
 			Expires:  time.Now().Add(30 * 24 * time.Hour),
 			HTTPOnly: true,
 			// Secure:   true, // TODO remove this
+			Path: "/",
 		})
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
