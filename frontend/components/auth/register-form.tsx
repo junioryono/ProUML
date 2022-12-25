@@ -36,19 +36,25 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
   async function onSubmit(data: FormData) {
     setIsLoading(true);
 
+    const form = new FormData();
+    form.append("email", data.email);
+    form.append("password", data.password);
+    form.append("firstName", data.firstName);
+    form.append("lastName", data.lastName);
+
     const signInResult = await fetch("https://api.prouml.com/auth/register", {
       method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: form,
     })
       .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
+      .then((res) => {
+        console.log(res);
 
-        if (data && data.success === true) {
+        if (res && res.success === true) {
           return true;
         }
 
