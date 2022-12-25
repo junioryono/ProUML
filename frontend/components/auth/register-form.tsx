@@ -38,6 +38,7 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
 
     const signInResult = await fetch("https://api.prouml.com/auth/register", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },

@@ -36,6 +36,7 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
 
     const signInResult = await fetch("https://api.prouml.com/auth/login", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
