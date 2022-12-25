@@ -3,7 +3,14 @@
     {
       "name": "gcr.io/kaniko-project/executor:latest",
       "id": "agent",
-      "args": ["--context=./agent", "--destination=gcr.io/prouml/agent:$SHORT_SHA", "--build-arg=SHORT_SHA=$SHORT_SHA", "--cache=true", "--cache-ttl=5h"]
+      "args": [
+        "--dockerfile=./Dockerfile",
+        "--context=./agent",
+        "--destination=gcr.io/prouml/agent:$SHORT_SHA",
+        "--build-arg=SHORT_SHA=$SHORT_SHA",
+        "--cache=true",
+        "--cache-ttl=5h"
+      ]
     },
     {
       "name": "gcr.io/cloud-builders/gcloud",
