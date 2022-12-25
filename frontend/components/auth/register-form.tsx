@@ -36,7 +36,7 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
   async function onSubmit(data: FormData) {
     setIsLoading(true);
 
-    const signInResult = await fetch("http://127.0.0.1:5000/auth/register", {
+    const signInResult = await fetch("https://api.prouml.com/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

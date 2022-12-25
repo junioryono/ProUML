@@ -34,7 +34,7 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
   async function onSubmit(data: FormData) {
     setIsLoading(true);
 
-    const signInResult = await fetch("http://127.0.0.1:5000/auth/login", {
+    const signInResult = await fetch("https://api.prouml.com/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
