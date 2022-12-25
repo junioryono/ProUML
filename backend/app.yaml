@@ -1,0 +1,9 @@
+runtime: go119
+
+env_variables:
+  BUCKET_NAME: "envvars.api.prouml.com"
+
+handlers:
+  - url: /.*
+    secure: always
+    script: auto
