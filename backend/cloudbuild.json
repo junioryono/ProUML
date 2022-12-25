@@ -5,7 +5,7 @@
       "id": "agent",
       "args": [
         "--dockerfile=backend/Dockerfile",
-        "--context=backend/agent",
+        "--context=/backend",
         "--destination=gcr.io/prouml/agent:$SHORT_SHA",
         "--build-arg=SHORT_SHA=$SHORT_SHA",
         "--cache=true",
