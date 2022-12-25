@@ -1,54 +1,36 @@
-# [Webbee - Multipurpose Template + UI Kit](https://webbee.maccarianagency.com/)
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-Material-UI & ReactJS based Landing Pages Kit made with [Material UI's](https://material-ui.com/?ref=maccarian-agency) components, [React](https://reactjs.org/?ref=maccarian-agency).
+## Getting Started
 
-A professional React Kit that comes with plenty of ready-to-use Material-UI components that will help you to build faster & beautiful fontend pages. Each component is fully customizable, responsive and easy to integrate.
+First, run the development server:
 
-## Built with
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-- React
-- Material-UI
-- React Scripts
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Features
+You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-Webbee landing page examples can be used out of the box, but since they’re built on flexible components, you can also create new pages all your own with ease. Copy-paste a section here, a component there, switch up a few variables, and you have an entirely new landing!
+[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
 
-- More than 30 pages
-- Reusable component compositions
-- create-react-app & react-scripts support
-- Dark mode support
-- Image lazy loading support
-- Animated sections on scroll
-- Image Swiper support
-- Fully responsive on all modern browsers
-- Free customer support
-- Free updates
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-## Learn more
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-- [Launch a live demo](https://webbee.maccarianagency.com)
-- [Documentation & Quick Start](https://webbee.maccarianagency.com/docs-introduction)
+## Learn More
 
-## Quick start
+To learn more about Next.js, take a look at the following resources:
 
-- Install dependencies: `yarn install`
-- Start the server: `yarn start`
-- Build on production: `yarn build`
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## MUI Documentation
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-The full documentation for the React Material Kit can be found [here](https://next.material-ui.com?ref=maccarian-agency).
+## Deploy on Vercel
 
-## Free Updates and Support
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-No matter how well documented and built something is, sometimes you just need a little help! That’s why we make ourselves available to help you anytime, just contact our [support](hi@maccarianagency.com) email. We’re also planning tons of updates! In addition to keeping theFront up to date with Material UI's core and any necessary patches, we’ll be adding new features regularly over the coming months!
-
-- [Contact us via email](hi@maccarianagency.com)
-
-## Contact Us
-
-- Email Us: hi@maccarianagency.com
-- [Follow us on Linkedin](https://www.linkedin.com/company/maccarian)
-- [Follow us on Instagram](https://www.instagram.com/maccarian/)
-- [Follow us on Facebook](https://facebook.com/maccarian.agency/)
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
