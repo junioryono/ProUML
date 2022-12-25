@@ -11,12 +11,6 @@
         "--cache=true",
         "--cache-ttl=5h"
       ]
-    },
-    {
-      "name": "gcr.io/cloud-builders/gcloud",
-      "id": "agent-retag",
-      "waitFor": ["agent"],
-      "args": ["--quiet", "container", "images", "add-tag", "gcr.io/prouml/ct-agent:$SHORT_SHA", "gcr.io/prouml/ct-agent:latest"]
     }
   ]
 }
