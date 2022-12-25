@@ -77,11 +77,29 @@ func (d *Diagram_SDK) Delete(diagramId, idToken string) error {
 		return err
 	}
 
-	return d.db.Table("diagram_user_role_models").
-		Select("diagram_user_role_models.diagram_id").
-		Joins("JOIN diagram_models ON diagram_models.id = diagram_user_role_models.diagram_id").
-		Where("diagram_user_role_models.user_id = ? AND diagram_user_role_models.diagram_id = ? AND diagram_user_role_models.role = ?", userId, diagramId, "owner").
-		Delete(&models.DiagramUserRoleModel{}).Error
+	// Delete the diagram in the database if the user is the owner
+	err = d.db.Transaction(func(tx *gorm.DB) error {
+		var userDiagram models.DiagramUserRoleModel
+
+		err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error
+		if err != nil {
+			return err
+		}
+
+		if userDiagram.Role != "owner" {
+			return errors.New("user is not the owner of the diagram")
+		}
+
+		err = tx.Where("diagram_id = ?", diagramId).Delete(&models.DiagramUserRoleModel{}).Error
+		if err != nil {
+			return err
+		}
+
+		return tx.Where("id = ?", diagramId).Delete(&models.DiagramModel{}).Error
+	})
+
+	return err
+
 }
 
 func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, error) {

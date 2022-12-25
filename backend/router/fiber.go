@@ -80,7 +80,8 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	DiagramRouter.Get("/", diagram.Get(sdkP))
 	DiagramRouter.Delete("/", diagram.Delete(sdkP))
 
-	DiagramRouter.Post("/users", diagramUsers.Put(sdkP))
+	DiagramRouter.Post("/users", diagramUsers.Post(sdkP))
+	DiagramRouter.Put("/users", diagramUsers.Put(sdkP))
 	DiagramRouter.Get("/users", diagramUsers.Get(sdkP))
 	DiagramRouter.Delete("/users", diagramUsers.Delete(sdkP))
 

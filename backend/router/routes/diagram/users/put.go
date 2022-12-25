@@ -9,8 +9,8 @@ import (
 func Put(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
 		// Get the diagram id from query string
-		diagramId := fbCtx.Query("id")
-		updateUserId := fbCtx.Query("user")
+		diagramId := fbCtx.Query("diagram_id")
+		updateUserId := fbCtx.Query("user_id")
 		role := fbCtx.Query("role")
 
 		if diagramId == "" {
@@ -20,17 +20,21 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		// Get the email of the person they want to add from query string
-		email := fbCtx.Query("email")
-
-		if email == "" {
+		if updateUserId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
-				Reason:  "email is required",
+				Reason:  "user id is required",
 			})
 		}
 
-		err := sdkP.Postgres.Diagram.Users.UpdateAccessRole(diagramId, fbCtx.Cookies("id_token"), updateUserId, role)
+		if role == "" {
+			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+				Success: false,
+				Reason:  "role is required",
+			})
+		}
+
+		err := sdkP.Postgres.Diagram.Users.Update(diagramId, fbCtx.Cookies("id_token"), updateUserId, role)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

@@ -6,11 +6,12 @@ import (
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func Delete(sdkP *sdk.SDK) fiber.Handler {
+func Post(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
 		// Get the diagram id from query string
 		diagramId := fbCtx.Query("diagram_id")
-		removeUserId := fbCtx.Query("user_id")
+		addUserId := fbCtx.Query("user_id")
+		role := fbCtx.Query("role")
 
 		if diagramId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
@@ -19,15 +20,21 @@ func Delete(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		if removeUserId == "" {
+		if addUserId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
 				Reason:  "user id is required",
 			})
 		}
 
-		// Get all users that have access to the diagram
-		err := sdkP.Postgres.Diagram.Users.Remove(diagramId, fbCtx.Cookies("id_token"), removeUserId)
+		if role == "" {
+			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+				Success: false,
+				Reason:  "role is required",
+			})
+		}
+
+		err := sdkP.Postgres.Diagram.Users.Add(diagramId, fbCtx.Cookies("id_token"), addUserId, role)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

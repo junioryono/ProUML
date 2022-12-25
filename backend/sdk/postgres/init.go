@@ -58,12 +58,8 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		return nil, err
 	}
 
-	// // Get all tables in the database and drop them
-	// var tables []string
-	// db.Raw("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").Pluck("table_name", &tables)
-	// for _, table := range tables {
-	// 	db.Exec("DROP TABLE " + table)
-	// }
+	// // Drop all tables
+	// db.Migrator().DropTable(&models.UserModel{}, &models.DiagramModel{}, &models.DiagramUserRoleModel{}, &models.JWTModel{}, &models.EmailVerificationTokenModel{})
 
 	// Print all table names
 	var tables []string
@@ -76,6 +72,7 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		&models.DiagramUserRoleModel{},
 		&models.JWTModel{},
 		&models.EmailVerificationTokenModel{},
+		&models.PasswordResetTokenModel{},
 	); err != nil {
 		return nil, err
 	}

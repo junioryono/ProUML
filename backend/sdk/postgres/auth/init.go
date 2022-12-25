@@ -176,26 +176,32 @@ func (authSDK *Auth_SDK) DeleteUser(idToken string) error {
 			return err
 		}
 
-		// Use tx.Table and joins to select the email_verification_token_models.token where email_verification_token_models.user_id = userId using joins
-		emailVerificationTokenModels := []models.EmailVerificationTokenModel{}
-		err = tx.Table("email_verification_token_models").
-			Select("email_verification_token_models.token").
-			Joins("JOIN user_models ON user_models.id = email_verification_token_models.user_id").
-			Where("email_verification_token_models.user_id = ?", userId).
-			Find(&emailVerificationTokenModels).Error
+		// Use Join to delete all diagram_user_role_models where diagram_user_role_models.user_id = userId
+		err = tx.Table("diagram_user_role_models").
+			Joins("JOIN user_models ON user_models.id = diagram_user_role_models.user_id").
+			Where("diagram_user_role_models.user_id = ?", userId).
+			Delete(&models.DiagramUserRoleModel{}).Error
 
 		if err != nil {
 			return err
 		}
 
-		// Create a slice of tokens
-		tokens := make([]string, len(emailVerificationTokenModels))
-		for i, evtm := range emailVerificationTokenModels {
-			tokens[i] = evtm.Token
+		// Use Join to delete all email_verification_token_models where email_verification_token_models.user_id = userId
+		err = tx.Table("email_verification_token_models").
+			Joins("JOIN user_models ON user_models.id = email_verification_token_models.user_id").
+			Where("email_verification_token_models.user_id = ?", userId).
+			Delete(&models.EmailVerificationTokenModel{}).Error
+
+		if err != nil {
+			return err
 		}
 
-		// Delete all email_verification_token_models where email_verification_token_models.token is in tokens
-		err = tx.Where("token IN (?)", tokens).Delete(&models.EmailVerificationTokenModel{}).Error
+		// Use Join to delete all password_reset_token_models where password_reset_token_models.user_id = userId
+		err = tx.Table("password_reset_token_models").
+			Joins("JOIN user_models ON user_models.id = password_reset_token_models.user_id").
+			Where("password_reset_token_models.user_id = ?", userId).
+			Delete(&models.PasswordResetTokenModel{}).Error
+
 		if err != nil {
 			return err
 		}
@@ -405,501 +411,59 @@ func (authSDK *Auth_SDK) GetJWKSet() (jwkT.Set, error) {
 	return authSDK.jwk.GetSet()
 }
 
-// // Create PasswordResetModel type
-// type PasswordResetModel struct {
-// 	ID     string `gorm:"primaryKey"`
-// 	UserID string `gorm:"not null"`
-// }
-
-// func (p *Postgres_SDK) CreatePasswordReset(userId string) (string, error) {
-// 	// Create a new password reset model
-// 	passwordReset := PasswordResetModel{
-// 		ID:     uuid.NewString(),
-// 		UserID: userId,
-// 	}
-
-// 	// Save the password reset model to the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Create(&passwordReset).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return passwordReset.ID, nil
-// }
-
-// func (p *Postgres_SDK) VerifyPasswordReset(passwordResetId string) (string, error) {
-// 	// Get the password reset model from the database
-// 	var passwordReset PasswordResetModel
-// 	err := p.db.First(&passwordReset, passwordResetId).Error
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return passwordReset.UserID, nil
-// }
-
-// func (p *Postgres_SDK) DeletePasswordReset(passwordResetId string) error {
-// 	// Delete the password reset model from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&PasswordResetModel{}, passwordResetId).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) DeleteAllPasswordReset() error {
-// 	// Delete the password reset models from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&PasswordResetModel{}).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) CreateEmailVerification(userId string) (string, error) {
-// 	// Create a new email verification model
-// 	emailVerification := EmailVerificationModel{
-// 		ID:     uuid.NewString(),
-// 		UserID: userId,
-// 	}
-
-// 	// Save the email verification model to the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Create(&emailVerification).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return emailVerification.ID, nil
-// }
-
-// func (p *Postgres_SDK) VerifyEmailVerification(emailVerificationId string) (string, error) {
-// 	// Get the email verification model from the database
-// 	var emailVerification EmailVerificationModel
-// 	err := p.db.First(&emailVerification, emailVerificationId).Error
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return emailVerification.UserID, nil
-// }
-
-// func (p *Postgres_SDK) DeleteEmailVerification(emailVerificationId string) error {
-// 	// Delete the email verification model from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&EmailVerificationModel{}, emailVerificationId).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) DeleteAllEmailVerification() error {
-// 	// Delete the email verification models from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&EmailVerificationModel{}).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) CreateOAuth2Session(userId string, provider string, providerUserId string) (string, error) {
-// 	// Create a new OAuth2 session model
-// 	oAuth2Session := OAuth2SessionModel{
-// 		ID:             uuid.NewString(),
-// 		UserID:         userId,
-// 		Provider:       provider,
-// 		ProviderUserID: providerUserId,
-// 	}
-
-// 	// Save the OAuth2 session model to the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Create(&oAuth2Session).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return oAuth2Session.ID, nil
-// }
-
-// func (p *Postgres_SDK) VerifyOAuth2Session(oAuth2SessionId string) (string, string, error) {
-// 	// Get the OAuth2 session model from the database
-// 	var oAuth2Session OAuth2SessionModel
-// 	err := p.db.First(&oAuth2Session, oAuth2SessionId).Error
-// 	if err != nil {
-// 		return "", "", err
-// 	}
-
-// 	return oAuth2Session.UserID, oAuth2Session.Provider, nil
-// }
-
-// func (p *Postgres_SDK) DeleteOAuth2Session(oAuth2SessionId string) error {
-// 	// Delete the OAuth2 session model from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2SessionModel{}, oAuth2SessionId).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) DeleteAllOAuth2Session() error {
-// 	// Delete the OAuth2 session models from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2SessionModel{}).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) CreateOAuth2AuthorizationCode(userId string, clientID string, redirectURI string, scope string, codeChallenge string, codeChallengeMethod string) (string, error) {
-// 	// Create a new OAuth2 authorization code model
-// 	oAuth2AuthorizationCode := OAuth2AuthorizationCodeModel{
-// 		ID:                  uuid.NewString(),
-// 		UserID:              userId,
-// 		ClientID:            clientID,
-// 		RedirectURI:         redirectURI,
-// 		Scope:               scope,
-// 		CodeChallenge:       codeChallenge,
-// 		CodeChallengeMethod: codeChallengeMethod,
-// 	}
-
-// 	// Save the OAuth2 authorization code model to the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Create(&oAuth2AuthorizationCode).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return oAuth2AuthorizationCode.ID, nil
-// }
-
-// func (p *Postgres_SDK) VerifyOAuth2AuthorizationCode(oAuth2AuthorizationCodeId string) (string, string, string, string, string, string, error) {
-// 	// Get the OAuth2 authorization code model from the database
-// 	var oAuth2AuthorizationCode OAuth2AuthorizationCodeModel
-// 	err := p.db.First(&oAuth2AuthorizationCode, oAuth2AuthorizationCodeId).Error
-// 	if err != nil {
-// 		return "", "", "", "", "", "", err
-// 	}
-
-// 	return oAuth2AuthorizationCode.UserID, oAuth2AuthorizationCode.ClientID, oAuth2AuthorizationCode.RedirectURI, oAuth2AuthorizationCode.Scope, oAuth2AuthorizationCode.CodeChallenge, oAuth2AuthorizationCode.CodeChallengeMethod, nil
-// }
-
-// func (p *Postgres_SDK) DeleteOAuth2AuthorizationCode(oAuth2AuthorizationCodeId string) error {
-// 	// Delete the OAuth2 authorization code model from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2AuthorizationCodeModel{}, oAuth2AuthorizationCodeId).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) DeleteAllOAuth2AuthorizationCode() error {
-// 	// Delete the OAuth2 authorization code models from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2AuthorizationCodeModel{}).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) CreateOAuth2AccessToken(userId string, clientID string, scope string) (string, error) {
-// 	// Create a new OAuth2 access token model
-// 	oAuth2AccessToken := OAuth2AccessTokenModel{
-// 		ID:       uuid.NewString(),
-// 		UserID:   userId,
-// 		ClientID: clientID,
-// 		Scope:    scope,
-// 	}
-
-// 	// Save the OAuth2 access token model to the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Create(&oAuth2AccessToken).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return oAuth2AccessToken.ID, nil
-// }
-
-// func (p *Postgres_SDK) VerifyOAuth2AccessToken(oAuth2AccessTokenId string) (string, string, string, error) {
-// 	// Get the OAuth2 access token model from the database
-// 	var oAuth2AccessToken OAuth2AccessTokenModel
-// 	err := p.db.First(&oAuth2AccessToken, oAuth2AccessTokenId).Error
-// 	if err != nil {
-// 		return "", "", "", err
-// 	}
-
-// 	return oAuth2AccessToken.UserID, oAuth2AccessToken.ClientID, oAuth2AccessToken.Scope, nil
-// }
-
-// func (p *Postgres_SDK) DeleteOAuth2AccessToken(oAuth2AccessTokenId string) error {
-// 	// Delete the OAuth2 access token model from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2AccessTokenModel{}, oAuth2AccessTokenId).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) DeleteAllOAuth2AccessToken() error {
-// 	// Delete the OAuth2 access token models from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2AccessTokenModel{}).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) CreateOAuth2RefreshToken(userId string, clientID string, scope string) (string, error) {
-// 	// Create a new OAuth2 refresh token model
-// 	oAuth2RefreshToken := OAuth2RefreshTokenModel{
-// 		ID:       uuid.NewString(),
-// 		UserID:   userId,
-// 		ClientID: clientID,
-// 		Scope:    scope,
-// 	}
-
-// 	// Save the OAuth2 refresh token model to the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Create(&oAuth2RefreshToken).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return oAuth2RefreshToken.ID, nil
-// }
-
-// func (p *Postgres_SDK) VerifyOAuth2RefreshToken(oAuth2RefreshTokenId string) (string, string, string, error) {
-// 	// Get the OAuth2 refresh token model from the database
-// 	var oAuth2RefreshToken OAuth2RefreshTokenModel
-// 	err := p.db.First(&oAuth2RefreshToken, oAuth2RefreshTokenId).Error
-// 	if err != nil {
-// 		return "", "", "", err
-// 	}
-
-// 	return oAuth2RefreshToken.UserID, oAuth2RefreshToken.ClientID, oAuth2RefreshToken.Scope, nil
-// }
-
-// func (p *Postgres_SDK) DeleteOAuth2RefreshToken(oAuth2RefreshTokenId string) error {
-// 	// Delete the OAuth2 refresh token model from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2RefreshTokenModel{}, oAuth2RefreshTokenId).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) DeleteAllOAuth2RefreshToken() error {
-// 	// Delete the OAuth2 refresh token models from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2RefreshTokenModel{}).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) CreateOAuth2Client(clientID string, clientSecret string, redirectURI string) error {
-// 	// Create a new OAuth2 client model
-// 	oAuth2Client := OAuth2ClientModel{
-// 		ClientID:     clientID,
-// 		ClientSecret: clientSecret,
-// 		RedirectURI:  redirectURI,
-// 	}
-
-// 	// Save the OAuth2 client model to the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Create(&oAuth2Client).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) VerifyOAuth2Client(clientID string, clientSecret string) (string, error) {
-// 	// Get the OAuth2 client model from the database
-// 	var oAuth2Client OAuth2ClientModel
-// 	err := p.db.First(&oAuth2Client, clientID).Error
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	// Check the client secret
-// 	if oAuth2Client.ClientSecret != clientSecret {
-// 		return "", errors.New("invalid client secret")
-// 	}
-
-// 	return oAuth2Client.RedirectURI, nil
-// }
-
-// func (p *Postgres_SDK) DeleteOAuth2Client(clientID string) error {
-// 	// Delete the OAuth2 client model from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2ClientModel{}, clientID).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (p *Postgres_SDK) DeleteAllOAuth2Client() error {
-// 	// Delete the OAuth2 client models from the database
-// 	err := p.db.Transaction(func(tx *gorm.DB) error {
-// 		err := tx.Delete(&OAuth2ClientModel{}).Error
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
+// Function that will create a password reset token
+func (authSDK *Auth_SDK) CreatePasswordResetToken(idToken string) (string, error) {
+	// Get the user id from the id token
+	userId, err := authSDK.GetUserIdFromToken(idToken)
+	if err != nil {
+		return "", err
+	}
+
+	// Create the password reset token
+	passwordResetToken := uuid.New().String()
+
+	// Create the password reset token in the database
+	err = authSDK.db.Create(&models.PasswordResetTokenModel{
+		Token:     passwordResetToken,
+		UserID:    userId,
+		ExpiresAt: time.Now().Add(time.Hour * 24 * 7).Unix(),
+	}).Error
+	if err != nil {
+		return "", err
+	}
+
+	return passwordResetToken, nil
+}
+
+// Function that will reset the user's password
+func (authSDK *Auth_SDK) ResetPassword(passwordResetToken, newPassword string) error {
+	// Get the user id from the password reset token
+	userId, err := authSDK.GetUserIdFromToken(passwordResetToken)
+	if err != nil {
+		return err
+	}
+
+	return authSDK.db.Transaction(func(tx *gorm.DB) error {
+		// Get the user from the database
+		var user models.UserModel
+		err = authSDK.db.Where("id = ?", userId).First(&user).Error
+		if err != nil {
+			return err
+		}
+
+		// Hash the new password
+		hashedPassword, err := authSDK.hashPassword(newPassword)
+		if err != nil {
+			return err
+		}
+
+		// Update the user's password
+		err = authSDK.db.Model(&user).Update("password", hashedPassword).Error
+		if err != nil {
+			return err
+		}
+
+		// Delete the password reset token from the database
+		return authSDK.db.Where("user_id = ?", userId).Delete(&models.PasswordResetTokenModel{}).Error
+	})
+}

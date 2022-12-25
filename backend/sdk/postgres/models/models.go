@@ -49,6 +49,13 @@ type EmailVerificationTokenModel struct {
 	ExpiresAt int64     `json:"expires_at"`
 }
 
+type PasswordResetTokenModel struct {
+	Token     string    `gorm:"primaryKey" json:"token"`
+	UserID    string    `json:"user_id"`
+	User      UserModel `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	ExpiresAt int64     `json:"expires_at"`
+}
+
 type JWTModel struct {
 	ID             string          `gorm:"primaryKey" json:"id"`
 	CreatedAt      time.Time       `gorm:"autoCreateTime" json:"created_at"`

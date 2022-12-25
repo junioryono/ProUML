@@ -19,7 +19,7 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Get all users that have access to the diagram
-		users, err := sdkP.Postgres.Diagram.Users.GetAllWithAccessRole(diagramId, fbCtx.Cookies("id_token"))
+		users, err := sdkP.Postgres.Diagram.Users.Get(diagramId, fbCtx.Cookies("id_token"))
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
