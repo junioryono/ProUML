@@ -46,7 +46,7 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
       method: "POST",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
       },
       body: form,
     })

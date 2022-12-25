@@ -42,7 +42,7 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
       method: "POST",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
       },
       body: form,
     })
