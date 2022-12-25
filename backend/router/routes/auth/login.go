@@ -43,6 +43,7 @@ func Login(sdkP *sdk.SDK) fiber.Handler {
 			Expires:  time.Now().Add(30 * 24 * time.Hour),
 			HTTPOnly: true,
 			Secure:   true,
+			SameSite: "Strict",
 			Path:     "/",
 		})
 
