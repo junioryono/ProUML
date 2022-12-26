@@ -3,7 +3,6 @@ package router
 import (
 	"log"
 	"os"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -38,26 +37,21 @@ func Init(sdkP *sdk.SDK) {
 	})
 
 	Router.Use(recover.New())
-	Router.Use(cors.New(cors.Config{
-		AllowCredentials: true,
-		AllowOrigins:     "https://prouml.com",
-		AllowHeaders:     "Origin, Content-Type, Accept, Accept-Language, Content-Length",
-	}))
 	Router.Use(compress.New(compress.Config{
 		Level: compress.LevelBestCompression,
 	}))
-	// Router.Use(func(fbCtx *fiber.Ctx) error {
-	// 	fbCtx.Set("X-Frame-Options", "SAMEORIGIN")
-	// 	fbCtx.Set("X-XSS-Protection", "1; mode=block")
-	// 	fbCtx.Set("X-Content-Type-Options", "nosniff")
-	// 	fbCtx.Set("Referrer-Policy", "no-referrer")
-	// 	fbCtx.Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
-	// 	fbCtx.Set("X-Download-Options", "noopen")
-	// 	fbCtx.Set("X-Permitted-Cross-Domain-Policies", "none")
-	// 	fbCtx.Set("X-DNS-Prefetch-Control", "off")
 
-	// 	return fbCtx.Next()
-	// })
+	corsConfig := cors.Config{
+		AllowOrigins:     "*",
+		AllowHeaders:     "Origin, Content-Type, Accept, Accept-Language, Content-Length",
+		AllowCredentials: true,
+	}
+
+	if auth.Production {
+		corsConfig.AllowOrigins = "https://prouml.com"
+	}
+
+	Router.Use(cors.New(corsConfig))
 
 	handleRoutes(Router, sdkP)
 
@@ -175,17 +169,12 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 				})
 			}
 
-			// Store id token in http only cookie
-			fbCtx.Cookie(&fiber.Cookie{
-				Name:     "id_token",
-				Value:    idToken,
-				Domain:   "prouml.com",
-				Expires:  time.Now().Add(7 * 24 * time.Hour),
-				HTTPOnly: true,
-				Secure:   true,
-				SameSite: "Strict",
-				Path:     "/",
-			})
+			if err := auth.SetCookie(fbCtx, auth.IdTokenCookieName, idToken); err != nil {
+				return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
+					Success: false,
+					Reason:  "Internal Server Error",
+				})
+			}
 
 			fbCtx.Locals("user_id", userId)
 			return fbCtx.Next()

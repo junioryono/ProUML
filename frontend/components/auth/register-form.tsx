@@ -6,7 +6,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { cn } from "@/lib/utils";
+import { cn, fetchAPI } from "@/lib/utils";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 
@@ -42,23 +42,19 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
     form.append("firstName", data.firstName);
     form.append("lastName", data.lastName);
 
-    const signInResult = await fetch("https://api.prouml.com/auth/register", {
+    const signInResult = fetchAPI("/auth/register", {
       method: "POST",
-      credentials: "include",
       body: form,
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
-
         if (res && res.success === true) {
           return true;
         }
 
         return false;
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
         return false;
       });
 

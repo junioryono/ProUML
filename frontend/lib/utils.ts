@@ -17,3 +17,12 @@ export function formatDate(input: string | number): string {
 export function absoluteUrl(path: string) {
   return `${process.env.NEXT_PUBLIC_APP_URL}${path}`;
 }
+
+// Make function to call API routes at api.prouml.com/...
+export function fetchAPI(path: string, options?: RequestInit) {
+  if (process.env.NODE_ENV === "production") {
+    return fetch(`https://api.prouml.com${path}`, options);
+  }
+
+  return fetch(`http://localhost:5000${path}`, options);
+}

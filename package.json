@@ -1,16 +1,16 @@
 {
   "name": "prouml",
   "version": "1.0.0",
+  "author": "",
   "description": "",
   "main": "",
   "scripts": {
-    "backend-start": "cd ./backend && nodemon --exec go run . --ext go",
-    "frontend-build": "cd ./frontend && npm run build"
+    "backend-start": "cd ./backend && go run .",
+    "frontend-start": "cd ./frontend && npm run dev",
+    "start": "npm run backend-start & npm run frontend-start"
   },
-  "author": "",
   "license": "ISC",
-  "dependencies": {
-    "create-react-app": "^5.0.1",
-    "nodemon": "^2.0.16"
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }

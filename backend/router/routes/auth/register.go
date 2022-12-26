@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/transpiler/types"
@@ -25,28 +23,19 @@ func Register(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		// Store id token in http only cookie
-		fbCtx.Cookie(&fiber.Cookie{
-			Name:     "id_token",
-			Value:    idToken,
-			Domain:   "prouml.com",
-			Expires:  time.Now().Add(7 * 24 * time.Hour),
-			HTTPOnly: true,
-			Secure:   true,
-			Path:     "/",
-		})
+		if err := SetCookie(fbCtx, IdTokenCookieName, idToken); err != nil {
+			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
+				Success: false,
+				Reason:  "Internal Server Error",
+			})
+		}
 
-		// Store refresh token in http only cookie
-		fbCtx.Cookie(&fiber.Cookie{
-			Name:     "refresh_token",
-			Value:    refreshToken,
-			Domain:   "prouml.com",
-			Expires:  time.Now().Add(30 * 24 * time.Hour),
-			HTTPOnly: true,
-			Secure:   true,
-			SameSite: "Strict",
-			Path:     "/",
-		})
+		if err := SetCookie(fbCtx, RefreshTokenCookieName, refreshToken); err != nil {
+			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
+				Success: false,
+				Reason:  "Internal Server Error",
+			})
+		}
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
 			Success: true,
