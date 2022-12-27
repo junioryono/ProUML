@@ -1,9 +1,8 @@
 import Link from "next/link";
-
 import { Icons } from "@/components/icons";
-import LoginForm from "@/components/auth/login-form";
+import LoginForm from "@/components/auth/login";
 
-export default function LoginPage() {
+export default async function AuthLayout() {
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <Link

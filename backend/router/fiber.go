@@ -63,9 +63,12 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 
 	AuthRouter.Post("/register", auth.Register(sdkP))
 	AuthRouter.Post("/login", auth.Login(sdkP))
+	AuthRouter.Post("/logout", auth.Logout(sdkP))
 	AuthRouter.Post("/delete-account", isAuthenticated(sdkP), auth.DeleteAccount(sdkP))
+	AuthRouter.Post("/resend-verification-email", isAuthenticated(sdkP), auth.ResendVerificationEmail(sdkP))
+	AuthRouter.Patch("/update-profile", isAuthenticated(sdkP), auth.UpdateProfile(sdkP))
+	AuthRouter.Get("/session", auth.Session(sdkP))
 	AuthRouter.Get("/get-profile", isAuthenticated(sdkP), auth.GetProfile(sdkP))
-	AuthRouter.Get("/resend-verification-email", isAuthenticated(sdkP), auth.ResendVerificationEmail(sdkP))
 
 	DiagramRouter := Router.Group("/diagram", isAuthenticated(sdkP))
 

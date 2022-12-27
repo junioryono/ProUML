@@ -6,10 +6,17 @@ import (
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func ResendVerificationEmail(sdkP *sdk.SDK) fiber.Handler {
+func Session(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Resend verification email
-		err := sdkP.Postgres.Auth.ResendEmailVerificationEmail(fbCtx.Cookies(IdTokenCookieName))
+		idToken := fbCtx.Cookies(IdTokenCookieName)
+		if idToken == "" {
+			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+				Success: false,
+				Reason:  "Invalid token",
+			})
+		}
+
+		user, err := sdkP.Postgres.Auth.GetUserFromToken(idToken)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
@@ -18,7 +25,8 @@ func ResendVerificationEmail(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
-			Success: true,
+			Success:  true,
+			Response: user["user_metadata"],
 		})
 	}
 }

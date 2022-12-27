@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
@@ -30,17 +31,17 @@ func Init(db *gorm.DB, jwk *jwk.JWK_SDK, ses *ses.SES_SDK) *Auth_SDK {
 
 // Function that will authenticate the user
 // Returns the users id token and refresh token
-func (authSDK *Auth_SDK) AuthenticateUser(userIPAddress, email, password string) (string, string, error) {
+func (authSDK *Auth_SDK) AuthenticateUser(userIPAddress, email, password string) (models.UserModel, string, string, error) {
 	// Get the user from the database
 	var user models.UserModel
 	err := authSDK.db.Where("email = ?", email).First(&user).Error
 	if err != nil {
 		// If error is record not found, return incorrect email or password
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", "", fmt.Errorf("incorrect email or password")
+			return user, "", "", fmt.Errorf("incorrect email or password")
 		}
 
-		return "", "", err
+		return user, "", "", err
 	}
 
 	// Check if the user's email has been verified
@@ -50,7 +51,7 @@ func (authSDK *Auth_SDK) AuthenticateUser(userIPAddress, email, password string)
 
 	// Check if the user's password is correct
 	if ok := authSDK.CheckPasswordHash(password, user.Password); !ok {
-		return "", "", fmt.Errorf("incorrect email or password")
+		return user, "", "", fmt.Errorf("incorrect email or password")
 	}
 
 	// Update the user's last ip address
@@ -58,68 +59,62 @@ func (authSDK *Auth_SDK) AuthenticateUser(userIPAddress, email, password string)
 
 	err = authSDK.db.Save(&user).Error
 	if err != nil {
-		return "", "", err
+		return user, "", "", err
 	}
 
 	// Create the user's id token, access token, and refresh token using postgres
 	idToken, refreshToken, err := authSDK.createUserTokens(user)
 	if err != nil {
-		return "", "", err
+		return user, "", "", err
 	}
 
-	return idToken, refreshToken, nil
+	return user, idToken, refreshToken, nil
 }
 
 // Function that will create a user in the database
 // Returns the users access token, id token, and refresh token
-func (authSDK *Auth_SDK) CreateUser(userIPAddress, email, password, firstName, lastName string) (string, string, error) {
+func (authSDK *Auth_SDK) CreateUser(userIPAddress, email, password, fullName string) (models.UserModel, string, string, error) {
 	// Check if the user already exists
 	var user models.UserModel
 	err := authSDK.db.Where("email = ?", email).First(&user).Error
 	if err == nil {
-		return "", "", fmt.Errorf("user already exists")
+		return user, "", "", fmt.Errorf("user already exists")
 	}
 
 	// Hash the password
 	password, err = authSDK.hashPassword(password)
 	if err != nil {
-		return "", "", err
+		return user, "", "", err
 	}
 
 	// Create the user
 	user = models.UserModel{
-		ID:        uuid.New().String(),
-		Email:     email,
-		Password:  password,
-		FirstName: firstName,
-		LastName:  lastName,
-		LastIP:    userIPAddress,
+		ID:       uuid.New().String(),
+		Email:    email,
+		Password: password,
+		LastIP:   userIPAddress,
 	}
 
-	if firstName != "" {
-		user.FirstName = firstName
-	}
-
-	if lastName != "" {
-		user.LastName = lastName
+	if fullName != "" {
+		user.FullName = fullName
 	}
 
 	// Create the user in the database
 	err = authSDK.db.Create(&user).Error
 	if err != nil {
-		return "", "", err
+		return user, "", "", err
 	}
 
 	// Create the user's id token, access token, and refresh token using postgres
 	idToken, refreshToken, err := authSDK.createUserTokens(user)
 	if err != nil {
-		return "", "", err
+		return user, "", "", err
 	}
 
 	// Send the user an email to verify their email address in a separate goroutine
 	go authSDK.SendEmailVerificationEmail(user)
 
-	return idToken, refreshToken, nil
+	return user, idToken, refreshToken, nil
 }
 
 func (authSDK *Auth_SDK) createUserTokens(user models.UserModel) (string, string, error) {
@@ -267,6 +262,11 @@ func (authSDK *Auth_SDK) VerifyEmail(emailVerificationToken string) error {
 	return authSDK.db.Save(&user).Error
 }
 
+// Function that will return a user from their id token
+func (authSDK *Auth_SDK) GetUserFromToken(idToken string) (jwt.MapClaims, error) {
+	return authSDK.jwk.ParseClaims(idToken)
+}
+
 // Function that will get a user from the database
 func (authSDK *Auth_SDK) GetUser(idToken string) (*models.UserModel, error) {
 	// Get the user id from the id token
@@ -286,7 +286,7 @@ func (authSDK *Auth_SDK) GetUser(idToken string) (*models.UserModel, error) {
 }
 
 // Function that will update a user in the database
-func (authSDK *Auth_SDK) UpdateUser(idToken, email, firstName, lastName string) error {
+func (authSDK *Auth_SDK) UpdateUser(idToken, email, fullName string) error {
 	// Get the user id from the id token
 	userId, err := authSDK.GetUserIdFromToken(idToken)
 	if err != nil {
@@ -301,10 +301,22 @@ func (authSDK *Auth_SDK) UpdateUser(idToken, email, firstName, lastName string) 
 	}
 
 	user.Email = email
-	user.FirstName = firstName
-	user.LastName = lastName
+	user.FullName = fullName
 
 	return authSDK.db.Save(&user).Error
+}
+
+// Function that will update a user's full name in the database
+func (authSDK *Auth_SDK) UpdateUserFullName(idToken, fullName string) error {
+	// Get the user id from the id token
+	userId, err := authSDK.GetUserIdFromToken(idToken)
+	if err != nil {
+		return err
+	}
+
+	return authSDK.db.Model(&models.UserModel{}).
+		Where("id = ?", userId).
+		Update("full_name", fullName).Error
 }
 
 // Function that will send the user an email to verify their email address

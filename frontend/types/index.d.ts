@@ -59,3 +59,19 @@ export type UserSubscriptionPlan = SubscriptionPlan &
     stripeCurrentPeriodEnd: number;
     isPro: boolean;
   };
+
+export type User = {
+  user_id: string;
+  email: string;
+  email_verified: boolean;
+  created_at: number;
+  updated_at: number;
+  last_login: number;
+  last_ip: string;
+  logins_count: number;
+  full_name: string;
+  picture: string;
+  locale: string;
+  role: string;
+  disabled: boolean;
+};

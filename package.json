@@ -7,10 +7,10 @@
   "scripts": {
     "backend-start": "cd ./backend && go run .",
     "frontend-start": "cd ./frontend && npm run dev",
-    "start": "npm run backend-start & npm run frontend-start"
+    "start": "concurrently --kill-others \"npm run backend-start\" \"npm run frontend-start\""
   },
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "concurrently": "^7.6.0"
   }
 }

@@ -1,82 +1,91 @@
 "use client";
 
-import * as React from "react";
+import { useState, useEffect, HTMLAttributes } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { cn, fetchAPI } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
+import { useAuth } from "@/lib/auth-client";
 
-interface LoginFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface RegisterFormProps extends HTMLAttributes<HTMLDivElement> {}
 
-export const userLoginSchema = z.object({
+export const userRegisterSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
+  fullName: z.string().min(1),
 });
 
-type FormData = z.infer<typeof userLoginSchema>;
+type FormData = z.infer<typeof userRegisterSchema>;
 
-export default function LoginForm({ className, ...props }: LoginFormProps) {
+export default function RegisterForm({ className, ...props }: RegisterFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(userLoginSchema),
+    resolver: zodResolver(userRegisterSchema),
   });
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { register: registerAuth, user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      router.push(searchParams.get("redirect") || "/dashboard");
+    }
+  }, [user]);
 
   async function onSubmit(data: FormData) {
     setIsLoading(true);
 
-    const form = new FormData();
-    form.append("email", data.email);
-    form.append("password", data.password);
-
-    const signInResult = await fetchAPI("/auth/login", {
-      method: "POST",
-      body: form,
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res && res.success === true) {
-          return true;
-        }
-
-        return false;
-      })
-      .catch(() => {
-        return false;
-      });
+    const registerResult = await registerAuth(data.email, data.password, data.fullName);
 
     setIsLoading(false);
 
-    if (!signInResult) {
+    if (!registerResult) {
       return toast({
         title: "Something went wrong.",
-        message: "Incorrect email or password. Please try again.",
+        message: "Your registration request failed. Please try again with a different email or password.",
         type: "error",
       });
     }
 
     toast({
-      title: "Logging you in!",
+      title: "Registration successful!",
       message: "You will be redirected to your dashboard shortly.",
       type: "success",
     });
 
-    return router.push(searchParams.get("from") || "/dashboard");
+    return router.push(searchParams.get("redirect") || "/dashboard");
   }
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-2">
+          <div className="grid gap-1">
+            <label className="sr-only" htmlFor="fullName">
+              Full Name
+            </label>
+            <input
+              id="fullName"
+              placeholder="Full Name"
+              className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
+              type="fullName"
+              autoCapitalize="none"
+              autoComplete="fullName"
+              autoCorrect="off"
+              name="fullName"
+              disabled={isLoading}
+              {...register("fullName")}
+            />
+            {errors?.fullName && <p className="px-1 text-xs text-red-600">{errors.fullName.message}</p>}
+          </div>
           <div className="grid gap-1">
             <label className="sr-only" htmlFor="email">
               Email

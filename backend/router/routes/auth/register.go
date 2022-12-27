@@ -8,12 +8,11 @@ import (
 
 func Register(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		idToken, refreshToken, err := sdkP.Postgres.Auth.CreateUser(
+		user, idToken, refreshToken, err := sdkP.Postgres.Auth.CreateUser(
 			fbCtx.IP(),
 			fbCtx.FormValue("email"),
 			fbCtx.FormValue("password"),
-			fbCtx.FormValue("firstName"),
-			fbCtx.FormValue("lastName"),
+			fbCtx.FormValue("fullName"),
 		)
 
 		if err != nil {
@@ -26,19 +25,20 @@ func Register(sdkP *sdk.SDK) fiber.Handler {
 		if err := SetCookie(fbCtx, IdTokenCookieName, idToken); err != nil {
 			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
 				Success: false,
-				Reason:  "Internal Server Error",
+				Reason:  err.Error(),
 			})
 		}
 
 		if err := SetCookie(fbCtx, RefreshTokenCookieName, refreshToken); err != nil {
 			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
 				Success: false,
-				Reason:  "Internal Server Error",
+				Reason:  err.Error(),
 			})
 		}
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
-			Success: true,
+			Success:  true,
+			Response: user,
 		})
 	}
 }

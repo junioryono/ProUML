@@ -2,31 +2,29 @@
 
 import Link from "next/link";
 
+import { useAuth } from "@/lib/auth-client";
 import { DropdownMenu } from "@/ui/dropdown";
 import { UserAvatar } from "@/components/dashboard/user-avatar";
+import { useRouter } from "next/navigation";
 
-// Create user type
-type User = {
-  name?: string;
-  image?: string;
-  email?: string;
-};
+export function UserAccountNav() {
+  const router = useRouter();
+  const { logout, user } = useAuth();
 
-interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
-  user: Pick<User, "name" | "image" | "email">;
-}
+  if (!user) {
+    return null;
+  }
 
-export function UserAccountNav({ user }: UserAccountNavProps) {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger className="flex items-center gap-2 overflow-hidden focus:ring-2 focus:ring-brand-900 focus:ring-offset-2 focus-visible:outline-none">
-        <UserAvatar user={{ name: user.name, image: user.image }} />
+        <UserAvatar user={user} />
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content className="mt-2 md:w-[240px]" align="end">
           <div className="flex items-center justify-start gap-2 p-4">
             <div className="flex flex-col space-y-1 leading-none">
-              {user.name && <p className="font-medium">{user.name}</p>}
+              {user.full_name && <p className="font-medium">{user.full_name}</p>}
               {user.email && <p className="w-[200px] truncate text-sm text-slate-600">{user.email}</p>}
             </div>
           </div>
@@ -62,9 +60,11 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
             className="cursor-pointer"
             onSelect={(event) => {
               event.preventDefault();
-              //   signOut({
-              //     callbackUrl: `${window.location.origin}/login`,
-              //   })
+              logout().then((res) => {
+                if (res) {
+                  router.push("/");
+                }
+              });
             }}
           >
             Sign out

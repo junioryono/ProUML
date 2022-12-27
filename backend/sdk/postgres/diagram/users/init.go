@@ -80,12 +80,11 @@ func (u *Users_SDK) Get(diagramId, idToken string) ([]models.DiagramUsersRolesHi
 
 	for _, userDiagram := range allUserDiagrams {
 		response = append(response, models.DiagramUsersRolesHiddenContent{
-			UserId:    userDiagram.User.ID,
-			Email:     userDiagram.User.Email,
-			Role:      userDiagram.Role,
-			FirstName: userDiagram.User.FirstName,
-			LastName:  userDiagram.User.LastName,
-			Picture:   userDiagram.User.Picture,
+			UserId:   userDiagram.User.ID,
+			Email:    userDiagram.User.Email,
+			Role:     userDiagram.Role,
+			FullName: userDiagram.User.FullName,
+			Picture:  userDiagram.User.Picture,
 		})
 	}
 

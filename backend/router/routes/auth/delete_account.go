@@ -18,7 +18,7 @@ func DeleteAccount(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Authenticate user with Postgres
-		idToken, _, err := sdkP.Postgres.Auth.AuthenticateUser(
+		_, idToken, _, err := sdkP.Postgres.Auth.AuthenticateUser(
 			fbCtx.IP(),
 			fbCtx.FormValue("email"),
 			fbCtx.FormValue("password"),
@@ -40,8 +40,19 @@ func DeleteAccount(sdkP *sdk.SDK) fiber.Handler {
 		}(fbCtx.IP(), idToken)
 
 		// Remove cookies from browser
-		fbCtx.ClearCookie("id_token")
-		fbCtx.ClearCookie("refresh_token")
+		if err := DeleteCookie(fbCtx, IdTokenCookieName); err != nil {
+			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
+				Success: false,
+				Reason:  err.Error(),
+			})
+		}
+
+		if err := DeleteCookie(fbCtx, RefreshTokenCookieName); err != nil {
+			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
+				Success: false,
+				Reason:  err.Error(),
+			})
+		}
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
 			Success: true,

@@ -41,13 +41,7 @@ export default async function MarketingLayout({ children }: MarketingLayoutProps
             ]}
           />
           {user ? (
-            <UserAccountNav
-              user={{
-                name: user.name,
-                image: user.image,
-                email: user.email,
-              }}
-            />
+            <UserAccountNav />
           ) : (
             <nav>
               <Link

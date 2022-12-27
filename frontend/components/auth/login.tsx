@@ -1,122 +1,72 @@
 "use client";
 
-import * as React from "react";
+import { useState, useEffect, HTMLAttributes } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { cn, fetchAPI } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
+import { useAuth } from "@/lib/auth-client";
 
-interface RegisterFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface LoginFormProps extends HTMLAttributes<HTMLDivElement> {}
 
-export const userRegisterSchema = z.object({
+export const userLoginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
 });
 
-type FormData = z.infer<typeof userRegisterSchema>;
+type FormData = z.infer<typeof userLoginSchema>;
 
-export default function RegisterForm({ className, ...props }: RegisterFormProps) {
+export default function LoginForm({ className, ...props }: LoginFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(userRegisterSchema),
+    resolver: zodResolver(userLoginSchema),
   });
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { login, user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      router.push(searchParams.get("redirect") || "/dashboard");
+    }
+  }, [user]);
 
   async function onSubmit(data: FormData) {
     setIsLoading(true);
 
-    const form = new FormData();
-    form.append("email", data.email);
-    form.append("password", data.password);
-    form.append("firstName", data.firstName);
-    form.append("lastName", data.lastName);
-
-    const signInResult = fetchAPI("/auth/register", {
-      method: "POST",
-      body: form,
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res && res.success === true) {
-          return true;
-        }
-
-        return false;
-      })
-      .catch(() => {
-        return false;
-      });
+    const signInResult = await login(data.email, data.password);
 
     setIsLoading(false);
 
     if (!signInResult) {
       return toast({
         title: "Something went wrong.",
-        message: "Your registration request failed. Please try again with a different email or password.",
+        message: "Incorrect email or password. Please try again.",
         type: "error",
       });
     }
 
     toast({
-      title: "Registration successful!",
+      title: "Logging you in!",
       message: "You will be redirected to your dashboard shortly.",
       type: "success",
     });
 
-    return router.push(searchParams.get("from") || "/dashboard");
+    return router.push(searchParams.get("redirect") || "/dashboard");
   }
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-2">
-          <div className="grid gap-1">
-            <label className="sr-only" htmlFor="firstName">
-              First Name
-            </label>
-            <input
-              id="firstName"
-              placeholder="First Name"
-              className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
-              type="firstName"
-              autoCapitalize="none"
-              autoComplete="firstName"
-              autoCorrect="off"
-              name="firstName"
-              disabled={isLoading}
-              {...register("firstName")}
-            />
-            {errors?.firstName && <p className="px-1 text-xs text-red-600">{errors.firstName.message}</p>}
-          </div>
-          <div className="grid gap-1">
-            <label className="sr-only" htmlFor="lastName">
-              Last Name
-            </label>
-            <input
-              id="lastName"
-              placeholder="Last Name"
-              className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
-              type="lastName"
-              autoCapitalize="none"
-              autoComplete="lastName"
-              autoCorrect="off"
-              name="lastName"
-              disabled={isLoading}
-              {...register("lastName")}
-            />
-            {errors?.lastName && <p className="px-1 text-xs text-red-600">{errors.lastName.message}</p>}
-          </div>
           <div className="grid gap-1">
             <label className="sr-only" htmlFor="email">
               Email

@@ -21,8 +21,10 @@ export function absoluteUrl(path: string) {
 // Make function to call API routes at api.prouml.com/...
 export function fetchAPI(path: string, options?: RequestInit) {
   if (process.env.NODE_ENV === "production") {
-    return fetch(`https://api.prouml.com${path}`, options);
+    return fetch(`https://api.prouml.com${path}`, { ...options, credentials: "include" });
   }
 
-  return fetch(`http://localhost:5000${path}`, options);
+  const route = `http://localhost:5000${path}`;
+  console.log("fetchAPI", route);
+  return fetch(route, { ...options, credentials: "include" });
 }

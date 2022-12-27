@@ -1,9 +1,8 @@
 import Link from "next/link";
-
 import { Icons } from "@/components/icons";
-import RegisterForm from "@/components/auth/register-form";
+import RegisterForm from "@/components/auth/register";
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
   return (
     <div className="container grid h-screen w-screen flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
       <Link

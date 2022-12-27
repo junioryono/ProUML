@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/ui/toast";
 import { Analytics } from "@/components/analytics";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
+import Providers from "@/lib/auth-client";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -21,9 +22,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" className={cn("bg-white font-sans text-slate-900 antialiased", fontSans.variable)}>
       <head />
       <body className="min-h-screen">
-        {children}
-        <Toaster position="bottom-right" />
-        <TailwindIndicator />
+        <Providers>
+          {children}
+          <Analytics />
+          <Toaster position="bottom-right" />
+          <TailwindIndicator />
+        </Providers>
       </body>
     </html>
   );

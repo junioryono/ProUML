@@ -11,10 +11,9 @@ type DiagramModelHiddenContent struct {
 }
 
 type DiagramUsersRolesHiddenContent struct {
-	UserId    string `json:"user_id"`
-	Email     string `json:"email"`
-	Role      string `json:"role"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Picture   string `json:"picture"`
+	UserId   string `json:"user_id"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
+	FullName string `json:"full_name"`
+	Picture  string `json:"picture"`
 }

@@ -17,8 +17,7 @@ type UserModel struct {
 	LastLogin     int64  `gorm:"autoCreateTime" json:"last_login"`
 	LastIP        string `json:"last_ip"`
 	LoginsCount   int    `json:"logins_count"`
-	FirstName     string `gorm:"default:'John'" json:"first_name"`
-	LastName      string `gorm:"default:'Doe'" json:"last_name"`
+	FullName      string `gorm:"default:'John Doe'" json:"full_name"`
 	Picture       string `gorm:"default:'https://cdn.auth0.com/avatars/jd.png'" json:"picture"`
 	Locale        string `gorm:"default:'en-us'" json:"locale"`
 	Role          string `gorm:"default:'user'" json:"role"`

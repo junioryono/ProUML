@@ -2,24 +2,14 @@ import { AvatarProps } from "@radix-ui/react-avatar";
 
 import { Icons } from "@/components/icons";
 import { Avatar } from "@/ui/avatar";
+import { User } from "types";
 
-// Create user type
-type User = {
-  name?: string;
-  image?: string;
-  email?: string;
-};
-
-interface UserAvatarProps extends AvatarProps {
-  user: Pick<User, "image" | "name">;
-}
-
-export function UserAvatar({ user, ...props }: UserAvatarProps) {
+export function UserAvatar({ user }: { user: User }) {
   return (
-    <Avatar {...props}>
-      <Avatar.Image alt="Picture" src={user.image} />
+    <Avatar>
+      <Avatar.Image alt="Picture" src={user.picture} />
       <Avatar.Fallback>
-        <span className="sr-only">{user.name}</span>
+        <span className="sr-only">{user.full_name}</span>
         <Icons.user className="h-4 w-4" />
       </Avatar.Fallback>
     </Avatar>

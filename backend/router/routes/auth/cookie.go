@@ -41,3 +41,22 @@ func SetCookie(fbCtx *fiber.Ctx, name, value string) error {
 	fbCtx.Cookie(cookie)
 	return nil
 }
+
+func DeleteCookie(fbCtx *fiber.Ctx, name string) error {
+	cookie := &fiber.Cookie{
+		Name:     name,
+		Value:    "",
+		Expires:  time.Now(),
+		HTTPOnly: true,
+	}
+
+	if Production {
+		cookie.Domain = "prouml.com"
+		cookie.Secure = true
+		cookie.SameSite = "Strict"
+		cookie.Path = "/"
+	}
+
+	fbCtx.Cookie(cookie)
+	return nil
+}
