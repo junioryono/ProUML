@@ -85,7 +85,7 @@ export function UserNameForm({ user }: { user: User }) {
       <Card>
         <Card.Header>
           <Card.Title>Your Name</Card.Title>
-          <Card.Description>Please enter your full name or a display name you are comfortable with.</Card.Description>
+          <Card.Description>Enter your full name or a display name you are comfortable with.</Card.Description>
         </Card.Header>
         <Card.Content>
           <div className="grid gap-1">
@@ -94,7 +94,7 @@ export function UserNameForm({ user }: { user: User }) {
             </label>
             <input
               id="name"
-              className="my-0 mb-2 block h-9 w-[350px] rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
+              className="my-0 mb-2 block h-9 w-full max-w-[350px] rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
               size={32}
               name="name"
               {...register("fullName")}

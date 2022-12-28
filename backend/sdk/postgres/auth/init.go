@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -93,6 +94,7 @@ func (authSDK *Auth_SDK) CreateUser(userIPAddress, email, password, fullName str
 		Email:    email,
 		Password: password,
 		LastIP:   userIPAddress,
+		Picture:  authSDK.getUserPictureURL(fullName),
 	}
 
 	if fullName != "" {
@@ -115,6 +117,34 @@ func (authSDK *Auth_SDK) CreateUser(userIPAddress, email, password, fullName str
 	go authSDK.SendEmailVerificationEmail(user)
 
 	return user, idToken, refreshToken, nil
+}
+
+func (authSDK *Auth_SDK) getUserPictureURL(fullName string) string {
+	imageString := "https://cdn.auth0.com/avatars/"
+
+	if fullName == "" {
+		return imageString + "default.png"
+	}
+
+	// Split the full name into first name and last name
+	before, after, found := strings.Cut(fullName, " ")
+
+	if found {
+		if len(before) > 0 {
+			// Get the first letter of the first name lowercase
+			imageString += strings.ToLower(string(before[0]))
+		}
+		if len(after) > 0 {
+			// Get the first letter of the last name lowercase
+			imageString += strings.ToLower(string(after[0]))
+		}
+
+	} else {
+		// Get the first letter of the full name lowercase
+		imageString += strings.ToLower(string(fullName[0]))
+	}
+
+	return imageString + ".png"
 }
 
 func (authSDK *Auth_SDK) createUserTokens(user models.UserModel) (string, string, error) {
@@ -311,7 +341,29 @@ func (authSDK *Auth_SDK) UpdateUserFullName(idToken, fullName string) error {
 	// Get the user id from the id token
 	userId, err := authSDK.GetUserIdFromToken(idToken)
 	if err != nil {
+		fmt.Printf("cannot get\n")
 		return err
+	}
+
+	// Get the user's current profile picture using pluck
+	var profilePicture string
+	err = authSDK.db.Model(&models.UserModel{}).
+		Where("id = ?", userId).
+		Pluck("picture", &profilePicture).Error
+	if err != nil {
+		fmt.Printf("cannot get\n")
+		return err
+	}
+
+	// If the user's profile picture is the default profile picture, update it
+	if strings.HasPrefix(profilePicture, "https://cdn.auth0.com/avatars/") {
+		err := authSDK.db.Model(&models.UserModel{}).
+			Where("id = ?", userId).
+			Update("picture", authSDK.getUserPictureURL(fullName)).Error
+		if err != nil {
+			fmt.Printf("cannot get\n")
+			return err
+		}
 	}
 
 	return authSDK.db.Model(&models.UserModel{}).

@@ -1,5 +1,3 @@
-import { AvatarProps } from "@radix-ui/react-avatar";
-
 import { Icons } from "@/components/icons";
 import { Avatar } from "@/ui/avatar";
 import { User } from "types";

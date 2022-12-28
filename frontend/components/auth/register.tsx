@@ -125,7 +125,7 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
             disabled={isLoading}
           >
             {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-            Sign In
+            Sign Up
           </button>
         </div>
       </form>

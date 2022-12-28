@@ -29,14 +29,6 @@ export function PostCreateButton({ className, ...props }: PostCreateButtonProps)
     setIsLoading(false);
 
     if (!response?.ok) {
-      if (response.status === 402) {
-        return toast({
-          title: "Limit of 3 posts reached.",
-          message: "Please upgrade to the PRO plan.",
-          type: "error",
-        });
-      }
-
       return toast({
         title: "Something went wrong.",
         message: "Your post was not created. Please try again.",
@@ -66,7 +58,7 @@ export function PostCreateButton({ className, ...props }: PostCreateButtonProps)
       {...props}
     >
       {isLoading ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.add className="mr-2 h-4 w-4" />}
-      New post
+      New diagram
     </button>
   );
 }

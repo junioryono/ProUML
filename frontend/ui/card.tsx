@@ -4,13 +4,13 @@ import { Skeleton } from "@/ui/skeleton";
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function Card({ className, ...props }: CardProps) {
-  return <div className={cn("overflow-hidden rounded-lg border", className)} {...props} />;
+  return <div className={cn("flex-col overflow-hidden rounded-lg border", className)} {...props} />;
 }
 
 interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 Card.Header = function CardHeader({ className, ...props }: CardHeaderProps) {
-  return <div className={cn("grid gap-1 p-6", className)} {...props} />;
+  return <div className={cn("flex flex-col gap-1 p-6", className)} {...props} />;
 };
 
 interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}

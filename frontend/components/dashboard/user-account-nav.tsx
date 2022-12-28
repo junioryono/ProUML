@@ -17,11 +17,11 @@ export function UserAccountNav() {
 
   return (
     <DropdownMenu>
-      <DropdownMenu.Trigger className="flex items-center gap-2 overflow-hidden focus:ring-2 focus:ring-brand-900 focus:ring-offset-2 focus-visible:outline-none">
+      <DropdownMenu.Trigger className="flex items-center gap-2 overflow-hidden focus-visible:outline-none select-none">
         <UserAvatar user={user} />
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content className="mt-2 md:w-[240px]" align="end">
+        <DropdownMenu.Content className="mt-4 md:w-[240px]" align="end">
           <div className="flex items-center justify-start gap-2 p-4">
             <div className="flex flex-col space-y-1 leading-none">
               {user.full_name && <p className="font-medium">{user.full_name}</p>}
@@ -29,27 +29,11 @@ export function UserAccountNav() {
             </div>
           </div>
           <DropdownMenu.Separator />
-          <DropdownMenu.Item>
-            <Link href="/dashboard" className="w-full">
-              Dashboard
-            </Link>
-          </DropdownMenu.Item>
-          <DropdownMenu.Item>
-            <Link href="/dashboard/billing" className="w-full">
-              Billing
-            </Link>
-          </DropdownMenu.Item>
-          <DropdownMenu.Item>
-            <Link href="/dashboard/settings" className="w-full">
-              Settings
-            </Link>
-          </DropdownMenu.Item>
+          <DropdownMenu.Item onClick={() => router.push("/dashboard")}>Dashboard</DropdownMenu.Item>
+          <DropdownMenu.Item onClick={() => router.push("/dashboard/billing")}>Billing</DropdownMenu.Item>
+          <DropdownMenu.Item onClick={() => router.push("/dashboard/settings")}>Settings</DropdownMenu.Item>
           <DropdownMenu.Separator />
-          <DropdownMenu.Item>
-            <Link href="/docs" target="_blank" className="w-full">
-              Documentation
-            </Link>
-          </DropdownMenu.Item>
+          <DropdownMenu.Item onClick={() => router.push("/docs")}>Documentation</DropdownMenu.Item>
           <DropdownMenu.Item>
             <Link href="https://github.com/junioryono/prouml" className="w-full" target="_blank">
               GitHub
@@ -58,8 +42,7 @@ export function UserAccountNav() {
           <DropdownMenu.Separator />
           <DropdownMenu.Item
             className="cursor-pointer"
-            onSelect={(event) => {
-              event.preventDefault();
+            onClick={() => {
               logout().then((res) => {
                 if (res) {
                   router.push("/");

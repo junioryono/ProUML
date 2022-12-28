@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 
   return (
     <div className="mx-auto flex flex-col space-y-6">
-      <header className="container sticky top-0 z-40 bg-white">
+      <header className="container sticky top-0 z-10 bg-white">
         <div className="flex h-16 items-center justify-between border-b border-b-slate-200 py-4">
           <MainNav
             items={[
@@ -41,7 +41,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
           <DashboardNav
             items={[
               {
-                title: "Posts",
+                title: "Diagrams",
                 href: "/dashboard",
                 icon: "post",
               },

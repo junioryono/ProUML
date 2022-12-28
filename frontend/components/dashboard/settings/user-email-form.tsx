@@ -125,7 +125,7 @@ export function UserEmailForm({ user }: { user: User }) {
       <Card>
         <Card.Header>
           <Card.Title>Your Email</Card.Title>
-          <Card.Description>Please enter your email address.</Card.Description>
+          <Card.Description>Enter your email address.</Card.Description>
         </Card.Header>
         <Card.Content>
           <div className="grid gap-1">
@@ -134,15 +134,15 @@ export function UserEmailForm({ user }: { user: User }) {
             </label>
 
             {/* Put input and verified next to each other */}
-            <div className="flex">
+            <div className="flex flex-col lg:flex-row">
               <input
                 id="email"
-                className="my-0 mb-2 block h-9 w-[350px] rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
+                className="my-0 mb-2 block h-9 w-full max-w-[350px] rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
                 size={32}
                 name="email"
                 {...register("email")}
               />
-              <div className="flex ml-2 self-center">
+              <div className="flex ml-2 lg:self-center">
                 {user.email_verified ? <Icons.check className="text-green-500" /> : <Icons.warning className="text-red-500" />}
                 <span className="ml-2 text-sm text-slate-500 self-center">{user.email_verified ? "Verified" : "Not Verified"}</span>
               </div>
@@ -152,15 +152,11 @@ export function UserEmailForm({ user }: { user: User }) {
           </div>
         </Card.Content>
         <Card.Footer>
-          {/* Put two buttons next to each other
-            - Save button
-            - Resend verification email button
-          */}
-          <div className="flex space-x-4">
+          <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row">
             <button
               type="submit"
               className={cn(
-                "relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2",
+                "w-fit relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2",
                 {
                   "cursor-not-allowed opacity-60": isSaving || isSending,
                 }
@@ -174,7 +170,7 @@ export function UserEmailForm({ user }: { user: User }) {
               <button
                 type="button"
                 className={cn(
-                  "relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2",
+                  "w-fit relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2",
                   {
                     "cursor-not-allowed opacity-60": isSaving || isSending,
                   }

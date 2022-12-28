@@ -8,8 +8,8 @@ import { PostItem } from "@/components/dashboard/post-item";
 import { EmptyPlaceholder } from "@/components/dashboard/empty-placeholder";
 import { getSession } from "@/lib/auth";
 
-// const getPostsForUser = cache(async (userId: User["id"]) => {
-//   return await db.post.findMany({
+// const getDiagramsForUser = cache(async (userId: User["id"]) => {
+//   return await db.diagram.findMany({
 //     where: {
 //       authorId: userId,
 //     },
@@ -34,25 +34,25 @@ export default async function DashboardPage() {
     redirect("/login?redirect=/dashboard");
   }
 
-  const posts = null;
+  const diagrams = null;
 
   return (
     <DashboardShell>
-      <DashboardHeader heading="Posts" text="Create and manage posts.">
+      <DashboardHeader heading="Diagrams" text="Create and manage diagrams.">
         <PostCreateButton />
       </DashboardHeader>
       <div>
-        {posts?.length ? (
+        {diagrams?.length ? (
           <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-            {posts.map((post) => (
+            {diagrams.map((post) => (
               <PostItem key={post.id} post={post} />
             ))}
           </div>
         ) : (
           <EmptyPlaceholder>
             <EmptyPlaceholder.Icon name="post" />
-            <EmptyPlaceholder.Title>No posts created</EmptyPlaceholder.Title>
-            <EmptyPlaceholder.Description>You don&apos;t have any posts yet. Start creating content.</EmptyPlaceholder.Description>
+            <EmptyPlaceholder.Title>No diagrams created</EmptyPlaceholder.Title>
+            <EmptyPlaceholder.Description>You don&apos;t have any diagrams yet. Start creating content.</EmptyPlaceholder.Description>
             <PostCreateButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
           </EmptyPlaceholder>
         )}
