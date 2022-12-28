@@ -11,6 +11,7 @@ import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import { User } from "types";
 import { useAuth } from "@/lib/auth-client";
+import { UserEmailFormSkeleton } from "./user-email-form-skeleton";
 
 const userEmailSchema = z.object({
   email: z.string().min(3).max(32),
@@ -188,3 +189,5 @@ export function UserEmailForm({ user }: { user: User }) {
     </form>
   );
 }
+
+UserEmailForm.Skeleton = UserEmailFormSkeleton;

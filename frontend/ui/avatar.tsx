@@ -16,7 +16,7 @@ Avatar.Image = function AvatarImage({ className, ...props }: AvatarImageProps) {
 
 Avatar.Fallback = function AvatarFallback({ className, children, ...props }: AvatarPrimitive.AvatarFallbackProps) {
   return (
-    <AvatarPrimitive.Fallback delayMs={500} className={cn("", className)} {...props}>
+    <AvatarPrimitive.Fallback delayMs={1000} className={cn("", className)} {...props}>
       {children}
     </AvatarPrimitive.Fallback>
   );

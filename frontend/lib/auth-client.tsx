@@ -28,9 +28,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState<User | undefined>(undefined);
 
   useEffect(() => {
-    getSession()
-      .then((user) => console.log("User Session", user))
-      .catch((err) => console.error("Error getting user session", err));
+    getSession().catch((err) => console.error("Error getting user session", err));
   }, []);
 
   async function getSession(): Promise<User> {
@@ -114,7 +112,6 @@ export function AuthProvider({ children }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log("Logout", res);
         if (res && res.success === true) {
           setUser(null);
           return true;

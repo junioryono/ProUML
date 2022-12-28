@@ -67,7 +67,7 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	AuthRouter.Post("/resend-verification-email", isAuthenticated(sdkP), auth.ResendVerificationEmail(sdkP))
 	AuthRouter.Patch("/update-profile", isAuthenticated(sdkP), auth.UpdateProfile(sdkP))
 	AuthRouter.Delete("/delete-account", isAuthenticated(sdkP), auth.DeleteAccount(sdkP))
-	AuthRouter.Get("/session", auth.Session(sdkP))
+	AuthRouter.Get("/session", isAuthenticated(sdkP), auth.Session(sdkP))
 	AuthRouter.Get("/get-profile", isAuthenticated(sdkP), auth.GetProfile(sdkP))
 
 	DiagramRouter := Router.Group("/diagram", isAuthenticated(sdkP))
@@ -142,14 +142,21 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 
 func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		idToken := fbCtx.Cookies("id_token")
-		refreshToken := fbCtx.Cookies("refresh_token")
+		idToken := fbCtx.Cookies(auth.IdTokenCookieName)
+		refreshToken := fbCtx.Cookies(auth.RefreshTokenCookieName)
 
-		if idToken == "" || refreshToken == "" {
+		unauthorizedUser := func() error {
+			auth.DeleteCookie(fbCtx, auth.IdTokenCookieName)
+			auth.DeleteCookie(fbCtx, auth.RefreshTokenCookieName)
+
 			return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
 				Success: false,
 				Reason:  "Unauthorized",
 			})
+		}
+
+		if idToken == "" || refreshToken == "" {
+			return unauthorizedUser()
 		}
 
 		// Check if id token is valid
@@ -166,10 +173,7 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 			// refresh token is valid, refresh id token
 			idToken, err := sdkP.Postgres.Auth.RefreshIdToken(refreshToken)
 			if err != nil {
-				return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
-					Success: false,
-					Reason:  "Unauthorized",
-				})
+				return unauthorizedUser()
 			}
 
 			if err := auth.SetCookie(fbCtx, auth.IdTokenCookieName, idToken); err != nil {
@@ -183,10 +187,6 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 			return fbCtx.Next()
 		}
 
-		// refresh token is invalid, user needs to login again
-		return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
-			Success: false,
-			Reason:  "Unauthorized",
-		})
+		return unauthorizedUser()
 	}
 }

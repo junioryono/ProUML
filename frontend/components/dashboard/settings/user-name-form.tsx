@@ -11,6 +11,7 @@ import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import { User } from "types";
 import { useAuth } from "@/lib/auth-client";
+import { UserNameFormSkeleton } from "./user-name-form-skeleton";
 
 const userNameSchema = z.object({
   fullName: z.string().min(3).max(32),
@@ -121,3 +122,5 @@ export function UserNameForm({ user }: { user: User }) {
     </form>
   );
 }
+
+UserNameForm.Skeleton = UserNameFormSkeleton;

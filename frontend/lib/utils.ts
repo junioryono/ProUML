@@ -25,6 +25,7 @@ export function fetchAPI(path: string, options?: RequestInit) {
   }
 
   const route = `http://localhost:5000${path}`;
-  console.log("fetchAPI", route);
+  console.log("route", route);
+
   return fetch(route, { ...options, credentials: "include" });
 }

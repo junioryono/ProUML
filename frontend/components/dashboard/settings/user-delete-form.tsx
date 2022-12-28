@@ -15,8 +15,9 @@ import { useAuth } from "@/lib/auth-client";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { UserDeleteFormSkeleton } from "./user-delete-form-skeleton";
 
-export const userDeleteSchema = z.object({
+const userDeleteSchema = z.object({
   password: z.string().min(8),
 });
 
@@ -78,8 +79,6 @@ export function UserDeleteForm({ user }: { user: User }) {
       message: "Your account has been deleted.",
       type: "success",
     });
-
-    router.push("/");
   }
 
   return (
@@ -200,3 +199,5 @@ export function UserDeleteForm({ user }: { user: User }) {
     </>
   );
 }
+
+UserDeleteForm.Skeleton = UserDeleteFormSkeleton;

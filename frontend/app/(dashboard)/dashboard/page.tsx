@@ -7,6 +7,8 @@ import { DashboardShell } from "@/components/dashboard/shell";
 import { PostItem } from "@/components/dashboard/post-item";
 import { EmptyPlaceholder } from "@/components/dashboard/empty-placeholder";
 import { getSession } from "@/lib/auth";
+import { fetchAPI } from "@/lib/utils";
+import { Diagram } from "types";
 
 // const getDiagramsForUser = cache(async (userId: User["id"]) => {
 //   return await db.diagram.findMany({
@@ -28,13 +30,25 @@ import { getSession } from "@/lib/auth";
 export default async function DashboardPage() {
   const user = getSession();
 
-  console.log("DashboardPage", user);
-
   if (!user) {
     redirect("/login?redirect=/dashboard");
   }
 
-  const diagrams = null;
+  const diagrams: Diagram[] = await fetchAPI("/diagrams")
+    .then((res) => res.json())
+    .then((res) => {
+      if (res && res.success === true) {
+        return res.response as Diagram;
+      }
+
+      return null;
+    })
+    .catch((err) => {
+      console.error(err);
+      return null;
+    });
+
+  console.log("diagrams", diagrams);
 
   return (
     <DashboardShell>

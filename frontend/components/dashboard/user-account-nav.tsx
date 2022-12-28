@@ -2,14 +2,25 @@
 
 import Link from "next/link";
 
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-client";
 import { DropdownMenu } from "@/ui/dropdown";
 import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { useRouter } from "next/navigation";
+import { Icons } from "@/components/icons";
 
 export function UserAccountNav() {
   const router = useRouter();
   const { logout, user } = useAuth();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  if (user === undefined) {
+    return (
+      <div className="flex items-center gap-2 overflow-hidden focus-visible:outline-none select-none">
+        <UserAvatar />
+      </div>
+    );
+  }
 
   if (!user) {
     return null;
@@ -42,14 +53,25 @@ export function UserAccountNav() {
           <DropdownMenu.Separator />
           <DropdownMenu.Item
             className="cursor-pointer"
-            onClick={() => {
-              logout().then((res) => {
-                if (res) {
-                  router.push("/");
-                }
-              });
+            onSelect={(e) => {
+              e.preventDefault();
+              setIsLoading(true);
+              router.prefetch("/");
+              logout()
+                .then((res) => {
+                  if (res) {
+                    router.push("/");
+                  }
+                })
+                .catch((err) => {
+                  console.error(err);
+                })
+                .finally(() => {
+                  setIsLoading(false);
+                });
             }}
           >
+            {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
             Sign out
           </DropdownMenu.Item>
         </DropdownMenu.Content>

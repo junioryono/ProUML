@@ -1,9 +1,11 @@
-import { redirect } from "next/navigation";
-
 import { DashboardNav } from "@/components/dashboard/nav";
 import { UserAccountNav } from "@/components/dashboard/user-account-nav";
 import { MainNav } from "@/components/main-nav";
+
 import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { headers } from "next/headers";
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
@@ -12,9 +14,16 @@ interface DashboardLayoutProps {
 export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   const user = getSession();
 
-  if (!user) {
-    redirect("/login?redirect=/dashboard");
-  }
+  const headersInstance = headers();
+
+  // // print all headers
+  // for (const [key, value] of headersInstance) {
+  //   console.log(`${key}: ${value}`);
+  // }
+
+  // if (!user) {
+  //   redirect("/login?redirect=" + usePathname());
+  // }
 
   return (
     <div className="mx-auto flex flex-col space-y-6">

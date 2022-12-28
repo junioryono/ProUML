@@ -75,3 +75,20 @@ export type User = {
   role: string;
   disabled: boolean;
 };
+
+export type Diagram = {
+  id: string;
+  created_at: number;
+  updated_at: number;
+  public: boolean;
+  name: string;
+  content?: any;
+};
+
+export type DiagramUserRole = {
+  user_id: string;
+  email: string;
+  role: string;
+  full_name: string;
+  picture: string;
+};
