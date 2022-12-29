@@ -3,17 +3,17 @@ import { UserEmailFormSkeleton } from "@/components/dashboard/settings/user-emai
 import { UserDeleteFormSkeleton } from "@/components/dashboard/settings/user-delete-form-skeleton";
 
 export default function DashboardSettingsLoading() {
-  return (
-    <>
-      <div>
-        <UserNameFormSkeleton />
-      </div>
-      <div>
-        <UserEmailFormSkeleton />
-      </div>
-      <div>
-        <UserDeleteFormSkeleton />
-      </div>
-    </>
-  );
+   return (
+      <>
+         <div>
+            <UserNameFormSkeleton />
+         </div>
+         <div>
+            <UserEmailFormSkeleton />
+         </div>
+         <div>
+            <UserDeleteFormSkeleton />
+         </div>
+      </>
+   );
 }

@@ -1,21 +1,21 @@
 import { DashboardHeader } from "@/components/dashboard/header";
 import { DashboardShell } from "@/components/dashboard/shell";
-import { PostCreateButton } from "@/components/dashboard/post-create-button";
-import { PostItem } from "@/components/dashboard/post-item";
+import { DiagramCreateButton } from "@/components/dashboard/diagram-create-button";
+import { DiagramItem } from "@/components/dashboard/diagram-item";
 
 export default function DashboardLoading() {
-  return (
-    <DashboardShell>
-      <DashboardHeader heading="Diagrams" text="Create and manage diagrams.">
-        <PostCreateButton />
-      </DashboardHeader>
-      <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-        <PostItem.Skeleton />
-        <PostItem.Skeleton />
-        <PostItem.Skeleton />
-        <PostItem.Skeleton />
-        <PostItem.Skeleton />
-      </div>
-    </DashboardShell>
-  );
+   return (
+      <DashboardShell>
+         <DashboardHeader heading="Diagrams" text="Create and manage diagrams.">
+            <DiagramCreateButton />
+         </DashboardHeader>
+         <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+            <DiagramItem.Skeleton />
+            <DiagramItem.Skeleton />
+            <DiagramItem.Skeleton />
+            <DiagramItem.Skeleton />
+            <DiagramItem.Skeleton />
+         </div>
+      </DashboardShell>
+   );
 }

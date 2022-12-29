@@ -1,24 +1,27 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-client";
+import { useEffect } from "react";
 import { User } from "types";
 
-// Create a function that takes a react component as an argument
-
-type ComponentWithSkeleton = React.ComponentType<{ user?: User }> & {
-  Skeleton: React.ComponentType;
+type ComponentWithSkeleton = React.ComponentType & {
+   Skeleton: React.ComponentType;
 };
 
-export function FormContainer({ Component }: { Component: ComponentWithSkeleton }) {
-  const { user } = useAuth();
+export function FormContainer({ Component, userResponse }: { Component: ComponentWithSkeleton; userResponse: User }) {
+   const { user, setUser } = useAuth();
 
-  if (user === undefined) {
-    return <Component.Skeleton />;
-  }
+   useEffect(() => {
+      setUser(userResponse);
+   }, [userResponse]);
 
-  if (!user) {
-    return null;
-  }
+   if (user === undefined) {
+      return <Component.Skeleton />;
+   }
 
-  return <Component user={user} />;
+   if (!user) {
+      return null;
+   }
+
+   return <Component />;
 }
