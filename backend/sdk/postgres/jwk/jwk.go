@@ -192,16 +192,13 @@ func (jwkSDK *JWK_SDK) triggerJWTUpdates() {
 		// Get the difference between the current time and the JWT's creation time
 		diff := now.Sub(createdAt)
 
-		fmt.Printf("Waiting for %v\n", 1*time.Minute-diff)
-
-		// // Wait for the difference to be 30 days
-		// time.Sleep(30*24*time.Hour - diff)
+		// Wait for the difference to be 30 days
+		time.Sleep(30*24*time.Hour - diff)
 
 		// Wait for the difference to be 1 minute
 		time.Sleep(1*time.Minute - diff)
 
 		if err := jwkSDK.SetNewJWT(); err != nil {
-			fmt.Println("Error setting new JWT")
 			fmt.Println(err)
 		} else {
 			fmt.Println("New JWT set")
