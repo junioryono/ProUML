@@ -7,6 +7,13 @@ import (
 	"gorm.io/datatypes"
 )
 
+type ClusterModel struct {
+	ID        string `gorm:"primaryKey" json:"id"`
+	CreatedAt int64  `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt int64  `gorm:"autoUpdateTime" json:"updated_at"`
+	Master    bool   `gorm:"default:false" json:"master"`
+}
+
 type UserModel struct {
 	ID            string `gorm:"uniqueIndex" json:"user_id"`
 	Email         string `gorm:"uniqueIndex" json:"email"`

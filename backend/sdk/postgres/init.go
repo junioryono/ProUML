@@ -4,10 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/diagram"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/diagrams"
@@ -23,6 +26,7 @@ type Postgres_SDK struct {
 	db       *gorm.DB
 	jwk      *jwk.JWK_SDK
 	ses      *ses.SES_SDK
+	cluster  *models.ClusterModel
 }
 
 func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
@@ -59,7 +63,16 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	}
 
 	// // Drop all tables
-	// db.Migrator().DropTable(&models.UserModel{}, &models.DiagramModel{}, &models.DiagramUserRoleModel{}, &models.JWTModel{}, &models.EmailVerificationTokenModel{})
+	// if err := db.Migrator().DropTable(
+	// 	&models.ClusterModel{},
+	// 	&models.UserModel{},
+	// 	&models.DiagramModel{},
+	// 	&models.DiagramUserRoleModel{},
+	// 	&models.JWTModel{},
+	// 	&models.EmailVerificationTokenModel{},
+	// ); err != nil {
+	// 	return nil, err
+	// }
 
 	// Print all table names
 	var tables []string
@@ -67,6 +80,7 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	fmt.Println(tables)
 
 	if err := db.AutoMigrate(
+		&models.ClusterModel{},
 		&models.UserModel{},
 		&models.DiagramModel{},
 		&models.DiagramUserRoleModel{},
@@ -77,23 +91,101 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		return nil, err
 	}
 
-	jwk, err := jwk.Init(db)
+	cluster, err := getCluster(db)
 	if err != nil {
 		return nil, err
 	}
 
-	Auth := auth.Init(db, jwk, ses)
-	Diagram := diagram.Init(db, Auth)
-	Diagrams := diagrams.Init(db, Auth)
-
 	p := &Postgres_SDK{
-		Auth:     Auth,
-		Diagram:  Diagram,
-		Diagrams: Diagrams,
-		db:       db,
-		jwk:      jwk,
-		ses:      ses,
+		db:      db,
+		ses:     ses,
+		cluster: cluster,
 	}
 
+	p.createFuntionsAndTriggers()
+
+	go p.gracefulShutdown()
+
+	if p.jwk, err = jwk.Init(db, dsn, cluster); err != nil {
+		p.shutdown()
+		return nil, err
+	}
+
+	p.Auth = auth.Init(db, p.jwk, ses)
+	p.Diagram = diagram.Init(db, p.Auth)
+	p.Diagrams = diagrams.Init(db, p.Auth)
+
 	return p, nil
+}
+
+func getCluster(db *gorm.DB) (*models.ClusterModel, error) {
+	// Create a transaction
+	tx := db.Begin()
+
+	// Lock the cluster_models table
+	tx.Exec("LOCK TABLE cluster_models IN EXCLUSIVE MODE")
+
+	// Check if a master cluster exists
+	masterExists := true
+
+	var masterCluster models.ClusterModel
+	if err := tx.Where("master = ?", true).First(&masterCluster).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			masterExists = false
+		} else {
+			return nil, err
+		}
+	}
+
+	// Save this cluster to the database
+	cluster := &models.ClusterModel{
+		ID:     uuid.New().String(),
+		Master: !masterExists,
+	}
+
+	if err := tx.Create(cluster).Error; err != nil {
+		return nil, err
+	}
+
+	// Commit the transaction and release the lock
+	tx.Commit()
+
+	return cluster, nil
+}
+
+func (p *Postgres_SDK) gracefulShutdown() {
+	cancelChan := make(chan os.Signal, 1)
+	signal.Notify(cancelChan, syscall.SIGTERM, syscall.SIGINT)
+	<-cancelChan
+
+	p.shutdown()
+
+	os.Exit(0)
+}
+
+func (p *Postgres_SDK) shutdown() {
+	// Remove this cluster from the database
+	if err := p.db.Delete(p.cluster).Error; err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (p *Postgres_SDK) createFuntionsAndTriggers() {
+	// Check if the pg_notify_jwt function exists
+	var pg_notify_jwt_exists bool
+	p.db.Raw("SELECT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'pg_notify_jwt')").Scan(&pg_notify_jwt_exists)
+
+	if !pg_notify_jwt_exists {
+		// Use db.raw to create a pg_notify function if it doesn't exist
+		p.db.Exec("CREATE FUNCTION pg_notify_jwt() RETURNS trigger AS $$ BEGIN PERFORM pg_notify('jwt', NEW.id); RETURN NEW; END; $$ LANGUAGE plpgsql;")
+	}
+
+	// Check if the pg_notify_jwt trigger exists
+	var pg_notify_jwt_trigger_exists bool
+	p.db.Raw("SELECT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'pg_notify_jwt')").Scan(&pg_notify_jwt_trigger_exists)
+
+	if !pg_notify_jwt_trigger_exists {
+		// Use db.raw to create a trigger for the jwt_models table if it doesn't exist
+		p.db.Exec("CREATE TRIGGER pg_notify_jwt AFTER INSERT ON jwt_models FOR EACH ROW EXECUTE PROCEDURE pg_notify_jwt();")
+	}
 }
