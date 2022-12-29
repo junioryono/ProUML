@@ -74,6 +74,21 @@ func (jwkSDK *JWK_SDK) getActiveJWT() (*models.JWTModel, error) {
 		return nil, err
 	}
 
+	// Parse the private and public keys
+	privateKey, err := x509.ParsePKCS1PrivateKey(jwt.PrivateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	publicKey, err := x509.ParsePKCS1PublicKey(jwt.PublicKey)
+	if err != nil {
+		return nil, err
+
+	}
+
+	jwt.PrivateKeyCert = privateKey
+	jwt.PublicKeyCert = publicKey
+
 	jwkSDK.JWT = &jwt
 	return jwkSDK.JWT, nil
 }
