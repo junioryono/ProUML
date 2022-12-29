@@ -119,36 +119,37 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 }
 
 func getCluster(db *gorm.DB) (*models.ClusterModel, error) {
+	var cluster *models.ClusterModel
+
 	// Create a transaction
-	tx := db.Begin()
+	result := db.Transaction(func(tx *gorm.DB) error {
+		// Lock the cluster_models table
+		tx.Exec("LOCK TABLE cluster_models IN EXCLUSIVE MODE")
 
-	// Lock the cluster_models table
-	tx.Exec("LOCK TABLE cluster_models IN EXCLUSIVE MODE")
+		// Check if a master cluster exists
+		masterExists := true
 
-	// Check if a master cluster exists
-	masterExists := true
-
-	var masterCluster models.ClusterModel
-	if err := tx.Where("master = ?", true).First(&masterCluster).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			masterExists = false
-		} else {
-			return nil, err
+		var masterCluster models.ClusterModel
+		if err := tx.Where("master = ?", true).First(&masterCluster).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				masterExists = false
+			} else {
+				return err
+			}
 		}
-	}
 
-	// Save this cluster to the database
-	cluster := &models.ClusterModel{
-		ID:     uuid.New().String(),
-		Master: !masterExists,
-	}
+		// Save this cluster to the database
+		cluster = &models.ClusterModel{
+			ID:     uuid.New().String(),
+			Master: !masterExists,
+		}
 
-	if err := tx.Create(cluster).Error; err != nil {
-		return nil, err
-	}
+		return tx.Create(cluster).Error
+	})
 
-	// Commit the transaction and release the lock
-	tx.Commit()
+	if result != nil {
+		return nil, result
+	}
 
 	return cluster, nil
 }

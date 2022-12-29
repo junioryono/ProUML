@@ -23,7 +23,9 @@ func Init(db *gorm.DB, dsn string, cluster *models.ClusterModel) (*JWK_SDK, erro
 	}
 
 	// // Remove all JWTs from the database
-	// j.RemoveAllJWTs()
+	// if err := db.Where("true = true").Delete(&models.JWTModel{}).Error; err != nil {
+	// 	return nil, err
+	// }
 	// time.Sleep(3 * time.Second)
 
 	// Set the JWK set
@@ -32,11 +34,11 @@ func Init(db *gorm.DB, dsn string, cluster *models.ClusterModel) (*JWK_SDK, erro
 	}
 
 	// Get the active JWT
-	if _, err := j.GetActiveJWT(); err != nil {
+	if _, err := j.getActiveJWT(); err != nil {
 		if err == gorm.ErrRecordNotFound {
 			if j.cluster.Master {
 				// Create a new JWT if there is not an active JWT
-				if err := j.SetNewJWT(); err != nil {
+				if err := j.setNewJWT(); err != nil {
 					return nil, err
 				}
 

@@ -66,7 +66,7 @@ func (jwkSDK *JWK_SDK) addJWTToSet(token models.JWTModel) error {
 }
 
 // Get the currently active JWT token from the database
-func (jwkSDK *JWK_SDK) GetActiveJWT() (*models.JWTModel, error) {
+func (jwkSDK *JWK_SDK) getActiveJWT() (*models.JWTModel, error) {
 	// Get the currently active JWT token from the database
 	var jwt models.JWTModel
 	err := jwkSDK.db.Where("active = true").First(&jwt).Error
@@ -78,7 +78,7 @@ func (jwkSDK *JWK_SDK) GetActiveJWT() (*models.JWTModel, error) {
 	return jwkSDK.JWT, nil
 }
 
-func (jwkSDK *JWK_SDK) SetNewJWT() error {
+func (jwkSDK *JWK_SDK) setNewJWT() error {
 	// Create a new JWT token
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -145,12 +145,6 @@ func (jwkSDK *JWK_SDK) SetNewJWT() error {
 	return nil
 }
 
-// Remove all JWT tokens from the database
-func (jwkSDK *JWK_SDK) RemoveAllJWTs() error {
-	// Remove all JWT tokens from the database
-	return jwkSDK.db.Where("true = true").Delete(&models.JWTModel{}).Error
-}
-
 func (jwkSDK *JWK_SDK) listenForJWTUpdates(dsn string) {
 	// Create a listener using pq.NewListener for events
 	listener := pq.NewListener(dsn, 10*time.Second, time.Minute, nil)
@@ -171,7 +165,7 @@ func (jwkSDK *JWK_SDK) listenForJWTUpdates(dsn string) {
 			}
 
 			// Get the active JWT
-			if _, err := jwkSDK.GetActiveJWT(); err != nil {
+			if _, err := jwkSDK.getActiveJWT(); err != nil {
 				continue
 			}
 
@@ -198,7 +192,7 @@ func (jwkSDK *JWK_SDK) triggerJWTUpdates() {
 		// Wait for the difference to be 1 minute
 		time.Sleep(1*time.Minute - diff)
 
-		if err := jwkSDK.SetNewJWT(); err != nil {
+		if err := jwkSDK.setNewJWT(); err != nil {
 			fmt.Println(err)
 		} else {
 			fmt.Println("New JWT set")
