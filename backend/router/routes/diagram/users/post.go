@@ -3,7 +3,7 @@ package diagramUsers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
-	"github.com/junioryono/ProUML/backend/transpiler/types"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
 func Post(sdkP *sdk.SDK) fiber.Handler {
@@ -16,26 +16,25 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 		if diagramId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
-				Reason:  "diagram id is required",
+				Reason:  types.ErrInvalidRequest,
 			})
 		}
 
 		if addUserId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
-				Reason:  "user id is required",
+				Reason:  types.ErrInvalidRequest,
 			})
 		}
 
 		if role == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
-				Reason:  "role is required",
+				Reason:  types.ErrInvalidRequest,
 			})
 		}
 
-		err := sdkP.Postgres.Diagram.Users.Add(diagramId, fbCtx.Cookies("id_token"), addUserId, role)
-		if err != nil {
+		if err := sdkP.Postgres.Diagram.Users.Add(diagramId, fbCtx.Cookies("id_token"), addUserId, role); err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
 				Reason:  err.Error(),

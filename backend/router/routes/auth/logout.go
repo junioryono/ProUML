@@ -3,12 +3,11 @@ package auth
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
-	"github.com/junioryono/ProUML/backend/transpiler/types"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
 func Logout(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Delete the cookies
 		if err := DeleteCookie(fbCtx, IdTokenCookieName); err != nil {
 			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
 				Success: false,

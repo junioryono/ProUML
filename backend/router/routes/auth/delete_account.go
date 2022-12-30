@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
-	"github.com/junioryono/ProUML/backend/transpiler/types"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
 func DeleteAccount(sdkP *sdk.SDK) fiber.Handler {
@@ -13,11 +13,10 @@ func DeleteAccount(sdkP *sdk.SDK) fiber.Handler {
 		if fbCtx.FormValue("email") == "" || fbCtx.FormValue("password") == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
-				Reason:  "Email and password are required",
+				Reason:  types.ErrInvalidEmailOrPassword,
 			})
 		}
 
-		// Authenticate user with Postgres
 		_, idToken, _, err := sdkP.Postgres.Auth.AuthenticateUser(
 			fbCtx.IP(),
 			fbCtx.FormValue("email"),
@@ -32,14 +31,11 @@ func DeleteAccount(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		go func(userIPAddress, idTokenParam string) {
-			err := sdkP.Postgres.Auth.DeleteUser(idTokenParam)
-			if err != nil {
+			if err := sdkP.Postgres.Auth.DeleteUser(idTokenParam); err != nil {
 				fmt.Println(err.Error())
 			}
-
 		}(fbCtx.IP(), idToken)
 
-		// Remove cookies from browser
 		if err := DeleteCookie(fbCtx, IdTokenCookieName); err != nil {
 			return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
 				Success: false,

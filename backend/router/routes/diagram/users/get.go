@@ -3,7 +3,7 @@ package diagramUsers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
-	"github.com/junioryono/ProUML/backend/transpiler/types"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
 func Get(sdkP *sdk.SDK) fiber.Handler {
@@ -14,7 +14,7 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 		if diagramId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
-				Reason:  "diagram id is required",
+				Reason:  types.ErrInvalidRequest,
 			})
 		}
 

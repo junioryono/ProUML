@@ -15,8 +15,7 @@ import (
 	diagramUsers "github.com/junioryono/ProUML/backend/router/routes/diagram/users"
 	"github.com/junioryono/ProUML/backend/router/routes/diagrams"
 	"github.com/junioryono/ProUML/backend/sdk"
-	"github.com/junioryono/ProUML/backend/transpiler"
-	"github.com/junioryono/ProUML/backend/transpiler/types"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
 func Init(sdkP *sdk.SDK) {
@@ -87,18 +86,6 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 
 	Router.Get("/.well-known/jwks.json", JWKSet(sdkP))
 
-	Router.Get("/to-json", func(fbCtx *fiber.Ctx) error {
-		json, err := transpiler.ToJson(sdkP, "", "") // DELETE THIS
-		if err != nil {
-			return fbCtx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"success": false,
-				"reason":  err,
-			})
-		}
-
-		return fbCtx.Status(fiber.StatusOK).Send(json)
-	})
-
 	Router.Use("/ws", func(fbCtx *fiber.Ctx) error {
 		// IsWebSocketUpgrade returns true if the client
 		// requested upgrade to the WebSocket protocol.
@@ -151,7 +138,7 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 
 			return fbCtx.Status(fiber.StatusUnauthorized).JSON(types.Status{
 				Success: false,
-				Reason:  "Unauthorized",
+				Reason:  types.ErrNotAuthenticated,
 			})
 		}
 
@@ -179,7 +166,7 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 			if err := auth.SetCookie(fbCtx, auth.IdTokenCookieName, idToken); err != nil {
 				return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
 					Success: false,
-					Reason:  "Internal Server Error",
+					Reason:  types.ErrInternalServerError,
 				})
 			}
 

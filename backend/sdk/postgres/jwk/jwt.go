@@ -9,17 +9,18 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
-func (jwkSDK *JWK_SDK) CreateUserIdToken(user models.UserModel) (string, error) {
+func (jwkSDK *JWK_SDK) CreateUserIdToken(user models.UserModel) (string, *types.WrappedError) {
 	return jwkSDK.createUserToken(user, time.Now().Add(time.Hour*10).Unix(), true)
 }
 
-func (jwkSDK *JWK_SDK) CreateUserRefreshToken(user models.UserModel) (string, error) {
+func (jwkSDK *JWK_SDK) CreateUserRefreshToken(user models.UserModel) (string, *types.WrappedError) {
 	return jwkSDK.createUserToken(user, time.Now().Add(time.Hour*24*365).Unix(), false)
 }
 
-func (jwkSDK *JWK_SDK) createUserToken(user models.UserModel, exp int64, includeUserMetadata bool) (string, error) {
+func (jwkSDK *JWK_SDK) createUserToken(user models.UserModel, exp int64, includeUserMetadata bool) (string, *types.WrappedError) {
 	claims := jwt.MapClaims{
 		"sub": user.ID,
 		"iss": "https://api.prouml.com",
@@ -39,14 +40,14 @@ func (jwkSDK *JWK_SDK) createUserToken(user models.UserModel, exp int64, include
 
 	signedToken, err := token.SignedString(jwkSDK.JWT.PrivateKeyCert)
 	if err != nil {
-		return "", err
+		return "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	return signedToken, nil
 }
 
 // Parse and verify the JWT token from the JWK set
-func (jwkSDK *JWK_SDK) ParseClaims(tokenString string) (jwt.MapClaims, error) {
+func (jwkSDK *JWK_SDK) ParseClaims(tokenString string) (jwt.MapClaims, *types.WrappedError) {
 	// Parse the JWT token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Check the signing method
@@ -73,31 +74,31 @@ func (jwkSDK *JWK_SDK) ParseClaims(tokenString string) (jwt.MapClaims, error) {
 
 	})
 	if err != nil {
-		return nil, err
+		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Check the JWT token
 	if !token.Valid {
-		return nil, errors.New("invalid token")
+		return nil, types.Wrap(err, types.ErrInvalidToken)
 	}
 
 	// Check if the JWT is expired
 	if token.Claims.(jwt.MapClaims)["exp"].(float64) < float64(time.Now().Unix()) {
-		return nil, errors.New("token expired")
+		return nil, types.Wrap(err, types.ErrTokenExpired)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if ok := claims.VerifyIssuer("https://api.prouml.com", true); !ok {
-			return nil, errors.New("invalid issuer")
+			return nil, types.Wrap(err, types.ErrInvalidIssuer)
 		}
 
 		// Check if token is not expired
 		if ok := claims.VerifyExpiresAt(time.Now().Unix(), true); !ok {
-			return nil, errors.New("token expired")
+			return nil, types.Wrap(err, types.ErrTokenExpired)
 		}
 
 		return claims, nil
 	}
 
-	return nil, errors.New("invalid token")
+	return nil, types.Wrap(err, types.ErrInvalidToken)
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
+	"github.com/junioryono/ProUML/backend/types"
 	"gorm.io/gorm"
 )
 
@@ -20,43 +21,45 @@ func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagrams_SDK {
 	}
 }
 
-func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]models.DiagramModelHiddenContent, error) {
+func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]models.DiagramModelHiddenContent, *types.WrappedError) {
 	userId, err := d.Auth.GetUserIdFromToken(idToken)
 	if err != nil {
 		return nil, err
 	}
 
+	tx := d.db.Begin()
+
+	// Get all diagrams the user has access to
+	var userDiagrams []models.DiagramUserRoleModel
+	if err := tx.Where("user_id = ?", userId).Find(&userDiagrams).Error; err != nil {
+		tx.Rollback()
+		return nil, types.Wrap(err, types.ErrInternalServerError)
+	}
+
 	var diagrams []models.DiagramModelHiddenContent
+	for _, userDiagram := range userDiagrams {
+		var diagram models.DiagramModelHiddenContent
 
-	// Get all diagrams the user has access to (dont use public to query)
-	err = d.db.Transaction(func(tx *gorm.DB) error {
-		var userDiagrams []models.DiagramUserRoleModel
-
-		err := tx.Where("user_id = ?", userId).Find(&userDiagrams).Error
-		if err != nil {
-			return err
+		if err := tx.Limit(10).
+			Offset(offset).
+			Model(&models.DiagramModel{}).
+			Where("id = ?", userDiagram.DiagramID).
+			First(&diagram).
+			Find(&models.DiagramModelHiddenContent{}).Error; err != nil {
+			tx.Rollback()
+			return nil, types.Wrap(err, types.ErrInternalServerError)
 		}
 
-		for _, userDiagram := range userDiagrams {
-			var diagram models.DiagramModelHiddenContent
+		diagrams = append(diagrams, diagram)
+	}
 
-			err := tx.Limit(10).Offset(offset).Model(&models.DiagramModel{}).Where("id = ?", userDiagram.DiagramID).First(&diagram).Find(&models.DiagramModelHiddenContent{}).Error
-			if err != nil {
-				return err
-			}
-
-			diagrams = append(diagrams, diagram)
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	if len(diagrams) == 0 {
-		return nil, errors.New("no diagrams found")
+		return nil, types.Wrap(errors.New("no diagrams found"), types.ErrNoDiagramsFound)
 	}
 
 	return diagrams, nil

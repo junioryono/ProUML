@@ -3,7 +3,7 @@ package auth
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
-	"github.com/junioryono/ProUML/backend/transpiler/types"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
 func Session(sdkP *sdk.SDK) fiber.Handler {
@@ -12,7 +12,7 @@ func Session(sdkP *sdk.SDK) fiber.Handler {
 		if idToken == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
-				Reason:  "Invalid token",
+				Reason:  types.ErrInvalidToken,
 			})
 		}
 

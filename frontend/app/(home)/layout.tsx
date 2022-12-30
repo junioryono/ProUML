@@ -3,13 +3,20 @@ import Link from "next/link";
 import { MainNav } from "@/components/main-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { UserAccountNav } from "@/components/dashboard/user-account-nav";
+import { getSession } from "@/lib/auth-server";
+import { redirect } from "next/navigation";
 
 interface MarketingLayoutProps {
    children: React.ReactNode;
 }
 
 export default async function MarketingLayout({ children }: MarketingLayoutProps) {
-   const user = undefined;
+   const user = await getSession();
+
+   if (!user) {
+      redirect("/login?redirect=/dashboard");
+   }
+
    return (
       <div className="flex min-h-screen flex-col">
          <header className="container sticky top-0 z-10 bg-white">
@@ -41,7 +48,7 @@ export default async function MarketingLayout({ children }: MarketingLayoutProps
                   ]}
                />
                {user ? (
-                  <UserAccountNav />
+                  <UserAccountNav userResponse={user} />
                ) : (
                   <nav>
                      <Link

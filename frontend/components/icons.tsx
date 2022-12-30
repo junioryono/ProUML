@@ -15,10 +15,13 @@ import {
    MoreVertical,
    Pizza,
    Plus,
+   Server,
    Settings,
    Trash,
    Twitter,
    User,
+   Users,
+   FileJson,
    X,
 } from "lucide-react";
 import type { Icon as LucideIcon } from "lucide-react";
@@ -41,10 +44,13 @@ export const Icons = {
    add: Plus,
    warning: AlertTriangle,
    user: User,
+   users: Users,
    arrowRight: ArrowRight,
    help: HelpCircle,
    pizza: Pizza,
    gitHub: Github,
    twitter: Twitter,
    check: Check,
+   server: Server,
+   fileJSON: FileJson,
 };

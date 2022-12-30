@@ -8,6 +8,7 @@ import (
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/diagram/users"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
+	"github.com/junioryono/ProUML/backend/types"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -26,7 +27,7 @@ func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagram_SDK {
 	}
 }
 
-func (d *Diagram_SDK) Create(idToken string) (string, error) {
+func (d *Diagram_SDK) Create(idToken string) (string, *types.WrappedError) {
 	// Get the user id from the id token
 	userId, err := d.Auth.GetUserIdFromToken(idToken)
 	if err != nil {
@@ -48,29 +49,28 @@ func (d *Diagram_SDK) Create(idToken string) (string, error) {
 		Role:      "owner",
 	}
 
+	tx := d.db.Begin()
+
 	// Save the diagram and the user diagram to the database
-	err = d.db.Transaction(func(tx *gorm.DB) error {
-		err := tx.Create(&diagram).Error
-		if err != nil {
-			return err
-		}
+	if err := tx.Create(&diagram).Error; err != nil {
+		tx.Rollback()
+		return "", types.Wrap(err, types.ErrInternalServerError)
+	}
 
-		err = tx.Create(&userDiagram).Error
-		if err != nil {
-			return err
-		}
+	if err := tx.Create(&userDiagram).Error; err != nil {
+		tx.Rollback()
+		return "", types.Wrap(err, types.ErrInternalServerError)
+	}
 
-		return nil
-	})
-
-	if err != nil {
-		return "", err
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	return diagramId, nil
 }
 
-func (d *Diagram_SDK) Delete(diagramId, idToken string) error {
+func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 	// Get the user id from the id token
 	userId, err := d.Auth.GetUserIdFromToken(idToken)
 	if err != nil {
@@ -78,7 +78,7 @@ func (d *Diagram_SDK) Delete(diagramId, idToken string) error {
 	}
 
 	// Delete the diagram in the database if the user is the owner
-	err = d.db.Transaction(func(tx *gorm.DB) error {
+	err2 := d.db.Transaction(func(tx *gorm.DB) error {
 		var userDiagram models.DiagramUserRoleModel
 
 		err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error
@@ -98,11 +98,14 @@ func (d *Diagram_SDK) Delete(diagramId, idToken string) error {
 		return tx.Where("id = ?", diagramId).Delete(&models.DiagramModel{}).Error
 	})
 
-	return err
+	if err2 != nil {
+		return types.Wrap(err2, types.ErrInternalServerError)
+	}
 
+	return nil
 }
 
-func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, error) {
+func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *types.WrappedError) {
 	// Get the user id from the id token
 	userId, err := d.Auth.GetUserIdFromToken(idToken)
 	if err != nil {
@@ -111,7 +114,7 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, erro
 
 	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
 	var diagram models.DiagramModel
-	err = d.db.Transaction(func(tx *gorm.DB) error {
+	err2 := d.db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Where("id = ?", diagramId).First(&diagram).Error
 		if err != nil {
 			return err
@@ -133,14 +136,14 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, erro
 		return nil
 	})
 
-	if err != nil {
-		return nil, err
+	if err2 != nil {
+		return nil, types.Wrap(err2, types.ErrInternalServerError)
 	}
 
 	return &diagram, nil
 }
 
-func (d *Diagram_SDK) Update(diagramId, idToken string, public *bool, name string, content *json.RawMessage) error {
+func (d *Diagram_SDK) Update(diagramId, idToken string, public *bool, name string, content *json.RawMessage) *types.WrappedError {
 	// Get the user id from the id token
 	userId, err := d.Auth.GetUserIdFromToken(idToken)
 	if err != nil {
@@ -148,7 +151,7 @@ func (d *Diagram_SDK) Update(diagramId, idToken string, public *bool, name strin
 	}
 
 	// Update the diagram in the database if the user is the owner or editor
-	err = d.db.Transaction(func(tx *gorm.DB) error {
+	err2 := d.db.Transaction(func(tx *gorm.DB) error {
 		var userDiagram models.DiagramUserRoleModel
 
 		err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error
@@ -182,5 +185,9 @@ func (d *Diagram_SDK) Update(diagramId, idToken string, public *bool, name strin
 		return tx.Save(&diagram).Error
 	})
 
-	return err
+	if err2 != nil {
+		return types.Wrap(err2, types.ErrInternalServerError)
+	}
+
+	return nil
 }

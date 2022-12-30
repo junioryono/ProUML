@@ -10,17 +10,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
+	"github.com/junioryono/ProUML/backend/types"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
-func (jwkSDK *JWK_SDK) GetSet() (jwk.Set, error) {
+func (jwkSDK *JWK_SDK) GetSet() (jwk.Set, *types.WrappedError) {
 	// Get the JWT models from the database
 	var jwt []models.JWTModel
 	err := jwkSDK.db.Find(&jwt).Error
 	if err != nil {
-		return nil, err
+		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Print the length of the JWT models
@@ -36,7 +37,7 @@ func (jwkSDK *JWK_SDK) GetSet() (jwk.Set, error) {
 		err := jwkSDK.addJWTToSet(j)
 
 		if err != nil {
-			return nil, err
+			return nil, types.Wrap(err, types.ErrInternalServerError)
 		}
 	}
 

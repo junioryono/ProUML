@@ -1,14 +1,18 @@
-import { DashboardNav } from "@/components/dashboard/nav";
+import { AdminDashboardNav } from "@/components/admin/dashboard/nav";
 import { UserAccountNav } from "@/components/dashboard/user-account-nav";
 import { MainNav } from "@/components/main-nav";
 import { getSession } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
    const user = await getSession();
 
    if (!user) {
-      redirect("/login?redirect=/dashboard");
+      redirect("/login?redirect=/admin/dashboard");
+   }
+
+   if (user.role !== "admin") {
+      redirect("/unauthorized");
    }
 
    return (
@@ -33,34 +37,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
          </header>
          <div className="container grid gap-12 md:grid-cols-[200px_1fr]">
             <aside className="hidden w-[200px] flex-col md:flex">
-               <DashboardNav
+               <AdminDashboardNav
                   items={[
                      {
-                        title: "Diagrams",
-                        href: "/dashboard",
-                        icon: "post",
+                        title: "Users",
+                        href: "/admin/dashboard/users",
+                        icon: "users",
                      },
                      {
-                        title: "Pages",
-                        href: "/",
-                        icon: "page",
-                        disabled: true,
+                        title: "Clusters",
+                        href: "/admin/dashboard/clusters",
+                        icon: "server",
                      },
                      {
-                        title: "Media",
-                        href: "/",
-                        icon: "media",
-                        disabled: true,
-                     },
-                     {
-                        title: "Billing",
-                        href: "/dashboard/billing",
-                        icon: "billing",
-                     },
-                     {
-                        title: "Settings",
-                        href: "/dashboard/settings",
-                        icon: "settings",
+                        title: "JWK",
+                        href: "/admin/dashboard/jwk",
+                        icon: "fileJSON",
                      },
                   ]}
                />

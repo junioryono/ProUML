@@ -8,7 +8,7 @@ import (
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
 
-func ParseProject(files []types.File) types.Project {
+func ParseProject(files []types.File) *types.Project {
 	var (
 		response    types.Project
 		parsedFiles []types.FileResponse
@@ -28,26 +28,27 @@ func ParseProject(files []types.File) types.Project {
 				validImportedTypeNames := getValidExternalTypesOfClass(allClassExports, parsedFile.Imports, parsedFile.Package, class.Name)
 				class.Associations, class.Dependencies = getClassAssociationsAndDependencies(validImportedTypeNames, class.Variables, class.Methods)
 				response.Nodes = append(response.Nodes, class)
-				response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
+				// response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
 			case types.JavaClass:
 				validImportedTypeNames := getValidExternalTypesOfClass(allClassExports, parsedFile.Imports, parsedFile.Package, class.Name)
 				class.Associations, class.Dependencies = getClassAssociationsAndDependencies(validImportedTypeNames, class.Variables, class.Methods)
 				response.Nodes = append(response.Nodes, class)
-				response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
+				// response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
 			case types.JavaEnum:
 				validImportedTypeNames := getValidExternalTypesOfClass(allClassExports, parsedFile.Imports, parsedFile.Package, class.Name)
 				response.Nodes = append(response.Nodes, class)
-				response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
+				// response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
+				_ = validImportedTypeNames
 			case types.JavaInterface:
 				validImportedTypeNames := getValidExternalTypesOfClass(allClassExports, parsedFile.Imports, parsedFile.Package, class.Name)
 				class.Associations, class.Dependencies = getClassAssociationsAndDependencies(validImportedTypeNames, class.Variables, class.Methods)
 				response.Nodes = append(response.Nodes, class)
-				response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
+				// response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
 			}
 		}
 	}
 
-	return response
+	return &response
 }
 
 func getClassExports(parsedFiles []types.FileResponse) []types.JavaClassExports {

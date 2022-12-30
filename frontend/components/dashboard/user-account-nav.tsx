@@ -2,17 +2,22 @@
 
 import Link from "next/link";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-client";
 import { DropdownMenu } from "@/ui/dropdown";
 import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/icons";
+import { User } from "types";
 
-export function UserAccountNav() {
+export function UserAccountNav({ userResponse }: { userResponse: User }) {
    const router = useRouter();
-   const { logout, user } = useAuth();
+   const { logout, user, setUser } = useAuth();
    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+   useEffect(() => {
+      setUser(userResponse);
+   }, [userResponse]);
 
    if (user === undefined) {
       return (
@@ -41,6 +46,9 @@ export function UserAccountNav() {
                </div>
                <DropdownMenu.Separator />
                <DropdownMenu.Item onClick={() => router.push("/dashboard")}>Dashboard</DropdownMenu.Item>
+               {user.role === "admin" && (
+                  <DropdownMenu.Item onClick={() => router.push("/admin/dashboard")}>Admin Dashboard</DropdownMenu.Item>
+               )}
                <DropdownMenu.Item onClick={() => router.push("/dashboard/billing")}>Billing</DropdownMenu.Item>
                <DropdownMenu.Item onClick={() => router.push("/dashboard/settings")}>Settings</DropdownMenu.Item>
                <DropdownMenu.Separator />

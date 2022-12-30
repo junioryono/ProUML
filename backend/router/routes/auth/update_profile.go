@@ -3,18 +3,13 @@ package auth
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
-	"github.com/junioryono/ProUML/backend/transpiler/types"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
 func UpdateProfile(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
 		if fbCtx.FormValue("fullName") != "" {
-			err := sdkP.Postgres.Auth.UpdateUserFullName(
-				fbCtx.Cookies("id_token"),
-				fbCtx.FormValue("fullName"),
-			)
-
-			if err != nil {
+			if err := sdkP.Postgres.Auth.UpdateUserFullName(fbCtx.Cookies("id_token"), fbCtx.FormValue("fullName")); err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 					Success: false,
 					Reason:  err.Error(),
@@ -37,7 +32,7 @@ func UpdateProfile(sdkP *sdk.SDK) fiber.Handler {
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
 			Success: false,
-			Reason:  "Invalid request",
+			Reason:  types.ErrInvalidRequest,
 		})
 	}
 }

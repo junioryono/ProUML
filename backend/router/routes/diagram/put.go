@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
-	"github.com/junioryono/ProUML/backend/transpiler/types"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
 func Put(sdkP *sdk.SDK) fiber.Handler {
@@ -16,7 +16,7 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 		if diagramId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
-				Reason:  "diagram id is required",
+				Reason:  types.ErrInvalidRequest,
 			})
 		}
 
@@ -28,8 +28,7 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		b := body{}
-		err := fbCtx.BodyParser(&b)
-		if err != nil {
+		if err := fbCtx.BodyParser(&b); err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
 				Reason:  err.Error(),
@@ -37,8 +36,7 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Make changes to the diagram
-		err = sdkP.Postgres.Diagram.Update(diagramId, fbCtx.Cookies("id_token"), b.Public, b.Name, b.Content)
-		if err != nil {
+		if err := sdkP.Postgres.Diagram.Update(diagramId, fbCtx.Cookies("id_token"), b.Public, b.Name, b.Content); err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
 				Reason:  err.Error(),
