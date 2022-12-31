@@ -2,7 +2,6 @@ package transpiler
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/transpiler/java"
@@ -26,15 +25,6 @@ func ToJson(sdkP *sdk.SDK, files []types.File) (*types.Project, *httpTypes.Wrapp
 		if files[i].Extension != language {
 			files = append(files[:i], files[i+1:]...)
 			i--
-		}
-	}
-
-	// Print all file names and code
-	for _, file := range files {
-		fmt.Println(file.Name)
-
-		for _, line := range file.Code {
-			fmt.Print(string(line))
 		}
 	}
 

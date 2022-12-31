@@ -18,6 +18,16 @@ func byteSliceExists(slice [][]byte, expected []byte) bool {
 	return false
 }
 
+func byteSliceExistsCustom(slice []types.CustomByteSlice, expected []byte) bool {
+	for _, current := range slice {
+		if bytes.Equal(current, expected) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func TestParseFile(t *testing.T) {
 	type ParseFileTest struct {
 		Input  types.File
@@ -33,43 +43,45 @@ func TestParseFile(t *testing.T) {
 			},
 			Output: &types.FileResponse{},
 		},
-		{
-			Input: types.File{
-				Name:      "Test",
-				Extension: "java",
-				Code: []byte(`
-				class Test<T> {
-					// An object of type T is declared
-					T obj;
-					Test(T obj) { this.obj = obj; } // constructor
-					public T getObject() { return this.obj; }
-				}`),
-			},
-			Output: &types.FileResponse{
-				Data: []any{
-					types.JavaClass{
-						Name: []byte("Test"),
-						Methods: []types.JavaMethod{
-							{
-								Type:           []byte("void"),
-								Name:           []byte("main"),
-								AccessModifier: []byte("public"),
-								Parameters: []types.JavaMethodParameter{
-									{
-										Type: []byte("String[]"),
-										Name: []byte("args"),
-									},
-								},
-								Abstract:      false,
-								Static:        true,
-								Final:         false,
-								Functionality: []byte("System.out.println('Hello');System.out.println('Hello');"),
-							},
-						},
-					},
-				},
-			},
-		},
+		// {
+		// 	Input: types.File{
+		// 		Name:      "AdvancedCharacter",
+		// 		Extension: "java",
+		// 		Code: []byte(`
+		// 		import java.util.*;
+
+		// 		public class AdvancedCharacter implements CharacterInterface {
+		// 			public String stance = "Standing";
+		// 			public double maxSpeed = 70.4;
+		// 			public int maxWeapons = 2;
+		// 			public List<String> selectionPanel = Collections.unmodifiableList(Arrays.asList("AC1", "AC2", "AC3"));
+
+		// 			@Override
+		// 			public List<String> getSelectionPanel() {
+		// 				return this.selectionPanel;
+		// 			}
+
+		// 			@Override
+		// 			public void setStance(String stance) {
+		// 				this.stance = stance;
+		// 			}
+		// 		}
+		// 		`),
+		// 	},
+		// 	Output: &types.FileResponse{
+		// 		Package: []byte("default"),
+		// 		Imports: [][]byte{
+		// 			[]byte("java.util.*;"),
+		// 		},
+		// 		Data: []any{
+		// 			types.JavaClass{
+		// 				Package:    []byte("default"),
+		// 				Name:       []byte("AdvancedCharacter"),
+		// 				Implements: [][]byte{[]byte("CharacterInterface")},
+		// 			},
+		// 		},
+		// 	},
+		// },
 		{
 			Input: types.File{
 				Name:      "Test2",
@@ -77,12 +89,14 @@ func TestParseFile(t *testing.T) {
 				Code:      []byte("import java.awt.Cursor;public class Test2{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 			},
 			Output: &types.FileResponse{
+				Package: []byte("default"),
 				Imports: [][]byte{
 					[]byte("java.awt.Cursor"),
 				},
 				Data: []any{
 					types.JavaClass{
-						Name: []byte("Test2"),
+						Package: []byte("default"),
+						Name:    []byte("Test2"),
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
@@ -144,12 +158,14 @@ func TestParseFile(t *testing.T) {
 				Code:      []byte("import java.awt.Cursor;public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 			},
 			Output: &types.FileResponse{
+				Package: []byte("default"),
 				Imports: [][]byte{
 					[]byte("java.awt.Cursor"),
 				},
 				Data: []any{
 					types.JavaClass{
-						Name: []byte("Test4"),
+						Package: []byte("default"),
+						Name:    []byte("Test4"),
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
@@ -178,9 +194,11 @@ func TestParseFile(t *testing.T) {
 				Code:      []byte("public class Test5{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 			},
 			Output: &types.FileResponse{
+				Package: []byte("default"),
 				Data: []any{
 					types.JavaClass{
-						Name: []byte("Test5"),
+						Package: []byte("default"),
+						Name:    []byte("Test5"),
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
@@ -209,10 +227,12 @@ func TestParseFile(t *testing.T) {
 				Code:      []byte("public class Test6 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 			},
 			Output: &types.FileResponse{
+				Package: []byte("default"),
 				Data: []any{
 					types.JavaClass{
+						Package: []byte("default"),
 						Name:    []byte("Test6"),
-						Extends: [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+						Extends: []types.CustomByteSlice{[]byte("Test"), []byte("Hello"), []byte("Yes")},
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
@@ -241,13 +261,14 @@ func TestParseFile(t *testing.T) {
 				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}}"),
 			},
 			Output: &types.FileResponse{
-				Package: []byte(""),
+				Package: []byte("default"),
 				Imports: [][]byte{
 					[]byte("java.util.*"),
 				},
 				Data: []any{
 					types.JavaClass{
-						Name: []byte("Test"),
+						Package: []byte("default"),
+						Name:    []byte("Test"),
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
@@ -261,6 +282,7 @@ func TestParseFile(t *testing.T) {
 					},
 					types.JavaInterface{
 						DefinedWithin: []byte("Test"),
+						Package:       []byte("default"),
 						Name:          []byte("Yes"),
 						Methods: []types.JavaMethod{
 							{
@@ -274,8 +296,9 @@ func TestParseFile(t *testing.T) {
 						},
 					},
 					types.JavaClass{
+						Package:    []byte("default"),
 						Name:       []byte("Testing"),
-						Implements: [][]byte{[]byte("Test.Yes")},
+						Implements: []types.CustomByteSlice{[]byte("Test.Yes")},
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
@@ -289,7 +312,8 @@ func TestParseFile(t *testing.T) {
 						},
 					},
 					types.JavaClass{
-						Name: []byte("A"),
+						Package: []byte("default"),
+						Name:    []byte("A"),
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
@@ -318,13 +342,14 @@ func TestParseFile(t *testing.T) {
 				Code:      []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2=new Testing();private static Test.Yes inner3=new Testing();protected final Test.Yes inner4=\"Hello\";static final Test.Yes inner5 =null;protected static final Test.Yes inner6=null;public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}Testing function1(Test.Yes var1,Test var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
 			},
 			Output: &types.FileResponse{
-				Package: []byte(""),
+				Package: []byte("default"),
 				Imports: [][]byte{
 					[]byte("java.util.*"),
 				},
 				Data: []any{
 					types.JavaClass{
-						Name: []byte("Test"),
+						Package: []byte("default"),
+						Name:    []byte("Test"),
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
@@ -338,6 +363,7 @@ func TestParseFile(t *testing.T) {
 					},
 					types.JavaInterface{
 						DefinedWithin: []byte("Test"),
+						Package:       []byte("default"),
 						Name:          []byte("Yes"),
 						Methods: []types.JavaMethod{
 							{
@@ -351,8 +377,9 @@ func TestParseFile(t *testing.T) {
 						},
 					},
 					types.JavaClass{
+						Package:    []byte("default"),
 						Name:       []byte("Testing"),
-						Implements: [][]byte{[]byte("Test.Yes")},
+						Implements: []types.CustomByteSlice{[]byte("Test.Yes")},
 						Methods: []types.JavaMethod{
 							{
 								Type:           []byte("void"),
@@ -366,7 +393,8 @@ func TestParseFile(t *testing.T) {
 						},
 					},
 					types.JavaClass{
-						Name: []byte("A"),
+						Package: []byte("default"),
+						Name:    []byte("A"),
 						Variables: []types.JavaVariable{
 							{
 								Type:           []byte("Test"),
@@ -582,13 +610,13 @@ func TestParseFile(t *testing.T) {
 						}
 
 						for index, word := range expected.Extends {
-							if !byteSliceExists(response.Extends, word) {
+							if !byteSliceExistsCustom(response.Extends, word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Extends[index]))
 							}
 						}
 
 						for index, word := range expected.Implements {
-							if !byteSliceExists(response.Extends, word) {
+							if !byteSliceExistsCustom(response.Extends, word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Implements[index]))
 							}
 						}
@@ -825,7 +853,7 @@ func TestParseFile(t *testing.T) {
 						}
 
 						for _, declarations := range expected.Declarations {
-							if !byteSliceExists(response.Declarations, declarations) {
+							if !byteSliceExistsCustom(response.Declarations, declarations) {
 								subtest.Errorf("bytes are not equal")
 							}
 						}
@@ -1032,6 +1060,29 @@ func TestRemoveSpacing(t *testing.T) {
 				String s = invoke(() -> 'done');
 			}`),
 			Output: []byte("public class Test{Integer test=(int x,int y)->(x+y)/(x-y);Integer test=(int x)->x+x;Integer test=(x)->(x+x);Integer test=(x)->x+x;Integer test=x->x+x;Integer test=x->(x+x);Integer test=()->7;String s=invoke(()->'done');}"),
+		},
+		{
+			Input: []byte(`
+			import java.util.*;
+
+			public class AdvancedCharacter implements CharacterInterface {
+				public String stance = "Standing";
+				public double maxSpeed = 70.4;
+				public int maxWeapons = 2;
+				public List<String> selectionPanel = Collections.unmodifiableList(Arrays.asList("AC1", "AC2", "AC3"));
+
+				@Override
+				public List<String> getSelectionPanel() {
+					return this.selectionPanel;
+				}
+
+				@Override
+				public void setStance(String stance) {
+					this.stance = stance;
+				}
+			}
+			`),
+			Output: []byte("import java.util.*;public class AdvancedCharacter implements CharacterInterface{public String stance=\"Standing\";public double maxSpeed=70.4;public int maxWeapons=2;public List<String>selectionPanel=Collections.unmodifiableList(Arrays.asList(\"AC1\",\"AC2\",\"AC3\"));@Override public List<String>getSelectionPanel(){return this.selectionPanel;}@Override public void setStance(String stance){this.stance=stance;}}"),
 		},
 		{
 			Input: []byte(`
@@ -1290,11 +1341,11 @@ func TestGetPackageName(t *testing.T) {
 		},
 		{
 			Input:  []byte(`import java.awt.Cursor;import java.awt.Font;import java.awt.event.ActionListener;import java.awt.event.ItemEvent;import java.util.function.Consumer;import java.util.regex.Pattern;import java.awt.Color;import javax.swing.*;import java.lang.Math;public class Calculator{private static final int WINDOW_WIDTH=410;private static final int WINDOW_HEIGHT=600;private static final int BUTTON_WIDTH=80;}`),
-			Output: nil,
+			Output: []byte("default"),
 		},
 		{
 			Input:  []byte(`import java.awt.Cursor;import java.awt.Font;import java.awt.event.ActionListener;import java.awt.event.ItemEvent;import java.util.function.Consumer;import java.util.regex.Pattern;import java.awt.Color;import javax.swing.*;import java.lang.Math;public class Calculator{package com.houarizegai.calculator;private static final int WINDOW_WIDTH=410;private static final int WINDOW_HEIGHT=600;private static final int BUTTON_WIDTH=80;}`),
-			Output: nil,
+			Output: []byte("default"),
 		},
 	}
 
@@ -1372,7 +1423,8 @@ func TestGetFileClasses(t *testing.T) {
 			Input: []byte("import java.awt.Cursor;public class Test3{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 			Output: []any{
 				types.JavaClass{
-					Name: []byte("Test3"),
+					Package: []byte("default"),
+					Name:    []byte("Test3"),
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
@@ -1397,7 +1449,8 @@ func TestGetFileClasses(t *testing.T) {
 			Input: []byte("public class Test4{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 			Output: []any{
 				types.JavaClass{
-					Name: []byte("Test4"),
+					Package: []byte("default"),
+					Name:    []byte("Test4"),
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
@@ -1422,8 +1475,9 @@ func TestGetFileClasses(t *testing.T) {
 			Input: []byte("public class Test5 extends Test,Hello,Yes{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 			Output: []any{
 				types.JavaClass{
+					Package: []byte("default"),
 					Name:    []byte("Test5"),
-					Extends: [][]byte{[]byte("Test"), []byte("Hello"), []byte("Yes")},
+					Extends: []types.CustomByteSlice{[]byte("Test"), []byte("Hello"), []byte("Yes")},
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
@@ -1448,7 +1502,8 @@ func TestGetFileClasses(t *testing.T) {
 			Input: []byte("import java.util.*;class Test{boolean testVar1=true==true;boolean testVar2=(true==true)||(true==false);protected interface Yes{void show();}public static void Test(){}}class Testing implements Test.Yes{public void show(){System.out.println();}}class A{public static void main(String[] args){System.out.println();Type1 var1=new Type2(,new Type3());Type1 var2;ActionListener task=new ActionListener(){boolean alreadyDisposed=false;public void actionPerformed(ActionEvent e){if(frame.isDisplayable()){alreadyDisposed=true;frame.dispose();}System.out.println();}System.out.println();};System.out.println(new Type26[][]{{20},{40}});if(new Type4()>new Type5()&&new Type20()){}if(new Type6().getTest()>=(new Type7().hello())){}for(Type8 p:roster){}for(Type9 t=new Type10(new Type11());t<new Type12(new Type13());t++){}switch(new Type14(new Type15()).get()){case new Type16(new Type17()).get():new Type18();new Type19();}while(new Type21()<new Type22()){new Type23();}do{new Type24();}while(new Type 25());}}"),
 			Output: []any{
 				types.JavaClass{
-					Name: []byte("Test"),
+					Package: []byte("default"),
+					Name:    []byte("Test"),
 					Variables: []types.JavaVariable{
 						{
 							Type:           []byte("boolean"),
@@ -1480,6 +1535,7 @@ func TestGetFileClasses(t *testing.T) {
 				},
 				types.JavaInterface{
 					DefinedWithin: []byte("Test"),
+					Package:       []byte("default"),
 					Name:          []byte("Yes"),
 					Methods: []types.JavaMethod{
 						{
@@ -1493,8 +1549,9 @@ func TestGetFileClasses(t *testing.T) {
 					},
 				},
 				types.JavaClass{
+					Package:    []byte("default"),
 					Name:       []byte("Testing"),
-					Implements: [][]byte{[]byte("Test.Yes")},
+					Implements: []types.CustomByteSlice{[]byte("Test.Yes")},
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
@@ -1508,7 +1565,8 @@ func TestGetFileClasses(t *testing.T) {
 					},
 				},
 				types.JavaClass{
-					Name: []byte("A"),
+					Package: []byte("default"),
+					Name:    []byte("A"),
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
@@ -1533,7 +1591,8 @@ func TestGetFileClasses(t *testing.T) {
 			Input: []byte("import java.util.*;class Test{protected interface Yes{void show();}public void TestVoid(){}}class Testing implements Test.Yes{public void show(){System.out.println('show method of interface');}}class A{Test inner1;public Testing inner2=new Testing();private static Test.Yes inner3=new Testing();protected final Test.Yes inner4=\"Hello\";static final Test.Yes inner5=null;protected static final Test.Yes inner6=null;public static void main(String[] args){Test.Yes obj;Testing t=new Testing();obj=t;obj.show();}Testing function1(Test.Yes var1,Map<String,String> var2){};Testing function2();abstract void function3(){};static Testing function4(){}final Testing function5();static final void function6(){};public abstract void function7();private static Testing function8(){};protected final Testing function9(){};public static final void function10(){};}"),
 			Output: []any{
 				types.JavaClass{
-					Name: []byte("Test"),
+					Package: []byte("default"),
+					Name:    []byte("Test"),
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
@@ -1547,6 +1606,7 @@ func TestGetFileClasses(t *testing.T) {
 				},
 				types.JavaInterface{
 					DefinedWithin: []byte("Test"),
+					Package:       []byte("default"),
 					Name:          []byte("Yes"),
 					Methods: []types.JavaMethod{
 						{
@@ -1560,8 +1620,9 @@ func TestGetFileClasses(t *testing.T) {
 					},
 				},
 				types.JavaClass{
+					Package:    []byte("default"),
 					Name:       []byte("Testing"),
-					Implements: [][]byte{[]byte("Test.Yes")},
+					Implements: []types.CustomByteSlice{[]byte("Test.Yes")},
 					Methods: []types.JavaMethod{
 						{
 							Type:           []byte("void"),
@@ -1575,7 +1636,8 @@ func TestGetFileClasses(t *testing.T) {
 					},
 				},
 				types.JavaClass{
-					Name: []byte("A"),
+					Package: []byte("default"),
+					Name:    []byte("A"),
 					Variables: []types.JavaVariable{
 						{
 							Type:           []byte("Test"),
@@ -1740,8 +1802,9 @@ func TestGetFileClasses(t *testing.T) {
 			Input: []byte("enum Test8{H(\"Hydrogen\"),HE(\"Helium\"),NE(\"Neon\");public final String label;private Element(String label){this.label=label;}}"),
 			Output: []any{
 				types.JavaEnum{
-					Name: []byte("Test8"),
-					Declarations: [][]byte{
+					Package: []byte("default"),
+					Name:    []byte("Test8"),
+					Declarations: []types.CustomByteSlice{
 						[]byte("H"),
 						[]byte("HE"),
 						[]byte("NE"),
@@ -1753,8 +1816,9 @@ func TestGetFileClasses(t *testing.T) {
 			Input: []byte("enum Test9{Hello,}"),
 			Output: []any{
 				types.JavaEnum{
-					Name: []byte("Test9"),
-					Declarations: [][]byte{
+					Package: []byte("default"),
+					Name:    []byte("Test9"),
+					Declarations: []types.CustomByteSlice{
 						[]byte("Hello"),
 					},
 				},
@@ -1764,8 +1828,9 @@ func TestGetFileClasses(t *testing.T) {
 			Input: []byte("enum Test10{Hello;}"),
 			Output: []any{
 				types.JavaEnum{
-					Name: []byte("Test10"),
-					Declarations: [][]byte{
+					Package: []byte("default"),
+					Name:    []byte("Test10"),
+					Declarations: []types.CustomByteSlice{
 						[]byte("Hello"),
 					},
 				},
@@ -2054,7 +2119,7 @@ func TestGetFileClasses(t *testing.T) {
 						}
 
 						for _, declarations := range expected.Declarations {
-							if !byteSliceExists(response.Declarations, declarations) {
+							if !byteSliceExistsCustom(response.Declarations, declarations) {
 								subtest.Errorf("bytes are not equal")
 							}
 						}

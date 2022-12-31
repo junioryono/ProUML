@@ -13,69 +13,69 @@ type JavaClassExports struct {
 }
 
 type JavaVariable struct {
-	Type           []byte
-	Name           []byte
-	Value          []byte
-	AccessModifier []byte // "public" | "protected" | "private"
-	Static         bool
-	Final          bool
+	Type           CustomByteSlice `json:"type"`
+	Name           CustomByteSlice `json:"name"`
+	Value          CustomByteSlice `json:"value"`
+	AccessModifier CustomByteSlice `json:"accessModifier"` // "public" | "protected" | "private"
+	Static         bool            `json:"static"`
+	Final          bool            `json:"final"`
 }
 
 type JavaMethodParameter struct {
-	Type []byte
-	Name []byte
+	Type CustomByteSlice `json:"type"`
+	Name CustomByteSlice `json:"name"`
 }
 
 type JavaMethod struct {
-	Type           []byte
-	Name           []byte
-	AccessModifier []byte // "public" | "protected" | "private"
-	Parameters     []JavaMethodParameter
-	Abstract       bool // If abstract is true, Static and Final must be false
-	Static         bool
-	Final          bool
-	Functionality  []byte
+	Type           CustomByteSlice       `json:"type"`
+	Name           CustomByteSlice       `json:"name"`
+	AccessModifier CustomByteSlice       `json:"accessModifer,omitempty"` // "public" | "protected" | "private"
+	Parameters     []JavaMethodParameter `json:"parameters,omitempty"`
+	Abstract       bool                  `json:"abstract"` // If abstract is true, Static and Final must be false
+	Static         bool                  `json:"static"`
+	Final          bool                  `json:"final"`
+	Functionality  []byte                `json:"-"`
 }
 
 type JavaAbstract struct {
-	DefinedWithin []byte
-	Package       []byte
-	Name          []byte
-	Implements    [][]byte
-	Extends       [][]byte
-	Variables     []JavaVariable
-	Methods       []JavaMethod
-	Associations  [][]byte
-	Dependencies  [][]byte
+	DefinedWithin CustomByteSlice   `json:"-"`
+	Package       CustomByteSlice   `json:"package"`
+	Name          CustomByteSlice   `json:"name"`
+	Implements    []CustomByteSlice `json:"implements"`
+	Extends       []CustomByteSlice `json:"extends"`
+	Variables     []JavaVariable    `json:"variables,omitempty"`
+	Methods       []JavaMethod      `json:"methods,omitempty"`
+	Associations  []CustomByteSlice `json:"-"`
+	Dependencies  []CustomByteSlice `json:"-"`
 }
 
 type JavaClass struct {
-	DefinedWithin []byte
-	Package       []byte
-	Name          []byte
-	Implements    [][]byte
-	Extends       [][]byte
-	Variables     []JavaVariable
-	Methods       []JavaMethod
-	Associations  [][]byte
-	Dependencies  [][]byte
+	DefinedWithin CustomByteSlice   `json:"-"`
+	Package       CustomByteSlice   `json:"package"`
+	Name          CustomByteSlice   `json:"name"`
+	Implements    []CustomByteSlice `json:"-"`
+	Extends       []CustomByteSlice `json:"-"`
+	Variables     []JavaVariable    `json:"variables,omitempty"`
+	Methods       []JavaMethod      `json:"methods,omitempty"`
+	Associations  []CustomByteSlice `json:"-"`
+	Dependencies  []CustomByteSlice `json:"-"`
 }
 
 type JavaInterface struct {
-	DefinedWithin []byte
-	Package       []byte
-	Name          []byte
-	Extends       [][]byte
-	Variables     []JavaVariable
-	Methods       []JavaMethod
-	Associations  [][]byte
-	Dependencies  [][]byte
+	DefinedWithin CustomByteSlice   `json:"-"`
+	Package       CustomByteSlice   `json:"package"`
+	Name          CustomByteSlice   `json:"name"`
+	Extends       []CustomByteSlice `json:"extends"`
+	Variables     []JavaVariable    `json:"variables,omitempty"`
+	Methods       []JavaMethod      `json:"methods,omitempty"`
+	Associations  []CustomByteSlice `json:"-"`
+	Dependencies  []CustomByteSlice `json:"-"`
 }
 
 type JavaEnum struct {
-	DefinedWithin []byte
-	Package       []byte
-	Name          []byte
-	Declarations  [][]byte
-	Implements    [][]byte
+	DefinedWithin CustomByteSlice   `json:"-"`
+	Package       CustomByteSlice   `json:"package"`
+	Name          CustomByteSlice   `json:"name"`
+	Declarations  []CustomByteSlice `json:"declarations,omitempty"`
+	Implements    []CustomByteSlice `json:"implements,omitempty"`
 }

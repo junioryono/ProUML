@@ -28,22 +28,21 @@ func ParseProject(files []types.File) *types.Project {
 				validImportedTypeNames := getValidExternalTypesOfClass(allClassExports, parsedFile.Imports, parsedFile.Package, class.Name)
 				class.Associations, class.Dependencies = getClassAssociationsAndDependencies(validImportedTypeNames, class.Variables, class.Methods)
 				response.Nodes = append(response.Nodes, class)
-				// response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
+				response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
 			case types.JavaClass:
 				validImportedTypeNames := getValidExternalTypesOfClass(allClassExports, parsedFile.Imports, parsedFile.Package, class.Name)
 				class.Associations, class.Dependencies = getClassAssociationsAndDependencies(validImportedTypeNames, class.Variables, class.Methods)
 				response.Nodes = append(response.Nodes, class)
-				// response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
+				response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
 			case types.JavaEnum:
 				validImportedTypeNames := getValidExternalTypesOfClass(allClassExports, parsedFile.Imports, parsedFile.Package, class.Name)
 				response.Nodes = append(response.Nodes, class)
-				// response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
-				_ = validImportedTypeNames
+				response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
 			case types.JavaInterface:
 				validImportedTypeNames := getValidExternalTypesOfClass(allClassExports, parsedFile.Imports, parsedFile.Package, class.Name)
 				class.Associations, class.Dependencies = getClassAssociationsAndDependencies(validImportedTypeNames, class.Variables, class.Methods)
 				response.Nodes = append(response.Nodes, class)
-				// response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
+				response.Edges = append(response.Edges, getClassRelationConnections(response.Edges, validImportedTypeNames, class)...)
 			}
 		}
 	}
@@ -107,7 +106,7 @@ func getClassExports(parsedFiles []types.FileResponse) []types.JavaClassExports 
 			}
 		}
 
-		addExportsEnumHelper := func(innerPackageName, innerClassName []byte, declarations [][]byte) {
+		addExportsEnumHelper := func(innerPackageName, innerClassName []byte, declarations []types.CustomByteSlice) {
 			addToExportsMap(innerClassName)
 
 			var temp1 []byte
@@ -228,12 +227,12 @@ func getValidExternalTypesOfClass(allClassExports []types.JavaClassExports, impo
 }
 
 // Returns associations and dependencies
-func getClassAssociationsAndDependencies(importedTypeNames map[string]struct{}, variables []types.JavaVariable, methods []types.JavaMethod) ([][]byte, [][]byte) {
+func getClassAssociationsAndDependencies(importedTypeNames map[string]struct{}, variables []types.JavaVariable, methods []types.JavaMethod) ([]types.CustomByteSlice, []types.CustomByteSlice) {
 	var (
 		associationsMap = make(map[string]struct{})
-		associations    [][]byte
+		associations    []types.CustomByteSlice
 		dependenciesMap = make(map[string]struct{})
-		dependencies    [][]byte
+		dependencies    []types.CustomByteSlice
 	)
 
 	// Use map to prevent duplicates

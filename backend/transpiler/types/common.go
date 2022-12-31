@@ -1,8 +1,35 @@
 package types
 
+type CustomByteSlice []byte
+
+func (t CustomByteSlice) MarshalJSON() ([]byte, error) {
+	// Make a copy of the slice
+	t = append([]byte(nil), t...)
+
+	for i := 0; i < len(t); i++ {
+		if t[i] == '"' && (i == 0 || t[i-1] != '\\') {
+			// Add an index to the slice and copy the rest of the slice
+			t = append(t, 0)
+			copy(t[i+1:], t[i:])
+			// Add a backslash before the double quote
+			t[i] = '\\'
+
+			// Increment i to skip the added backslash
+			i++
+		}
+	}
+
+	return []byte(`"` + string(t) + `"`), nil
+}
+
+func (t *CustomByteSlice) UnmarshalJSON(data []byte) error {
+	*t = CustomByteSlice(data[1 : len(data)-1])
+	return nil
+}
+
 type Project struct {
-	Nodes []any
-	Edges []Relation
+	Nodes []any      `json:"nodes,omitempty"`
+	Edges []Relation `json:"edges,omitempty"`
 }
 
 type Package struct {
@@ -28,9 +55,9 @@ type Node struct {
 }
 
 type Relation struct {
-	FromClassId []byte
-	ToClassId   []byte
-	Type        RelationData
+	FromClassId CustomByteSlice `json:"fromClassId"`
+	ToClassId   CustomByteSlice `json:"toClassId"`
+	Type        RelationData    `json:"type"`
 }
 
 type RelationData interface {
@@ -41,8 +68,8 @@ type RelationData interface {
 }
 
 type Association struct {
-	FromArrow bool
-	ToArrow   bool
+	FromArrow bool `json:"fromArrow"`
+	ToArrow   bool `json:"toArrow"`
 }
 
 func (t Association) GetFromArrow() bool {
@@ -66,8 +93,8 @@ func (t *Association) SetToArrow(value bool) {
 }
 
 type Dependency struct {
-	FromArrow bool
-	ToArrow   bool
+	FromArrow bool `json:"fromArrow"`
+	ToArrow   bool `json:"toArrow"`
 }
 
 func (t Dependency) GetFromArrow() bool {
@@ -91,8 +118,8 @@ func (t *Dependency) SetToArrow(value bool) {
 }
 
 type Realization struct {
-	FromArrow bool
-	ToArrow   bool
+	FromArrow bool `json:"fromArrow"`
+	ToArrow   bool `json:"toArrow"`
 }
 
 func (t Realization) GetFromArrow() bool {
@@ -118,8 +145,8 @@ func (t *Realization) SetToArrow(value bool) {
 }
 
 type Generalization struct {
-	FromArrow bool
-	ToArrow   bool
+	FromArrow bool `json:"fromArrow"`
+	ToArrow   bool `json:"toArrow"`
 }
 
 func (t Generalization) GetFromArrow() bool {
@@ -145,8 +172,8 @@ func (t *Generalization) SetToArrow(value bool) {
 }
 
 type NestedOwnership struct {
-	FromArrow bool
-	ToArrow   bool
+	FromArrow bool `json:"fromArrow"`
+	ToArrow   bool `json:"toArrow"`
 }
 
 func (t NestedOwnership) GetFromArrow() bool {

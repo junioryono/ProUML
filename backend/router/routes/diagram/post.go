@@ -2,6 +2,7 @@ package diagram
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
+	"github.com/junioryono/ProUML/backend/transpiler"
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 	httpTypes "github.com/junioryono/ProUML/backend/types"
 )
@@ -44,14 +46,14 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			// Read file
 			zipBytes := make([]byte, project.Size)
 			lenZipBytes, err := f.Read(zipBytes)
-			f.Close()
-
 			if err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
 					Reason:  "Could not read project file.",
 				})
 			}
+
+			f.Close()
 
 			zipReader, err := zip.NewReader(bytes.NewReader(zipBytes), int64(lenZipBytes))
 			if err != nil {
@@ -66,9 +68,6 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			// Read all the files from zip archive
 			for _, zipFile := range zipReader.File {
 				lastSlashIndex := strings.LastIndexByte(zipFile.Name, '/')
-				if lastSlashIndex == -1 {
-					continue
-				}
 
 				// Get the file extension
 				fileNameWithExtension := zipFile.Name[lastSlashIndex+1:]
@@ -82,41 +81,34 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 					continue
 				}
 
-				// fmt.Printf("File Content: %s\n", string(unzippedFileBytes))
-
-				// Get the file extension
-				fileName := fileNameWithExtension[:periodIndex]
-				fileExtension := fileNameWithExtension[periodIndex+1:]
-
 				files = append(files, types.File{
-					Name:      fileName,
-					Extension: fileExtension,
+					Name:      fileNameWithExtension[:periodIndex],
+					Extension: fileNameWithExtension[periodIndex+1:],
 					Code:      unzippedFileBytes,
 				})
 			}
 
+			// Transpile files
+			transpiledProject, err2 := transpiler.ToJson(sdkP, files)
+			if err2 != nil {
+				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
+					Success: false,
+					Reason:  err2.Error(),
+				})
+			}
+
+			// Marshal the transpiled project
+			if _, err := json.Marshal(transpiledProject); err != nil {
+				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
+					Success: false,
+					Reason:  "Could not parse project.",
+				})
+			}
+
 			return fbCtx.Status(fiber.StatusOK).JSON(httpTypes.Status{
-				Success: false,
+				Success:  true,
+				Response: transpiledProject,
 			})
-
-			// // Transpile files
-			// transpiledProject, err2 := transpiler.ToJson(sdkP, files)
-			// if err2 != nil {
-			// 	return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
-			// 		Success: false,
-			// 		Reason:  err2.Error(),
-			// 	})
-			// }
-
-			// type main_response struct {
-			// 	Success  bool            `json:"success"`
-			// 	Response json.RawMessage `json:"response"`
-			// }
-
-			// return fbCtx.Status(fiber.StatusOK).JSON(main_response{
-			// 	Success:  true,
-			// 	Response: transpiledProject,
-			// })
 		}
 
 		// User did not upload a project

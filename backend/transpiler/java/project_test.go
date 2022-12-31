@@ -368,7 +368,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaClass{
 						Package: []byte("com.tarun.bmicalculator"),
 						Name:    []byte("BmiActivity"),
-						Extends: [][]byte{[]byte("AppCompatActivity")},
+						Extends: []types.CustomByteSlice{[]byte("AppCompatActivity")},
 						Variables: []types.JavaVariable{
 							{Type: []byte("TextView"), Name: []byte("bmiValue")},
 							{Type: []byte("TextView"), Name: []byte("bmiCategory")},
@@ -408,8 +408,8 @@ func TestParseProject(t *testing.T) {
 					types.JavaClass{
 						Package:    []byte("com.tarun.bmicalculator"),
 						Name:       []byte("MainActivity"),
-						Extends:    [][]byte{[]byte("AppCompatActivity")},
-						Implements: [][]byte{[]byte("View.OnClickListener")},
+						Extends:    []types.CustomByteSlice{[]byte("AppCompatActivity")},
+						Implements: []types.CustomByteSlice{[]byte("View.OnClickListener")},
 						Variables: []types.JavaVariable{
 							{Type: []byte("CardView"), Name: []byte("weightCardView")},
 							{Type: []byte("CardView"), Name: []byte("ageCardView")},
@@ -558,7 +558,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaEnum{
 						Package: []byte("com.tarun.bmicalculator"),
 						Name:    []byte("EnumTest1"),
-						Declarations: [][]byte{
+						Declarations: []types.CustomByteSlice{
 							[]byte("Hi"),
 							[]byte("Yo"),
 						},
@@ -566,7 +566,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaEnum{
 						Package: []byte("com.tarun.bmicalculator"),
 						Name:    []byte("EnumTest2"),
-						Declarations: [][]byte{
+						Declarations: []types.CustomByteSlice{
 							[]byte("Hi"),
 							[]byte("Yo"),
 						},
@@ -574,7 +574,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaEnum{
 						Package: []byte("com.tarun.bmicalculator.shouldNotShowUp"),
 						Name:    []byte("EnumTest3"),
-						Declarations: [][]byte{
+						Declarations: []types.CustomByteSlice{
 							[]byte("Hi"),
 							[]byte("Yo"),
 						},
@@ -582,7 +582,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaEnum{
 						Package: []byte("com.tarun.bmicalculator.shouldShowUp"),
 						Name:    []byte("EnumTest4"),
-						Declarations: [][]byte{
+						Declarations: []types.CustomByteSlice{
 							[]byte("Hi"),
 							[]byte("Yo"),
 						},
@@ -590,7 +590,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaEnum{
 						Package: []byte("com.tarun.bmicalculator.shouldShowUp"),
 						Name:    []byte("EnumTest5"),
-						Declarations: [][]byte{
+						Declarations: []types.CustomByteSlice{
 							[]byte("Hi"),
 							[]byte("Yo"),
 						},
@@ -598,7 +598,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaEnum{
 						Package: []byte("com.tarun.bmicalculator.shouldShowUp222"),
 						Name:    []byte("EnumTest3"),
-						Declarations: [][]byte{
+						Declarations: []types.CustomByteSlice{
 							[]byte("Hi"),
 							[]byte("Yo"),
 						},
@@ -606,7 +606,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaEnum{
 						Package: []byte("com.tarun.bmicalculator"),
 						Name:    []byte("EnumTest6"),
-						Declarations: [][]byte{
+						Declarations: []types.CustomByteSlice{
 							[]byte("Hi"),
 							[]byte("Yo"),
 						},
@@ -614,7 +614,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaEnum{
 						Package: []byte("com.tarun.bmicalculator"),
 						Name:    []byte("EnumTest7"),
-						Declarations: [][]byte{
+						Declarations: []types.CustomByteSlice{
 							[]byte("Hi"),
 							[]byte("Yo"),
 						},
@@ -717,13 +717,13 @@ func TestParseProject(t *testing.T) {
 						}
 
 						for index, word := range expected.Extends {
-							if !byteSliceExists(response.Extends, word) {
+							if !byteSliceExistsCustom(response.Extends, word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Extends[index]))
 							}
 						}
 
 						for index, word := range expected.Implements {
-							if !byteSliceExists(response.Extends, word) {
+							if !byteSliceExistsCustom(response.Extends, word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Implements[index]))
 							}
 						}
@@ -960,7 +960,7 @@ func TestParseProject(t *testing.T) {
 						}
 
 						for _, declarations := range expected.Declarations {
-							if !byteSliceExists(response.Declarations, declarations) {
+							if !byteSliceExistsCustom(response.Declarations, declarations) {
 								subtest.Errorf("bytes are not equal")
 							}
 						}

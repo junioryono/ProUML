@@ -2,6 +2,7 @@ package java
 
 import (
 	"bytes"
+	"regexp"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
@@ -103,6 +104,10 @@ func removeComments(text []byte) []byte {
 
 // Remove all extra spacing from code
 func removeSpacing(text []byte) []byte {
+	// Replace all \r. Needed for Windows files
+	REGEX_NewLine := regexp.MustCompile(`\r`)
+	text = REGEX_NewLine.ReplaceAll(text, []byte(""))
+
 	needsSpace := func(b byte) bool {
 		if b == EqualSign || b == AndCondition || b == OrCondition || b == Colon {
 			return true
@@ -237,14 +242,8 @@ func removeSpacing(text []byte) []byte {
 			continue
 		}
 
-		// Replace all new lines with a space
-		ok := replaceWithSpaceOrRemove(&i, NewLine)
-		if ok {
-			continue
-		}
-
 		// Replace all tabs with a space
-		ok = replaceWithSpaceOrRemove(&i, Tab)
+		ok := replaceWithSpaceOrRemove(&i, Tab)
 		if ok {
 			continue
 		}
@@ -563,7 +562,7 @@ func getPackageName(text []byte) []byte {
 		}
 	}
 
-	return nil
+	return []byte("default")
 }
 
 // Get all classes declared in the file
@@ -614,10 +613,14 @@ func getFileClasses(text []byte, packageName []byte) []any {
 
 		Variables, Methods := getVariablesAndMethods(classesText[i].Inside)
 
-		var Extends [][]byte
+		var ExtendsTemp [][]byte
+		var ExtendsCustom []types.CustomByteSlice
 		extendsIndex := findIndex("extends", textSplit)
 		if extendsIndex != -1 {
-			Extends = bytes.Split(textSplit[extendsIndex+1], []byte(","))
+			ExtendsTemp = bytes.Split(textSplit[extendsIndex+1], []byte(","))
+			for _, v := range ExtendsTemp {
+				ExtendsCustom = append(ExtendsCustom, bytes.Trim(v, " "))
+			}
 		}
 
 		if interfaceIndex != -1 {
@@ -625,17 +628,21 @@ func getFileClasses(text []byte, packageName []byte) []any {
 				DefinedWithin: classesText[i].DefinedWithin,
 				Package:       packageName,
 				Name:          textSplit[interfaceIndex+1],
-				Extends:       Extends,
+				Extends:       ExtendsCustom,
 				Variables:     Variables,
 				Methods:       Methods,
 			})
 			continue
 		}
 
-		var Implements [][]byte
+		var implementsTemp [][]byte
+		var ImplementsCustom []types.CustomByteSlice
 		implementsIndex := findIndex("implements", textSplit)
 		if implementsIndex != -1 {
-			Implements = bytes.Split(textSplit[implementsIndex+1], []byte(","))
+			implementsTemp = bytes.Split(textSplit[implementsIndex+1], []byte(","))
+			for _, v := range implementsTemp {
+				ImplementsCustom = append(ImplementsCustom, types.CustomByteSlice(v))
+			}
 		}
 
 		if abstractIndex != -1 {
@@ -643,8 +650,8 @@ func getFileClasses(text []byte, packageName []byte) []any {
 				DefinedWithin: classesText[i].DefinedWithin,
 				Package:       packageName,
 				Name:          textSplit[classIndex+1],
-				Implements:    Implements,
-				Extends:       Extends,
+				Implements:    ImplementsCustom,
+				Extends:       ExtendsCustom,
 				Variables:     Variables,
 				Methods:       Methods,
 			})
@@ -655,8 +662,8 @@ func getFileClasses(text []byte, packageName []byte) []any {
 			DefinedWithin: classesText[i].DefinedWithin,
 			Package:       packageName,
 			Name:          textSplit[classIndex+1],
-			Implements:    Implements,
-			Extends:       Extends,
+			Implements:    ImplementsCustom,
+			Extends:       ExtendsCustom,
 			Variables:     Variables,
 			Methods:       Methods,
 		})
@@ -793,9 +800,9 @@ func getNestedClasses(text []byte, previousClass *types.JavaClassText) []types.J
 }
 
 // Get all enumeration constant types
-func getEnumDeclarations(text []byte) [][]byte {
+func getEnumDeclarations(text []byte) []types.CustomByteSlice {
 	var (
-		response               [][]byte
+		response               []types.CustomByteSlice
 		parenthesisScope       int  = 0
 		textLength             int  = len(text)
 		startDeclarationIndex  int  = 0
@@ -1005,8 +1012,31 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 
 		vSText := text[variablesStartIndex:]
-		Type, _, _ = bytes.Cut(vSText, []byte(" "))
-		vSText = vSText[len(Type)+1:]
+
+		hasArrow := false
+		numberOfLeftArrows := 0
+		for i := 0; i < len(vSText); i++ {
+			if vSText[i] == Space {
+				Type = vSText[:i]
+				break
+			} else if vSText[i] == LeftArrow {
+				numberOfLeftArrows++
+			} else if vSText[i] == RightArrow {
+				numberOfLeftArrows--
+
+				if numberOfLeftArrows == 0 {
+					Type = vSText[:i+1]
+					hasArrow = true
+					break
+				}
+			}
+		}
+
+		if hasArrow {
+			vSText = vSText[len(Type):]
+		} else {
+			vSText = vSText[len(Type)+1:]
+		}
 
 		// Example inputs:
 		// Type var1;
@@ -1021,6 +1051,7 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 			currentName          []byte
 			currentlyFindingName bool = true
 			valueStartIndex      int  = 0
+			numberOfParenthesis  int  = 0
 		)
 
 		for i, f := 0, ignoreQuotes(&vSText); i < len(vSText); i++ {
@@ -1029,7 +1060,16 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 				continue
 			}
 
-			if vSText[i] == Comma || vSText[i] == SemiColon {
+			// If open parenthesis is found, we need to ignore commas until the parenthesis is closed
+			if vSText[i] == OpenParenthesis {
+				numberOfParenthesis++
+				continue
+			} else if vSText[i] == ClosedParenthesis {
+				numberOfParenthesis--
+				continue
+			}
+
+			if (vSText[i] == Comma && numberOfParenthesis == 0) || vSText[i] == SemiColon {
 				var currentValue []byte
 				if valueStartIndex != 0 {
 					currentValue = vSText[valueStartIndex:i]
@@ -1038,14 +1078,16 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 					currentName = vSText[nameStartIndex:i]
 				}
 
-				variables = append(variables, types.JavaVariable{
+				t := types.JavaVariable{
 					Type:           Type,
 					Name:           currentName,
 					Value:          currentValue,
 					AccessModifier: AccessModifier,
 					Static:         Static,
 					Final:          Final,
-				})
+				}
+
+				variables = append(variables, t)
 
 				if vSText[i] == Comma {
 					nameStartIndex = i + 1
@@ -1064,10 +1106,12 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 	}
 
 	var (
-		methodDeclaration = text[0:openParamIndex]
+		methodDeclaration = make([]byte, openParamIndex)
 		paramDeclarations []byte
 		closedParamIndex  int = 0
 	)
+
+	copy(methodDeclaration, text[0:openParamIndex])
 
 	for i, f := 0, ignoreQuotes(&text); i < len(text); i++ {
 		isInsideQuotation := f(i)
@@ -1123,8 +1167,24 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		}
 	}
 
+	numberOfLeftArrows := 0
+	for i := 0; i < len(methodDeclaration); i++ {
+		if methodDeclaration[i] == LeftArrow {
+			numberOfLeftArrows++
+		} else if methodDeclaration[i] == RightArrow {
+			numberOfLeftArrows--
+
+			if numberOfLeftArrows == 0 {
+				methodDeclaration = append(methodDeclaration[:i+1], append([]byte(" "), methodDeclaration[i+1:]...)...)
+				break
+			}
+		}
+	}
+
 	declarationSplit := bytes.Split(methodDeclaration, []byte(" "))
-	if bytes.Equal(declarationSplit[0], []byte("public")) || bytes.Equal(declarationSplit[0], []byte("protected")) || bytes.Equal(declarationSplit[0], []byte("private")) {
+	if bytes.Equal(declarationSplit[0], []byte("public")) ||
+		bytes.Equal(declarationSplit[0], []byte("protected")) ||
+		bytes.Equal(declarationSplit[0], []byte("private")) {
 		method.AccessModifier = declarationSplit[0]
 	}
 
@@ -1181,3 +1241,31 @@ func ignoreQuotes(text *[]byte) func(i int) bool {
 		return currentStyle != NoQuote
 	}
 }
+
+// // Returns isInsideQuotation
+// func ignoreQuotesCustomByte(text *types.CustomByteSlice) func(i int) bool {
+// 	var currentStyle byte = NoQuote
+
+// 	return func(i int) (isInsideQuotation bool) {
+// 		if (currentStyle == SingleQuote && (*text)[i] == SingleQuote ||
+// 			currentStyle == DoubleQuote && (*text)[i] == DoubleQuote ||
+// 			currentStyle == TickerQuote && (*text)[i] == TickerQuote) &&
+// 			(i == 0 || (*text)[i-1] != Backslash) {
+// 			currentStyle = NoQuote
+// 			return true
+// 		}
+
+// 		if (*text)[i] == SingleQuote {
+// 			currentStyle = SingleQuote
+// 			return true
+// 		} else if (*text)[i] == DoubleQuote {
+// 			currentStyle = DoubleQuote
+// 			return true
+// 		} else if (*text)[i] == TickerQuote {
+// 			currentStyle = TickerQuote
+// 			return true
+// 		}
+
+// 		return currentStyle != NoQuote
+// 	}
+// }

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -351,7 +350,6 @@ func (authSDK *Auth_SDK) UpdateUserFullName(idToken, fullName string) *types.Wra
 	// Get the user id from the id token
 	userId, err := authSDK.GetUserIdFromToken(idToken)
 	if err != nil {
-		fmt.Printf("cannot get\n")
 		return err
 	}
 
