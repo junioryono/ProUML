@@ -6,8 +6,7 @@ import { DiagramCreateButton } from "@/components/dashboard/diagram-create-butto
 import { DashboardShell } from "@/components/dashboard/shell";
 import { DiagramItem } from "@/components/dashboard/diagram-item";
 import { EmptyPlaceholder } from "@/components/dashboard/empty-placeholder";
-import { getSession } from "@/lib/auth-server";
-import { fetchAPI } from "@/lib/utils";
+import { getSession, getDiagrams } from "@/lib/auth-server";
 import { Diagram } from "types";
 
 // const getDiagramsForUser = cache(async (userId: User["id"]) => {
@@ -34,19 +33,10 @@ export default async function DashboardPage() {
       redirect("/login?redirect=/dashboard");
    }
 
-   const diagrams: Diagram[] = await fetchAPI("/diagrams")
-      .then((res) => res.json())
-      .then((res) => {
-         if (res && res.success === true) {
-            return res.response as Diagram;
-         }
-
-         return null;
-      })
-      .catch((err) => {
-         console.error(err);
-         return null;
-      });
+   const diagrams: Diagram[] = await getDiagrams().catch((err) => {
+      console.error(err);
+      return null;
+   });
 
    console.log("diagrams", diagrams);
 
@@ -56,13 +46,7 @@ export default async function DashboardPage() {
             <DiagramCreateButton />
          </DashboardHeader>
          <div>
-            {diagrams?.length ? (
-               <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-                  {diagrams.map((diagram) => (
-                     <DiagramItem key={diagram.id} diagram={diagram} />
-                  ))}
-               </div>
-            ) : (
+            {!diagrams || !diagrams.length ? (
                <EmptyPlaceholder>
                   <EmptyPlaceholder.Icon name="post" />
                   <EmptyPlaceholder.Title>No diagrams created</EmptyPlaceholder.Title>
@@ -71,6 +55,12 @@ export default async function DashboardPage() {
                   </EmptyPlaceholder.Description>
                   <DiagramCreateButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
                </EmptyPlaceholder>
+            ) : (
+               <div className="flex flex-wrap">
+                  {diagrams.map((diagram) => (
+                     <DiagramItem key={diagram.id} diagram={diagram} />
+                  ))}
+               </div>
             )}
          </div>
       </DashboardShell>

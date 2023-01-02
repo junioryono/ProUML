@@ -419,8 +419,9 @@ func getClassAssociationsAndDependencies(importedTypeNames map[string]struct{}, 
 }
 
 func getClassRelationConnections(relations []types.Relation, importedTypeNames map[string]struct{}, class any) []types.Relation {
-	// Association is a stronger form of a dependency
+	var response []types.Relation
 
+	// Association is a stronger form of a dependency
 	// Arrow types: Association, Dependency, Realization, Generalization, NestedOwnership
 	// Correlating: Associations, Dependencies, Implements, Extends, DefinedWithin
 
@@ -444,10 +445,10 @@ func getClassRelationConnections(relations []types.Relation, importedTypeNames m
 	}
 
 	getExistingRelationData := func(classId1, classId2 []byte) *types.Relation {
-		for _, relation := range relations {
-			if (bytes.Equal(relation.FromClassId, classId1) && bytes.Equal(relation.ToClassId, classId2)) ||
-				bytes.Equal(relation.FromClassId, classId2) && bytes.Equal(relation.ToClassId, classId1) {
-				return &relation
+		for i := 0; i < len(relations); i++ {
+			if (bytes.Equal(relations[i].FromClassId, classId1) && bytes.Equal(relations[i].ToClassId, classId2)) ||
+				(bytes.Equal(relations[i].FromClassId, classId2) && bytes.Equal(relations[i].ToClassId, classId1)) {
+				return &relations[i]
 			}
 		}
 
@@ -471,7 +472,7 @@ func getClassRelationConnections(relations []types.Relation, importedTypeNames m
 		}
 
 		relation.SetToArrow(true)
-		relations = append(relations, types.Relation{
+		response = append(response, types.Relation{
 			FromClassId: fromClassId,
 			ToClassId:   toClassId,
 			Type:        relation,
@@ -568,5 +569,5 @@ func getClassRelationConnections(relations []types.Relation, importedTypeNames m
 		}
 	}
 
-	return relations
+	return response
 }

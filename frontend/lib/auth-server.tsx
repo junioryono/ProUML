@@ -1,13 +1,15 @@
 import "server-only";
 
 import {
-   getSession as fetchSession,
    login as fetchLogin,
-   logout as fetchLogout,
    register as fetchRegister,
+   logout as fetchLogout,
+   getSession as fetchSession,
+   getDiagrams as fetchDiagrams,
+   getDiagram as fetchDiagram,
 } from "./auth-fetch";
 
-import { User } from "types";
+import { Diagram, User } from "types";
 import { headers } from "next/headers";
 
 function requestHeaders(): RequestInit {
@@ -41,6 +43,20 @@ export async function logout(): Promise<boolean> {
 
 export async function getSession(): Promise<User> {
    return fetchSession(requestHeaders()).catch((err) => {
+      console.error(err);
+      return null;
+   });
+}
+
+export async function getDiagrams(): Promise<Diagram[]> {
+   return fetchDiagrams(requestHeaders()).catch((err) => {
+      console.error(err);
+      return null;
+   });
+}
+
+export async function getDiagram(diagramId: string): Promise<Diagram> {
+   return fetchDiagram(diagramId, requestHeaders()).catch((err) => {
       console.error(err);
       return null;
    });

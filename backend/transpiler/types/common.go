@@ -2,31 +2,6 @@ package types
 
 type CustomByteSlice []byte
 
-func (t CustomByteSlice) MarshalJSON() ([]byte, error) {
-	// Make a copy of the slice
-	t = append([]byte(nil), t...)
-
-	for i := 0; i < len(t); i++ {
-		if t[i] == '"' && (i == 0 || t[i-1] != '\\') {
-			// Add an index to the slice and copy the rest of the slice
-			t = append(t, 0)
-			copy(t[i+1:], t[i:])
-			// Add a backslash before the double quote
-			t[i] = '\\'
-
-			// Increment i to skip the added backslash
-			i++
-		}
-	}
-
-	return []byte(`"` + string(t) + `"`), nil
-}
-
-func (t *CustomByteSlice) UnmarshalJSON(data []byte) error {
-	*t = CustomByteSlice(data[1 : len(data)-1])
-	return nil
-}
-
 type Project struct {
 	Nodes []any      `json:"nodes,omitempty"`
 	Edges []Relation `json:"edges,omitempty"`

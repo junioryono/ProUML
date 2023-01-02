@@ -1,4 +1,4 @@
-import { User } from "types";
+import { Diagram, User } from "types";
 import { fetchAPI } from "./utils";
 
 export async function login(email: string, password: string, options?: RequestInit): Promise<User> {
@@ -79,6 +79,48 @@ export async function getSession(options?: RequestInit): Promise<User> {
       .then((res) => {
          if (res && res.success === true) {
             return res.response as User;
+         }
+
+         return null;
+      })
+      .catch((err) => {
+         console.error(err);
+         return null;
+      });
+}
+
+export async function getDiagrams(options?: RequestInit): Promise<Diagram[]> {
+   return fetchAPI("/diagrams", {
+      ...options,
+   })
+      .then((res) => res.json())
+      .then((res) => {
+         if (res && res.success === true) {
+            return res.response as Diagram[];
+         }
+
+         return null;
+      })
+      .catch((err) => {
+         console.error(err);
+         return null;
+      });
+}
+
+export async function getDiagram(diagramId: string, options?: RequestInit): Promise<Diagram> {
+   return fetchAPI(
+      "/diagram?" +
+         new URLSearchParams({
+            id: diagramId,
+         }),
+      {
+         ...options,
+      },
+   )
+      .then((res) => res.json())
+      .then((res) => {
+         if (res && res.success === true) {
+            return res.response as Diagram;
          }
 
          return null;
