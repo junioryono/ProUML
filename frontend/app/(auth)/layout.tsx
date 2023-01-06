@@ -5,7 +5,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
    const user = await getSession();
 
    if (user) {
-      redirect("/dashboard");
+      redirect("/dashboard/diagrams");
    }
 
    return <div className="min-h-screen">{children}</div>;

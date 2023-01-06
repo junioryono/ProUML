@@ -37,19 +37,19 @@ const App = () => {
           <Route
             path="/dashboard"
             element={(() => (
-              <WithLayout component={DashboardView} layout={MainLayout} authRequired />
+              <WithLayout component={DashboardView} layout={MainLayout} />
             ))()}
           />
           <Route
             path="/document-old/:id"
             element={(() => (
-              <WithLayout component={GraphView} layout={GraphLayout} authRequired />
+              <WithLayout component={GraphView} layout={GraphLayout} />
             ))()}
           />
           <Route
             path="/document/:documentId"
             element={(() => (
-              <WithLayout component={DocumentView} layout={GraphLayout} authRequired />
+              <WithLayout component={DocumentView} layout={GraphLayout} />
             ))()}
           />
           <Route

@@ -15,19 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="mx-auto flex flex-col space-y-6">
          <header className="container sticky top-0 z-10 bg-white">
             <div className="flex h-16 items-center justify-between border-b border-b-slate-200 py-4">
-               <MainNav
-                  items={[
-                     {
-                        title: "Documentation",
-                        href: "/docs",
-                     },
-                     {
-                        title: "Support",
-                        href: "/support",
-                        disabled: true,
-                     },
-                  ]}
-               />
+               <MainNav />
                <UserAccountNav userResponse={user} />
             </div>
          </header>
@@ -36,26 +24,24 @@ export default async function DashboardLayout({ children }: { children: React.Re
                <DashboardNav
                   items={[
                      {
+                        title: "Projects",
+                        href: "/dashboard/projects",
+                        icon: "fileImage",
+                     },
+                     {
+                        title: "Teams",
+                        href: "/dashboard/teams",
+                        icon: "users",
+                     },
+                     {
                         title: "Diagrams",
-                        href: "/dashboard",
+                        href: "/dashboard/diagrams",
                         icon: "post",
                      },
                      {
-                        title: "Pages",
-                        href: "/",
-                        icon: "page",
-                        disabled: true,
-                     },
-                     {
-                        title: "Media",
-                        href: "/",
-                        icon: "media",
-                        disabled: true,
-                     },
-                     {
-                        title: "Billing",
-                        href: "/dashboard/billing",
-                        icon: "billing",
+                        title: "Issues",
+                        href: "/dashboard/issues",
+                        icon: "bug",
                      },
                      {
                         title: "Settings",
@@ -65,7 +51,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   ]}
                />
             </aside>
-            <main className="flex w-full flex-1 flex-col overflow-hidden">{children}</main>
+            <main className="flex w-full flex-1 flex-col">{children}</main>
          </div>
       </div>
    );

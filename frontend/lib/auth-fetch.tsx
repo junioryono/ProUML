@@ -1,6 +1,12 @@
 import { Diagram, User } from "types";
 import { fetchAPI } from "./utils";
 
+type Response<T> = {
+   success: boolean;
+   response?: T;
+   reason?: string;
+};
+
 export async function login(email: string, password: string, options?: RequestInit): Promise<User> {
    const form = new FormData();
    form.append("email", email);
@@ -125,6 +131,63 @@ export async function getDiagram(diagramId: string, options?: RequestInit): Prom
 
          return null;
       })
+      .catch((err) => {
+         console.error(err);
+         return null;
+      });
+}
+
+export async function createDiagram(form: FormData, options?: RequestInit): Promise<Response<string>> {
+   return fetchAPI("/diagram", {
+      ...options,
+      method: "POST",
+      body: form,
+   })
+      .then((res) => res.json())
+      .catch((err) => {
+         console.error(err);
+         return null;
+      });
+}
+
+export async function deleteDiagram(diagramId: string, options?: RequestInit): Promise<Response<null>> {
+   return fetchAPI(
+      "/diagram?" +
+         new URLSearchParams({
+            id: diagramId,
+         }),
+      {
+         ...options,
+         method: "DELETE",
+      },
+   )
+      .then((res) => res.json())
+      .catch((err) => {
+         console.error(err);
+         return null;
+      });
+}
+
+export async function updateDiagram(
+   diagramId: string,
+   data: { [key: string]: any },
+   options?: RequestInit,
+): Promise<Response<null>> {
+   return fetchAPI(
+      "/diagram?" +
+         new URLSearchParams({
+            id: diagramId,
+         }),
+      {
+         ...options,
+         method: "PUT",
+         body: JSON.stringify(data),
+         headers: {
+            "Content-Type": "application/json",
+         },
+      },
+   )
+      .then((res) => res.json())
       .catch((err) => {
          console.error(err);
          return null;

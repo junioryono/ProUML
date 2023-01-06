@@ -37,7 +37,7 @@ export default async function AdminJWKDashboardPage() {
                   <EmptyPlaceholder.Description>
                      You don&apos;t have any JWTs yet. Start creating one.
                   </EmptyPlaceholder.Description>
-                  <JWTCreateButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
+                  <JWTCreateButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none" />
                </EmptyPlaceholder>
             )}
          </div>

@@ -37,7 +37,7 @@ export default async function AdminClustersDashboardPage() {
                   <EmptyPlaceholder.Description>
                      You don&apos;t have any clusters yet. Start creating one.
                   </EmptyPlaceholder.Description>
-                  <ClusterCreateButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2" />
+                  <ClusterCreateButton className="border-slate-200 bg-white text-brand-900 hover:bg-slate-100 focus:outline-none" />
                </EmptyPlaceholder>
             )}
          </div>

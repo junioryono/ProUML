@@ -435,7 +435,7 @@ func (authSDK *Auth_SDK) GetUserIdFromToken(idToken string) (string, *types.Wrap
 	// Get the user ID from the claims
 	userId, ok := claims["sub"].(string)
 	if !ok {
-		return "", types.Wrap(err, types.ErrInternalServerError)
+		return "", types.Wrap(err, types.ErrNotAuthenticated)
 	}
 
 	return userId, nil

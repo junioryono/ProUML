@@ -19,19 +19,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
       <div className="mx-auto flex flex-col space-y-6">
          <header className="container sticky top-0 z-10 bg-white">
             <div className="flex h-16 items-center justify-between border-b border-b-slate-200 py-4">
-               <MainNav
-                  items={[
-                     {
-                        title: "Documentation",
-                        href: "/docs",
-                     },
-                     {
-                        title: "Support",
-                        href: "/support",
-                        disabled: true,
-                     },
-                  ]}
-               />
+               <MainNav />
                <UserAccountNav userResponse={user} />
             </div>
          </header>

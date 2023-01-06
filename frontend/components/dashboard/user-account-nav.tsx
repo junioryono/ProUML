@@ -38,27 +38,56 @@ export function UserAccountNav({ userResponse }: { userResponse: User }) {
          </DropdownMenu.Trigger>
          <DropdownMenu.Portal>
             <DropdownMenu.Content className="mt-4 md:w-[240px]" align="end">
-               <div className="flex items-center justify-start gap-2 p-4">
+               <Link href={"/user/" + user.user_id} className="flex items-center justify-start gap-2 p-4 cursor-pointer">
                   <div className="flex flex-col space-y-1 leading-none">
                      {user.full_name && <p className="font-medium">{user.full_name}</p>}
                      {user.email && <p className="w-[200px] truncate text-sm text-slate-600">{user.email}</p>}
                   </div>
-               </div>
-               <DropdownMenu.Separator />
-               <DropdownMenu.Item onClick={() => router.push("/dashboard")}>Dashboard</DropdownMenu.Item>
+               </Link>
+
                {user.role === "admin" && (
-                  <DropdownMenu.Item onClick={() => router.push("/admin/dashboard")}>Admin Dashboard</DropdownMenu.Item>
+                  <>
+                     <DropdownMenu.Separator />
+                     <Link href="/admin/dashboard">
+                        <DropdownMenu.Item className="cursor-pointer">Admin dashboard</DropdownMenu.Item>
+                     </Link>
+                  </>
                )}
-               <DropdownMenu.Item onClick={() => router.push("/dashboard/billing")}>Billing</DropdownMenu.Item>
-               <DropdownMenu.Item onClick={() => router.push("/dashboard/settings")}>Settings</DropdownMenu.Item>
+
                <DropdownMenu.Separator />
-               <DropdownMenu.Item onClick={() => router.push("/docs")}>Documentation</DropdownMenu.Item>
-               <DropdownMenu.Item>
-                  <Link href="https://github.com/junioryono/prouml" className="w-full" target="_blank">
-                     GitHub
-                  </Link>
-               </DropdownMenu.Item>
+
+               <Link href={"/user/" + user.user_id}>
+                  <DropdownMenu.Item className="cursor-pointer">Your profile</DropdownMenu.Item>
+               </Link>
+
+               <Link href="/dashboard/projects">
+                  <DropdownMenu.Item className="cursor-pointer">Your projects</DropdownMenu.Item>
+               </Link>
+
+               <Link href="/dashboard/teams">
+                  <DropdownMenu.Item className="cursor-pointer">Your teams</DropdownMenu.Item>
+               </Link>
+
+               <Link href="/dashboard/diagrams">
+                  <DropdownMenu.Item className="cursor-pointer">Your diagrams</DropdownMenu.Item>
+               </Link>
+
+               <Link href="/dashboard/issues">
+                  <DropdownMenu.Item className="cursor-pointer">Your issues</DropdownMenu.Item>
+               </Link>
+
                <DropdownMenu.Separator />
+
+               <Link href="/help">
+                  <DropdownMenu.Item className="cursor-pointer">Help</DropdownMenu.Item>
+               </Link>
+
+               <Link href="/dashboard/settings">
+                  <DropdownMenu.Item className="cursor-pointer">Settings</DropdownMenu.Item>
+               </Link>
+
+               <DropdownMenu.Separator />
+
                <DropdownMenu.Item
                   className="cursor-pointer"
                   onSelect={(e) => {

@@ -4,7 +4,6 @@ import { MainNav } from "@/components/main-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { UserAccountNav } from "@/components/dashboard/user-account-nav";
 import { getSession } from "@/lib/auth-server";
-import { redirect } from "next/navigation";
 
 interface MarketingLayoutProps {
    children: React.ReactNode;
@@ -12,10 +11,6 @@ interface MarketingLayoutProps {
 
 export default async function MarketingLayout({ children }: MarketingLayoutProps) {
    const user = await getSession();
-
-   if (!user) {
-      redirect("/login?redirect=/dashboard");
-   }
 
    return (
       <div className="flex min-h-screen flex-col">
@@ -53,7 +48,7 @@ export default async function MarketingLayout({ children }: MarketingLayoutProps
                   <nav>
                      <Link
                         href="/login"
-                        className="relative inline-flex h-8 items-center rounded-md border border-transparent bg-brand-500 px-6 py-1 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                        className="relative inline-flex h-8 items-center rounded-md border border-transparent bg-brand-500 px-6 py-1 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
                      >
                         Login
                      </Link>

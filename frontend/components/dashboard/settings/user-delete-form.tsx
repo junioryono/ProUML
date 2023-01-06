@@ -91,7 +91,7 @@ export function UserDeleteForm() {
             <Card.Footer>
                <button
                   className={cn(
-                     "hover:bg-red-700 relative bg-red-600 inline-flex h-9 items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2",
+                     "hover:bg-red-700 relative bg-red-600 inline-flex h-9 items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none",
                      {
                         "cursor-not-allowed opacity-60": isLoading,
                      },
@@ -163,7 +163,7 @@ export function UserDeleteForm() {
                                  <input
                                     id="password"
                                     placeholder="Password"
-                                    className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
+                                    className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                                     type="password"
                                     autoCapitalize="none"
                                     autoComplete="current-password"
@@ -179,7 +179,7 @@ export function UserDeleteForm() {
                               <div className="bg-gray-50 px-4 py-3 flex flex-row sm:flex-row-reverse sm:px-6">
                                  <button
                                     type="submit"
-                                    className="hover:bg-red-700 relative bg-red-600 inline-flex h-9 items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                                    className="hover:bg-red-700 relative bg-red-600 inline-flex h-9 items-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none"
                                     disabled={isLoading}
                                  >
                                     {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
@@ -187,7 +187,7 @@ export function UserDeleteForm() {
                                  </button>
                                  <button
                                     type="button"
-                                    className="w-fit ml-3 sm:ml-0 sm:mr-4 relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                                    className="w-fit ml-3 sm:ml-0 sm:mr-4 relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
                                     onClick={() => setOpen(false)}
                                     ref={cancelButtonRef}
                                  >

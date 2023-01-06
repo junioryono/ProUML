@@ -7,6 +7,7 @@ import {
    getSession as fetchSession,
    getDiagrams as fetchDiagrams,
    getDiagram as fetchDiagram,
+   createDiagram as newDiagram,
 } from "./auth-fetch";
 
 import { Diagram, User } from "types";

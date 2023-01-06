@@ -42,7 +42,7 @@ export default function LoginForm({ userResponse, className, ...props }: LoginFo
 
    useEffect(() => {
       if (user) {
-         router.push(searchParams.get("redirect") || "/dashboard");
+         router.push(searchParams.get("redirect") || "/dashboard/diagrams");
       }
    }, [user]);
 
@@ -67,7 +67,7 @@ export default function LoginForm({ userResponse, className, ...props }: LoginFo
          type: "success",
       });
 
-      return router.push(searchParams.get("redirect") || "/dashboard");
+      return router.push(searchParams.get("redirect") || "/dashboard/diagrams");
    }
 
    return (
@@ -81,7 +81,7 @@ export default function LoginForm({ userResponse, className, ...props }: LoginFo
                   <input
                      id="email"
                      placeholder="name@example.com"
-                     className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
+                     className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                      type="email"
                      autoCapitalize="none"
                      autoComplete="email"
@@ -98,7 +98,7 @@ export default function LoginForm({ userResponse, className, ...props }: LoginFo
                <input
                   id="password"
                   placeholder="Password"
-                  className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-800 focus:ring-offset-1"
+                  className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                   type="password"
                   autoCapitalize="none"
                   autoComplete="current-password"

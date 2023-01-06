@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/dashboard/header";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { UserCreateButton } from "@/components/admin/dashboard/user-create-button";
-import { DiagramItem } from "@/components/dashboard/diagram-item";
+import { DiagramItem } from "@/components/dashboard/diagrams/diagram-item";
 
 export default function AdminDashboardLoading() {
    return (

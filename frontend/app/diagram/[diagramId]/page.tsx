@@ -1,11 +1,9 @@
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
-import { DashboardHeader } from "@/components/dashboard/header";
-import { DiagramCreateButton } from "@/components/dashboard/diagram-create-button";
+import { DiagramsHeader } from "@/components/dashboard/diagrams/header";
 import { DashboardShell } from "@/components/dashboard/shell";
-import { DiagramItem } from "@/components/dashboard/diagram-item";
-import { EmptyPlaceholder } from "@/components/dashboard/empty-placeholder";
+import { EmptyPlaceholder } from "@/components/dashboard/diagrams/empty-placeholder";
 import { getSession, getDiagram } from "@/lib/auth-server";
 import { Diagram } from "types";
 
@@ -13,7 +11,7 @@ export default async function DiagramPage({ params: { diagramId } }: { params: {
    const user = await getSession();
 
    if (!user) {
-      redirect("/login?redirect=/dashboard");
+      redirect("/login?redirect=/dashboard/diagrams");
    }
 
    const diagram: Diagram = await getDiagram(diagramId).catch((err) => {
@@ -26,7 +24,7 @@ export default async function DiagramPage({ params: { diagramId } }: { params: {
          <div>
             <div>Diagram not found</div>
             <div>
-               Go back to <a href="/dashboard">Dashboard</a>
+               Go back to <a href="/dashboard/diagrams">Dashboard</a>
             </div>
          </div>
       );

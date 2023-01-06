@@ -5,6 +5,7 @@ import type { Icon } from "lucide-react";
 export type NavItem = {
    title: string;
    href: string;
+   newTab?: boolean;
    disabled?: boolean;
 };
 
@@ -91,4 +92,10 @@ export type DiagramUserRole = {
    role: string;
    full_name: string;
    picture: string;
+};
+
+export type DiagramTemplate = {
+   name: string;
+   label: string;
+   icon: keyof typeof Icons;
 };

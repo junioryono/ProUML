@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/dashboard/header";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { ClusterCreateButton } from "@/components/admin/dashboard/cluster-create-button";
-import { DiagramItem } from "@/components/dashboard/diagram-item";
+import { DiagramItem } from "@/components/dashboard/diagrams/diagram-item";
 
 export default function AdminDashboardLoading() {
    return (

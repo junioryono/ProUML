@@ -23,6 +23,8 @@ import {
    Users,
    FileJson,
    X,
+   Bug,
+   FileImage,
 } from "lucide-react";
 import type { Icon as LucideIcon } from "lucide-react";
 
@@ -53,4 +55,6 @@ export const Icons = {
    check: Check,
    server: Server,
    fileJSON: FileJson,
+   bug: Bug,
+   fileImage: FileImage,
 };

@@ -18,6 +18,24 @@ export function MainNav({ items, children }: MainNavProps) {
    const segment = useSelectedLayoutSegment();
    const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
 
+   if (!items?.length) {
+      items = [
+         {
+            title: "Marketplace",
+            href: "/marketplace",
+         },
+         {
+            title: "Explore",
+            href: "/explore",
+         },
+         {
+            title: "GitHub",
+            href: "https://github.com/junioryono/prouml",
+            newTab: true,
+         },
+      ];
+   }
+
    return (
       <div className="flex gap-6 md:gap-10">
          <Link href="/" className="hidden items-center space-x-2 md:flex">
@@ -30,6 +48,7 @@ export function MainNav({ items, children }: MainNavProps) {
                   <Link
                      key={index}
                      href={item.disabled ? "#" : item.href}
+                     target={item.newTab ? "_blank" : undefined}
                      className={cn(
                         "flex items-center text-lg font-semibold text-slate-600 sm:text-sm",
                         item.href.startsWith(`/${segment}`) && "text-slate-900",
