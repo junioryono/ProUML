@@ -7,7 +7,10 @@ import (
 )
 
 func main() {
-	godotenv.Load(".env")
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic(err)
+	}
 
 	sdkP, err := sdk.Init()
 	if err != nil {

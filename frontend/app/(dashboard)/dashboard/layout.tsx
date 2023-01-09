@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
          <header className="container sticky top-0 z-10 bg-white">
             <div className="flex h-16 items-center justify-between border-b border-b-slate-200 py-4">
                <MainNav />
-               <UserAccountNav userResponse={user} />
+               <UserAccountNav />
             </div>
          </header>
          <div className="container grid gap-12 md:grid-cols-[200px_1fr]">

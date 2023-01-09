@@ -14,6 +14,7 @@ import (
 	"github.com/junioryono/ProUML/backend/router/routes/diagram"
 	diagramUsers "github.com/junioryono/ProUML/backend/router/routes/diagram/users"
 	"github.com/junioryono/ProUML/backend/router/routes/diagrams"
+	"github.com/junioryono/ProUML/backend/router/routes/oauth"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/types"
 )
@@ -68,6 +69,12 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	AuthRouter.Delete("/delete-account", isAuthenticated(sdkP), auth.DeleteAccount(sdkP))
 	AuthRouter.Get("/session", isAuthenticated(sdkP), auth.Session(sdkP))
 	AuthRouter.Get("/get-profile", isAuthenticated(sdkP), auth.GetProfile(sdkP))
+
+	// AuthRouter.Get("/verify-email", auth.VerifyEmail(sdkP))
+
+	OAuthRouter := Router.Group("/oauth")
+	OAuthRouter.Get("/github/login", oauth.GitHubLogin(sdkP))
+	OAuthRouter.Get("/github/callback", oauth.GitHubCallback(sdkP))
 
 	DiagramRouter := Router.Group("/diagram", isAuthenticated(sdkP))
 

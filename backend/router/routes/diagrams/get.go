@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/types"
 )
@@ -27,7 +28,7 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Get the diagrams
-		diagram, err := sdkP.Postgres.Diagrams.GetAllWithAccessRole(fbCtx.Cookies("id_token"), offsetInt)
+		diagram, err := sdkP.Postgres.Diagrams.GetAllWithAccessRole(fbCtx.Cookies(auth.IdTokenCookieName), offsetInt)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

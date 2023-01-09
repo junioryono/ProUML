@@ -1,9 +1,6 @@
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
-import { DiagramsHeader } from "@/components/dashboard/diagrams/header";
-import { DashboardShell } from "@/components/dashboard/shell";
-import { EmptyPlaceholder } from "@/components/dashboard/diagrams/empty-placeholder";
 import { getSession, getDiagram } from "@/lib/auth-server";
 import { Diagram } from "types";
 

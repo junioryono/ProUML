@@ -10,11 +10,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import { useAuth } from "@/lib/auth-client";
-import { User } from "types";
 
-interface RegisterFormProps extends HTMLAttributes<HTMLDivElement> {
-   userResponse?: User;
-}
+interface RegisterFormProps extends HTMLAttributes<HTMLDivElement> {}
 
 export const userRegisterSchema = z.object({
    email: z.string().email(),
@@ -24,7 +21,7 @@ export const userRegisterSchema = z.object({
 
 type FormData = z.infer<typeof userRegisterSchema>;
 
-export default function RegisterForm({ className, userResponse, ...props }: RegisterFormProps) {
+export default function RegisterForm({ className, ...props }: RegisterFormProps) {
    const {
       register,
       handleSubmit,
@@ -36,10 +33,6 @@ export default function RegisterForm({ className, userResponse, ...props }: Regi
    const searchParams = useSearchParams();
    const router = useRouter();
    const { register: registerAuth, user, setUser } = useAuth();
-
-   useEffect(() => {
-      setUser(userResponse);
-   }, [userResponse]);
 
    useEffect(() => {
       if (user) {

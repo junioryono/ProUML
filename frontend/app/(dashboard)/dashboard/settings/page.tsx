@@ -16,13 +16,13 @@ export default async function SettingsPage() {
    return (
       <>
          <div>
-            <FormContainer Component={UserNameForm} userResponse={user} />
+            <FormContainer Component={UserNameForm} />
          </div>
          <div>
-            <FormContainer Component={UserEmailForm} userResponse={user} />
+            <FormContainer Component={UserEmailForm} />
          </div>
          <div>
-            <FormContainer Component={UserDeleteForm} userResponse={user} />
+            <FormContainer Component={UserDeleteForm} />
          </div>
       </>
    );

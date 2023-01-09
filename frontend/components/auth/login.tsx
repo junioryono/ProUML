@@ -10,11 +10,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import { useAuth } from "@/lib/auth-client";
-import { User } from "types";
 
-interface LoginFormProps extends HTMLAttributes<HTMLDivElement> {
-   userResponse?: User;
-}
+interface LoginFormProps extends HTMLAttributes<HTMLDivElement> {}
 
 export const userLoginSchema = z.object({
    email: z.string().email(),
@@ -23,7 +20,7 @@ export const userLoginSchema = z.object({
 
 type FormData = z.infer<typeof userLoginSchema>;
 
-export default function LoginForm({ userResponse, className, ...props }: LoginFormProps) {
+export default function LoginForm({ className, ...props }: LoginFormProps) {
    const {
       register,
       handleSubmit,
@@ -34,11 +31,7 @@ export default function LoginForm({ userResponse, className, ...props }: LoginFo
    const [isLoading, setIsLoading] = useState<boolean>(false);
    const searchParams = useSearchParams();
    const router = useRouter();
-   const { login, user, setUser } = useAuth();
-
-   useEffect(() => {
-      setUser(userResponse);
-   }, [userResponse]);
+   const { login, user } = useAuth();
 
    useEffect(() => {
       if (user) {
@@ -128,9 +121,9 @@ export default function LoginForm({ userResponse, className, ...props }: LoginFo
          <button
             type="button"
             className="inline-flex w-full items-center justify-center rounded-lg border bg-white px-5 py-2.5 text-center text-sm font-medium text-black hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-[#24292F]/50 disabled:opacity-50 dark:hover:bg-[#050708]/30 dark:focus:ring-slate-500"
-            onClick={() => {
-               // signIn("github");
-            }}
+            // Redirect to link, same tab
+            onClick={() => (window.location.href = "http://127.0.0.1:5000/oauth/github/login")}
+            // onClick={() => (window.location.href = "https://api.prouml.com/oauth/github/login")}
             disabled={isLoading}
          >
             <svg

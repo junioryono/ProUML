@@ -4,7 +4,13 @@ import { NewDiagram } from "@/components/dashboard/diagrams/new-diagram";
 import { useState } from "react";
 import { DiagramCreateButton } from "./diagram-create-button";
 
-export function DiagramsHeader({ diagramsLength }: { diagramsLength: number }) {
+export function DiagramsHeader({
+   diagramsLength,
+   showEmptyPlaceholder,
+}: {
+   diagramsLength: number;
+   showEmptyPlaceholder: boolean;
+}) {
    const [open, setOpen] = useState(false);
 
    return (
@@ -16,7 +22,7 @@ export function DiagramsHeader({ diagramsLength }: { diagramsLength: number }) {
             </div>
             {!!diagramsLength && !open && <DiagramCreateButton onClick={() => setOpen((current) => !current)} />}
          </div>
-         {open && <NewDiagram className="transition-all ease-out duration-700 mb-0" />}
+         {!showEmptyPlaceholder && open && <NewDiagram className="transition-all ease-out duration-700 mb-0" />}
       </>
    );
 }

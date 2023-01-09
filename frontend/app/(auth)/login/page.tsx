@@ -29,7 +29,7 @@ export default async function AuthLayout() {
                <h1 className="text-2xl font-bold">Welcome back</h1>
                <p className="text-sm text-slate-600">Enter your details to sign in to your account</p>
             </div>
-            <LoginForm userResponse={user} />
+            <LoginForm />
             <p className="px-8 text-center text-sm text-slate-600">
                <Link href="/register" className="underline hover:text-brand">
                   Don&apos;t have an account? Sign Up

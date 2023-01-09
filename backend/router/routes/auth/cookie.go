@@ -12,8 +12,10 @@ var (
 	Production             = os.Getenv("NODE_ENV") == "production"
 	IdTokenCookieName      = "id_token"
 	RefreshTokenCookieName = "refresh_token"
+	OAuthStateCookieName   = "oauthstate"
 	idTokenTime            = time.Now().Add(7 * 24 * time.Hour)
 	refreshTokenTime       = time.Now().Add(30 * 24 * time.Hour)
+	oauthStateTime         = time.Now().Add(365 * 24 * time.Hour)
 )
 
 func SetCookie(fbCtx *fiber.Ctx, name, value string) error {
@@ -27,6 +29,8 @@ func SetCookie(fbCtx *fiber.Ctx, name, value string) error {
 		cookie.Expires = idTokenTime
 	} else if name == RefreshTokenCookieName {
 		cookie.Expires = refreshTokenTime
+	} else if name == OAuthStateCookieName {
+		cookie.Expires = oauthStateTime
 	} else {
 		return errors.New("invalid cookie name")
 	}

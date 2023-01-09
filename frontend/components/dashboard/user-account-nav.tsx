@@ -10,14 +10,10 @@ import { useRouter } from "next/navigation";
 import { Icons } from "@/components/icons";
 import { User } from "types";
 
-export function UserAccountNav({ userResponse }: { userResponse: User }) {
+export function UserAccountNav() {
    const router = useRouter();
-   const { logout, user, setUser } = useAuth();
+   const { logout, user } = useAuth();
    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-   useEffect(() => {
-      setUser(userResponse);
-   }, [userResponse]);
 
    if (user === undefined) {
       return (
@@ -28,7 +24,16 @@ export function UserAccountNav({ userResponse }: { userResponse: User }) {
    }
 
    if (!user) {
-      return null;
+      return (
+         <nav>
+            <Link
+               href="/login"
+               className="relative inline-flex h-8 items-center rounded-md border border-transparent bg-brand-500 px-6 py-1 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
+            >
+               Login
+            </Link>
+         </nav>
+      );
    }
 
    return (

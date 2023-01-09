@@ -1,17 +1,8 @@
-import Link from "next/link";
-
 import { MainNav } from "@/components/main-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { UserAccountNav } from "@/components/dashboard/user-account-nav";
-import { getSession } from "@/lib/auth-server";
 
-interface MarketingLayoutProps {
-   children: React.ReactNode;
-}
-
-export default async function MarketingLayout({ children }: MarketingLayoutProps) {
-   const user = await getSession();
-
+export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
    return (
       <div className="flex min-h-screen flex-col">
          <header className="container sticky top-0 z-10 bg-white">
@@ -21,7 +12,6 @@ export default async function MarketingLayout({ children }: MarketingLayoutProps
                      {
                         title: "Features",
                         href: "/features",
-                        disabled: true,
                      },
                      {
                         title: "Pricing",
@@ -32,28 +22,13 @@ export default async function MarketingLayout({ children }: MarketingLayoutProps
                         href: "/blog",
                      },
                      {
-                        title: "Documentation",
-                        href: "/docs",
-                     },
-                     {
-                        title: "Contact",
-                        href: "/contact",
-                        disabled: true,
+                        title: "GitHub",
+                        href: "https://github.com/junioryono/ProUML",
+                        newTab: true,
                      },
                   ]}
                />
-               {user ? (
-                  <UserAccountNav userResponse={user} />
-               ) : (
-                  <nav>
-                     <Link
-                        href="/login"
-                        className="relative inline-flex h-8 items-center rounded-md border border-transparent bg-brand-500 px-6 py-1 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
-                     >
-                        Login
-                     </Link>
-                  </nav>
-               )}
+               <UserAccountNav />
             </div>
          </header>
          <main className="flex-1">{children}</main>

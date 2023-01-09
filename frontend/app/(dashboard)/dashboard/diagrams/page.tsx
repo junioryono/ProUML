@@ -23,11 +23,13 @@ export default async function DashboardDiagramsPage() {
 
    console.log("diagrams", diagrams);
 
+   const showEmptyPlaceholder = !diagrams || !diagrams.length;
+
    return (
       <DashboardShell>
-         <DiagramsHeader diagramsLength={!diagrams ? 0 : diagrams.length} />
+         <DiagramsHeader diagramsLength={!diagrams ? 0 : diagrams.length} showEmptyPlaceholder={showEmptyPlaceholder} />
          <div className="flex flex-col">
-            {!diagrams || !diagrams.length ? (
+            {showEmptyPlaceholder ? (
                <>
                   <NewDiagram />
                   <EmptyPlaceholder>

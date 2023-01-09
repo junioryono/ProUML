@@ -2,6 +2,7 @@ package diagram
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/types"
 )
@@ -18,7 +19,7 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Get the diagram
-		diagram, err := sdkP.Postgres.Diagram.Get(diagramId, fbCtx.Cookies("id_token"))
+		diagram, err := sdkP.Postgres.Diagram.Get(diagramId, fbCtx.Cookies(auth.IdTokenCookieName))
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

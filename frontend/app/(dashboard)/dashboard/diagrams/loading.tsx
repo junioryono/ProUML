@@ -5,7 +5,7 @@ import { DiagramItem } from "@/components/dashboard/diagrams/diagram-item";
 export default function DashboardDiagramsLoading() {
    return (
       <DashboardShell>
-         <DiagramsHeader diagramsLength={0} />
+         <DiagramsHeader diagramsLength={0} showEmptyPlaceholder={true} />
          <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
             <DiagramItem.Skeleton />
             <DiagramItem.Skeleton />
