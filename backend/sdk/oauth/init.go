@@ -14,17 +14,23 @@ type OAuth_SDK struct {
 	FailureURL         string
 	CallbackSuccessURL string
 	GitHub             *oauth2.Config
+	Google             *oauth2.Config
 }
 
 func Init() (*OAuth_SDK, error) {
 	response := &OAuth_SDK{
-		FailureURL:         "https:/prouml.com",
-		CallbackSuccessURL: "https:/prouml.com/dashboard/diagrams",
+		FailureURL:         "https://prouml.com",
+		CallbackSuccessURL: "https://prouml.com/dashboard/diagrams",
 	}
 
 	var err error
 
 	response.GitHub, err = initGitHub()
+	if err != nil {
+		return nil, err
+	}
+
+	response.Google, err = initGoogle()
 	if err != nil {
 		return nil, err
 	}
@@ -73,5 +79,5 @@ func initGoogle() (*oauth2.Config, error) {
 }
 
 func getCallbackURL(provider string) string {
-	return fmt.Sprintf("https:/api.prouml.com/oauth/%s/callback", provider)
+	return fmt.Sprintf("https://api.prouml.com/oauth/%s/callback", provider)
 }

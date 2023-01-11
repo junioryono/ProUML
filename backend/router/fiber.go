@@ -72,6 +72,8 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	OAuthRouter := Router.Group("/oauth")
 	OAuthRouter.Get("/github/login", oauth.GitHubLogin(sdkP))
 	OAuthRouter.Get("/github/callback", oauth.GitHubCallback(sdkP))
+	OAuthRouter.Get("/google/login", oauth.GoogleLogin(sdkP))
+	OAuthRouter.Get("/google/callback", oauth.GoogleCallback(sdkP))
 
 	DiagramRouter := Router.Group("/diagram", isAuthenticated(sdkP))
 
