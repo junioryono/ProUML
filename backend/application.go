@@ -14,5 +14,7 @@ func main() {
 		panic(err)
 	}
 
-	router.Init(sdkP)
+	if err := router.Init(sdkP); err != nil {
+		panic(err)
+	}
 }

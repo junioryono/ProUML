@@ -19,10 +19,20 @@ import (
 	"github.com/junioryono/ProUML/backend/types"
 )
 
-func Init(sdkP *sdk.SDK) {
+func Init(sdkP *sdk.SDK) error {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5000"
+	}
+
+	corsConfig := cors.Config{
+		AllowOrigins:     "*",
+		AllowHeaders:     "Origin, Content-Type, Accept, Accept-Language, Content-Length",
+		AllowCredentials: true,
+	}
+
+	if auth.Production {
+		corsConfig.AllowOrigins = "https://prouml.com"
 	}
 
 	Router := fiber.New(fiber.Config{
@@ -37,25 +47,12 @@ func Init(sdkP *sdk.SDK) {
 	})
 
 	Router.Use(recover.New())
-	Router.Use(compress.New(compress.Config{
-		Level: compress.LevelBestCompression,
-	}))
-
-	corsConfig := cors.Config{
-		AllowOrigins:     "*",
-		AllowHeaders:     "Origin, Content-Type, Accept, Accept-Language, Content-Length",
-		AllowCredentials: true,
-	}
-
-	if auth.Production {
-		corsConfig.AllowOrigins = "https://prouml.com"
-	}
-
+	Router.Use(compress.New(compress.Config{Level: compress.LevelBestCompression}))
 	Router.Use(cors.New(corsConfig))
 
 	handleRoutes(Router, sdkP)
 
-	log.Fatal(Router.Listen(":" + port))
+	return Router.Listen(":" + port)
 }
 
 func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
@@ -154,7 +151,7 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Check if id token is valid
-		userId, idTokenError := sdkP.Postgres.Auth.GetUserIdFromToken(idToken)
+		userId, idTokenError := sdkP.Postgres.Auth.Client.GetUserId(idToken)
 
 		if idTokenError == nil {
 			fbCtx.Locals("user_id", userId)
@@ -162,10 +159,10 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// id token is invalid, check if refresh token is valid
-		_, refreshTokenError := sdkP.Postgres.Auth.GetUserIdFromToken(refreshToken)
+		_, refreshTokenError := sdkP.Postgres.Auth.Client.GetUserId(refreshToken)
 		if refreshTokenError == nil {
 			// refresh token is valid, refresh id token
-			idToken, err := sdkP.Postgres.Auth.RefreshIdToken(refreshToken)
+			idToken, err := sdkP.Postgres.Auth.Client.RefreshIdToken(refreshToken)
 			if err != nil {
 				return unauthorizedUser()
 			}

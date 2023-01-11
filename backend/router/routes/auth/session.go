@@ -16,7 +16,7 @@ func Session(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		user, err := sdkP.Postgres.Auth.GetUserFromToken(idToken)
+		user, err := sdkP.Postgres.Auth.Client.GetUserClaims(idToken)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

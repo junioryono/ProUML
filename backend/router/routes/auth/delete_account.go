@@ -17,7 +17,7 @@ func DeleteAccount(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		_, idToken, _, err := sdkP.Postgres.Auth.AuthenticateUser(
+		_, idToken, _, err := sdkP.Postgres.Auth.Client.AuthenticateUser(
 			fbCtx.IP(),
 			fbCtx.FormValue("email"),
 			fbCtx.FormValue("password"),
@@ -31,7 +31,7 @@ func DeleteAccount(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		go func(userIPAddress, idTokenParam string) {
-			if err := sdkP.Postgres.Auth.DeleteUser(idTokenParam); err != nil {
+			if err := sdkP.Postgres.Auth.Client.DeleteUser(idTokenParam); err != nil {
 				fmt.Println(err.Error())
 			}
 		}(fbCtx.IP(), idToken)

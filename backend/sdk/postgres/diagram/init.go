@@ -29,7 +29,7 @@ func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagram_SDK {
 
 func (d *Diagram_SDK) Create(idToken string) (string, *types.WrappedError) {
 	// Get the user id from the id token
-	userId, err := d.Auth.GetUserIdFromToken(idToken)
+	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
 		return "", err
 	}
@@ -72,7 +72,7 @@ func (d *Diagram_SDK) Create(idToken string) (string, *types.WrappedError) {
 
 func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := d.Auth.GetUserIdFromToken(idToken)
+	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 
 func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *types.WrappedError) {
 	// Get the user id from the id token
-	userId, err := d.Auth.GetUserIdFromToken(idToken)
+	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *typ
 
 func (d *Diagram_SDK) Update(diagramId, idToken string, public *bool, name string, content *json.RawMessage) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := d.Auth.GetUserIdFromToken(idToken)
+	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func (d *Diagram_SDK) Update(diagramId, idToken string, public *bool, name strin
 
 func (d *Diagram_SDK) SaveTranspilation(diagramId, idToken string, marshaledProject []byte) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := d.Auth.GetUserIdFromToken(idToken)
+	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}

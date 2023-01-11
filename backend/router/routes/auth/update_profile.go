@@ -9,7 +9,7 @@ import (
 func UpdateProfile(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
 		if fbCtx.FormValue("fullName") != "" {
-			if err := sdkP.Postgres.Auth.UpdateUserFullName(fbCtx.Cookies(IdTokenCookieName), fbCtx.FormValue("fullName")); err != nil {
+			if err := sdkP.Postgres.Auth.Client.UpdateUserFullName(fbCtx.Cookies(IdTokenCookieName), fbCtx.FormValue("fullName")); err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 					Success: false,
 					Reason:  err.Error(),
@@ -38,7 +38,7 @@ func UpdateProfile(sdkP *sdk.SDK) fiber.Handler {
 }
 
 func reissueIdToken(fbCtx *fiber.Ctx, sdkP *sdk.SDK) error {
-	idToken, err := sdkP.Postgres.Auth.RefreshIdToken(fbCtx.Cookies(IdTokenCookieName))
+	idToken, err := sdkP.Postgres.Auth.Client.RefreshIdToken(fbCtx.Cookies(IdTokenCookieName))
 	if err != nil {
 		return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 			Success: false,

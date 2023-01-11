@@ -22,7 +22,7 @@ func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagrams_SDK {
 }
 
 func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]models.DiagramModelHiddenContent, *types.WrappedError) {
-	userId, err := d.Auth.GetUserIdFromToken(idToken)
+	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
 		return nil, err
 	}

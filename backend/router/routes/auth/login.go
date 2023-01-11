@@ -8,7 +8,7 @@ import (
 
 func Login(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		user, idToken, refreshToken, err := sdkP.Postgres.Auth.AuthenticateUser(
+		user, idToken, refreshToken, err := sdkP.Postgres.Auth.Client.AuthenticateUser(
 			fbCtx.IP(),
 			fbCtx.FormValue("email"),
 			fbCtx.FormValue("password"),
