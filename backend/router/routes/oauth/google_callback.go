@@ -3,7 +3,6 @@ package oauth
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/url"
 
@@ -12,8 +11,6 @@ import (
 )
 
 func GoogleCallback(sdkP *sdk.SDK) fiber.Handler {
-	const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
-
 	return func(fbCtx *fiber.Ctx) error {
 		if err := validateStateToken(fbCtx, sdkP); err != nil {
 			return err
@@ -27,7 +24,14 @@ func GoogleCallback(sdkP *sdk.SDK) fiber.Handler {
 		oauthClient := sdkP.OAuth.Google.Client(context.Background(), token)
 		response, err := oauthClient.Do(&http.Request{
 			Method: http.MethodGet,
-			URL:    &url.URL{Path: oauthGoogleUrlAPI + token.AccessToken},
+			URL: &url.URL{
+				Scheme: "https",
+				Host:   "www.googleapis.com",
+				Path:   "/oauth2/v2/userinfo",
+				RawQuery: url.Values{
+					"access_token": []string{token.AccessToken},
+				}.Encode(),
+			},
 		})
 		if err != nil {
 			return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
@@ -37,14 +41,8 @@ func GoogleCallback(sdkP *sdk.SDK) fiber.Handler {
 		user := struct {
 			Email string `json:"email"`
 			Name  string `json:"name"`
-
-			Error string `json:"error"`
 		}{}
-		if err := json.NewDecoder(response.Body).Decode(&user); err != nil && err != io.EOF {
-			return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
-		}
-
-		if user.Error != "" {
+		if err := json.NewDecoder(response.Body).Decode(&user); err != nil {
 			return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 		}
 
