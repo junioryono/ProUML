@@ -7,16 +7,13 @@ import { Diagram } from "types";
 export default async function DiagramPage({ params: { diagramId } }: { params: { diagramId: string } }) {
    const user = await getSession();
 
-   if (!user) {
+   if (!user.success) {
       redirect("/login?redirect=/dashboard/diagrams");
    }
 
-   const diagram: Diagram = await getDiagram(diagramId).catch((err) => {
-      console.error(err);
-      return null;
-   });
+   const diagramRequest = await getDiagram(diagramId);
 
-   if (!diagram) {
+   if (!diagramRequest.success) {
       return (
          <div>
             <div>Diagram not found</div>
@@ -30,7 +27,7 @@ export default async function DiagramPage({ params: { diagramId } }: { params: {
    return (
       <div>
          <div>Diagram Id: {diagramId}</div>
-         <div>{JSON.stringify(diagram)}</div>
+         <div>{JSON.stringify(diagramRequest.response)}</div>
       </div>
    );
 }

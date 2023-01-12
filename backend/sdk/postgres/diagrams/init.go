@@ -1,8 +1,6 @@
 package diagrams
 
 import (
-	"errors"
-
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/types"
@@ -56,10 +54,6 @@ func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]model
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
 		return nil, types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	if len(diagrams) == 0 {
-		return nil, types.Wrap(errors.New("no diagrams found"), types.ErrNoDiagramsFound)
 	}
 
 	return diagrams, nil

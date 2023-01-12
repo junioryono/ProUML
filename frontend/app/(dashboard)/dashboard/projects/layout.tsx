@@ -7,7 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/header";
 export default async function DashboardProjectsLayout({ children }: { children: React.ReactNode }) {
    const user = await getSession();
 
-   if (!user) {
+   if (!user.success) {
       redirect("/login?redirect=/dashboard/projects");
    }
 

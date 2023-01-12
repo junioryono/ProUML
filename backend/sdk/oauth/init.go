@@ -86,5 +86,5 @@ func initGoogle() (*oauth2.Config, error) {
 }
 
 func getCallbackURL(provider string) string {
-	return fmt.Sprintf(apiDomain+"/oauth/%s/callback", provider)
+	return fmt.Sprintf(webDomain+"/oauth/%s", provider)
 }

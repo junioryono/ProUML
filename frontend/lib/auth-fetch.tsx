@@ -1,13 +1,12 @@
-import { Diagram, User } from "types";
+import { Diagram, User, APIResponse } from "types";
 import { fetchAPI } from "./utils";
 
-type Response<T> = {
-   success: boolean;
-   response?: T;
-   reason?: string;
+const defaultError: APIResponse<any> = {
+   success: false,
+   reason: "Failed to fetch.",
 };
 
-export async function login(email: string, password: string, options?: RequestInit): Promise<User> {
+export async function login(email: string, password: string, options?: RequestInit): Promise<APIResponse<User>> {
    const form = new FormData();
    form.append("email", email);
    form.append("password", password);
@@ -18,21 +17,15 @@ export async function login(email: string, password: string, options?: RequestIn
       body: form,
    })
       .then((res) => res.json())
-      .then((res) => {
-         if (res && res.success === true) {
-            const user = res.response as User;
-            return user;
-         }
-
-         return null;
-      })
-      .catch((err) => {
-         console.error(err);
-         return null;
-      });
+      .catch(() => defaultError);
 }
 
-export async function register(email: string, password: string, fullName: string, options?: RequestInit): Promise<User> {
+export async function register(
+   email: string,
+   password: string,
+   fullName: string,
+   options?: RequestInit,
+): Promise<APIResponse<User>> {
    const form = new FormData();
    form.append("email", email);
    form.append("password", password);
@@ -44,76 +37,35 @@ export async function register(email: string, password: string, fullName: string
       body: form,
    })
       .then((res) => res.json())
-      .then((res) => {
-         if (res && res.success === true) {
-            const user = res.response as User;
-            return user;
-         }
-
-         return null;
-      })
-      .catch((err) => {
-         console.error(err);
-         return null;
-      });
+      .catch(() => defaultError);
 }
 
-export async function logout(options?: RequestInit): Promise<boolean> {
+export async function logout(options?: RequestInit): Promise<APIResponse<undefined>> {
    return fetchAPI("/auth/logout", {
       ...options,
       method: "POST",
    })
       .then((res) => res.json())
-      .then((res) => {
-         if (res && res.success === true) {
-            return true;
-         }
-
-         return false;
-      })
-      .catch((err) => {
-         console.error(err);
-         return false;
-      });
+      .catch(() => defaultError);
 }
 
-export async function getSession(options?: RequestInit): Promise<User> {
+export async function getSession(options?: RequestInit): Promise<APIResponse<User>> {
    return fetchAPI("/auth/session", {
       ...options,
    })
       .then((res) => res.json())
-      .then((res) => {
-         if (res && res.success === true) {
-            return res.response as User;
-         }
-
-         return null;
-      })
-      .catch((err) => {
-         console.error(err);
-         return null;
-      });
+      .catch(() => defaultError);
 }
 
-export async function getDiagrams(options?: RequestInit): Promise<Diagram[]> {
+export async function getDiagrams(options?: RequestInit): Promise<APIResponse<Diagram[]>> {
    return fetchAPI("/diagrams", {
       ...options,
    })
       .then((res) => res.json())
-      .then((res) => {
-         if (res && res.success === true) {
-            return res.response as Diagram[];
-         }
-
-         return null;
-      })
-      .catch((err) => {
-         console.error(err);
-         return null;
-      });
+      .catch(() => defaultError);
 }
 
-export async function getDiagram(diagramId: string, options?: RequestInit): Promise<Diagram> {
+export async function getDiagram(diagramId: string, options?: RequestInit): Promise<APIResponse<Diagram>> {
    return fetchAPI(
       "/diagram?" +
          new URLSearchParams({
@@ -124,33 +76,20 @@ export async function getDiagram(diagramId: string, options?: RequestInit): Prom
       },
    )
       .then((res) => res.json())
-      .then((res) => {
-         if (res && res.success === true) {
-            return res.response as Diagram;
-         }
-
-         return null;
-      })
-      .catch((err) => {
-         console.error(err);
-         return null;
-      });
+      .catch(() => defaultError);
 }
 
-export async function createDiagram(form: FormData, options?: RequestInit): Promise<Response<string>> {
+export async function createDiagram(form: FormData, options?: RequestInit): Promise<APIResponse<string>> {
    return fetchAPI("/diagram", {
       ...options,
       method: "POST",
       body: form,
    })
       .then((res) => res.json())
-      .catch((err) => {
-         console.error(err);
-         return null;
-      });
+      .catch(() => defaultError);
 }
 
-export async function deleteDiagram(diagramId: string, options?: RequestInit): Promise<Response<null>> {
+export async function deleteDiagram(diagramId: string, options?: RequestInit): Promise<APIResponse<null>> {
    return fetchAPI(
       "/diagram?" +
          new URLSearchParams({
@@ -162,17 +101,14 @@ export async function deleteDiagram(diagramId: string, options?: RequestInit): P
       },
    )
       .then((res) => res.json())
-      .catch((err) => {
-         console.error(err);
-         return null;
-      });
+      .catch(() => defaultError);
 }
 
 export async function updateDiagram(
    diagramId: string,
    data: { [key: string]: any },
    options?: RequestInit,
-): Promise<Response<null>> {
+): Promise<APIResponse<null>> {
    return fetchAPI(
       "/diagram?" +
          new URLSearchParams({
@@ -188,8 +124,5 @@ export async function updateDiagram(
       },
    )
       .then((res) => res.json())
-      .catch((err) => {
-         console.error(err);
-         return null;
-      });
+      .catch(() => defaultError);
 }

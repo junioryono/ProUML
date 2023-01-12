@@ -12,22 +12,22 @@ import { Diagram } from "types";
 export default async function DashboardDiagramsPage() {
    const user = await getSession();
 
-   if (!user) {
+   if (!user.success) {
       redirect("/login?redirect=/dashboard/diagrams");
    }
 
-   const diagrams: Diagram[] = await getDiagrams().catch((err) => {
-      console.error(err);
-      return null;
-   });
+   const diagramsRequest = await getDiagrams();
 
-   console.log("diagrams", diagrams);
+   console.log("diagrams", diagramsRequest);
 
-   const showEmptyPlaceholder = !diagrams || !diagrams.length;
+   const showEmptyPlaceholder = !diagramsRequest.success || !diagramsRequest.response.length;
 
    return (
       <DashboardShell>
-         <DiagramsHeader diagramsLength={!diagrams ? 0 : diagrams.length} showEmptyPlaceholder={showEmptyPlaceholder} />
+         <DiagramsHeader
+            diagramsLength={!diagramsRequest.success ? 0 : diagramsRequest.response.length}
+            showEmptyPlaceholder={showEmptyPlaceholder}
+         />
          <div className="flex flex-col">
             {showEmptyPlaceholder ? (
                <>
@@ -42,7 +42,7 @@ export default async function DashboardDiagramsPage() {
                </>
             ) : (
                <div className="flex flex-wrap select-none">
-                  {diagrams.map((diagram) => (
+                  {diagramsRequest.response.map((diagram) => (
                      <DiagramItem key={diagram.id} diagram={diagram} />
                   ))}
                </div>

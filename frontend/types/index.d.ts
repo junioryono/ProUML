@@ -2,6 +2,12 @@ import { Icons } from "@/components/icons";
 import { User } from "@prisma/client";
 import type { Icon } from "lucide-react";
 
+type APIResponse<T> = {
+   success: boolean;
+   response?: T;
+   reason?: string;
+};
+
 export type NavItem = {
    title: string;
    href: string;

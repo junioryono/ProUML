@@ -10,7 +10,7 @@ import { getSession } from "@/lib/auth-server";
 export default async function AdminJWKDashboardPage() {
    const user = await getSession();
 
-   if (!user) {
+   if (!user.success) {
       redirect("/login?redirect=/admin/dashboard/jwk");
    }
 

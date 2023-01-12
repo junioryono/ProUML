@@ -17,7 +17,6 @@ const (
 	ErrCannotChangeAsEditor   = "You cannot change a user's role from editor to viewer as an editor."
 	ErrUserIsOwner            = "You cannot change the role of the owner."
 	ErrUserSameRole           = "User already has this role."
-	ErrNoDiagramsFound        = "No diagrams found."
 	ErrCouldNotMarshalJSON    = "Internal Error. Could not marshal JSON."
 	ErrUnsupportedLang        = "Unsupported language."
 	ErrCouldNotFigureOutLang  = "Could not figure out language."

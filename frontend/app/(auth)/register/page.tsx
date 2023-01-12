@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 export default async function RegisterPage() {
    const user = await getSession();
 
-   if (user) {
+   if (user.success) {
       redirect("/dashboard/diagrams");
    }
 

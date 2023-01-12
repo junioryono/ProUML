@@ -1,14 +1,14 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { User } from "types";
+import { APIResponse, User } from "types";
 import { getSession, login, logout, register } from "./auth-fetch";
 
 interface AuthContextInterface {
-   login(email: string, password: string): Promise<User>;
-   register(email: string, password: string, fullName: string): Promise<User>;
-   logout(): Promise<boolean>;
-   getSession(): Promise<User>;
+   login(email: string, password: string): Promise<APIResponse<User>>;
+   register(email: string, password: string, fullName: string): Promise<APIResponse<User>>;
+   logout(): Promise<APIResponse<boolean>>;
+   getSession(): Promise<APIResponse<User>>;
    user: User | undefined;
    setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
 }
@@ -35,51 +35,64 @@ export function AuthProvider({ children }) {
       login: async function (email: string, password: string) {
          return login(email, password)
             .then((res) => {
-               setUser(res);
-               return res;
+               if (res.success === false) {
+                  throw new Error(res.reason);
+               }
+
+               setUser(res.response);
+               return res.response;
             })
             .catch((err) => {
                console.error(err);
                setUser(null);
-               return null;
+               return err;
             });
       },
       register: async function (email: string, password: string, fullName: string) {
          return register(email, password, fullName)
             .then((res) => {
-               setUser(res);
-               return res;
+               if (res.success === false) {
+                  throw new Error(res.reason);
+               }
+
+               setUser(res.response);
+               return res.response;
             })
             .catch((err) => {
                console.error(err);
                setUser(null);
-               return null;
+               return err;
             });
       },
       logout: async function () {
          return logout()
             .then((res) => {
-               if (res) {
-                  setUser(null);
+               if (res.success === false) {
+                  throw new Error(res.reason);
                }
 
-               return res;
+               setUser(null);
+               return res.success;
             })
             .catch((err) => {
                console.error(err);
-               return false;
+               return err;
             });
       },
       getSession: async function () {
          return getSession()
             .then((res) => {
-               setUser(res);
-               return res;
+               if (res.success === false) {
+                  throw new Error(res.reason);
+               }
+
+               setUser(res.response);
+               return res.response;
             })
             .catch((err) => {
                console.error(err);
                setUser(null);
-               return null;
+               return err;
             });
       },
       user: user,
