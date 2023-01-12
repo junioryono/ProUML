@@ -7,7 +7,7 @@ export default function OAuthSuccess() {
    const router = useRouter();
 
    useEffect(() => {
-      if (window.top === window.self) {
+      if (window.parent === window.self) {
          router.push("/login");
       }
 
