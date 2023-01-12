@@ -1,10 +1,40 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 export function LoginProviders({ isLoading }: { isLoading: boolean }) {
+   const router = useRouter();
+
+   function openOAuthWindow(url: string) {
+      // Open a child window to the OAuth provider
+      // Listen for url changes
+      // If the url changes to the redirect url, close the child window
+      const childWindow = window.open(url, "_blank", "width=600,height=600");
+      childWindow.addEventListener("message", (event) => {
+         console.log("Message received from origin", event.origin);
+         if (event.origin !== "https://prouml.com" || event.type !== "message" || event.data.type !== "oauth") {
+            return;
+         }
+
+         if (event.data.payload === "failure") {
+            childWindow.close();
+            console.log("Failed OAuth login");
+            return;
+         }
+
+         if (event.data.payload === "success") {
+            childWindow.close();
+            router.replace("/dashboard/diagrams");
+         }
+      });
+   }
+
    return (
       <div className="grid gap-3">
          <button
             type="button"
             className="inline-flex w-full items-center justify-center rounded-lg border bg-white px-5 py-2.5 text-center text-sm font-medium text-black hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-[#24292F]/50 disabled:opacity-50 dark:hover:bg-[#050708]/30 dark:focus:ring-slate-500"
-            onClick={() => (window.location.href = "https://api.prouml.com/oauth/github/login")}
+            onClick={() => openOAuthWindow("https://api.prouml.com/oauth/github/login")}
             disabled={isLoading}
          >
             <svg
@@ -27,7 +57,7 @@ export function LoginProviders({ isLoading }: { isLoading: boolean }) {
          <button
             type="button"
             className="inline-flex w-full items-center justify-center rounded-lg border bg-white px-5 py-2.5 text-center text-sm font-medium text-black hover:bg-slate-100 focus:outline-none focus:ring-4 focus:ring-[#24292F]/50 disabled:opacity-50 dark:hover:bg-[#050708]/30 dark:focus:ring-slate-500"
-            onClick={() => (window.location.href = "https://api.prouml.com/oauth/google/login")}
+            onClick={() => openOAuthWindow("https://api.prouml.com/oauth/google/login")}
             disabled={isLoading}
          >
             <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">

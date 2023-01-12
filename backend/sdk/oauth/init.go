@@ -19,8 +19,8 @@ type OAuth_SDK struct {
 
 func Init() (*OAuth_SDK, error) {
 	response := &OAuth_SDK{
-		FailureURL:         "https://prouml.com",
-		CallbackSuccessURL: "https://prouml.com/dashboard/diagrams",
+		FailureURL:         "https://prouml.com/oauth/failure",
+		CallbackSuccessURL: "https://prouml.com/oauth/success",
 	}
 
 	var err error
