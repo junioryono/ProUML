@@ -17,10 +17,17 @@ type OAuth_SDK struct {
 	Google             *oauth2.Config
 }
 
+const (
+	// webDomain string = "http://127.0.0.1:3000"
+	// apiDomain string = "http://127.0.0.1:5000"
+	webDomain string = "https://prouml.com"
+	apiDomain string = "https://api.prouml.com"
+)
+
 func Init() (*OAuth_SDK, error) {
 	response := &OAuth_SDK{
-		FailureURL:         "https://prouml.com/oauth/failure",
-		CallbackSuccessURL: "https://prouml.com/oauth/success",
+		FailureURL:         webDomain,
+		CallbackSuccessURL: webDomain + "/dashboard/diagrams",
 	}
 
 	var err error
@@ -79,5 +86,5 @@ func initGoogle() (*oauth2.Config, error) {
 }
 
 func getCallbackURL(provider string) string {
-	return fmt.Sprintf("https://api.prouml.com/oauth/%s/callback", provider)
+	return fmt.Sprintf(apiDomain+"/oauth/%s/callback", provider)
 }
