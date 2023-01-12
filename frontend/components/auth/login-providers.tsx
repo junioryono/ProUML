@@ -11,7 +11,7 @@ export function LoginProviders({ isLoading }: { isLoading: boolean }) {
       // If the url changes to the redirect url, close the child window
       const childWindow = window.open(url, "_blank", "width=600,height=600");
       childWindow.addEventListener("message", (event) => {
-         console.log("Message received from origin", event.origin);
+         console.log("Message received", event);
          if (event.origin !== "https://prouml.com" || event.type !== "message" || event.data.type !== "oauth") {
             return;
          }
@@ -24,7 +24,7 @@ export function LoginProviders({ isLoading }: { isLoading: boolean }) {
 
          if (event.data.payload === "success") {
             childWindow.close();
-            router.replace("/dashboard/diagrams");
+            router.refresh();
          }
       });
    }
