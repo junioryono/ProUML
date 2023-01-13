@@ -63,6 +63,8 @@ export function AuthProvider({ children }) {
          return getSession().then((res) => {
             if (res.success === true) {
                setUser(res.response);
+            } else {
+               setUser(null);
             }
 
             return res;
