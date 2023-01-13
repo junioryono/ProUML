@@ -1,4 +1,4 @@
-import { DiagramItem } from "@/components/dashboard/diagrams/diagram-item";
+import { DiagramItemSkeleton } from "@/components/dashboard/diagrams/diagram-item-skeleton";
 
 export default function DashboardProjectsLoading() {
    return (
