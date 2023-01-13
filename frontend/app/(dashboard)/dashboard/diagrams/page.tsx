@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { cache } from "react";
 
 import { DashboardShell } from "@/components/dashboard/shell";
 import { DiagramsHeader } from "@/components/dashboard/diagrams/header";
@@ -7,7 +6,6 @@ import { DiagramItem } from "@/components/dashboard/diagrams/diagram-item";
 import { EmptyPlaceholder } from "@/components/dashboard/diagrams/empty-placeholder";
 import { NewDiagram } from "@/components/dashboard/diagrams/new-diagram";
 import { getSession, getDiagrams } from "@/lib/auth-server";
-import { Diagram } from "types";
 
 export default async function DashboardDiagramsPage() {
    const user = await getSession();

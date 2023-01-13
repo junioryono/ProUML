@@ -19,8 +19,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
                <UserAccountNav />
             </div>
          </header>
-         <div className="container grid gap-12 md:grid-cols-[200px_1fr]">
-            <aside className="hidden w-[200px] flex-col md:flex">
+         <div className="container grid gap-12 lg:grid-cols-[200px_1fr]">
+            <aside className="hidden w-[200px] flex-col lg:flex">
                <DashboardNav
                   items={[
                      {

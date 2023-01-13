@@ -1,5 +1,6 @@
 const { colors } = require("tailwindcss/colors");
 const { fontFamily } = require("tailwindcss/defaultTheme");
+const plugin = require("tailwindcss/plugin");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -32,7 +33,24 @@ module.exports = {
                DEFAULT: "#111111",
             },
          },
+         width: {
+            "1/7": "14.285714285714285%",
+         },
       },
    },
-   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+   plugins: [
+      require("tailwindcss-animate"),
+      require("@tailwindcss/typography"),
+      plugin(function ({ addUtilities }) {
+         addUtilities({
+            ".no-scrollbar::-webkit-scrollbar": {
+               display: "none",
+            },
+            ".no-scrollbar": {
+               "-ms-overflow-style": "none",
+               "scrollbar-width": "none",
+            },
+         });
+      }),
+   ],
 };

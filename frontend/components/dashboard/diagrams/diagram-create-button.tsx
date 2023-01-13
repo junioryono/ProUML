@@ -9,7 +9,7 @@ export function DiagramCreateButton({ className, ...props }: DiagramCreateButton
    return (
       <button
          className={cn(
-            "self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none",
+            "self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none",
             className,
          )}
          {...props}

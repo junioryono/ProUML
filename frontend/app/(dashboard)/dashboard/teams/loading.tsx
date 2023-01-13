@@ -1,13 +1,13 @@
-import { DiagramItem } from "@/components/dashboard/diagrams/diagram-item";
+import { DiagramItemSkeleton } from "@/components/dashboard/diagrams/diagram-item-skeleton";
 
 export default function DashboardTeamsLoading() {
    return (
       <>
-         <DiagramItem.Skeleton />
-         <DiagramItem.Skeleton />
-         <DiagramItem.Skeleton />
-         <DiagramItem.Skeleton />
-         <DiagramItem.Skeleton />
+         <DiagramItemSkeleton />
+         <DiagramItemSkeleton />
+         <DiagramItemSkeleton />
+         <DiagramItemSkeleton />
+         <DiagramItemSkeleton />
       </>
    );
 }

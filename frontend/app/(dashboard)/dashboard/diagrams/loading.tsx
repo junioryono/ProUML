@@ -1,17 +1,17 @@
 import { DashboardShell } from "@/components/dashboard/shell";
 import { DiagramsHeader } from "@/components/dashboard/diagrams/header";
-import { DiagramItem } from "@/components/dashboard/diagrams/diagram-item";
+import { DiagramItemSkeleton } from "@/components/dashboard/diagrams/diagram-item-skeleton";
 
 export default function DashboardDiagramsLoading() {
    return (
       <DashboardShell>
          <DiagramsHeader diagramsLength={0} showEmptyPlaceholder={true} />
          <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-            <DiagramItem.Skeleton />
-            <DiagramItem.Skeleton />
-            <DiagramItem.Skeleton />
-            <DiagramItem.Skeleton />
-            <DiagramItem.Skeleton />
+            <DiagramItemSkeleton />
+            <DiagramItemSkeleton />
+            <DiagramItemSkeleton />
+            <DiagramItemSkeleton />
+            <DiagramItemSkeleton />
          </div>
       </DashboardShell>
    );

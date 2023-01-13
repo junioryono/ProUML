@@ -33,7 +33,7 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
    const [isLoading, setIsLoading] = useState<boolean>(false);
    const searchParams = useSearchParams();
    const router = useRouter();
-   const { register: registerAuth, user, setUser } = useAuth();
+   const { register: registerAuth, user } = useAuth();
 
    useEffect(() => {
       if (user) {
@@ -48,7 +48,7 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
 
       setIsLoading(false);
 
-      if (!registerResult) {
+      if (!registerResult.success) {
          return toast({
             title: "Something went wrong.",
             message: "Your registration request failed. Please try again with a different email or password.",
@@ -76,7 +76,7 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
                   <input
                      id="fullName"
                      placeholder="Full Name"
-                     className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
+                     className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                      type="fullName"
                      autoCapitalize="none"
                      autoComplete="fullName"
@@ -94,7 +94,7 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
                   <input
                      id="email"
                      placeholder="name@example.com"
-                     className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
+                     className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                      type="email"
                      autoCapitalize="none"
                      autoComplete="email"
@@ -111,7 +111,7 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
                <input
                   id="password"
                   placeholder="Password"
-                  className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
+                  className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                   type="password"
                   autoCapitalize="none"
                   autoComplete="current-password"

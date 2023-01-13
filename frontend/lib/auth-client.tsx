@@ -33,67 +33,40 @@ export function AuthProvider({ children }) {
 
    const value: AuthContextInterface = {
       login: async function (email: string, password: string) {
-         return login(email, password)
-            .then((res) => {
-               if (res.success === false) {
-                  throw new Error(res.reason);
-               }
-
+         return login(email, password).then((res) => {
+            if (res.success === true) {
                setUser(res.response);
-               return res.response;
-            })
-            .catch((err) => {
-               console.error(err);
-               setUser(null);
-               return err;
-            });
+            }
+
+            return res;
+         });
       },
       register: async function (email: string, password: string, fullName: string) {
-         return register(email, password, fullName)
-            .then((res) => {
-               if (res.success === false) {
-                  throw new Error(res.reason);
-               }
-
+         return register(email, password, fullName).then((res) => {
+            if (res.success === true) {
                setUser(res.response);
-               return res.response;
-            })
-            .catch((err) => {
-               console.error(err);
-               setUser(null);
-               return err;
-            });
+            }
+
+            return res;
+         });
       },
       logout: async function () {
-         return logout()
-            .then((res) => {
-               if (res.success === false) {
-                  throw new Error(res.reason);
-               }
-
+         return logout().then((res) => {
+            if (res.success === true) {
                setUser(null);
-               return res.success;
-            })
-            .catch((err) => {
-               console.error(err);
-               return err;
-            });
+            }
+
+            return res;
+         });
       },
       getSession: async function () {
-         return getSession()
-            .then((res) => {
-               if (res.success === false) {
-                  throw new Error(res.reason);
-               }
-
+         return getSession().then((res) => {
+            if (res.success === true) {
                setUser(res.response);
-               return res.response;
-            })
-            .catch((err) => {
-               console.error(err);
-               setUser(null);
-               return err;
-            });
+            }
+
+            return res;
+         });
       },
       user: user,
       setUser: setUser,

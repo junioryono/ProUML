@@ -13,6 +13,7 @@ export type NavItem = {
    href: string;
    newTab?: boolean;
    disabled?: boolean;
+   hideOnXS?: boolean;
 };
 
 export type MainNavItem = NavItem;
@@ -103,5 +104,5 @@ export type DiagramUserRole = {
 export type DiagramTemplate = {
    name: string;
    label: string;
-   icon: keyof typeof Icons;
+   image: string;
 };

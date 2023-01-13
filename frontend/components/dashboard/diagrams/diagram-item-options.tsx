@@ -19,7 +19,15 @@ const diagramRenameSchema = z.object({
 
 type FormData = z.infer<typeof diagramRenameSchema>;
 
-export function DiagramItemOptions({ diagram }: { diagram: Diagram }) {
+export function DiagramItemOptions({
+   diagram,
+   showMenu,
+   setShowMenu,
+}: {
+   diagram: Diagram;
+   showMenu: boolean;
+   setShowMenu: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+}) {
    const router = useRouter();
 
    const {
@@ -82,7 +90,10 @@ export function DiagramItemOptions({ diagram }: { diagram: Diagram }) {
             e.preventDefault();
          }}
       >
-         <Menu.Button className="bg-white rounded-full p-1 text-gray-500 hover:text-gray-500 focus:outline-none hover:bg-slate-100">
+         <Menu.Button
+            className="bg-white rounded-full p-1 text-gray-500 hover:text-gray-500 focus:outline-none hover:bg-slate-100 hidden md:block"
+            onClick={() => setShowMenu((current) => !current)}
+         >
             <span className="sr-only">View options</span>
             <Icons.ellipsis />
          </Menu.Button>
@@ -95,8 +106,9 @@ export function DiagramItemOptions({ diagram }: { diagram: Diagram }) {
             leave="transition ease-in duration-75"
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
+            show={showMenu}
          >
-            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none top-8 sm:top-12">
                <div className="py-1">
                   <Menu.Item>
                      {({ active }) => (
@@ -207,7 +219,7 @@ export function DiagramItemOptions({ diagram }: { diagram: Diagram }) {
                                     id="name"
                                     placeholder="Diagram Name"
                                     defaultValue={diagram.name}
-                                    className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400"
+                                    className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400"
                                     type="name"
                                     autoCapitalize="none"
                                     autoComplete="current-name"

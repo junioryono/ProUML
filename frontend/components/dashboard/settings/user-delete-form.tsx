@@ -163,7 +163,7 @@ export function UserDeleteForm() {
                                  <input
                                     id="password"
                                     placeholder="Password"
-                                    className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
+                                    className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                                     type="password"
                                     autoCapitalize="none"
                                     autoComplete="current-password"

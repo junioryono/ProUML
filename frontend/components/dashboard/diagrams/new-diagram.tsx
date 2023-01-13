@@ -7,7 +7,13 @@ interface NewDiagramProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function NewDiagram({ className, ...props }: NewDiagramProps) {
    return (
-      <div className={cn("flex flex-wrap mb-4 px-3 pt-6 pb-3 bg-slate-100 rounded-md rounded-t-none", className)} {...props}>
+      <div
+         className={cn(
+            "flex lg:flex-wrap max-w-[calc(100vw-3rem)] mb-4 px-3 pt-4 bg-slate-100 rounded-md rounded-t-none overflow-x-auto no-scrollbar",
+            className,
+         )}
+         {...props}
+      >
          <ImportItem />
          {templates.map((template) => (
             <TemplateItem key={template.name} template={template} />
@@ -20,96 +26,96 @@ const templates: DiagramTemplate[] = [
    {
       name: "",
       label: "Start from scratch",
-      icon: "fileJSON",
+      image: "",
    },
    {
       name: "factory_method",
       label: "Factory Method",
-      icon: "fileJSON",
+      image: "https://refactoring.guru/images/patterns/cards/factory-method-mini-3x.png",
    },
    {
       name: "abstract_factory",
       label: "Abstract Factory",
-      icon: "fileJSON",
+      image: "https://refactoring.guru/images/patterns/cards/abstract-factory-mini.png",
    },
    {
       name: "builder",
       label: "Builder",
-      icon: "fileJSON",
+      image: "https://refactoring.guru/images/patterns/cards/builder-mini.png?id=19b95fd05e6469679752c0554b116815",
    },
    {
       name: "prototype",
       label: "Prototype",
-      icon: "fileJSON",
+      image: "https://refactoring.guru/images/patterns/cards/prototype-mini.png?id=bc3046bb39ff36574c08d49839fd1c8e",
    },
    {
       name: "singleton",
       label: "Singleton",
-      icon: "fileJSON",
+      image: "https://refactoring.guru/images/patterns/cards/singleton-mini.png?id=914e1565dfdf15f240e766163bd303ec",
    },
    // {
    //    name: "adapter",
    //    label: "Adapter",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "bridge",
    //    label: "Bridge",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "composite",
    //    label: "Composite",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "decorator",
    //    label: "Decorator",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "facade",
    //    label: "Facade",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "flyweight",
    //    label: "Flyweight",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "proxy",
    //    label: "Proxy",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "chain_of_responsibility",
    //    label: "Chain of Responsibility",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "command",
    //    label: "Command",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "interpreter",
    //    label: "Interpreter",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "iterator",
    //    label: "Iterator",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "mediator",
    //    label: "Mediator",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
    // {
    //    name: "memento",
    //    label: "Memento",
-   //    icon: "fileJSON",
+   //    image: "",
    // },
 ];

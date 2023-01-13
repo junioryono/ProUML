@@ -14,10 +14,6 @@ export default async function MarketingLayout({ children }: { children: React.Re
                         href: "/features",
                      },
                      {
-                        title: "Pricing",
-                        href: "/pricing",
-                     },
-                     {
                         title: "Blog",
                         href: "/blog",
                      },
@@ -25,6 +21,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
                         title: "GitHub",
                         href: "https://github.com/junioryono/ProUML",
                         newTab: true,
+                        hideOnXS: true,
                      },
                   ]}
                />

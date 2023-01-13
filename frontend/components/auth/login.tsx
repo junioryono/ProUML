@@ -47,7 +47,7 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
 
       setIsLoading(false);
 
-      if (!signInResult) {
+      if (!signInResult.success) {
          return toast({
             title: "Something went wrong.",
             message: "Incorrect email or password. Please try again.",
@@ -75,7 +75,7 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
                   <input
                      id="email"
                      placeholder="name@example.com"
-                     className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
+                     className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                      type="email"
                      autoCapitalize="none"
                      autoComplete="email"
@@ -92,7 +92,7 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
                <input
                   id="password"
                   placeholder="Password"
-                  className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
+                  className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                   type="password"
                   autoCapitalize="none"
                   autoComplete="current-password"

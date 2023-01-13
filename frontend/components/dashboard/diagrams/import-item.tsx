@@ -54,7 +54,7 @@ export function ImportItem() {
             console.error(error);
             return toast({
                title: "Something went wrong.",
-               message: error,
+               message: error.message,
                type: "error",
             });
          })
@@ -65,12 +65,12 @@ export function ImportItem() {
    }
 
    return (
-      <div className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/6 h-64 mb-4">
-         <div className="flex items-center justify-center m-2">
+      <div className="w-36 lg:w-1/5 xl:w-1/7 mb-4 mr-3 lg:mr-0">
+         <div className="w-[inherit] lg:w-auto flex items-center justify-center m-1">
             <label
                htmlFor="dropzone-file"
                className={cn(
-                  "flex flex-col items-center justify-center w-full h-64 border-2 bg-slate-50 border-gray-300 border-dashed rounded-lg",
+                  "flex flex-col items-center justify-center w-full h-52 border-2 bg-slate-50 border-gray-300 border-dashed rounded-lg",
                   !isLoading && "cursor-pointer hover:bg-white hover:border-gray-400",
                )}
             >
