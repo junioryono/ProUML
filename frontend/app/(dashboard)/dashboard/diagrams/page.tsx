@@ -16,7 +16,7 @@ export default async function DashboardDiagramsPage() {
 
    const diagramsRequest = await getDiagrams();
 
-   console.log("diagrams", diagramsRequest);
+   // console.log("diagrams", diagramsRequest);
 
    const showEmptyPlaceholder = !diagramsRequest.success || !diagramsRequest.response.length;
 

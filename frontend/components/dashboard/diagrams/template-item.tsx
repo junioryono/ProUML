@@ -26,7 +26,6 @@ export function TemplateItem({ template }: { template: DiagramTemplate }) {
       createDiagram(formData)
          .then((res) => {
             if (res.success === false) {
-               console.log("throwing error");
                throw new Error(res.reason);
             }
 
@@ -59,7 +58,7 @@ export function TemplateItem({ template }: { template: DiagramTemplate }) {
             onClick={onClickHandler}
          >
             {template.image && (
-               <Image src={template.image} width={128} height={200} alt={template.label} className="w-32 h-auto" />
+               <Image src={template.image} width={128} height={91} alt={template.label} className="w-32 h-auto" />
             )}
             <p className="mb-2 mt-3 px-1 text-sm text-gray-500 font-semibold">{template.label}</p>
             {isLoading && <Icons.spinner className="h-4 w-4 animate-spin" />}

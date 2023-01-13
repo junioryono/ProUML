@@ -22,7 +22,6 @@ export function ImportItem() {
    async function onProjectImport(e: React.ChangeEvent<HTMLInputElement>) {
       setIsLoading(true);
 
-      console.log(e.target.files[0].type);
       if (!e.target.files || !validFileTypes.includes(e.target.files[0].type)) {
          e.target.value = null; // Reset form files
          setIsLoading(false);
