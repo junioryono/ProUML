@@ -2,7 +2,7 @@
 
 import { NewDiagram } from "@/components/dashboard/diagrams/new-diagram";
 import { useState } from "react";
-import { DiagramCreateButton } from "./diagram-create-button";
+import { CreateButton } from "@/components/dashboard/create-button";
 
 export function DiagramsHeader({
    diagramsLength,
@@ -20,7 +20,9 @@ export function DiagramsHeader({
                <h1 className="text-2xl font-bold tracking-wide text-slate-900">Diagrams</h1>
                <p className="text-neutral-500">Create and manage diagrams.</p>
             </div>
-            {!!diagramsLength && !open && <DiagramCreateButton onClick={() => setOpen((current) => !current)} />}
+            {!!diagramsLength && !open && (
+               <CreateButton title="New diagram" onClick={() => setOpen((current) => !current)} />
+            )}
          </div>
          {!showEmptyPlaceholder && open && <NewDiagram className="transition-all ease-out duration-700 mb-0" />}
       </>

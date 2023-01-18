@@ -3,7 +3,6 @@ package java
 import (
 	"bytes"
 	"strings"
-	"unicode"
 
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 )
@@ -64,87 +63,29 @@ func getClassExports(parsedFiles []types.FileResponse) []types.JavaClassExports 
 			exportsMap[string(t)] = struct{}{}
 		}
 
-		addExportsClassHelper := func(innerPackageName, innerClassName []byte, variables []types.JavaVariable, methods []types.JavaMethod) {
+		addExportsHelper := func(innerPackageName, innerClassName []byte) {
 			addToExportsMap(innerClassName)
 
-			var temp1 []byte
-			temp1 = append(temp1, innerPackageName...)
-			temp1 = append(temp1, []byte(".")...)
-			temp1 = append(temp1, innerClassName...)
-			addToExportsMap(temp1)
-
-			for _, variable := range variables {
-				var temp2 []byte
-				temp2 = append(temp2, innerPackageName...)
-				temp2 = append(temp2, []byte(".")...)
-				temp2 = append(temp2, innerClassName...)
-				temp2 = append(temp2, []byte(".")...)
-				temp2 = append(temp2, variable.Name...)
-				addToExportsMap(temp2)
-
-				var temp3 []byte
-				temp3 = append(temp3, innerClassName...)
-				temp3 = append(temp3, []byte(".")...)
-				temp3 = append(temp3, variable.Name...)
-				addToExportsMap(temp3)
-			}
-
-			for _, method := range methods {
-				var temp2 []byte
-				temp2 = append(temp2, innerPackageName...)
-				temp2 = append(temp2, []byte(".")...)
-				temp2 = append(temp2, innerClassName...)
-				temp2 = append(temp2, []byte(".")...)
-				temp2 = append(temp2, method.Name...)
-				addToExportsMap(temp2)
-
-				var temp3 []byte
-				temp3 = append(temp3, innerClassName...)
-				temp3 = append(temp3, []byte(".")...)
-				temp3 = append(temp3, method.Name...)
-				addToExportsMap(temp3)
-			}
-		}
-
-		addExportsEnumHelper := func(innerPackageName, innerClassName []byte, declarations []types.CustomByteSlice) {
-			addToExportsMap(innerClassName)
-
-			var temp1 []byte
-			temp1 = append(temp1, innerPackageName...)
-			temp1 = append(temp1, []byte(".")...)
-			temp1 = append(temp1, innerClassName...)
-			addToExportsMap(temp1)
-
-			for _, declaration := range declarations {
-				var temp2 []byte
-				temp2 = append(temp2, innerPackageName...)
-				temp2 = append(temp2, []byte(".")...)
-				temp2 = append(temp2, innerClassName...)
-				temp2 = append(temp2, []byte(".")...)
-				temp2 = append(temp2, declaration...)
-				addToExportsMap(temp2)
-
-				var temp3 []byte
-				temp3 = append(temp3, innerClassName...)
-				temp3 = append(temp3, []byte(".")...)
-				temp3 = append(temp3, declaration...)
-				addToExportsMap(temp3)
-			}
+			var withPackageName []byte
+			withPackageName = append(withPackageName, innerPackageName...)
+			withPackageName = append(withPackageName, []byte(".")...)
+			withPackageName = append(withPackageName, innerClassName...)
+			addToExportsMap(withPackageName)
 		}
 
 		switch class := parsedClass.(type) {
 		case types.JavaAbstract:
 			current.Name = class.Name
-			addExportsClassHelper(current.Package, class.Name, class.Variables, class.Methods)
+			addExportsHelper(current.Package, class.Name)
 		case types.JavaClass:
 			current.Name = class.Name
-			addExportsClassHelper(current.Package, class.Name, class.Variables, class.Methods)
+			addExportsHelper(current.Package, class.Name)
 		case types.JavaEnum:
 			current.Name = class.Name
-			addExportsEnumHelper(current.Package, class.Name, class.Declarations)
+			addExportsHelper(current.Package, class.Name)
 		case types.JavaInterface:
 			current.Name = class.Name
-			addExportsClassHelper(current.Package, class.Name, class.Variables, class.Methods)
+			addExportsHelper(current.Package, class.Name)
 		}
 
 		for key := range exportsMap {
@@ -325,17 +266,58 @@ func getClassAssociationsAndDependencies(importedTypeNames map[string]struct{}, 
 			return false
 		}
 
-		// Check if it is being set as a variable name
-		if len(typeName) < len(functionality) && unicode.IsLetter(rune(functionality[len(typeName)])) {
-			currentlyDeclaredVariableNames[string(typeName)] = currentScope
+		if len(functionality) == len(typeName) {
+			return true
 		}
 
-		// It is being used as a type
-		return true
+		nextByte := functionality[len(typeName)]
+
+		// Check if it is being set as a variable name
+		if nextByte == EqualSign {
+			currentlyDeclaredVariableNames[string(typeName)] = currentScope
+			return false
+		}
+
+		// Check if it is being used as a type
+		if nextByte == Period ||
+			nextByte == OpenCurly ||
+			nextByte == ClosedCurly ||
+			nextByte == OpenParenthesis ||
+			nextByte == ClosedParenthesis ||
+			nextByte == OpenBracket ||
+			nextByte == ClosedBracket ||
+			nextByte == LeftArrow ||
+			nextByte == RightArrow ||
+			nextByte == Colon ||
+			nextByte == SemiColon ||
+			nextByte == Slash ||
+			nextByte == Backslash ||
+			nextByte == Asterisk ||
+			nextByte == Comma ||
+			nextByte == AndCondition ||
+			nextByte == OrCondition ||
+			nextByte == ExclamationMark ||
+			nextByte == QuestionMark ||
+			nextByte == PlusSign ||
+			nextByte == Hyphen_MinusSign ||
+			nextByte == Tilde ||
+			nextByte == Percent ||
+			nextByte == Caret ||
+			nextByte == Space {
+			// It is being used as a type
+			return true
+		}
+
+		// It is part of another word.
+		// For example, if the typeName is "hello1", and the functionality contains "hello12", then it is not being used as a type
+		return false
 	}
 
 	for _, method := range methods {
-		getTypesFromType(method.Type, dependenciesMap)
+		// getTypesFromType(method.Type, dependenciesMap)
+		// ^ This is commented out because of their use with interfaces.
+		// For example, if a method has a return type of "ProductIF", then it is not a dependency,
+		// but a class that implements the interface "ProductIF" and is used as a dependency in the functionality will be included as a dependency
 
 		for _, parameter := range method.Parameters {
 			addVariableAtScope(parameter.Name, 1)
@@ -350,34 +332,6 @@ func getClassAssociationsAndDependencies(importedTypeNames map[string]struct{}, 
 				continue
 			}
 
-			if i != 0 &&
-				method.Functionality[i] != OpenCurly &&
-				method.Functionality[i] != ClosedCurly &&
-				method.Functionality[i] != OpenParenthesis &&
-				method.Functionality[i] != ClosedParenthesis &&
-				method.Functionality[i] != OpenBracket &&
-				method.Functionality[i] != ClosedBracket &&
-				method.Functionality[i] != LeftArrow &&
-				method.Functionality[i] != RightArrow &&
-				method.Functionality[i] != Colon &&
-				method.Functionality[i] != SemiColon &&
-				method.Functionality[i] != EqualSign &&
-				method.Functionality[i] != Slash &&
-				method.Functionality[i] != Backslash &&
-				method.Functionality[i] != Asterisk &&
-				method.Functionality[i] != Comma &&
-				method.Functionality[i] != AndCondition &&
-				method.Functionality[i] != OrCondition &&
-				method.Functionality[i] != ExclamationMark &&
-				method.Functionality[i] != QuestionMark &&
-				method.Functionality[i] != PlusSign &&
-				method.Functionality[i] != Hyphen_MinusSign &&
-				method.Functionality[i] != Tilde &&
-				method.Functionality[i] != Percent &&
-				method.Functionality[i] != Caret {
-				continue
-			}
-
 			if method.Functionality[i] == OpenCurly {
 				currentScope++
 				continue
@@ -386,6 +340,35 @@ func getClassAssociationsAndDependencies(importedTypeNames map[string]struct{}, 
 			if method.Functionality[i] == ClosedCurly {
 				removeVariablesAtAndAboveScope(currentScope)
 				currentScope--
+				continue
+			}
+
+			if i != 0 &&
+				method.Functionality[i-1] != OpenCurly &&
+				method.Functionality[i-1] != ClosedCurly &&
+				method.Functionality[i-1] != OpenParenthesis &&
+				method.Functionality[i-1] != ClosedParenthesis &&
+				method.Functionality[i-1] != OpenBracket &&
+				method.Functionality[i-1] != ClosedBracket &&
+				method.Functionality[i-1] != LeftArrow &&
+				method.Functionality[i-1] != RightArrow &&
+				method.Functionality[i-1] != Colon &&
+				method.Functionality[i-1] != SemiColon &&
+				method.Functionality[i-1] != EqualSign &&
+				method.Functionality[i-1] != Slash &&
+				method.Functionality[i-1] != Backslash &&
+				method.Functionality[i-1] != Asterisk &&
+				method.Functionality[i-1] != Comma &&
+				method.Functionality[i-1] != AndCondition &&
+				method.Functionality[i-1] != OrCondition &&
+				method.Functionality[i-1] != ExclamationMark &&
+				method.Functionality[i-1] != QuestionMark &&
+				method.Functionality[i-1] != PlusSign &&
+				method.Functionality[i-1] != Hyphen_MinusSign &&
+				method.Functionality[i-1] != Tilde &&
+				method.Functionality[i-1] != Percent &&
+				method.Functionality[i-1] != Caret &&
+				method.Functionality[i-1] != Space {
 				continue
 			}
 
@@ -400,6 +383,7 @@ func getClassAssociationsAndDependencies(importedTypeNames map[string]struct{}, 
 				}
 
 				addToResponseMap([]byte(typeName), dependenciesMap)
+				break
 			}
 
 		}

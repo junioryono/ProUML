@@ -25,12 +25,9 @@ func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]model
 		return nil, err
 	}
 
-	tx := d.db.Begin()
-
 	// Get all diagrams the user has access to
 	var userDiagrams []models.DiagramUserRoleModel
-	if err := tx.Where("user_id = ?", userId).Find(&userDiagrams).Error; err != nil {
-		tx.Rollback()
+	if err := d.db.Where("user_id = ?", userId).Find(&userDiagrams).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -38,22 +35,16 @@ func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]model
 	for _, userDiagram := range userDiagrams {
 		var diagram models.DiagramModelHiddenContent
 
-		if err := tx.Limit(10).
+		if err := d.db.Limit(10).
 			Offset(offset).
 			Model(&models.DiagramModel{}).
 			Where("id = ?", userDiagram.DiagramID).
 			First(&diagram).
 			Find(&models.DiagramModelHiddenContent{}).Error; err != nil {
-			tx.Rollback()
 			return nil, types.Wrap(err, types.ErrInternalServerError)
 		}
 
 		diagrams = append(diagrams, diagram)
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	return diagrams, nil

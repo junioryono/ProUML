@@ -1,7 +1,9 @@
 package transpiler
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/transpiler/java"
@@ -33,7 +35,9 @@ func ToJson(sdkP *sdk.SDK, files []types.File) (*types.Project, *httpTypes.Wrapp
 		return nil, err
 	}
 
-	return parsedProject, nil
+	diagramLayout := generateDiagramLayout(parsedProject)
+
+	return diagramLayout, nil
 }
 
 func getProjectLanguage(files []types.File) (string, *httpTypes.WrappedError) {
@@ -83,6 +87,77 @@ func parseProjectByLanguage(language string, files []types.File) (*types.Project
 	}
 }
 
+func generateDiagramLayout(project *types.Project) *types.Project {
+	type Connections struct {
+		ClassId  []byte
+		CameFrom []types.Relation
+		GoingTo  []types.Relation
+	}
+
+	// Create a slice of Connections
+	var classIdConnections []Connections
+
+	// Loop over all nodes
+	for _, node := range project.Nodes {
+		// Get the node's classId
+		var nodeClassId []byte
+		switch class := node.(type) {
+		case types.JavaAbstract:
+			nodeClassId = append(nodeClassId, class.Package...)
+			nodeClassId = append(nodeClassId, byte('.'))
+			nodeClassId = append(nodeClassId, class.Name...)
+		case types.JavaClass:
+			nodeClassId = append(nodeClassId, class.Package...)
+			nodeClassId = append(nodeClassId, byte('.'))
+			nodeClassId = append(nodeClassId, class.Name...)
+		case types.JavaEnum:
+			nodeClassId = append(nodeClassId, class.Package...)
+			nodeClassId = append(nodeClassId, byte('.'))
+			nodeClassId = append(nodeClassId, class.Name...)
+		case types.JavaInterface:
+			nodeClassId = append(nodeClassId, class.Package...)
+			nodeClassId = append(nodeClassId, byte('.'))
+			nodeClassId = append(nodeClassId, class.Name...)
+		default:
+			continue
+		}
+
+		// Get all the edges that have the node as the FromClassId
+		var fromEdges []types.Relation
+		var toEdges []types.Relation
+		for _, edge := range project.Edges {
+			if bytes.Equal(edge.FromClassId, nodeClassId) {
+				fromEdges = append(fromEdges, edge)
+			} else if bytes.Equal(edge.ToClassId, nodeClassId) {
+				toEdges = append(toEdges, edge)
+			}
+		}
+
+		// Add the node's classId and the edges to the map
+		classIdConnections = append(classIdConnections, Connections{
+			ClassId:  nodeClassId,
+			CameFrom: fromEdges,
+			GoingTo:  toEdges,
+		})
+	}
+
+	// Print all classIdConnections
+	for _, connection := range classIdConnections {
+		fmt.Println("ClassId:", string(connection.ClassId))
+		fmt.Println("CameFrom:")
+		for _, edge := range connection.CameFrom {
+			fmt.Println("  ToClassId:", string(edge.ToClassId))
+		}
+		fmt.Println("GoingTo:")
+		for _, edge := range connection.GoingTo {
+			fmt.Println("  ToClassId:", string(edge.FromClassId))
+		}
+		fmt.Println()
+	}
+
+	return project
+}
+
 func contains(s []string, e string) string {
 	for _, a := range s {
 		if a == e {
@@ -92,66 +167,3 @@ func contains(s []string, e string) string {
 
 	return ""
 }
-
-// // Check if projectId belongs to user.
-// // If projectId is not specified, generate a new one and assign it to user.
-// func validateProjectId(sdkP *sdk.SDK, projectId string, userUUID string) (string, *httpTypes.WrappedError) {
-// 	if projectId == "" {
-// 		// Generate projectId
-// 		projectId := uuid.New().String()
-// 		_ = projectId // temp - will be deleted later
-
-// 		// Insert new row into table with this projectId
-// 		// SupabaseClient.DB.From("document").Insert()
-
-// 		return projectId, nil
-// 	}
-
-// 	// Query projectId and SELECT owner
-// 	var DocumentQueryResult map[string]interface{}
-// 	// err := cgn.DB.From("document").Select("id").Eq("owner", userUUID).Execute(&DocumentQueryResult)
-// 	err := errors.New("error")
-// 	if err != nil {
-// 		return "", httpTypes.Wrap(err, httpTypes.ErrInternalServerError)
-// 	}
-
-// 	// Loop over DocumentQueryResult to see if projectId is in there
-// 	exists := projectIdExists(projectId, DocumentQueryResult)
-// 	if !exists {
-// 		return "", httpTypes.Wrap(errors.New("user does not have access to this project"), httpTypes.ErrNoDiagramsFound)
-// 	}
-
-// 	return projectId, nil
-// }
-
-// // Check if projectId exists in map
-// func projectIdExists(projectId string, queryResults map[string]interface{}) bool {
-// 	for _, element := range queryResults {
-// 		if element == projectId {
-// 			return true
-// 		}
-// 	}
-
-// 	return false
-// }
-
-// func downloadProject(sdkP *sdk.SDK, projectId string) ([]types.File, *httpTypes.WrappedError) {
-// 	// Download {projectId}.zip project from "projects" bucket
-// 	// supabase.Storage.From("").Download("")
-
-// 	// DELETE THIS AFTER DOWNLOAD IMPLEMENTATION IS COMPLETE
-// 	// Test files
-// 	file1 := types.File{
-// 		Name:      "Test",
-// 		Extension: "java",
-// 		Code:      []byte("public class Test { public static void main(String args[]){ System.out.println('Hello Java'); } }"),
-// 	}
-// 	file2 := types.File{
-// 		Name:      "Test2",
-// 		Extension: "java",
-// 		Code:      []byte("public class Test2 { public void test(){ System.out.println('test2'); } }"),
-// 	}
-// 	files := []types.File{file1, file2}
-
-// 	return files, nil
-// }

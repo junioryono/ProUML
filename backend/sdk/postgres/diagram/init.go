@@ -27,7 +27,7 @@ func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagram_SDK {
 	}
 }
 
-func (d *Diagram_SDK) Create(idToken string) (string, *types.WrappedError) {
+func (d *Diagram_SDK) Create(idToken string, marshaledProject *[]byte) (string, *types.WrappedError) {
 	// Get the user id from the id token
 	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
@@ -40,6 +40,10 @@ func (d *Diagram_SDK) Create(idToken string) (string, *types.WrappedError) {
 	diagram := models.DiagramModel{
 		ID:      diagramId,
 		Content: datatypes.JSON([]byte("{}")),
+	}
+
+	if marshaledProject != nil {
+		diagram.Content = datatypes.JSON(*marshaledProject)
 	}
 
 	// Create a new user diagram model
@@ -117,25 +121,20 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *typ
 		return nil, err
 	}
 
-	tx := d.db.Begin()
-
 	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
 	var diagram models.DiagramModel
-	if err := tx.Where("id = ?", diagramId).First(&diagram).Error; err != nil {
-		tx.Rollback()
+	if err := d.db.Where("id = ?", diagramId).First(&diagram).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	if !diagram.Public {
 		var userDiagram models.DiagramUserRoleModel
 
-		if err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
-			tx.Rollback()
+		if err := d.db.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
 			return nil, types.Wrap(err, types.ErrInternalServerError)
 		}
 
 		if userDiagram.Role != "owner" && userDiagram.Role != "editor" && userDiagram.Role != "viewer" {
-			tx.Rollback()
 			return nil, types.Wrap(errors.New("user does not have access to diagram"), types.ErrInvalidRequest)
 		}
 	}
@@ -181,48 +180,6 @@ func (d *Diagram_SDK) Update(diagramId, idToken string, public *bool, name strin
 	if name != "" {
 		diagram.Name = name
 	}
-
-	if err := tx.Save(&diagram).Error; err != nil {
-		tx.Rollback()
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	return nil
-}
-
-func (d *Diagram_SDK) SaveTranspilation(diagramId, idToken string, marshaledProject []byte) *types.WrappedError {
-	// Get the user id from the id token
-	userId, err := d.Auth.Client.GetUserId(idToken)
-	if err != nil {
-		return err
-	}
-
-	tx := d.db.Begin()
-
-	// Update the diagram in the database if the user is the owner or editor
-	var userDiagram models.DiagramUserRoleModel
-	if err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
-		tx.Rollback()
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	if userDiagram.Role != "owner" && userDiagram.Role != "editor" {
-		tx.Rollback()
-		return types.Wrap(errors.New("user is not the owner or editor of the diagram"), types.ErrInvalidRequest)
-	}
-
-	var diagram models.DiagramModel
-	if err := tx.Where("id = ?", diagramId).First(&diagram).Error; err != nil {
-		tx.Rollback()
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	diagram.Transpilation = datatypes.JSON(marshaledProject)
 
 	if err := tx.Save(&diagram).Error; err != nil {
 		tx.Rollback()

@@ -32,13 +32,12 @@ type UserModel struct {
 }
 
 type DiagramModel struct {
-	ID            string         `gorm:"uniqueIndex" json:"id"`
-	CreatedAt     time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt     time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	Public        bool           `gorm:"default:false" json:"public"`
-	Name          string         `gorm:"default:'Untitled Diagram'" json:"name"`
-	Content       datatypes.JSON `json:"content"`
-	Transpilation datatypes.JSON `json:"transpilation,omitempty"`
+	ID        string         `gorm:"uniqueIndex" json:"id"`
+	CreatedAt time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	Public    bool           `gorm:"default:false" json:"public"`
+	Name      string         `gorm:"default:'Untitled Diagram'" json:"name"`
+	Content   datatypes.JSON `json:"content"`
 }
 
 type DiagramUserRoleModel struct {

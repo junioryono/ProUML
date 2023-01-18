@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-client";
 import { DropdownMenu } from "@/ui/dropdown";
 import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/icons";
-import { User } from "types";
 
-export function UserAccountNav() {
+export function UserAccountNav({ className }: { className?: string }) {
    const router = useRouter();
    const { logout, user } = useAuth();
    const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -18,7 +17,7 @@ export function UserAccountNav() {
    if (user === undefined) {
       return (
          <div className="flex items-center gap-2 overflow-hidden focus-visible:outline-none select-none">
-            <UserAvatar />
+            <UserAvatar className={className} />
          </div>
       );
    }
@@ -39,11 +38,15 @@ export function UserAccountNav() {
    return (
       <DropdownMenu>
          <DropdownMenu.Trigger className="flex items-center gap-2 overflow-hidden focus-visible:outline-none select-none">
-            <UserAvatar user={user} />
+            <UserAvatar user={user} className={className} />
          </DropdownMenu.Trigger>
          <DropdownMenu.Portal>
             <DropdownMenu.Content className="mt-4 md:w-[240px]" align="end">
-               <Link href={"/user/" + user.user_id} className="flex items-center justify-start gap-2 p-4 cursor-pointer">
+               <Link
+                  href={"/user/[id]" + user.user_id}
+                  as={`/user/${user.user_id}`}
+                  className="flex items-center justify-start gap-2 p-4 cursor-pointer"
+               >
                   <div className="flex flex-col space-y-1 leading-none">
                      {user.full_name && <p className="font-medium">{user.full_name}</p>}
                      {user.email && <p className="w-[200px] truncate text-sm text-slate-600">{user.email}</p>}
@@ -61,8 +64,12 @@ export function UserAccountNav() {
 
                <DropdownMenu.Separator />
 
-               <Link href={"/user/" + user.user_id}>
+               <Link href={"/user/[id]" + user.user_id} as={`/user/${user.user_id}`}>
                   <DropdownMenu.Item className="cursor-pointer">Your profile</DropdownMenu.Item>
+               </Link>
+
+               <Link href="/dashboard/diagrams">
+                  <DropdownMenu.Item className="cursor-pointer">Your diagrams</DropdownMenu.Item>
                </Link>
 
                <Link href="/dashboard/projects">
@@ -71,10 +78,6 @@ export function UserAccountNav() {
 
                <Link href="/dashboard/teams">
                   <DropdownMenu.Item className="cursor-pointer">Your teams</DropdownMenu.Item>
-               </Link>
-
-               <Link href="/dashboard/diagrams">
-                  <DropdownMenu.Item className="cursor-pointer">Your diagrams</DropdownMenu.Item>
                </Link>
 
                <Link href="/dashboard/issues">

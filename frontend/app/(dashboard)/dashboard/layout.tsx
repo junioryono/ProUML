@@ -24,6 +24,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
                <DashboardNav
                   items={[
                      {
+                        title: "Diagrams",
+                        href: "/dashboard/diagrams",
+                        icon: "post",
+                     },
+                     {
                         title: "Projects",
                         href: "/dashboard/projects",
                         icon: "fileImage",
@@ -32,11 +37,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
                         title: "Teams",
                         href: "/dashboard/teams",
                         icon: "users",
-                     },
-                     {
-                        title: "Diagrams",
-                        href: "/dashboard/diagrams",
-                        icon: "post",
                      },
                      {
                         title: "Issues",

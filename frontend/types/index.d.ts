@@ -72,8 +72,8 @@ export type User = {
    user_id: string;
    email: string;
    email_verified: boolean;
-   created_at: number;
-   updated_at: number;
+   created_at: string;
+   updated_at: string;
    last_login: number;
    last_ip: string;
    logins_count: number;
@@ -86,8 +86,8 @@ export type User = {
 
 export type Diagram = {
    id: string;
-   created_at: number;
-   updated_at: number;
+   created_at: string;
+   updated_at: string;
    public: boolean;
    name: string;
    content?: any;

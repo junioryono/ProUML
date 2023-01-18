@@ -242,8 +242,14 @@ func removeSpacing(text []byte) []byte {
 			continue
 		}
 
+		// Replace all new lines with a space
+		ok := replaceWithSpaceOrRemove(&i, NewLine)
+		if ok {
+			continue
+		}
+
 		// Replace all tabs with a space
-		ok := replaceWithSpaceOrRemove(&i, Tab)
+		ok = replaceWithSpaceOrRemove(&i, Tab)
 		if ok {
 			continue
 		}
@@ -1157,7 +1163,13 @@ func getVariablesOrMethod(text []byte) ([]types.JavaVariable, types.JavaMethod) 
 		for _, param := range allParamsSplit {
 			Type, Name, found := bytes.Cut(param, []byte(" "))
 			if !found {
-				continue
+				lastRightArrow := bytes.LastIndexByte(param, '>')
+				if lastRightArrow == -1 {
+					continue
+				}
+
+				Type = param[:lastRightArrow+1]
+				Name = param[lastRightArrow+1:]
 			}
 
 			method.Parameters = append(method.Parameters, types.JavaMethodParameter{

@@ -6,11 +6,24 @@ import { formatDate } from "@/lib/utils";
 import { Diagram } from "types";
 import { DiagramItemOptions } from "./diagram-item-options";
 import { LongPressDetectEvents, useLongPress } from "use-long-press";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function DiagramItem({ diagram }: { diagram: Diagram }) {
    const [showMenu, setShowMenu] = useState(false);
-   const ref = useRef<HTMLAnchorElement>(null);
+   const linkRef = useRef<HTMLAnchorElement>(null);
+   // Store diagram.updated_at as a Date object
+   const [updatedAt, setUpdatedAt] = useState<string>(formatDate(diagram.updated_at.toString(), "Edited"));
+
+   // Update the date every 15 seconds
+   useEffect(() => {
+      if (!diagram) return;
+
+      const interval = setInterval(() => {
+         setUpdatedAt(formatDate(diagram.updated_at.toString(), "Edited"));
+      }, 15 * 1000);
+
+      return () => clearInterval(interval);
+   }, [diagram]);
 
    const onLongPress = useLongPress(
       () => {
@@ -24,7 +37,7 @@ export function DiagramItem({ diagram }: { diagram: Diagram }) {
    );
 
    function handleClickOutside(event: Event) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
+      if (linkRef.current && !linkRef.current.contains(event.target as Node)) {
          setShowMenu(false);
       }
    }
@@ -47,7 +60,7 @@ export function DiagramItem({ diagram }: { diagram: Diagram }) {
          {/* Add a link to the diagram item and open it in a new tab */}
          <div className="m-2 border-gray-200 border rounded">
             <Link
-               ref={ref}
+               ref={linkRef}
                href="/diagram/[id]"
                as={`/diagram/${diagram.id}`}
                {...onLongPress()}
@@ -65,9 +78,7 @@ export function DiagramItem({ diagram }: { diagram: Diagram }) {
                      <h2 className="title-font text-sm sm:text-lg font-medium text-gray-900 overflow-ellipsis overflow-hidden">
                         {diagram.name}
                      </h2>
-                     <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">
-                        {formatDate(diagram.created_at?.toString())}
-                     </p>
+                     <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p>
                   </div>
                   <div className="h-fit ml-auto md:mt-auto">
                      <DiagramItemOptions diagram={diagram} showMenu={showMenu} setShowMenu={setShowMenu} />

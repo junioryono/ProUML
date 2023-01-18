@@ -1086,6 +1086,42 @@ func TestRemoveSpacing(t *testing.T) {
 		},
 		{
 			Input: []byte(`
+			import java.util.List;
+
+			public class Client {
+				private static void printSelectionPanel(String title, List<String> list) {
+					System.out.println(title);
+					list.forEach(item -> {
+						System.out.println(item);
+					});
+					System.out.println();
+				}
+
+				public static void main(String[] args) {
+					ModeInterface beginnerFactory = new ModeFactory().createFactory("Beginner");
+					CharacterInterface beginnerCharacter = beginnerFactory.createCharacter();
+					printSelectionPanel("Beginner Character Selection Panel:", beginnerCharacter.getSelectionPanel());
+					WeaponInterface beginnerWeapon = beginnerFactory.createWeapon();
+					printSelectionPanel("Beginner Weapon Selection Panel:", beginnerWeapon.getSelectionPanel());
+
+					ModeInterface advancedFactory = new ModeFactory().createFactory("Advanced");
+					CharacterInterface advancedCharacter = advancedFactory.createCharacter();
+					printSelectionPanel("Advanced Character Selection Panel:", advancedCharacter.getSelectionPanel());
+					WeaponInterface advancedWeapon = advancedFactory.createWeapon();
+					printSelectionPanel("Advanced Weapon Selection Panel:", advancedWeapon.getSelectionPanel());
+
+					ModeInterface intermediateFactory = new ModeFactory().createFactory("Intermediate");
+					CharacterInterface intermediateCharacter = intermediateFactory.createCharacter();
+					printSelectionPanel("Intermediate Character Selection Panel:", intermediateCharacter.getSelectionPanel());
+					WeaponInterface intermediateWeapon = intermediateFactory.createWeapon();
+					printSelectionPanel("Intermediate Weapon Selection Panel:", intermediateWeapon.getSelectionPanel());
+				}
+			}
+			`),
+			Output: []byte("import java.util.List;public class Client{private static void printSelectionPanel(String title,List<String>list){System.out.println(title);list.forEach(item->{System.out.println(item);});System.out.println();}public static void main(String[] args){ModeInterface beginnerFactory=new ModeFactory().createFactory(\"Beginner\");CharacterInterface beginnerCharacter=beginnerFactory.createCharacter();printSelectionPanel(\"Beginner Character Selection Panel:\",beginnerCharacter.getSelectionPanel());WeaponInterface beginnerWeapon=beginnerFactory.createWeapon();printSelectionPanel(\"Beginner Weapon Selection Panel:\",beginnerWeapon.getSelectionPanel());ModeInterface advancedFactory=new ModeFactory().createFactory(\"Advanced\");CharacterInterface advancedCharacter=advancedFactory.createCharacter();printSelectionPanel(\"Advanced Character Selection Panel:\",advancedCharacter.getSelectionPanel());WeaponInterface advancedWeapon=advancedFactory.createWeapon();printSelectionPanel(\"Advanced Weapon Selection Panel:\",advancedWeapon.getSelectionPanel());ModeInterface intermediateFactory=new ModeFactory().createFactory(\"Intermediate\");CharacterInterface intermediateCharacter=intermediateFactory.createCharacter();printSelectionPanel(\"Intermediate Character Selection Panel:\",intermediateCharacter.getSelectionPanel());WeaponInterface intermediateWeapon=intermediateFactory.createWeapon();printSelectionPanel(\"Intermediate Weapon Selection Panel:\",intermediateWeapon.getSelectionPanel());}}"),
+		},
+		{
+			Input: []byte(`
 			public class Test {
 				button.addActionListener(e -> System.out.println('Hello'));
 				button.addActionListener(e -> {
@@ -1367,6 +1403,47 @@ func TestGetFileClasses(t *testing.T) {
 	}
 
 	var tests = []FileClassesTest{
+		{
+			Input: []byte("import java.util.List;public class Client{private static void printSelectionPanel(String title,List<String>list){System.out.println(title);list.forEach(item->{System.out.println(item);});System.out.println();}public static void main(String[] args){ModeInterface beginnerFactory=new ModeFactory().createFactory(\"Beginner\");CharacterInterface beginnerCharacter=beginnerFactory.createCharacter();printSelectionPanel(\"Beginner Character Selection Panel:\",beginnerCharacter.getSelectionPanel());WeaponInterface beginnerWeapon=beginnerFactory.createWeapon();printSelectionPanel(\"Beginner Weapon Selection Panel:\",beginnerWeapon.getSelectionPanel());ModeInterface advancedFactory=new ModeFactory().createFactory(\"Advanced\");CharacterInterface advancedCharacter=advancedFactory.createCharacter();printSelectionPanel(\"Advanced Character Selection Panel:\",advancedCharacter.getSelectionPanel());WeaponInterface advancedWeapon=advancedFactory.createWeapon();printSelectionPanel(\"Advanced Weapon Selection Panel:\",advancedWeapon.getSelectionPanel());ModeInterface intermediateFactory=new ModeFactory().createFactory(\"Intermediate\");CharacterInterface intermediateCharacter=intermediateFactory.createCharacter();printSelectionPanel(\"Intermediate Character Selection Panel:\",intermediateCharacter.getSelectionPanel());WeaponInterface intermediateWeapon=intermediateFactory.createWeapon();printSelectionPanel(\"Intermediate Weapon Selection Panel:\",intermediateWeapon.getSelectionPanel());}}"),
+			Output: []any{
+				types.JavaClass{
+					Package: []byte("default"),
+					Name:    []byte("Client"),
+					Methods: []types.JavaMethod{
+						{
+							Type:           []byte("void"),
+							Name:           []byte("printSelectionPanel"),
+							AccessModifier: []byte("private"),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("String"),
+									Name: []byte("title"),
+								},
+								{
+									Type: []byte("List<String>"),
+									Name: []byte("list"),
+								},
+							},
+							Static:        true,
+							Functionality: []byte("System.out.println(title);list.forEach(item->{System.out.println(item);});System.out.println();"),
+						},
+						{
+							Type:           []byte("void"),
+							Name:           []byte("main"),
+							AccessModifier: []byte("public"),
+							Parameters: []types.JavaMethodParameter{
+								{
+									Type: []byte("String[]"),
+									Name: []byte("args"),
+								},
+							},
+							Static:        true,
+							Functionality: []byte("ModeInterface beginnerFactory=new ModeFactory().createFactory(\"Beginner\");CharacterInterface beginnerCharacter=beginnerFactory.createCharacter();printSelectionPanel(\"Beginner Character Selection Panel:\",beginnerCharacter.getSelectionPanel());WeaponInterface beginnerWeapon=beginnerFactory.createWeapon();printSelectionPanel(\"Beginner Weapon Selection Panel:\",beginnerWeapon.getSelectionPanel());ModeInterface advancedFactory=new ModeFactory().createFactory(\"Advanced\");CharacterInterface advancedCharacter=advancedFactory.createCharacter();printSelectionPanel(\"Advanced Character Selection Panel:\",advancedCharacter.getSelectionPanel());WeaponInterface advancedWeapon=advancedFactory.createWeapon();printSelectionPanel(\"Advanced Weapon Selection Panel:\",advancedWeapon.getSelectionPanel());ModeInterface intermediateFactory=new ModeFactory().createFactory(\"Intermediate\");CharacterInterface intermediateCharacter=intermediateFactory.createCharacter();printSelectionPanel(\"Intermediate Character Selection Panel:\",intermediateCharacter.getSelectionPanel());WeaponInterface intermediateWeapon=intermediateFactory.createWeapon();printSelectionPanel(\"Intermediate Weapon Selection Panel:\",intermediateWeapon.getSelectionPanel());"),
+						},
+					},
+				},
+			},
+		},
 		{
 			Input: []byte("package com.houarizegai.calculator;import java.awt.Cursor;public class Test1{public static void main(String[] args){System.out.println('Hello');System.out.println('Hello');}}"),
 			Output: []any{
@@ -2008,7 +2085,18 @@ func TestGetFileClasses(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
+							// Print method name
+							subtest.Logf("method: %s\n", string(variable.Name))
+
+							// Print response method name
+							subtest.Logf("response method: %s\n", string(response.Methods[index].Name))
+
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
+								// Print all response parameters
+								for _, param := range response.Methods[index].Parameters {
+									subtest.Logf("response param: %s %s\n", string(param.Type), string(param.Name))
+								}
+
 								subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(response.Methods[index].Parameters)), strconv.Itoa(len(variable.Parameters)))
 								subtest.FailNow()
 							}

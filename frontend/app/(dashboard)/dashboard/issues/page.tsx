@@ -1,3 +1,4 @@
+import { EmptyPlaceholder } from "@/components/dashboard/empty-placeholder";
 import { getSession } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 
@@ -8,5 +9,11 @@ export default async function DashboardIssuesPage() {
       redirect("/login?redirect=/dashboard/issues");
    }
 
-   return null;
+   return (
+      <EmptyPlaceholder>
+         <EmptyPlaceholder.Icon name="bug" />
+         <EmptyPlaceholder.Title>No issues created</EmptyPlaceholder.Title>
+         <EmptyPlaceholder.Description>There are no issues assigned to you.</EmptyPlaceholder.Description>
+      </EmptyPlaceholder>
+   );
 }

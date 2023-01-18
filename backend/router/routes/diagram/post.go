@@ -112,16 +112,8 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			// Create a new diagram
-			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName))
+			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), &marshaledProject)
 			if err2 != nil {
-				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
-					Success: false,
-					Reason:  err.Error(),
-				})
-			}
-
-			// Save the project
-			if err := sdkP.Postgres.Diagram.SaveTranspilation(diagramId, fbCtx.Cookies(auth.IdTokenCookieName), marshaledProject); err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
 					Reason:  err.Error(),
@@ -146,7 +138,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			// Create a new diagram
-			diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName))
+			diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), nil)
 			if err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
@@ -169,7 +161,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Create a new diagram
-		diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName))
+		diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), nil)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 				Success: false,

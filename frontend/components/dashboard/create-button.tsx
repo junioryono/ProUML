@@ -3,9 +3,11 @@
 import { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-interface DiagramCreateButtonProps extends HTMLAttributes<HTMLButtonElement> {}
+interface CreateButtonProps extends HTMLAttributes<HTMLButtonElement> {
+   title: string;
+}
 
-export function DiagramCreateButton({ className, ...props }: DiagramCreateButtonProps) {
+export function CreateButton({ className, title, ...props }: CreateButtonProps) {
    return (
       <button
          className={cn(
@@ -14,7 +16,7 @@ export function DiagramCreateButton({ className, ...props }: DiagramCreateButton
          )}
          {...props}
       >
-         New diagram
+         {title}
       </button>
    );
 }

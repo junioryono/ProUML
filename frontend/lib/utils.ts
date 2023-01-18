@@ -5,8 +5,33 @@ export function cn(...inputs: ClassValue[]) {
    return twMerge(clsx(inputs));
 }
 
-export function formatDate(input: string | number): string {
+export function formatDate(input: string | number, sameDayPrefix?: string): string {
    const date = new Date(input);
+
+   // If the date is within the last 24 hours, return either hours or minutes
+   if (new Date().getTime() - date.getTime() < 86400000) {
+      const hours = Math.floor((new Date().getTime() - date.getTime()) / 3600000);
+      const minutes = Math.floor((new Date().getTime() - date.getTime()) / 60000);
+
+      if (hours > 0) {
+         if (sameDayPrefix) {
+            return `${sameDayPrefix} ${hours} hour${hours > 1 ? "s" : ""} ago`;
+         }
+
+         return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+      }
+
+      if (minutes > 0) {
+         if (sameDayPrefix) {
+            return `${sameDayPrefix} ${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+         }
+
+         return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+      }
+
+      return "Just now";
+   }
+
    return date.toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",

@@ -1,8 +1,6 @@
-import { redirect } from "next/navigation";
-import { cache } from "react";
-
 import { getSession, getDiagram } from "@/lib/auth-server";
-import { Diagram } from "types";
+import { redirect } from "next/navigation";
+import { DiagramLayout } from "@/components/diagram/layout";
 
 export default async function DiagramPage({ params: { diagramId } }: { params: { diagramId: string } }) {
    const user = await getSession();
@@ -24,10 +22,5 @@ export default async function DiagramPage({ params: { diagramId } }: { params: {
       );
    }
 
-   return (
-      <div>
-         <div>Diagram Id: {diagramId}</div>
-         <div>{JSON.stringify(diagramRequest.response)}</div>
-      </div>
-   );
+   return <DiagramLayout diagram={diagramRequest.response} />;
 }

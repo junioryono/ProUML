@@ -13,7 +13,7 @@ export default async function DashboardIssuesLayout({ children }: { children: Re
 
    return (
       <DashboardShell>
-         <DashboardHeader heading="Issues" text="TODO..." />
+         <DashboardHeader heading="Issues" text="Manage issues assigned to you." />
          <div className="flex flex-col">{children}</div>
       </DashboardShell>
    );

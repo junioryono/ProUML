@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { DiagramsHeader } from "@/components/dashboard/diagrams/header";
 import { DiagramItem } from "@/components/dashboard/diagrams/diagram-item";
-import { EmptyPlaceholder } from "@/components/dashboard/diagrams/empty-placeholder";
+import { EmptyPlaceholder } from "@/components/dashboard/empty-placeholder";
 import { NewDiagram } from "@/components/dashboard/diagrams/new-diagram";
 import { getSession, getDiagrams } from "@/lib/auth-server";
 
@@ -15,9 +15,6 @@ export default async function DashboardDiagramsPage() {
    }
 
    const diagramsRequest = await getDiagrams();
-
-   // console.log("diagrams", diagramsRequest);
-
    const showEmptyPlaceholder = !diagramsRequest.success || !diagramsRequest.response.length;
 
    return (
