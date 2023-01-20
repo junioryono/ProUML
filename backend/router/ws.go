@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
-	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
@@ -21,45 +19,32 @@ type body struct {
 	Content *models.DiagramContentUpdate `json:"content"`
 }
 
-type connection struct {
-	sessionId string
-	*websocket.Conn
-	mu sync.Mutex
-}
-
-var Diagrams = make(map[string][]*connection)
-
 func WebSocketUpgrade() fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		if websocket.IsWebSocketUpgrade(fbCtx) {
-			return fbCtx.Next()
+		if !websocket.IsWebSocketUpgrade(fbCtx) {
+			return fiber.ErrUpgradeRequired
 		}
-		return fiber.ErrUpgradeRequired
+
+		// TODO: Check if user has access to diagram
+		idToken := fbCtx.Cookies(auth.IdTokenCookieName)
+		_ = idToken
+
+		return fbCtx.Next()
 	}
 }
 
 func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 	return websocket.New(func(wc *websocket.Conn) {
-		// var (
-		// 	mt  int
-		// 	msg []byte
-		// 	err error
-		// )
-
 		idToken := wc.Cookies(auth.IdTokenCookieName)
 		diagramId := wc.Params("diagramId")
-		sessionId := uuid.New().String()
 
-		// Add connection to diagram
-		Diagrams[diagramId] = append(Diagrams[diagramId], &connection{
-			sessionId: sessionId,
-			Conn:      wc,
-			mu:        sync.Mutex{},
-		})
+		// Listen for messages from Redis and send to client
+		sessionId := sdkP.Redis.Subscribe(diagramId, wc)
 
 		fmt.Printf("Diagram ID: %s\n", diagramId)
-		fmt.Printf("Connections: %d\n", len(Diagrams[diagramId]))
+		fmt.Printf("Connections: %d\n", sdkP.Redis.GetConnectionsLength(diagramId))
 
+		// Listen for messages from client and send to Redis
 		for {
 			msgType, msg, err := wc.ReadMessage()
 			if err != nil {
@@ -81,19 +66,7 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 
 				if stringContains(events, "broadcast") {
 					// Broadcast to all connections
-					go func() {
-						for _, conn := range Diagrams[diagramId] {
-							if conn.sessionId == sessionId {
-								continue
-							}
-
-							go func(c *connection) {
-								c.mu.Lock()
-								c.WriteMessage(msgType, msg)
-								c.mu.Unlock()
-							}(conn)
-						}
-					}()
+					go sdkP.Redis.Publish(diagramId, msg)
 				}
 
 				if stringContains(events, "db_save") {
@@ -105,15 +78,8 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			}
 		}
 
-		// Remove connection from diagram
-		for i, conn := range Diagrams[diagramId] {
-			if conn.sessionId == sessionId {
-				Diagrams[diagramId] = append(Diagrams[diagramId][:i], Diagrams[diagramId][i+1:]...)
-				break
-			}
-		}
-
-		fmt.Println("Connection closed")
+		// Remove connection
+		sdkP.Redis.Unsubscribe(diagramId, sessionId)
 	})
 }
 
