@@ -47,12 +47,7 @@ type JavaAbstract struct {
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
 	Dependencies  []CustomByteSlice `json:"-"`
-
-	// Used for diagram layout
-	X      int `json:"x"`
-	Y      int `json:"y"`
-	Width  int `json:"width"`
-	Height int `json:"height"`
+	JavaDiagram
 }
 
 type JavaClass struct {
@@ -65,12 +60,7 @@ type JavaClass struct {
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
 	Dependencies  []CustomByteSlice `json:"-"`
-
-	// Used for diagram layout
-	X      int `json:"x"`
-	Y      int `json:"y"`
-	Width  int `json:"width"`
-	Height int `json:"height"`
+	JavaDiagram
 }
 
 type JavaInterface struct {
@@ -82,12 +72,7 @@ type JavaInterface struct {
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
 	Dependencies  []CustomByteSlice `json:"-"`
-
-	// Used for diagram layout
-	X      int `json:"x"`
-	Y      int `json:"y"`
-	Width  int `json:"width"`
-	Height int `json:"height"`
+	JavaDiagram
 }
 
 type JavaEnum struct {
@@ -96,10 +81,14 @@ type JavaEnum struct {
 	Name          CustomByteSlice   `json:"name"`
 	Declarations  []CustomByteSlice `json:"declarations,omitempty"`
 	Implements    []CustomByteSlice `json:"implements,omitempty"`
+	JavaDiagram
+}
 
-	// Used for diagram layout
-	X      int `json:"x"`
-	Y      int `json:"y"`
-	Width  int `json:"width"`
-	Height int `json:"height"`
+type JavaDiagram struct {
+	ID     string  `json:"id"`
+	Shape  string  `json:"shape"`
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Width  int     `json:"width"`
+	Height int     `json:"height"`
 }

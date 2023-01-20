@@ -90,7 +90,9 @@ export type Diagram = {
    updated_at: string;
    public: boolean;
    name: string;
-   content?: any;
+   content: {
+      cells?: any[];
+   };
 };
 
 export type DiagramUserRole = {

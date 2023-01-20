@@ -16,7 +16,7 @@ var (
 	UnsupportedLanguages = []string{"cpp", "go", "js", "ts", "html", "css", "py", "cs", "php", "swift", "vb"}
 )
 
-func ToJson(sdkP *sdk.SDK, files []types.File) (*types.Project, *httpTypes.WrappedError) {
+func Transpile(sdkP *sdk.SDK, files []types.File) (*[]any, *httpTypes.WrappedError) {
 	language, err := getProjectLanguage(files)
 	if err != nil {
 		return nil, err
@@ -87,7 +87,9 @@ func parseProjectByLanguage(language string, files []types.File) (*types.Project
 	}
 }
 
-func generateDiagramLayout(project *types.Project) *types.Project {
+func generateDiagramLayout(project *types.Project) *[]any {
+	var diagramContent *[]any
+
 	type Connections struct {
 		ClassId  []byte
 		CameFrom []types.Relation
@@ -155,7 +157,7 @@ func generateDiagramLayout(project *types.Project) *types.Project {
 		fmt.Println()
 	}
 
-	return project
+	return diagramContent
 }
 
 func contains(s []string, e string) string {

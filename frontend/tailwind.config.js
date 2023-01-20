@@ -50,6 +50,32 @@ module.exports = {
                "-ms-overflow-style": "none",
                "scrollbar-width": "none",
             },
+            // ".diagram-scrollbar": {
+            //    overflow: "auto",
+            //    "-ms-overflow-style": "none",
+            //    "scrollbar-width": "none",
+            //    "&::-webkit-scrollbar": {
+            //       width: "14px",
+            //       height: "14px",
+            //    },
+            //    "&::-webkit-scrollbar-track": {
+            //       "background-clip": "padding-box",
+            //       border: "solid transparent",
+            //       "border-width": "1px",
+            //    },
+            //    "&::-webkit-scrollbar-thumb": {
+            //       "background-color": "rgba(0, 0, 0, 0.1)",
+            //       "background-clip": "padding-box",
+            //       border: "solid transparent",
+            //       "border-radius": "10px",
+            //    },
+            //    "&::-webkit-scrollbar-thumb:hover": {
+            //       "background-color": "rgba(0, 0, 0, 0.4)",
+            //    },
+            //    "&::-webkit-scrollbar-corner": {
+            //       "background-color": transparent,
+            //    },
+            // },
          });
       }),
    ],

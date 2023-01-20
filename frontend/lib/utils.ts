@@ -43,6 +43,14 @@ export function absoluteUrl(path: string) {
    return `${process.env.NEXT_PUBLIC_APP_URL}${path}`;
 }
 
+export function getWSUrl() {
+   if (process.env.NODE_ENV === "production") {
+      return "wss://api.prouml.com/ws";
+   }
+
+   return "ws://127.0.0.1:5000/ws";
+}
+
 // Make function to call API routes at api.prouml.com/...
 export function fetchAPI(path: string, options?: RequestInit) {
    if (process.env.NODE_ENV === "production") {

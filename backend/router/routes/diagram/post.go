@@ -2,7 +2,6 @@ package diagram
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 	"strings"
 
@@ -94,7 +93,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			// Transpile files
-			transpiledProject, err2 := transpiler.ToJson(sdkP, files)
+			transpiledProject, err2 := transpiler.Transpile(sdkP, files)
 			if err2 != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
@@ -102,17 +101,8 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 				})
 			}
 
-			// Marshal the transpiled project
-			marshaledProject, err := json.Marshal(transpiledProject)
-			if err != nil {
-				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
-					Success: false,
-					Reason:  "Could not parse project.",
-				})
-			}
-
 			// Create a new diagram
-			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), &marshaledProject)
+			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), transpiledProject)
 			if err2 != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
@@ -138,16 +128,8 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			// Create a new diagram
-			diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), nil)
+			diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), template)
 			if err != nil {
-				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
-					Success: false,
-					Reason:  err.Error(),
-				})
-			}
-
-			// Save the template
-			if err := sdkP.Postgres.Diagram.Update(diagramId, fbCtx.Cookies(auth.IdTokenCookieName), nil, "", template); err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
 					Reason:  err.Error(),

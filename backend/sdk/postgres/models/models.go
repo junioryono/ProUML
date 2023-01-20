@@ -3,8 +3,6 @@ package models
 import (
 	"crypto/rsa"
 	"time"
-
-	"gorm.io/datatypes"
 )
 
 type ClusterModel struct {
@@ -32,12 +30,12 @@ type UserModel struct {
 }
 
 type DiagramModel struct {
-	ID        string         `gorm:"uniqueIndex" json:"id"`
-	CreatedAt time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	Public    bool           `gorm:"default:false" json:"public"`
-	Name      string         `gorm:"default:'Untitled Diagram'" json:"name"`
-	Content   datatypes.JSON `json:"content"`
+	ID        string    `gorm:"uniqueIndex" json:"id"`
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	Public    bool      `gorm:"default:false" json:"public"`
+	Name      string    `gorm:"default:'Untitled Diagram'" json:"name"`
+	Content   []any     `gorm:"serializer:json" json:"content"`
 }
 
 type DiagramUserRoleModel struct {

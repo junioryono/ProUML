@@ -1,17 +1,15 @@
 package templates
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/junioryono/ProUML/backend/types"
 )
 
-func GetTemplate(name string) (*json.RawMessage, *types.WrappedError) {
+func GetTemplate(name string) (*[]any, *types.WrappedError) {
 	switch name {
 	case "factory_method":
-		response := getFactoryMethod()
-		return &response, nil
+		return getFactoryMethod(), nil
 	default:
 		return nil, types.Wrap(errors.New("template not found"), types.ErrInvalidRequest)
 	}

@@ -1,7 +1,6 @@
 package router
 
 import (
-	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/gofiber/websocket/v2"
 	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/router/routes/diagram"
 	diagramUsers "github.com/junioryono/ProUML/backend/router/routes/diagram/users"
@@ -92,45 +90,8 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 
 	Router.Get("/.well-known/jwks.json", JWKSet(sdkP))
 
-	Router.Use("/ws", func(fbCtx *fiber.Ctx) error {
-		// IsWebSocketUpgrade returns true if the client
-		// requested upgrade to the WebSocket protocol.
-		if websocket.IsWebSocketUpgrade(fbCtx) {
-			fbCtx.Locals("allowed", true)
-			return fbCtx.Next()
-		}
-		return fiber.ErrUpgradeRequired
-	})
-
-	Router.Get("/ws/:id", websocket.New(func(wc *websocket.Conn) {
-		var (
-			mt  int
-			msg []byte
-			err error
-		)
-
-		// providerDetails, err := supabaseClient.Auth.User(context.TODO(), "")
-
-		log.Println(wc.Locals("allowed"))  // true
-		log.Println(wc.Params("id"))       // 123
-		log.Println(wc.Query("v"))         // 1.0
-		log.Println(wc.Cookies("session")) // ""
-
-		for {
-			if mt, msg, err = wc.ReadMessage(); err != nil {
-				log.Println("Reading error:", err)
-				break
-			}
-			log.Printf("recv: %s", msg)
-
-			if err = wc.WriteMessage(mt, msg); err != nil {
-				log.Println("Writing error:", err)
-				break
-			}
-		}
-
-	}))
-
+	Router.Use("/ws", WebSocketUpgrade())
+	Router.Get("/ws/:diagramId", isAuthenticated(sdkP), WebSocketDiagramHandler(sdkP))
 }
 
 func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {

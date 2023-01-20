@@ -1,7 +1,6 @@
 package diagram
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/google/uuid"
@@ -9,7 +8,6 @@ import (
 	"github.com/junioryono/ProUML/backend/sdk/postgres/diagram/users"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/types"
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -27,7 +25,7 @@ func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagram_SDK {
 	}
 }
 
-func (d *Diagram_SDK) Create(idToken string, marshaledProject *[]byte) (string, *types.WrappedError) {
+func (d *Diagram_SDK) Create(idToken string, diagramContent *[]any) (string, *types.WrappedError) {
 	// Get the user id from the id token
 	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
@@ -38,12 +36,11 @@ func (d *Diagram_SDK) Create(idToken string, marshaledProject *[]byte) (string, 
 
 	// Create a new diagram model
 	diagram := models.DiagramModel{
-		ID:      diagramId,
-		Content: datatypes.JSON([]byte("{}")),
+		ID: diagramId,
 	}
 
-	if marshaledProject != nil {
-		diagram.Content = datatypes.JSON(*marshaledProject)
+	if diagramContent != nil {
+		diagram.Content = *diagramContent
 	}
 
 	// Create a new user diagram model
@@ -142,54 +139,143 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *typ
 	return &diagram, nil
 }
 
-func (d *Diagram_SDK) Update(diagramId, idToken string, public *bool, name string, content *json.RawMessage) *types.WrappedError {
+func (d *Diagram_SDK) UpdatePublic(diagramId, idToken string, public bool) *types.WrappedError {
 	// Get the user id from the id token
 	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
 
-	tx := d.db.Begin()
-
 	// Update the diagram in the database if the user is the owner or editor
 	var userDiagram models.DiagramUserRoleModel
-	if err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
-		tx.Rollback()
+	if err := d.db.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	if userDiagram.Role != "owner" && userDiagram.Role != "editor" {
-		tx.Rollback()
 		return types.Wrap(errors.New("user is not the owner or editor of the diagram"), types.ErrInvalidRequest)
 	}
 
 	var diagram models.DiagramModel
-	if err := tx.Where("id = ?", diagramId).First(&diagram).Error; err != nil {
-		tx.Rollback()
+	if err := d.db.Where("id = ?", diagramId).First(&diagram).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	if content != nil {
-		diagram.Content = datatypes.JSON(*content)
-	}
+	diagram.Public = public
 
-	if public != nil {
-		diagram.Public = *public
-	}
-
-	if name != "" {
-		diagram.Name = name
-	}
-
-	if err := tx.Save(&diagram).Error; err != nil {
-		tx.Rollback()
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
+	if err := d.db.Save(&diagram).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	return nil
+}
+
+func (d *Diagram_SDK) UpdateName(diagramId, idToken string, name string) *types.WrappedError {
+	// Get the user id from the id token
+	userId, err := d.Auth.Client.GetUserId(idToken)
+	if err != nil {
+		return err
+	}
+
+	// Update the diagram in the database if the user is the owner or editor
+	var userDiagram models.DiagramUserRoleModel
+	if err := d.db.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if userDiagram.Role != "owner" && userDiagram.Role != "editor" {
+		return types.Wrap(errors.New("user is not the owner or editor of the diagram"), types.ErrInvalidRequest)
+	}
+
+	var diagram models.DiagramModel
+	if err := d.db.Where("id = ?", diagramId).First(&diagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if name == "" {
+		return types.Wrap(errors.New("diagram name cannot be empty"), types.ErrInvalidRequest)
+	}
+
+	diagram.Name = name
+
+	if err := d.db.Save(&diagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	return nil
+}
+
+func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, content models.DiagramContentUpdate, events []string) *types.WrappedError {
+	// Get the user id from the id token
+	userId, err := d.Auth.Client.GetUserId(idToken)
+	if err != nil {
+		return err
+	}
+
+	// Update the diagram in the database if the user is the owner or editor
+	var userDiagram models.DiagramUserRoleModel
+	if err := d.db.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if userDiagram.Role != "owner" && userDiagram.Role != "editor" {
+		return types.Wrap(errors.New("user is not the owner or editor of the diagram"), types.ErrInvalidRequest)
+	}
+
+	var diagram models.DiagramModel
+	if err := d.db.Where("id = ?", diagramId).First(&diagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	var cellId string
+	switch c := content.Cell.(type) {
+	case map[string]interface{}:
+		var ok bool
+		cellId, ok = c["id"].(string)
+		if !ok {
+			return types.Wrap(errors.New("cell id not found"), types.ErrInvalidRequest)
+		}
+	default:
+		return types.Wrap(errors.New("cell type not supported"), types.ErrInvalidRequest)
+	}
+
+	switch {
+	case stringContains(events, "db_addCell"):
+		diagram.Content = append(diagram.Content, content.Cell)
+	case stringContains(events, "db_updateCell"):
+		for i, cell := range diagram.Content {
+			switch c := cell.(type) {
+			case map[string]interface{}:
+				cellId2 := c["id"].(string)
+				if cellId2 == cellId {
+					diagram.Content[i] = content.Cell
+				}
+			}
+		}
+	case stringContains(events, "db_removeCell"):
+		for i, cell := range diagram.Content {
+			switch c := cell.(type) {
+			case map[string]interface{}:
+				cellId2 := c["id"].(string)
+				if cellId2 == cellId {
+					diagram.Content = append(diagram.Content[:i], diagram.Content[i+1:]...)
+				}
+			}
+		}
+	}
+
+	if err := d.db.Save(&diagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	return nil
+}
+
+func stringContains(slice []string, contains string) bool {
+	for _, value := range slice {
+		if value == contains {
+			return true
+		}
+	}
+	return false
 }
