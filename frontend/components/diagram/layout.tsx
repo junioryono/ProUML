@@ -29,6 +29,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
    const [X6, setX6] = useState<X6StateType>();
    const container = useRef<HTMLDivElement>();
    const graph = useRef<X6Type.Graph>();
+   const sessionId = useRef<string>();
 
    // WebSocket
    const websocket = useWebSocket(getWSUrl() + "/" + diagram.id, {
@@ -63,6 +64,15 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                   cellInGraph.setProp("angle", 0, { ws: true });
                }
             });
+         } else if (events.includes("connected")) {
+            console.log("connected");
+
+            if (!message.sessionId || message.sessionId === "") {
+               console.log("could not connect");
+               return;
+            }
+
+            sessionId.current = message.sessionId;
          }
       },
    });
@@ -171,11 +181,27 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
       // });
 
       const wsLocalUpdateCell = (cell: X6Type.Cell) => {
-         websocket.sendJsonMessage({ event: "broadcast/local_updateCell", cell } as any);
+         if (!sessionId.current) {
+            return;
+         }
+
+         websocket.sendJsonMessage({
+            sessionId: sessionId.current,
+            event: "broadcast/local_updateCell",
+            cell,
+         } as any);
       };
 
       const wsDBUpdateCell = (cell: X6Type.Cell) => {
-         websocket.sendJsonMessage({ event: "broadcast/db_updateCell", cell } as any);
+         if (!sessionId.current) {
+            return;
+         }
+
+         websocket.sendJsonMessage({
+            sessionId: sessionId.current,
+            event: "broadcast/db_updateCell",
+            cell,
+         } as any);
       };
 
       graph.current.on("cell:change:*", (args) => {

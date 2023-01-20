@@ -205,7 +205,7 @@ func (d *Diagram_SDK) UpdateName(diagramId, idToken string, name string) *types.
 	return nil
 }
 
-func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]interface{}, event string) *types.WrappedError {
+func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]interface{}, events []string) *types.WrappedError {
 	// Get the user id from the id token
 	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
@@ -232,27 +232,25 @@ func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]i
 		return types.Wrap(errors.New("cell id not found"), types.ErrInvalidRequest)
 	}
 
-	switch event {
-	case "db_addCell":
+	switch {
+	case sliceContains(events, "db_addCell"):
 		diagram.Content = append(diagram.Content, cell)
 
-	case "db_updateCell":
-		for i, cell := range diagram.Content {
-			switch c := cell.(type) {
+	case sliceContains(events, "db_updateCell"):
+		for i, existingCell := range diagram.Content {
+			switch c := existingCell.(type) {
 			case map[string]interface{}:
-				cellId2 := c["id"].(string)
-				if cellId2 == cellId {
+				if c["id"].(string) == cellId {
 					diagram.Content[i] = cell
 				}
 			}
 		}
 
-	case "db_removeCell":
-		for i, cell := range diagram.Content {
-			switch c := cell.(type) {
+	case sliceContains(events, "db_removeCell"):
+		for i, existingCell := range diagram.Content {
+			switch c := existingCell.(type) {
 			case map[string]interface{}:
-				cellId2 := c["id"].(string)
-				if cellId2 == cellId {
+				if c["id"].(string) == cellId {
 					diagram.Content = append(diagram.Content[:i], diagram.Content[i+1:]...)
 				}
 			}
@@ -264,4 +262,13 @@ func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]i
 	}
 
 	return nil
+}
+
+func sliceContains(slice []string, contains string) bool {
+	for _, value := range slice {
+		if value == contains {
+			return true
+		}
+	}
+	return false
 }

@@ -17,3 +17,10 @@ type DiagramUsersRolesHiddenContent struct {
 	FullName string `json:"full_name"`
 	Picture  string `json:"picture"`
 }
+
+type DiagramUsersHiddenContent struct {
+	UserId   string `json:"user_id"`
+	Email    string `json:"email"`
+	FullName string `json:"full_name"`
+	Picture  string `json:"picture"`
+}

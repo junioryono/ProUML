@@ -9,17 +9,8 @@ import (
 	"github.com/gofiber/websocket/v2"
 	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/sdk"
+	"github.com/junioryono/ProUML/backend/types"
 )
-
-// need to get public and content from body
-type body struct {
-	Events string `json:"event"`
-
-	Public           *bool                  `json:"public"`
-	Name             string                 `json:"name"`
-	Cell             map[string]interface{} `json:"content"`
-	ConnectionStatus *bool                  `json:"connectionStatus"`
-}
 
 func WebSocketUpgrade() fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
@@ -40,10 +31,15 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		idToken := wc.Cookies(auth.IdTokenCookieName)
 		diagramId := wc.Params("diagramId")
 
-		// Listen for messages from Redis and send to client
-		sessionId, err := sdkP.Redis.Subscribe(diagramId, wc)
+		userModel, err := sdkP.Postgres.Auth.Client.GetUser(idToken)
 		if err != nil {
 			fmt.Printf("Error: %s\n", err.Error())
+			return
+		}
+
+		// Listen for messages from Redis and send to client
+		sessionId := sdkP.Redis.Subscribe(diagramId, userModel, wc)
+		if sessionId == "" {
 			return
 		}
 
@@ -61,25 +57,23 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 				continue
 			}
 
-			b := body{}
-			if err := json.Unmarshal(msg, &b); err != nil {
+			payload := types.WebSocketBody{}
+			if err := json.Unmarshal(msg, &payload); err != nil {
 				fmt.Printf("Error: %s\n", err.Error())
 				continue
 			}
 
-			events := strings.Split(b.Events, "/")
+			events := strings.Split(payload.Events, "/")
 
-			switch {
-			case sliceContains(events, "broadcast"):
+			if sliceContains(events, "broadcast") {
 				// Broadcast to all connections
 				go sdkP.Redis.Publish(diagramId, msg)
+			}
 
-			case sliceContains(events, "db_updateCell"):
-				if b.Cell == nil || len(events) < 2 {
-					continue
-				}
-
-				go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, b.Cell, "db_updateCell")
+			if sliceContains(events, "db_updateCell") {
+				fmt.Printf("Update cell\n")
+				fmt.Printf("cell: %v\n", payload.Cell)
+				go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, payload.Cell, events)
 			}
 		}
 

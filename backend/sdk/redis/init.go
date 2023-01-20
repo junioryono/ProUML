@@ -10,21 +10,14 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/gofiber/websocket/v2"
 	"github.com/google/uuid"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
+	"github.com/junioryono/ProUML/backend/types"
 )
 
-// var Diagrams = make(map[string][]*connection)
-
-type connection struct {
-	sessionId string
-	mu        sync.Mutex
-	ws        *websocket.Conn
-	ps        *redis.PubSub
-}
-
 type Redis_SDK struct {
-	client        *redis.Client
-	context       context.Context
-	subscriptions map[string][]*connection
+	client   *redis.Client
+	channels map[string]*channel
+	context  context.Context
 }
 
 func Init() (*Redis_SDK, error) {
@@ -55,9 +48,9 @@ func Init() (*Redis_SDK, error) {
 	}
 
 	r := &Redis_SDK{
-		client:        redis.NewClient(t),
-		context:       context.Background(),
-		subscriptions: make(map[string][]*connection),
+		client:   redis.NewClient(t),
+		channels: make(map[string]*channel),
+		context:  context.Background(),
 	}
 
 	if r.client == nil {
@@ -68,14 +61,20 @@ func Init() (*Redis_SDK, error) {
 }
 
 // Make a pub sub connection. Return session id
-func (r *Redis_SDK) Subscribe(channel string, ws *websocket.Conn) (string, error) {
+func (r *Redis_SDK) Subscribe(channelId string, user *models.UserModel, ws *websocket.Conn) string {
 	// Subscribe to channel
-	ps := r.client.Subscribe(r.context, channel)
+	ps := r.client.Subscribe(r.context, channelId)
 
 	// Wait for confirmation that subscription is created before publishing anything
 	_, err := ps.Receive(r.context)
 	if err != nil {
-		return "", err
+		// Send the user an empty sessionId
+		ws.WriteJSON(types.WebSocketBody{
+			SessionId: "",
+			Events:    "connected",
+		})
+
+		return ""
 	}
 
 	// Generate session id
@@ -86,94 +85,58 @@ func (r *Redis_SDK) Subscribe(channel string, ws *websocket.Conn) (string, error
 		sessionId: sessionId,
 		mu:        sync.Mutex{},
 		ws:        ws,
-		ps:        ps,
 	}
 
-	// Check if channel exists
-	if _, ok := r.subscriptions[channel]; !ok {
-		// Create channel with connection
-		r.subscriptions[channel] = []*connection{conn}
-	} else {
-		// Add connection to channel
-		r.subscriptions[channel] = append(r.subscriptions[channel], conn)
-	}
-
-	// Listen for messages
-	go func() {
-		for {
-			msg, err := ps.ReceiveMessage(r.context)
-			if err != nil {
-				return
-			}
-
-			// Send message to all connections
-			for _, conn := range r.subscriptions[channel] {
-				if conn.sessionId == sessionId {
-					continue
-				}
-
-				go func(c *connection) {
-					c.mu.Lock()
-					c.ws.WriteMessage(websocket.TextMessage, []byte(msg.Payload))
-					c.mu.Unlock()
-				}(conn)
-			}
+	// Create a new channel if it doesn't exist
+	if _, ok := r.channels[channelId]; !ok {
+		r.channels[channelId] = &channel{
+			Id:      channelId,
+			ps:      ps,
+			client:  r.client,
+			context: r.context,
 		}
-	}()
-
-	// Send a connection status message to the client
-	csMsg := struct {
-		Events           string `json:"event"`
-		ConnectionStatus *bool  `json:"connectionStatus"`
-	}{
-		Events:           "connectionStatus",
-		ConnectionStatus: new(bool),
 	}
-	*csMsg.ConnectionStatus = true
 
-	conn.mu.Lock()
-	ws.WriteJSON(csMsg)
-	conn.mu.Unlock()
+	// Add connection to channel
+	r.channels[channelId].addConnection(conn)
 
-	return sessionId, nil
+	return sessionId
 }
 
 // Unsubscribe from a channel
-func (r *Redis_SDK) Unsubscribe(channel, sessionId string) {
+func (r *Redis_SDK) Unsubscribe(channelId, sessionId string) {
 	// Check if channel exists
-	if _, ok := r.subscriptions[channel]; !ok {
+	if _, ok := r.channels[channelId]; !ok {
 		return
 	}
 
-	// Find connection
-	for i, conn := range r.subscriptions[channel] {
-		if conn.sessionId == sessionId {
-			// Unsubscribe from channel
-			conn.ps.Unsubscribe(r.context, channel)
+	// Get the channel
+	channel := r.channels[channelId]
 
-			// Remove connection from channel if length is greater than 1
-			// Otherwise delete channel
-			if len(r.subscriptions[channel]) > 1 {
-				r.subscriptions[channel] = append(r.subscriptions[channel][:i], r.subscriptions[channel][i+1:]...)
-			} else {
-				delete(r.subscriptions, channel)
-			}
+	// Remove the connection from the channel
+	removeChannel := channel.removeConnection(sessionId)
 
-			break
-		}
+	// If there are no more connections to the channel, the channel will unsubscribe
+	// We also need to remove the channel from the channels map
+	if removeChannel {
+		delete(r.channels, channelId)
 	}
 }
 
 // Publish a message to a channel
-func (r *Redis_SDK) Publish(channel string, message interface{}) error {
-	return r.client.Publish(r.context, channel, message).Err()
+func (r *Redis_SDK) Publish(channelId string, message interface{}) error {
+	// Get the channel
+	channel := r.channels[channelId]
+
+	// Publish the message
+	return channel.publish(message)
 }
 
 // Get number of connections to a channel
-func (r *Redis_SDK) GetConnectionsLength(channel string) int {
-	if _, ok := r.subscriptions[channel]; !ok {
-		return 0
+func (r *Redis_SDK) GetConnectionsLength(channelId string) int {
+	if _, ok := r.channels[channelId]; !ok {
+		return -1
 	}
 
-	return len(r.subscriptions[channel])
+	return r.channels[channelId].getConnectionsLength()
 }
