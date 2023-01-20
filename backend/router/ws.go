@@ -2,7 +2,6 @@ package router
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -63,7 +62,6 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 
 			payload := types.WebSocketBody{}
 			if err := json.Unmarshal(msg, &payload); err != nil {
-				fmt.Printf("Error: %s\n", err.Error())
 				continue
 			}
 
@@ -79,7 +77,6 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			if sliceContains(events, "db_updateCell") {
-				fmt.Printf("Update cell\n")
 				go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, payload.Cell, events)
 			}
 		}
