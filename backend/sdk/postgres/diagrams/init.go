@@ -1,9 +1,6 @@
 package diagrams
 
 import (
-	"fmt"
-	"sort"
-
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/types"
@@ -28,38 +25,18 @@ func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]model
 		return nil, err
 	}
 
-	// Get all diagrams the user has access to
-	var userDiagrams []models.DiagramUserRoleModel
-	if err := d.db.Where("user_id = ?", userId).Find(&userDiagrams).Error; err != nil {
+	var diagrams []models.DiagramModelHiddenContent
+	if err := d.db.
+		Offset(offset).
+		Model(&models.DiagramModel{}).
+		Select("id, created_at, updated_at, public, name").
+		Joins("JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").
+		Where("diagram_user_role_models.user_id = ?", userId).
+		Order("diagram_models.updated_at DESC").
+		Limit(15).
+		Find(&diagrams).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
-
-	var diagrams []models.DiagramModelHiddenContent
-	for i, userDiagram := range userDiagrams {
-		if i >= 10 {
-			break
-		}
-
-		var diagram models.DiagramModelHiddenContent
-
-		if err := d.db.
-			Offset(offset).
-			Model(&models.DiagramModel{}).
-			Where("id = ?", userDiagram.DiagramID).
-			First(&diagram).Error; err != nil {
-			return nil, types.Wrap(err, types.ErrInternalServerError)
-		}
-
-		// Print the diagram's updated at
-		fmt.Println(diagram.UpdatedAt.String())
-
-		diagrams = append(diagrams, diagram)
-	}
-
-	// Sort the diagrams by updated at
-	sort.Slice(diagrams, func(i, j int) bool {
-		return diagrams[i].UpdatedAt.After(diagrams[j].UpdatedAt)
-	})
 
 	return diagrams, nil
 }

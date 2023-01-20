@@ -205,7 +205,7 @@ func (d *Diagram_SDK) UpdateName(diagramId, idToken string, name string) *types.
 	return nil
 }
 
-func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, content models.DiagramContentUpdate, events []string) *types.WrappedError {
+func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]interface{}, event string) *types.WrappedError {
 	// Get the user id from the id token
 	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
@@ -227,32 +227,27 @@ func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, content models.Di
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	var cellId string
-	switch c := content.Cell.(type) {
-	case map[string]interface{}:
-		var ok bool
-		cellId, ok = c["id"].(string)
-		if !ok {
-			return types.Wrap(errors.New("cell id not found"), types.ErrInvalidRequest)
-		}
-	default:
-		return types.Wrap(errors.New("cell type not supported"), types.ErrInvalidRequest)
+	cellId, ok := cell["id"].(string)
+	if !ok {
+		return types.Wrap(errors.New("cell id not found"), types.ErrInvalidRequest)
 	}
 
-	switch {
-	case stringContains(events, "db_addCell"):
-		diagram.Content = append(diagram.Content, content.Cell)
-	case stringContains(events, "db_updateCell"):
+	switch event {
+	case "db_addCell":
+		diagram.Content = append(diagram.Content, cell)
+
+	case "db_updateCell":
 		for i, cell := range diagram.Content {
 			switch c := cell.(type) {
 			case map[string]interface{}:
 				cellId2 := c["id"].(string)
 				if cellId2 == cellId {
-					diagram.Content[i] = content.Cell
+					diagram.Content[i] = cell
 				}
 			}
 		}
-	case stringContains(events, "db_removeCell"):
+
+	case "db_removeCell":
 		for i, cell := range diagram.Content {
 			switch c := cell.(type) {
 			case map[string]interface{}:
@@ -269,13 +264,4 @@ func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, content models.Di
 	}
 
 	return nil
-}
-
-func stringContains(slice []string, contains string) bool {
-	for _, value := range slice {
-		if value == contains {
-			return true
-		}
-	}
-	return false
 }

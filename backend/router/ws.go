@@ -9,14 +9,16 @@ import (
 	"github.com/gofiber/websocket/v2"
 	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/sdk"
-	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 )
 
 // need to get public and content from body
 type body struct {
-	Public  *bool                        `json:"public"`
-	Name    string                       `json:"name"`
-	Content *models.DiagramContentUpdate `json:"content"`
+	Events string `json:"event"`
+
+	Public           *bool                  `json:"public"`
+	Name             string                 `json:"name"`
+	Cell             map[string]interface{} `json:"content"`
+	ConnectionStatus *bool                  `json:"connectionStatus"`
 }
 
 func WebSocketUpgrade() fiber.Handler {
@@ -39,7 +41,11 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		diagramId := wc.Params("diagramId")
 
 		// Listen for messages from Redis and send to client
-		sessionId := sdkP.Redis.Subscribe(diagramId, wc)
+		sessionId, err := sdkP.Redis.Subscribe(diagramId, wc)
+		if err != nil {
+			fmt.Printf("Error: %s\n", err.Error())
+			return
+		}
 
 		fmt.Printf("Diagram ID: %s\n", diagramId)
 		fmt.Printf("Connections: %d\n", sdkP.Redis.GetConnectionsLength(diagramId))
@@ -61,20 +67,19 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 				continue
 			}
 
-			if b.Content != nil {
-				events := strings.Split(b.Content.Event, "/")
+			events := strings.Split(b.Events, "/")
 
-				if stringContains(events, "broadcast") {
-					// Broadcast to all connections
-					go sdkP.Redis.Publish(diagramId, msg)
+			switch {
+			case sliceContains(events, "broadcast"):
+				// Broadcast to all connections
+				go sdkP.Redis.Publish(diagramId, msg)
+
+			case sliceContains(events, "db_updateCell"):
+				if b.Cell == nil || len(events) < 2 {
+					continue
 				}
 
-				if stringContains(events, "db_save") {
-					// Save diagram
-					fmt.Printf("Saving diagram: %s\n", diagramId)
-					go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, *b.Content, events)
-				}
-
+				go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, b.Cell, "db_updateCell")
 			}
 		}
 
@@ -83,7 +88,7 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 	})
 }
 
-func stringContains(slice []string, contains string) bool {
+func sliceContains(slice []string, contains string) bool {
 	for _, value := range slice {
 		if value == contains {
 			return true

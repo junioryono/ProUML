@@ -68,9 +68,15 @@ func Init() (*Redis_SDK, error) {
 }
 
 // Make a pub sub connection. Return session id
-func (r *Redis_SDK) Subscribe(channel string, ws *websocket.Conn) string {
+func (r *Redis_SDK) Subscribe(channel string, ws *websocket.Conn) (string, error) {
 	// Subscribe to channel
 	ps := r.client.Subscribe(r.context, channel)
+
+	// Wait for confirmation that subscription is created before publishing anything
+	_, err := ps.Receive(r.context)
+	if err != nil {
+		return "", err
+	}
 
 	// Generate session id
 	sessionId := uuid.New().String()
@@ -115,7 +121,21 @@ func (r *Redis_SDK) Subscribe(channel string, ws *websocket.Conn) string {
 		}
 	}()
 
-	return sessionId
+	// Send a connection status message to the client
+	csMsg := struct {
+		Events           string `json:"event"`
+		ConnectionStatus *bool  `json:"connectionStatus"`
+	}{
+		Events:           "connectionStatus",
+		ConnectionStatus: new(bool),
+	}
+	*csMsg.ConnectionStatus = true
+
+	conn.mu.Lock()
+	ws.WriteJSON(csMsg)
+	conn.mu.Unlock()
+
+	return sessionId, nil
 }
 
 // Unsubscribe from a channel

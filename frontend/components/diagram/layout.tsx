@@ -34,49 +34,35 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
    const websocket = useWebSocket(getWSUrl() + "/" + diagram.id, {
       onMessage: (event) => {
          const message = JSON.parse(event.data);
-         if (!message) {
+         if (!message || !message.event) {
             return;
          }
 
-         console.log("message.content", message.content);
-         if (message.content) {
-            if (!message.content.event) {
+         const events = message.event.split("/");
+         if (events.includes("local_updateCell")) {
+            const cell = message.cell;
+            if (!cell) {
                return;
             }
 
-            // Split message.content.event by slash
-            const events = message.content.event.split("/");
+            const cellInGraph = graph.current?.getCellById(cell.id);
+            if (!cellInGraph) {
+               return;
+            }
 
-            if (events.includes("local_updateCell")) {
-               const cell = message.content.cell;
-               console.log("local_updateCell", cell);
-               const cellInGraph = graph.current?.getCellById(cell.id);
-               if (!cellInGraph) {
-                  return;
+            graph.current.batchUpdate(() => {
+               for (const key in cell) {
+                  if (key === "id") {
+                     continue;
+                  }
+
+                  cellInGraph.setProp(key, cell[key], { ws: true });
                }
 
-               graph.current.batchUpdate(() => {
-                  for (const key in cell) {
-                     if (key === "id") {
-                        continue;
-                     }
-
-                     cellInGraph.setProp(key, cell[key], { ws: true });
-                  }
-
-                  if (!cell.angle) {
-                     cellInGraph.setProp("angle", 0, { ws: true });
-                  }
-
-                  // console.log("getAttrs", cellInGraph.getAttrs());
-                  // console.log("getProp", cellInGraph.getProp());
-                  // console.log("getProp", cellInGraph.ge)
-                  const view = graph.current.findViewByCell(cellInGraph);
-                  console.log("view", view);
-               });
-
-               // cellInGraph.setProp("size", { width: 50, height: 50 }, { ws: true });
-            }
+               if (!cell.angle) {
+                  cellInGraph.setProp("angle", 0, { ws: true });
+               }
+            });
          }
       },
    });
@@ -185,11 +171,11 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
       // });
 
       const wsLocalUpdateCell = (cell: X6Type.Cell) => {
-         websocket.sendJsonMessage({ content: { event: "broadcast/local_updateCell", cell } } as any);
+         websocket.sendJsonMessage({ event: "broadcast/local_updateCell", cell } as any);
       };
 
       const wsDBUpdateCell = (cell: X6Type.Cell) => {
-         websocket.sendJsonMessage({ content: { event: "broadcast/db_save/db_updateCell", cell } } as any);
+         websocket.sendJsonMessage({ event: "broadcast/db_updateCell", cell } as any);
       };
 
       graph.current.on("cell:change:*", (args) => {
