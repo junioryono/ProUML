@@ -18,10 +18,6 @@ func WebSocketUpgrade() fiber.Handler {
 			return fiber.ErrUpgradeRequired
 		}
 
-		// TODO: Check if user has access to diagram
-		idToken := fbCtx.Cookies(auth.IdTokenCookieName)
-		_ = idToken
-
 		return fbCtx.Next()
 	}
 }
@@ -31,9 +27,20 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		idToken := wc.Cookies(auth.IdTokenCookieName)
 		diagramId := wc.Params("diagramId")
 
+		// Get the user model from the id token
 		userModel, err := sdkP.Postgres.Auth.Client.GetUser(idToken)
 		if err != nil {
-			fmt.Printf("Error: %s\n", err.Error())
+			return
+		}
+
+		// Get the user's role in the diagram
+		userRole, err := sdkP.Postgres.Diagram.Admin.GetUserRole(diagramId, userModel.ID)
+		if err != nil {
+			return
+		}
+
+		// Check if user has access to diagram
+		if userRole != "owner" && userRole != "editor" && userRole != "viewer" {
 			return
 		}
 
@@ -42,9 +49,6 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		if sessionId == "" {
 			return
 		}
-
-		fmt.Printf("Diagram ID: %s\n", diagramId)
-		fmt.Printf("Connections: %d\n", sdkP.Redis.GetConnectionsLength(diagramId))
 
 		// Listen for messages from client and send to Redis
 		for {
@@ -66,13 +70,16 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			events := strings.Split(payload.Events, "/")
 
 			if sliceContains(events, "broadcast") {
+				if userRole != "owner" && userRole != "editor" {
+					continue
+				}
+
 				// Broadcast to all connections
 				go sdkP.Redis.Publish(diagramId, msg)
 			}
 
 			if sliceContains(events, "db_updateCell") {
 				fmt.Printf("Update cell\n")
-				fmt.Printf("cell: %v\n", payload.Cell)
 				go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, payload.Cell, events)
 			}
 		}

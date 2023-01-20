@@ -12,22 +12,24 @@ import (
 )
 
 type Diagram_SDK struct {
-	Auth  *auth.Auth_SDK
+	Admin *admin_SDK
 	Users *users.Users_SDK
+	auth  *auth.Auth_SDK
 	db    *gorm.DB
 }
 
 func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagram_SDK {
 	return &Diagram_SDK{
-		Auth:  Auth,
+		Admin: &admin_SDK{db: db},
 		Users: users.Init(Auth, db),
+		auth:  Auth,
 		db:    db,
 	}
 }
 
 func (d *Diagram_SDK) Create(idToken string, diagramContent *[]any) (string, *types.WrappedError) {
 	// Get the user id from the id token
-	userId, err := d.Auth.Client.GetUserId(idToken)
+	userId, err := d.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return "", err
 	}
@@ -73,7 +75,7 @@ func (d *Diagram_SDK) Create(idToken string, diagramContent *[]any) (string, *ty
 
 func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := d.Auth.Client.GetUserId(idToken)
+	userId, err := d.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
@@ -113,7 +115,7 @@ func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 
 func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *types.WrappedError) {
 	// Get the user id from the id token
-	userId, err := d.Auth.Client.GetUserId(idToken)
+	userId, err := d.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +143,7 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *typ
 
 func (d *Diagram_SDK) UpdatePublic(diagramId, idToken string, public bool) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := d.Auth.Client.GetUserId(idToken)
+	userId, err := d.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
@@ -172,7 +174,7 @@ func (d *Diagram_SDK) UpdatePublic(diagramId, idToken string, public bool) *type
 
 func (d *Diagram_SDK) UpdateName(diagramId, idToken string, name string) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := d.Auth.Client.GetUserId(idToken)
+	userId, err := d.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
@@ -207,7 +209,7 @@ func (d *Diagram_SDK) UpdateName(diagramId, idToken string, name string) *types.
 
 func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]interface{}, events []string) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := d.Auth.Client.GetUserId(idToken)
+	userId, err := d.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
