@@ -15,9 +15,10 @@ import (
 )
 
 type Redis_SDK struct {
-	client   *redis.Client
-	channels map[string]*channel
-	context  context.Context
+	client     *redis.Client
+	channels   map[string]*channel
+	channelsWg sync.Mutex
+	context    context.Context
 }
 
 func Init() (*Redis_SDK, error) {
@@ -48,9 +49,10 @@ func Init() (*Redis_SDK, error) {
 	}
 
 	r := &Redis_SDK{
-		client:   redis.NewClient(t),
-		channels: make(map[string]*channel),
-		context:  context.Background(),
+		client:     redis.NewClient(t),
+		channels:   make(map[string]*channel),
+		channelsWg: sync.Mutex{},
+		context:    context.Background(),
 	}
 
 	if r.client == nil {
@@ -88,14 +90,17 @@ func (r *Redis_SDK) Subscribe(channelId string, user *models.UserModel, ws *webs
 	}
 
 	// Create a new channel if it doesn't exist
+	r.channelsWg.Lock()
 	if _, ok := r.channels[channelId]; !ok {
 		r.channels[channelId] = &channel{
-			Id:      channelId,
-			ps:      ps,
-			client:  r.client,
-			context: r.context,
+			Id:            channelId,
+			ps:            ps,
+			client:        r.client,
+			connectionsMu: sync.Mutex{},
+			context:       r.context,
 		}
 	}
+	r.channelsWg.Unlock()
 
 	// Add connection to channel
 	r.channels[channelId].addConnection(conn)

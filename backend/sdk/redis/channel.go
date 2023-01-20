@@ -17,11 +17,12 @@ type connection struct {
 }
 
 type channel struct {
-	Id          string
-	ps          *redis.PubSub
-	client      *redis.Client
-	connections []*connection
-	context     context.Context
+	Id            string
+	ps            *redis.PubSub
+	client        *redis.Client
+	connections   []*connection
+	connectionsMu sync.Mutex
+	context       context.Context
 }
 
 func (c *channel) addConnection(conn *connection) {
@@ -30,7 +31,10 @@ func (c *channel) addConnection(conn *connection) {
 		go c.listen()
 	}
 
+	// Add connection to channel
+	c.connectionsMu.Lock()
 	c.connections = append(c.connections, conn)
+	c.connectionsMu.Unlock()
 
 	// Send the user their sessionId
 	conn.ws.WriteJSON(types.WebSocketBody{
@@ -132,7 +136,9 @@ func (c *channel) listen() {
 func (c *channel) removeConnection(sessionId string) bool {
 	for i, v := range c.connections {
 		if v.sessionId == sessionId {
+			c.connectionsMu.Lock()
 			c.connections = append(c.connections[:i], c.connections[i+1:]...)
+			c.connectionsMu.Unlock()
 			break
 		}
 	}

@@ -19,9 +19,9 @@
 
 ### Frontend
 
-#### Architecture
-
 ##### Add
+
+- [ ] Add WebSocket Ping Pong
 
 ##### Change
 
