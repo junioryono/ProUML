@@ -54,15 +54,20 @@ func (c *channel) listen() {
 				continue
 			}
 
+			// Copy the sessionId from the payload
+			// Set the sessionId to empty string for smaller payload
+			fromSessionId := payload.SessionId
+			payload.SessionId = ""
+
 			// Send message to all connections except the sender
 			for _, conn := range c.connections {
-				if conn.sessionId == payload.SessionId {
+				if conn.sessionId == fromSessionId {
 					continue
 				}
 
 				go func(c *connection) {
 					c.mu.Lock()
-					c.ws.WriteMessage(websocket.TextMessage, []byte(msg.Payload))
+					c.ws.WriteJSON(payload)
 					c.mu.Unlock()
 				}(conn)
 			}

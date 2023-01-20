@@ -9,7 +9,7 @@ type Status struct {
 }
 
 type WebSocketBody struct {
-	SessionId string `json:"sessionId"`
+	SessionId string `json:"sessionId,omitempty"`
 	Events    string `json:"event"`
 
 	Public *bool                             `json:"public,omitempty"`
