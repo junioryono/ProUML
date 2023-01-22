@@ -1,15 +1,7 @@
 import type X6Type from "@antv/x6";
 import { MutableRefObject, Dispatch, SetStateAction } from "react";
 
-export function ZoomButton({
-   graph,
-   zoom,
-   setZoom,
-}: {
-   graph: MutableRefObject<X6Type.Graph>;
-   zoom: number;
-   setZoom: Dispatch<SetStateAction<number>>;
-}) {
+export function ZoomButton({ graph, zoom }: { graph: MutableRefObject<X6Type.Graph>; zoom: number }) {
    return (
       <div
          className="w-16 h-full px-2 text-xs flex items-center gap-1 cursor-pointer"
@@ -20,7 +12,6 @@ export function ZoomButton({
             // graph.current?.zoom(-0.15);
 
             graph.current?.zoom(0.6, { absolute: true });
-            setZoom(0.6);
          }}
       >
          <div>{zoom * 100}%</div>

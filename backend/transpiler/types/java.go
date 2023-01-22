@@ -41,8 +41,8 @@ type JavaAbstract struct {
 	DefinedWithin CustomByteSlice   `json:"-"`
 	Package       CustomByteSlice   `json:"package"`
 	Name          CustomByteSlice   `json:"name"`
-	Implements    []CustomByteSlice `json:"implements"`
-	Extends       []CustomByteSlice `json:"extends"`
+	Implements    []CustomByteSlice `json:"-"`
+	Extends       []CustomByteSlice `json:"-"`
 	Variables     []JavaVariable    `json:"variables,omitempty"`
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
@@ -67,7 +67,7 @@ type JavaInterface struct {
 	DefinedWithin CustomByteSlice   `json:"-"`
 	Package       CustomByteSlice   `json:"package"`
 	Name          CustomByteSlice   `json:"name"`
-	Extends       []CustomByteSlice `json:"extends"`
+	Extends       []CustomByteSlice `json:"-"`
 	Variables     []JavaVariable    `json:"variables,omitempty"`
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
@@ -80,7 +80,7 @@ type JavaEnum struct {
 	Package       CustomByteSlice   `json:"package"`
 	Name          CustomByteSlice   `json:"name"`
 	Declarations  []CustomByteSlice `json:"declarations,omitempty"`
-	Implements    []CustomByteSlice `json:"implements,omitempty"`
+	Implements    []CustomByteSlice `json:"-,omitempty"`
 	JavaDiagram
 }
 

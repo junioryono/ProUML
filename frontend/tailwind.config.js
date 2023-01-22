@@ -50,6 +50,9 @@ module.exports = {
                "-ms-overflow-style": "none",
                "scrollbar-width": "none",
             },
+            ".border-b-1": {
+               "border-bottom-width": "1px",
+            },
             // ".diagram-scrollbar": {
             //    overflow: "auto",
             //    "-ms-overflow-style": "none",

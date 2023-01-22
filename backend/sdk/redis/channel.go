@@ -49,6 +49,8 @@ func (c *channel) listen() {
 		for {
 			msg, err := c.ps.ReceiveMessage(c.context)
 			if err != nil {
+				// An error occurs if the subscription is closed
+				// Therefore, the go routine will eventually return
 				return
 			}
 

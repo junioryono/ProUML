@@ -90,9 +90,7 @@ export type Diagram = {
    updated_at: string;
    public: boolean;
    name: string;
-   content: {
-      cells?: any[];
-   };
+   content: any[];
 };
 
 export type DiagramUserRole = {
@@ -107,4 +105,43 @@ export type DiagramTemplate = {
    name: string;
    label: string;
    image: string;
+};
+
+const enum AccessModifier {
+   PUBLIC = "public",
+   PRIVATE = "private",
+   PROTECTED = "protected",
+   NONE = "",
+}
+
+export type ClassNode = {
+   id: string;
+   shape: string;
+   x: number;
+   y: number;
+   width: number;
+   height: number;
+   package: string;
+   name: string;
+   variables?: {
+      type: string;
+      name: string;
+      value: string;
+      accessModifier: AccessModifier;
+      static: boolean;
+      final: boolean;
+   }[];
+   methods?: {
+      type: string;
+      name: string;
+      accessModifier: AccessModifier;
+      parameters: {
+         type: string;
+         name: string;
+      }[];
+      abstract: boolean;
+      static: boolean;
+      final: boolean;
+   }[];
+   declarations?: string[];
 };
