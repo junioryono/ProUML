@@ -31,7 +31,7 @@ export type X6StateType = {
 // Create a hook to initialize X6
 export function useX6(container: MutableRefObject<HTMLDivElement>, diagram: Diagram, layoutProps: LayoutProps) {
    const [X6, setX6] = useState<X6StateType>();
-   const { graph, websocket } = useGraph(X6, container, diagram, layoutProps);
+   const { graph, websocket, sessionId, ready } = useGraph(X6, container, diagram, layoutProps);
 
    // Import AntV client side
    useEffect(() => {
@@ -82,5 +82,5 @@ export function useX6(container: MutableRefObject<HTMLDivElement>, diagram: Diag
       };
    }, []);
 
-   return { graph, websocket };
+   return { graph, websocket, sessionId, ready };
 }

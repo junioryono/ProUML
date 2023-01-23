@@ -1,6 +1,8 @@
+"use client";
+
 import type X6Type from "@antv/x6";
 
-import { useState, useRef, Fragment, Dispatch, SetStateAction } from "react";
+import { useState, useRef, Fragment } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";

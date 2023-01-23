@@ -3,7 +3,7 @@
 import type X6Type from "@antv/x6";
 import type { X6StateType } from "..";
 
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
 import { initializeListeners } from "@/components/diagram/x6/graph/listeners";
 import { useGraphWebSocket } from "@/components/diagram/x6/graph/websocket";
 import { LayoutProps } from "@/components/diagram/layout";
@@ -15,6 +15,7 @@ export function useGraph(
    diagram: Diagram,
    layoutProps: LayoutProps,
 ) {
+   const [ready, setReady] = useState(false);
    const graph = useRef<X6Type.Graph>();
    const { websocket, sessionId } = useGraphWebSocket(graph, diagram.id);
 
@@ -113,11 +114,17 @@ export function useGraph(
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
       window.addEventListener("resize", handleResize);
 
+      setReady(true);
+
       return () => {
          removeListeners();
          window.removeEventListener("resize", handleResize);
+
+         graph.current.dispose();
+         graph.current = null;
+         setReady(false);
       };
    }, [diagram, container, X6]);
 
-   return { graph, websocket };
+   return { graph, websocket, sessionId, ready };
 }
