@@ -29,13 +29,52 @@ type UserModel struct {
 	Disabled      bool   `gorm:"default:false" json:"disabled"`
 }
 
+type ProjectModel struct {
+	ID        string    `gorm:"uniqueIndex" json:"id"`
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	Public    bool      `gorm:"default:false" json:"public"`
+	Name      string    `gorm:"default:'Untitled Project'" json:"name"`
+}
+
+type TeamModel struct {
+	ID        string    `gorm:"uniqueIndex" json:"id"`
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	Name      string    `gorm:"default:'Untitled Team'" json:"name"`
+}
+
+type TeamUserRoleModel struct {
+	UserID string    `gorm:"primaryKey" json:"-"`
+	TeamID string    `gorm:"primaryKey" json:"-"`
+	User   UserModel `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	Team   TeamModel `gorm:"foreignKey:TeamID;references:ID" json:"team"`
+	Owner  bool      `gorm:"default:false" json:"owner"`
+}
+
+type ProjectUserRoleModel struct {
+	UserID    string       `gorm:"primaryKey" json:"-"`
+	ProjectID string       `gorm:"primaryKey" json:"-"`
+	User      UserModel    `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	Project   ProjectModel `gorm:"foreignKey:ProjectID;references:ID" json:"project"`
+	Owner     bool         `gorm:"default:false" json:"owner"`
+}
+
 type DiagramModel struct {
 	ID        string    `gorm:"uniqueIndex" json:"id"`
+	ProjectID string    `json:"project_id"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 	Public    bool      `gorm:"default:false" json:"public"`
 	Name      string    `gorm:"default:'Untitled Diagram'" json:"name"`
 	Content   []any     `gorm:"serializer:json" json:"content"`
+}
+
+type DiagramTeamModel struct {
+	TeamID    string       `gorm:"primaryKey" json:"-"`
+	DiagramID string       `gorm:"primaryKey" json:"-"`
+	Team      TeamModel    `gorm:"foreignKey:TeamID;references:ID" json:"team"`
+	Diagram   DiagramModel `gorm:"foreignKey:DiagramID;references:ID" json:"diagram"`
 }
 
 type DiagramUserRoleModel struct {

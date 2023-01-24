@@ -13,6 +13,7 @@ import (
 	diagramUsers "github.com/junioryono/ProUML/backend/router/routes/diagram/users"
 	"github.com/junioryono/ProUML/backend/router/routes/diagrams"
 	"github.com/junioryono/ProUML/backend/router/routes/oauth"
+	"github.com/junioryono/ProUML/backend/router/routes/project"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/types"
 )
@@ -87,6 +88,13 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 
 	DiagramsRouter := Router.Group("/diagrams", isAuthenticated(sdkP))
 	DiagramsRouter.Get("/", diagrams.Get(sdkP))
+
+	ProjectRouter := Router.Group("/project", isAuthenticated(sdkP))
+
+	ProjectRouter.Post("/", project.Post(sdkP))
+	//ProjectRouter.Put("/", diagram.Put(sdkP))
+	ProjectRouter.Get("/", project.Get(sdkP))
+	//ProjectRouter.Delete("/", diagram.Delete(sdkP))
 
 	Router.Get("/.well-known/jwks.json", JWKSet(sdkP))
 

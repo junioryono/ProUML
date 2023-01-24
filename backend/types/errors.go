@@ -10,6 +10,7 @@ const (
 	ErrTokenExpired           = "Token expired."
 	ErrInvalidIssuer          = "Invalid issuer."
 	ErrDiagramNotFound        = "Diagram not found."
+	ErrProjectNotFound        = "Project not found."
 	ErrUserNoAccess           = "User has no access to this diagram."
 	ErrUserAlreadyAccess      = "User already has access to this diagram."
 	ErrInvalidRole            = "Invalid role."

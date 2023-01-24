@@ -123,14 +123,14 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *typ
 	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
 	var diagram models.DiagramModel
 	if err := d.db.Where("id = ?", diagramId).First(&diagram).Error; err != nil {
-		return nil, types.Wrap(err, types.ErrInternalServerError)
+		return nil, types.Wrap(err, types.ErrDiagramNotFound)
 	}
 
 	if !diagram.Public {
 		var userDiagram models.DiagramUserRoleModel
 
 		if err := d.db.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
-			return nil, types.Wrap(err, types.ErrInternalServerError)
+			return nil, types.Wrap(err, types.ErrDiagramNotFound)
 		}
 
 		if userDiagram.Role != "owner" && userDiagram.Role != "editor" && userDiagram.Role != "viewer" {

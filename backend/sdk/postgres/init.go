@@ -16,6 +16,7 @@ import (
 	"github.com/junioryono/ProUML/backend/sdk/postgres/diagrams"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/project"
 	"github.com/junioryono/ProUML/backend/sdk/ses"
 )
 
@@ -23,6 +24,7 @@ type Postgres_SDK struct {
 	Auth     *auth.Auth_SDK
 	Diagram  *diagram.Diagram_SDK
 	Diagrams *diagrams.Diagrams_SDK
+	Project  *project.Project_SDK
 	db       *gorm.DB
 	jwk      *jwk.JWK_SDK
 	ses      *ses.SES_SDK
@@ -84,6 +86,8 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		&models.UserModel{},
 		&models.DiagramModel{},
 		&models.DiagramUserRoleModel{},
+		&models.ProjectModel{},
+		&models.ProjectUserRoleModel{},
 		&models.JWTModel{},
 		&models.EmailVerificationTokenModel{},
 		&models.PasswordResetTokenModel{},
@@ -114,6 +118,7 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	p.Auth = auth.Init(db, p.jwk, ses)
 	p.Diagram = diagram.Init(db, p.Auth)
 	p.Diagrams = diagrams.Init(db, p.Auth)
+	p.Project = project.Init(db, p.Auth)
 
 	return p, nil
 }
