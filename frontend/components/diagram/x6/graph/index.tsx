@@ -8,6 +8,7 @@ import { initializeListeners } from "@/components/diagram/x6/graph/listeners";
 import { useGraphWebSocket } from "@/components/diagram/x6/graph/websocket";
 import { LayoutProps } from "@/components/diagram/layout";
 import { Diagram } from "types";
+import { ReadyState } from "react-use-websocket";
 
 export function useGraph(
    X6: X6StateType,
@@ -15,16 +16,16 @@ export function useGraph(
    diagram: Diagram,
    layoutProps: LayoutProps,
 ) {
-   const [ready, setReady] = useState(false);
    const graph = useRef<X6Type.Graph>();
    const { websocket, sessionId } = useGraphWebSocket(graph, diagram.id);
+   const [graphReady, setGraphReady] = useState(false);
 
    useEffect(() => {
       if (!diagram || !container.current || !X6 || !X6.Plugin || !X6.Plugin.Scroller || !X6.Plugin.Transform) {
          return;
       }
 
-      const getGraphWidth = () => window.innerWidth;
+      const getGraphWidth = () => window.innerWidth - 480;
       const getGraphHeight = () => window.innerHeight - 48;
 
       graph.current = new X6.Core.Graph({
@@ -114,7 +115,7 @@ export function useGraph(
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
       window.addEventListener("resize", handleResize);
 
-      setReady(true);
+      setGraphReady(true);
 
       return () => {
          removeListeners();
@@ -122,9 +123,13 @@ export function useGraph(
 
          graph.current.dispose();
          graph.current = null;
-         setReady(false);
+         setGraphReady(false);
       };
    }, [diagram, container, X6]);
 
-   return { graph, websocket, sessionId, ready };
+   useEffect(() => {
+      console.log("graphReady", graphReady);
+   }, [graphReady]);
+
+   return { graph, sessionId, ready: graphReady && websocket.readyState === ReadyState.OPEN };
 }

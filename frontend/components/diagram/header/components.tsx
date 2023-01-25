@@ -6,7 +6,7 @@ import { MutableRefObject } from "react";
 export function Components({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    return (
       <div
-         className="w-10 h-full px-2 text-xs flex justify-center items-center gap-1 hover:bg-[#111111]"
+         className="w-10 h-full px-2 text-xs flex justify-center items-center gap-1 hover:bg-diagram-menu-item-hovered"
          onClick={() => {
             console.log("graph", graph.current);
          }}

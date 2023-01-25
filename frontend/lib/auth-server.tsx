@@ -8,7 +8,7 @@ import {
    getSession as fetchSession,
    getDiagrams as fetchDiagrams,
    getDiagram as fetchDiagram,
-   createDiagram as newDiagram,
+   getProjects as fetchProjects,
 } from "./auth-fetch";
 
 function requestHeaders(): RequestInit {
@@ -41,4 +41,8 @@ export async function getDiagrams() {
 
 export async function getDiagram(diagramId: string) {
    return fetchDiagram(diagramId, requestHeaders());
+}
+
+export async function getProjects() {
+   return fetchProjects(requestHeaders());
 }

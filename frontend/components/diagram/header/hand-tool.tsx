@@ -17,7 +17,7 @@ export function HandTool({
       <div
          className={cn(
             "w-10 h-full px-2 text-xs flex justify-center items-center gap-1",
-            panning ? "bg-[#0d99ff]" : "hover:bg-[#111111]",
+            panning ? "bg-[#0d99ff]" : "hover:bg-diagram-menu-item-hovered",
          )}
          onClick={() => {
             console.log("graph", graph.current);

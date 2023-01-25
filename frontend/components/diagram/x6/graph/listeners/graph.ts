@@ -29,6 +29,7 @@ export default function (
    // }
 
    graph.current.on("scale", (args) => {
+      console.log("scale", args);
       layoutProps.setZoom(args.sx);
    });
 

@@ -53,6 +53,24 @@ module.exports = {
             ".border-b-1": {
                "border-bottom-width": "1px",
             },
+            ".border-t-1": {
+               "border-top-width": "1px",
+            },
+            ".border-l-1": {
+               "border-left-width": "1px",
+            },
+            ".border-r-1": {
+               "border-right-width": "1px",
+            },
+            ".bg-diagram-menu": {
+               "background-color": "rgb(38 38 38)",
+            },
+            ".bg-diagram-menu-item-selected": {
+               "background-color": "rgb(13 153 255)",
+            },
+            ".bg-diagram-menu-item-hovered": {
+               "background-color": "rgb(17 17 17)",
+            },
             // ".diagram-scrollbar": {
             //    overflow: "auto",
             //    "-ms-overflow-style": "none",

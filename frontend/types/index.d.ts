@@ -91,6 +91,7 @@ export type Diagram = {
    public: boolean;
    name: string;
    content: any[];
+   project?: Project;
 };
 
 export type DiagramUserRole = {
@@ -105,6 +106,14 @@ export type DiagramTemplate = {
    name: string;
    label: string;
    image: string;
+};
+
+export type Project = {
+   id: string;
+   created_at: string;
+   updated_at: string;
+   public: boolean;
+   name: string;
 };
 
 const enum AccessModifier {

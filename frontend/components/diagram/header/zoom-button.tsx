@@ -2,82 +2,126 @@
 
 import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { DropdownMenu, SubDropdownMenu } from "@/ui/dropdown";
 import { cn } from "@/lib/utils";
 
 export function ZoomButton({ graph, zoom }: { graph: MutableRefObject<X6Type.Graph>; zoom: number }) {
+   const [openArrow, setOpenArrow] = useState(false);
    const [open, setOpen] = useState(false);
    const [hovered, setHovered] = useState(false);
-   const ref = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
-      const handleMouseEnter = () => {
-         setHovered(true);
-      };
-
-      const handleMouseLeave = () => {
-         setHovered(false);
-      };
-
-      const handleClick = () => {
-         setOpen(true);
-         setHovered(false);
-      };
-
-      const handleContextMenu = (e: MouseEvent) => {
-         e.preventDefault();
-      };
-
-      const handleClickOutside = (e: MouseEvent) => {
-         if (ref.current && !ref.current.contains(e.target as Node)) {
-            setOpen(false);
-         }
-      };
-
-      ref.current.addEventListener("mouseenter", handleMouseEnter);
-      ref.current.addEventListener("mouseleave", handleMouseLeave);
-      ref.current.addEventListener("click", handleClick);
-      ref.current.addEventListener("contextmenu", handleContextMenu);
-      document.addEventListener("mousedown", handleClickOutside);
-
-      return () => {
-         ref.current.removeEventListener("mouseenter", handleMouseEnter);
-         ref.current.removeEventListener("mouseleave", handleMouseLeave);
-         ref.current.removeEventListener("click", handleClick);
-         ref.current.removeEventListener("contextmenu", handleContextMenu);
-         document.removeEventListener("mousedown", handleClickOutside);
-      };
-   }, []);
+      if (open || hovered) {
+         setOpenArrow(true);
+      } else {
+         setOpenArrow(false);
+      }
+   }, [open, hovered]);
 
    return (
-      <div
-         ref={ref}
-         className="w-16 h-full px-2 text-xs flex justify-center items-center gap-1 hover:bg-[#111111]"
-         onClick={() => {
-            console.log("graph", graph.current);
-
-            // This is relative. Zooms out a little bit
-            // graph.current?.zoom(-0.15);
-
-            graph.current?.zoom(0.6, { absolute: true });
-         }}
-      >
-         <div className="select-none">{zoom * 100}%</div>
-         <svg
-            className={cn("transition-all duration-100", open || hovered ? "mt-[6px]" : "mt-0")}
-            width="8"
-            height="7"
-            viewBox="0 0 8 7"
-            xmlns="http://www.w3.org/2000/svg"
+      <DropdownMenu onOpenChange={setOpen}>
+         <DropdownMenu.Trigger
+            className="cursor-default w-16 h-full px-2 text-xs flex justify-center items-center gap-1 hover:bg-diagram-menu-item-hovered focus-visible:outline-none"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onContextMenu={(e) => e.preventDefault()}
          >
-            <path
-               className="fill-white"
-               d="M3.646 5.354l-3-3 .708-.708L4 4.293l2.646-2.647.708.708-3 3L4 5.707l-.354-.353z"
-               fillRule="evenodd"
-               fillOpacity="1"
-               fill="#000"
-               stroke="none"
-            />
-         </svg>
-      </div>
+            <div className="select-none">{Math.round(zoom * 100)}%</div>
+            <svg
+               className={cn("transition-all duration-100", openArrow ? "mt-[6px]" : "mt-0")}
+               width="8"
+               height="7"
+               viewBox="0 0 8 7"
+               xmlns="http://www.w3.org/2000/svg"
+            >
+               <path
+                  className="fill-white"
+                  d="M3.646 5.354l-3-3 .708-.708L4 4.293l2.646-2.647.708.708-3 3L4 5.707l-.354-.353z"
+                  fillRule="evenodd"
+                  fillOpacity="1"
+                  fill="#000"
+                  stroke="none"
+               />
+            </svg>
+         </DropdownMenu.Trigger>
+
+         <DropdownMenu.Portal>
+            <DropdownMenu.Content className="mt-1 mr-2 py-1 md:w-52 rounded-none bg-diagram-menu" align="end">
+               {/* Make an input that will take the users zoom input */}
+               <input
+                  className="pl-7 h-6 w-full bg-transparent text-white text-xs focus:outline-none"
+                  defaultValue={Math.round(zoom * 100) + "%"}
+                  onKeyDown={(e) => {
+                     if (e.key === "Enter") {
+                        const zoomInput = parseInt(e.currentTarget.value);
+                        graph.current?.zoom((zoomInput || 0) / 100, { absolute: true });
+                     }
+                  }}
+               />
+
+               <DropdownMenu.Separator className="my-1 bg-[#636363]" />
+
+               <DropdownMenu.Item
+                  className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
+                  onSelect={() => {
+                     graph.current?.zoom(0.1);
+                  }}
+               >
+                  <div>Zoom in</div>
+                  <div className="ml-auto">Ctrl++</div>
+               </DropdownMenu.Item>
+
+               <DropdownMenu.Item
+                  className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
+                  onSelect={() => {
+                     graph.current?.zoom(-0.1);
+                  }}
+               >
+                  <div>Zoom out</div>
+                  <div className="ml-auto">Ctrl+-</div>
+               </DropdownMenu.Item>
+
+               <DropdownMenu.Item
+                  className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
+                  onSelect={() => {
+                     graph.current?.zoom(0.5, { absolute: true });
+                  }}
+               >
+                  <div>Zoom to 50%</div>
+               </DropdownMenu.Item>
+
+               <DropdownMenu.Item
+                  className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
+                  onSelect={() => {
+                     graph.current?.zoom(1, { absolute: true });
+                  }}
+               >
+                  <div>Zoom to 100%</div>
+                  <div className="ml-auto">Ctrl+0</div>
+               </DropdownMenu.Item>
+
+               <DropdownMenu.Item
+                  className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
+                  onSelect={() => {
+                     graph.current?.zoom(2, { absolute: true });
+                  }}
+               >
+                  <div>Zoom to 200%</div>
+               </DropdownMenu.Item>
+
+               <DropdownMenu.Separator className="my-1 bg-[#636363]" />
+
+               <DropdownMenu.Item
+                  className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
+                  onSelect={() => {
+                     graph.current?.zoomToFit({ padding: 20 });
+                  }}
+               >
+                  <div>Fit content</div>
+                  <div className="ml-auto">Ctrl+1</div>
+               </DropdownMenu.Item>
+            </DropdownMenu.Content>
+         </DropdownMenu.Portal>
+      </DropdownMenu>
    );
 }

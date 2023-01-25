@@ -1,4 +1,4 @@
-import { Diagram, User, APIResponse } from "types";
+import { Diagram, User, APIResponse, Project } from "types";
 import { fetchAPI } from "./utils";
 
 const defaultError: APIResponse<any> = {
@@ -121,6 +121,90 @@ export async function updateDiagram(
          headers: {
             "Content-Type": "application/json",
          },
+      },
+   )
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function getProjects(options?: RequestInit): Promise<APIResponse<Project[]>> {
+   return fetchAPI("/projects", {
+      ...options,
+   })
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function getProject(projectId: string, options?: RequestInit): Promise<APIResponse<Project>> {
+   return fetchAPI(
+      "/project?" +
+         new URLSearchParams({
+            id: projectId,
+         }),
+      {
+         ...options,
+      },
+   )
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function createProject(form: FormData, options?: RequestInit): Promise<APIResponse<string>> {
+   return fetchAPI("/project", {
+      ...options,
+      method: "POST",
+      body: form,
+   })
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function deleteProject(projectId: string, options?: RequestInit): Promise<APIResponse<null>> {
+   return fetchAPI(
+      "/project?" +
+         new URLSearchParams({
+            id: projectId,
+         }),
+      {
+         ...options,
+         method: "DELETE",
+      },
+   )
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function updateProject(
+   projectId: string,
+   data: { [key: string]: any },
+   options?: RequestInit,
+): Promise<APIResponse<null>> {
+   return fetchAPI(
+      "/project?" +
+         new URLSearchParams({
+            id: projectId,
+         }),
+      {
+         ...options,
+         method: "PUT",
+         body: JSON.stringify(data),
+         headers: {
+            "Content-Type": "application/json",
+         },
+      },
+   )
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function getProjectDiagrams(projectId: string, options?: RequestInit): Promise<APIResponse<Diagram[]>> {
+   return fetchAPI(
+      "/project/diagrams?" +
+         new URLSearchParams({
+            id: projectId,
+         }),
+      {
+         ...options,
       },
    )
       .then((res) => res.json())

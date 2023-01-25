@@ -37,15 +37,15 @@ export function UserAccountNav({ className }: { className?: string }) {
 
    return (
       <DropdownMenu>
-         <DropdownMenu.Trigger className="flex items-center gap-2 overflow-hidden focus-visible:outline-none select-none">
+         <DropdownMenu.Trigger className="flex cursor-default items-center gap-2 overflow-hidden focus-visible:outline-none select-none">
             <UserAvatar user={user} className={className} />
          </DropdownMenu.Trigger>
          <DropdownMenu.Portal>
-            <DropdownMenu.Content className="mt-4 md:w-[240px]" align="end">
+            <DropdownMenu.Content className="mt-4 md:w-[240px] rounded-md" align="end">
                <Link
-                  href={"/user/[id]" + user.user_id}
+                  href={"/user/[id]"}
                   as={`/user/${user.user_id}`}
-                  className="flex items-center justify-start gap-2 p-4 cursor-pointer"
+                  className="flex items-center justify-start gap-2 p-4 cursor-pointer focus:bg-slate-50 focus:text-black"
                >
                   <div className="flex flex-col space-y-1 leading-none">
                      {user.full_name && <p className="font-medium">{user.full_name}</p>}
@@ -57,47 +57,61 @@ export function UserAccountNav({ className }: { className?: string }) {
                   <>
                      <DropdownMenu.Separator />
                      <Link href="/admin/dashboard">
-                        <DropdownMenu.Item className="cursor-pointer">Admin dashboard</DropdownMenu.Item>
+                        <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
+                           Admin dashboard
+                        </DropdownMenu.Item>
                      </Link>
                   </>
                )}
 
                <DropdownMenu.Separator />
 
-               <Link href={"/user/[id]" + user.user_id} as={`/user/${user.user_id}`}>
-                  <DropdownMenu.Item className="cursor-pointer">Your profile</DropdownMenu.Item>
+               <Link href={"/user/[id]"} as={`/user/${user.user_id}`}>
+                  <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
+                     Your profile
+                  </DropdownMenu.Item>
                </Link>
 
                <Link href="/dashboard/diagrams">
-                  <DropdownMenu.Item className="cursor-pointer">Your diagrams</DropdownMenu.Item>
+                  <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
+                     Your diagrams
+                  </DropdownMenu.Item>
                </Link>
 
                <Link href="/dashboard/projects">
-                  <DropdownMenu.Item className="cursor-pointer">Your projects</DropdownMenu.Item>
+                  <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
+                     Your projects
+                  </DropdownMenu.Item>
                </Link>
 
                <Link href="/dashboard/teams">
-                  <DropdownMenu.Item className="cursor-pointer">Your teams</DropdownMenu.Item>
+                  <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
+                     Your teams
+                  </DropdownMenu.Item>
                </Link>
 
                <Link href="/dashboard/issues">
-                  <DropdownMenu.Item className="cursor-pointer">Your issues</DropdownMenu.Item>
+                  <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
+                     Your issues
+                  </DropdownMenu.Item>
                </Link>
 
                <DropdownMenu.Separator />
 
                <Link href="/help">
-                  <DropdownMenu.Item className="cursor-pointer">Help</DropdownMenu.Item>
+                  <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">Help</DropdownMenu.Item>
                </Link>
 
                <Link href="/dashboard/settings">
-                  <DropdownMenu.Item className="cursor-pointer">Settings</DropdownMenu.Item>
+                  <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
+                     Settings
+                  </DropdownMenu.Item>
                </Link>
 
                <DropdownMenu.Separator />
 
                <DropdownMenu.Item
-                  className="cursor-pointer"
+                  className="cursor-pointer focus:bg-slate-50 focus:text-black"
                   onSelect={(e) => {
                      e.preventDefault();
                      setIsLoading(true);
