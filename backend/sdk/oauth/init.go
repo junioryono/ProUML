@@ -19,7 +19,7 @@ type OAuth_SDK struct {
 
 const (
 	// webDomain string = "http://127.0.0.1:3000"
-	// apiDomain string = "http://127.0.0.1:5000"
+	// apiDomain string = "http://127.0.0.1:5001"
 	webDomain string = "https://prouml.com"
 	apiDomain string = "https://api.prouml.com"
 )

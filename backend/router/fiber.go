@@ -23,7 +23,7 @@ import (
 func Init(sdkP *sdk.SDK) error {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "5000"
+		port = "5001"
 	}
 
 	corsConfig := cors.Config{

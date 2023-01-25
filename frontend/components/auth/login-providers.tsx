@@ -1,6 +1,6 @@
 export function LoginProviders({ isLoading }: { isLoading: boolean }) {
    const domain = "https://api.prouml.com";
-   // const domain = "http://127.0.0.1:5000";
+   // const domain = "http://127.0.0.1:5001";
    return (
       <div className="grid gap-3">
          <button
