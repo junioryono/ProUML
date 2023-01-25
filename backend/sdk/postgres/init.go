@@ -17,6 +17,9 @@ import (
 	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/project"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/projects"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/team"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/teams"
 	"github.com/junioryono/ProUML/backend/sdk/ses"
 )
 
@@ -25,6 +28,9 @@ type Postgres_SDK struct {
 	Diagram  *diagram.Diagram_SDK
 	Diagrams *diagrams.Diagrams_SDK
 	Project  *project.Project_SDK
+	Projects *projects.Projects_SDK
+	Team     *team.Team_SDK
+	Teams    *teams.Teams_SDK
 	db       *gorm.DB
 	jwk      *jwk.JWK_SDK
 	ses      *ses.SES_SDK
@@ -88,6 +94,8 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		&models.DiagramUserRoleModel{},
 		&models.ProjectModel{},
 		&models.ProjectUserRoleModel{},
+		&models.TeamModel{},
+		&models.TeamUserRoleModel{},
 		&models.JWTModel{},
 		&models.EmailVerificationTokenModel{},
 		&models.PasswordResetTokenModel{},
@@ -106,9 +114,12 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		cluster: cluster,
 	}
 
-	p.createFuntionsAndTriggers()
-
 	go p.gracefulShutdown()
+
+	if err := p.createFuntionsAndTriggers(); err != nil {
+		p.shutdown()
+		return nil, err
+	}
 
 	if p.jwk, err = jwk.Init(db, dsn, cluster); err != nil {
 		p.shutdown()
@@ -119,6 +130,9 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	p.Diagram = diagram.Init(db, p.Auth)
 	p.Diagrams = diagrams.Init(db, p.Auth)
 	p.Project = project.Init(db, p.Auth)
+	p.Projects = projects.Init(db, p.Auth)
+	p.Team = team.Init(db, p.Auth)
+	p.Teams = teams.Init(db, p.Auth)
 
 	return p, nil
 }
@@ -176,22 +190,37 @@ func (p *Postgres_SDK) shutdown() {
 	}
 }
 
-func (p *Postgres_SDK) createFuntionsAndTriggers() {
+func (p *Postgres_SDK) createFuntionsAndTriggers() error {
 	// Check if the pg_notify_jwt function exists
 	var pg_notify_jwt_exists bool
-	p.db.Raw("SELECT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'pg_notify_jwt')").Scan(&pg_notify_jwt_exists)
+	if err := p.db.Raw("SELECT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'pg_notify_jwt')").Scan(&pg_notify_jwt_exists).Error; err != nil {
+		return err
+	}
 
 	if !pg_notify_jwt_exists {
 		// Use db.raw to create a pg_notify function if it doesn't exist
-		p.db.Exec("CREATE FUNCTION pg_notify_jwt() RETURNS trigger AS $$ BEGIN PERFORM pg_notify('jwt', NEW.id); RETURN NEW; END; $$ LANGUAGE plpgsql;")
+		if err := p.db.Exec("CREATE FUNCTION pg_notify_jwt() RETURNS trigger AS $$ BEGIN PERFORM pg_notify('jwt', NEW.id); RETURN NEW; END; $$ LANGUAGE plpgsql;").Error; err != nil {
+			return err
+		}
 	}
 
 	// Check if the pg_notify_jwt trigger exists
 	var pg_notify_jwt_trigger_exists bool
-	p.db.Raw("SELECT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'pg_notify_jwt')").Scan(&pg_notify_jwt_trigger_exists)
+	if err := p.db.Raw("SELECT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'pg_notify_jwt')").Scan(&pg_notify_jwt_trigger_exists).Error; err != nil {
+		return err
+	}
 
 	if !pg_notify_jwt_trigger_exists {
 		// Use db.raw to create a trigger for the jwt_models table if it doesn't exist
-		p.db.Exec("CREATE TRIGGER pg_notify_jwt AFTER INSERT ON jwt_models FOR EACH ROW EXECUTE PROCEDURE pg_notify_jwt();")
+		if err := p.db.Exec("CREATE TRIGGER pg_notify_jwt AFTER INSERT ON jwt_models FOR EACH ROW EXECUTE PROCEDURE pg_notify_jwt();").Error; err != nil {
+			return err
+		}
 	}
+
+	// Create ProjectModel with default ID if it doesn't exist
+	if err := p.db.FirstOrCreate(&models.ProjectModel{ID: "default"}).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

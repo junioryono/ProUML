@@ -14,6 +14,8 @@ import (
 	"github.com/junioryono/ProUML/backend/router/routes/diagrams"
 	"github.com/junioryono/ProUML/backend/router/routes/oauth"
 	"github.com/junioryono/ProUML/backend/router/routes/project"
+	projectDiagram "github.com/junioryono/ProUML/backend/router/routes/project/diagram"
+	"github.com/junioryono/ProUML/backend/router/routes/projects"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/types"
 )
@@ -75,12 +77,10 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	OAuthRouter.Get("/google/callback", oauth.GoogleCallback(sdkP))
 
 	DiagramRouter := Router.Group("/diagram", isAuthenticated(sdkP))
-
 	DiagramRouter.Post("/", diagram.Post(sdkP))
 	DiagramRouter.Put("/", diagram.Put(sdkP))
 	DiagramRouter.Get("/", diagram.Get(sdkP))
 	DiagramRouter.Delete("/", diagram.Delete(sdkP))
-
 	DiagramRouter.Post("/users", diagramUsers.Post(sdkP))
 	DiagramRouter.Put("/users", diagramUsers.Put(sdkP))
 	DiagramRouter.Get("/users", diagramUsers.Get(sdkP))
@@ -90,11 +90,23 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	DiagramsRouter.Get("/", diagrams.Get(sdkP))
 
 	ProjectRouter := Router.Group("/project", isAuthenticated(sdkP))
-
 	ProjectRouter.Post("/", project.Post(sdkP))
-	//ProjectRouter.Put("/", diagram.Put(sdkP))
+	ProjectRouter.Put("/", project.Put(sdkP))
 	ProjectRouter.Get("/", project.Get(sdkP))
-	//ProjectRouter.Delete("/", diagram.Delete(sdkP))
+	ProjectRouter.Delete("/", project.Delete(sdkP))
+
+	ProjectDiagramRouter := ProjectRouter.Group("/diagram", isAuthenticated(sdkP))
+	ProjectDiagramRouter.Put("/", projectDiagram.Put(sdkP))
+	ProjectDiagramRouter.Delete("/", projectDiagram.Delete(sdkP))
+
+	ProjectsRouter := Router.Group("/projects", isAuthenticated(sdkP))
+	ProjectsRouter.Get("/", projects.Get(sdkP))
+
+	// TeamRouter := Router.Group("/team", isAuthenticated(sdkP))
+	// TeamRouter.Post("/", team.Post(sdkP))
+	// TeamRouter.Put("/", team.Put(sdkP))
+	// TeamRouter.Get("/", team.Get(sdkP))
+	// TeamRouter.Delete("/", team.Delete(sdkP))
 
 	Router.Get("/.well-known/jwks.json", JWKSet(sdkP))
 

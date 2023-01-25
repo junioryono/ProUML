@@ -18,6 +18,8 @@ import (
 
 func Post(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
+		projectId := fbCtx.FormValue("projectId")
+
 		// Check if user uploaded a project
 		if project, err := fbCtx.FormFile("project"); err == nil {
 			if project.Header.Get("Content-Type") != "zip" &&
@@ -102,7 +104,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			// Create a new diagram
-			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), transpiledProject)
+			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), projectId, transpiledProject)
 			if err2 != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
@@ -128,7 +130,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			// Create a new diagram
-			diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), template)
+			diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), projectId, template)
 			if err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
@@ -143,7 +145,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Create a new diagram
-		diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), nil)
+		diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), projectId, nil)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 				Success: false,
