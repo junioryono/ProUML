@@ -105,7 +105,33 @@ func (p *Project_SDK) Delete(projectId, idToken string) *types.WrappedError {
 	// diagram_models has project_id as a foreign key
 	// diagram_user_role_models has diagram_id as a foreign key
 	// Delete the project_user_role_models, then diagram_models, then project_models
-	if err := tx.Table("project_user_role_models").Joins("INNER JOIN diagram_models ON project_user_role_models.project_id = diagram_models.project_id").Joins("INNER JOIN diagram_user_role_models ON diagram_models.id = diagram_user_role_models.diagram_id").Where("project_user_role_models.project_id = ?", projectId).Delete(&models.DiagramUserRoleModel{}).Error; err != nil {
+	if err := tx.Table("project_user_role_models").
+		Joins("INNER JOIN diagram_models ON project_user_role_models.project_id = diagram_models.project_id").
+		Joins("INNER JOIN diagram_user_role_models ON diagram_models.id = diagram_user_role_models.diagram_id").
+		Where("project_user_role_models.project_id = ?", projectId).
+		Delete(&models.DiagramUserRoleModel{}).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Table("project_user_role_models").
+		Joins("INNER JOIN diagram_models ON project_user_role_models.project_id = diagram_models.project_id").
+		Where("project_user_role_models.project_id = ?", projectId).
+		Delete(&models.DiagramModel{}).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Table("project_user_role_models").
+		Where("project_user_role_models.project_id = ?", projectId).
+		Delete(&models.ProjectUserRoleModel{}).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Table("project_models").
+		Where("project_models.id = ?", projectId).
+		Delete(&models.ProjectModel{}).Error; err != nil {
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
 	}

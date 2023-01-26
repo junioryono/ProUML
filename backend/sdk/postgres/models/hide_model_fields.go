@@ -3,11 +3,12 @@ package models
 import "time"
 
 type DiagramModelHiddenContent struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Public    bool      `json:"public"`
-	Name      string    `json:"name"`
+	ID        string        `json:"id"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
+	Public    bool          `json:"public"`
+	Name      string        `json:"name"`
+	Project   *ProjectModel `gorm:"-" json:"project,omitempty"`
 }
 
 type DiagramUsersRolesHiddenContent struct {

@@ -29,7 +29,7 @@ export function TemplateItem({ template }: { template: DiagramTemplate }) {
                throw new Error(res.reason);
             }
 
-            router.push(`/diagram/${res.response}`);
+            router.push(`/dashboard/diagrams/${res.response}`);
 
             return toast({
                title: "Success!",

@@ -37,7 +37,7 @@ export function UserAccountNav({ className }: { className?: string }) {
 
    return (
       <DropdownMenu>
-         <DropdownMenu.Trigger className="flex cursor-default items-center gap-2 overflow-hidden focus-visible:outline-none select-none">
+         <DropdownMenu.Trigger className="flex items-center gap-2 overflow-hidden focus-visible:outline-none select-none">
             <UserAvatar user={user} className={className} />
          </DropdownMenu.Trigger>
          <DropdownMenu.Portal>

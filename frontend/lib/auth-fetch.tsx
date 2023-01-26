@@ -210,3 +210,43 @@ export async function getProjectDiagrams(projectId: string, options?: RequestIni
       .then((res) => res.json())
       .catch(() => defaultError);
 }
+
+export async function addDiagramToProject(
+   projectId: string,
+   diagramId: string,
+   options?: RequestInit,
+): Promise<APIResponse<null>> {
+   return fetchAPI(
+      "/project/diagram?" +
+         new URLSearchParams({
+            projectId,
+            diagramId,
+         }),
+      {
+         ...options,
+         method: "PUT",
+      },
+   )
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function removeDiagramFromProject(
+   projectId: string,
+   diagramId: string,
+   options?: RequestInit,
+): Promise<APIResponse<null>> {
+   return fetchAPI(
+      "/project/diagram?" +
+         new URLSearchParams({
+            projectId,
+            diagramId,
+         }),
+      {
+         ...options,
+         method: "DELETE",
+      },
+   )
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}

@@ -36,7 +36,7 @@ func (u *Users_SDK) Get(diagramId, idToken string) ([]models.DiagramUsersRolesHi
 	// Get all users with access to the diagram if public or userId is the owner, editor or viewer
 	var allUserDiagrams []models.DiagramUserRoleModel
 	if diagram.Public {
-		if err := u.db.Where("diagram_id = ?", diagramId).Find(&allUserDiagrams).Error; err != nil {
+		if err := u.db.Preload("User").Where("diagram_id = ?", diagramId).Find(&allUserDiagrams).Error; err != nil {
 			return nil, types.Wrap(err, types.ErrInternalServerError)
 		}
 	} else {
@@ -49,14 +49,7 @@ func (u *Users_SDK) Get(diagramId, idToken string) ([]models.DiagramUsersRolesHi
 			return nil, types.Wrap(errors.New("user does not have access to the diagram"), types.ErrUserNoAccess)
 		}
 
-		if err := u.db.Where("diagram_id = ?", diagramId).Find(&allUserDiagrams).Error; err != nil {
-			return nil, types.Wrap(err, types.ErrInternalServerError)
-		}
-	}
-
-	// Get users from association
-	for i := range allUserDiagrams {
-		if err := u.db.Model(&allUserDiagrams[i]).Association("User").Find(&allUserDiagrams[i].User); err != nil {
+		if err := u.db.Preload("User").Where("diagram_id = ?", diagramId).Find(&allUserDiagrams).Error; err != nil {
 			return nil, types.Wrap(err, types.ErrInternalServerError)
 		}
 	}

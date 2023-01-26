@@ -25,11 +25,11 @@ func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]model
 		return nil, err
 	}
 
-	var diagrams []models.DiagramModelHiddenContent
+	var diagrams []models.DiagramModel
 	if err := d.db.
 		Offset(offset).
 		Model(&models.DiagramModel{}).
-		Select("id, created_at, updated_at, public, name").
+		Preload("Project").
 		Joins("JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").
 		Where("diagram_user_role_models.user_id = ?", userId).
 		Order("diagram_models.updated_at DESC").
@@ -38,5 +38,23 @@ func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]model
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	return diagrams, nil
+	// Go to diagrammodelshiddencontent
+	var response []models.DiagramModelHiddenContent
+	for _, diagram := range diagrams {
+		md := models.DiagramModelHiddenContent{
+			ID:        diagram.ID,
+			CreatedAt: diagram.CreatedAt,
+			UpdatedAt: diagram.UpdatedAt,
+			Public:    diagram.Public,
+			Name:      diagram.Name,
+		}
+
+		if diagram.Project != nil && diagram.Project.ID != "default" {
+			md.Project = diagram.Project
+		}
+
+		response = append(response, md)
+	}
+
+	return response, nil
 }

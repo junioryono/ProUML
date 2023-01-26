@@ -13,6 +13,7 @@ import { Selector } from "@/components/diagram/header/selector";
 import { Components } from "@/components/diagram/header/components";
 import { HandTool } from "@/components/diagram/header/hand-tool";
 import { AddComment } from "@/components/diagram/header/add-comment";
+import Link from "next/link";
 
 export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
@@ -47,16 +48,20 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                <Components graph={graph} />
                <AddComment graph={graph} />
             </div>
-            <div className="basis-2/4 flex justify-center items-center gap-2">
-               <h1 className="text-md">
-                  {diagram.project && (
-                     <>
-                        <div>{diagram.project.name}</div>
-                        <div>/</div>
-                     </>
-                  )}
-                  <div>{diagram.name}</div>
-               </h1>
+            <div className="basis-2/4 flex justify-center items-center gap-2 text-sm select-none">
+               {diagram.project && (
+                  <>
+                     <Link
+                        href={"/dashboard/projects/[id]"}
+                        as={`/dashboard/projects/${diagram.project.id}`}
+                        className="opacity-70 hover:opacity-100 cursor-pointer"
+                     >
+                        {diagram.project.name}
+                     </Link>
+                     <div className="opacity-30 text-xl font-light">/</div>
+                  </>
+               )}
+               <div>{diagram.name}</div>
                <svg className="svg" width="8" height="7" viewBox="0 0 8 7" xmlns="http://www.w3.org/2000/svg">
                   <path
                      d="M3.646 5.354l-3-3 .708-.708L4 4.293l2.646-2.647.708.708-3 3L4 5.707l-.354-.353z"

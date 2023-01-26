@@ -61,8 +61,8 @@ export function DiagramItem({ diagram }: { diagram: Diagram }) {
          <div className="m-2 border-gray-200 border rounded">
             <Link
                ref={linkRef}
-               href="/diagram/[id]"
-               as={`/diagram/${diagram.id}`}
+               href="/dashboard/diagrams/[id]"
+               as={`/dashboard/diagrams/${diagram.id}`}
                {...onLongPress()}
                className="cursor-pointer"
                onContextMenu={(e) => {
