@@ -111,7 +111,6 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                               autoComplete="both"
                               autoCorrect="off"
                               spellCheck="false"
-                              name="email"
                            />
                         </div>
                      </div>
