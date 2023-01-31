@@ -18,8 +18,6 @@ import (
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/project"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/projects"
-	"github.com/junioryono/ProUML/backend/sdk/postgres/team"
-	"github.com/junioryono/ProUML/backend/sdk/postgres/teams"
 	"github.com/junioryono/ProUML/backend/sdk/ses"
 )
 
@@ -29,8 +27,6 @@ type Postgres_SDK struct {
 	Diagrams *diagrams.Diagrams_SDK
 	Project  *project.Project_SDK
 	Projects *projects.Projects_SDK
-	Team     *team.Team_SDK
-	Teams    *teams.Teams_SDK
 	db       *gorm.DB
 	jwk      *jwk.JWK_SDK
 	ses      *ses.SES_SDK
@@ -94,8 +90,6 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		&models.DiagramUserRoleModel{},
 		&models.ProjectModel{},
 		&models.ProjectUserRoleModel{},
-		&models.TeamModel{},
-		&models.TeamUserRoleModel{},
 		&models.JWTModel{},
 		&models.EmailVerificationTokenModel{},
 		&models.PasswordResetTokenModel{},
@@ -131,8 +125,6 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	p.Diagrams = diagrams.Init(db, p.Auth)
 	p.Project = project.Init(db, p.Auth)
 	p.Projects = projects.Init(db, p.Auth)
-	p.Team = team.Init(db, p.Auth)
-	p.Teams = teams.Init(db, p.Auth)
 
 	return p, nil
 }

@@ -34,11 +34,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
                         icon: "fileImage",
                      },
                      {
-                        title: "Teams",
-                        href: "/dashboard/teams",
-                        icon: "users",
-                     },
-                     {
                         title: "Issues",
                         href: "/dashboard/issues",
                         icon: "bug",

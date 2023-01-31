@@ -49,10 +49,6 @@ export function MainNav({ items, children }: MainNavProps) {
          href: "/dashboard/projects",
       },
       {
-         title: "Teams",
-         href: "/dashboard/teams",
-      },
-      {
          title: "Diagrams",
          href: "/dashboard/diagrams",
       },

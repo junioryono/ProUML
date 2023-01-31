@@ -84,12 +84,6 @@ export function UserAccountNav({ className }: { className?: string }) {
                   </DropdownMenu.Item>
                </Link>
 
-               <Link href="/dashboard/teams">
-                  <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
-                     Your teams
-                  </DropdownMenu.Item>
-               </Link>
-
                <Link href="/dashboard/issues">
                   <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
                      Your issues
