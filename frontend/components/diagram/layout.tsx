@@ -277,10 +277,22 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                            {/* all of the color options */}
                            {colorOptions.map((color) => {
                               console.log(color);
-                              return (
+                              // in future: box color retrieved from prop?
+                              var setColor = "FFFFFF";
+
+                              // if the current collor
+                              return color === setColor ? (
                                  <button
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-4 bg-[#${color}]`}
-                                 />
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg h-9 w-9 bg-[#${color}]`}
+                                 >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20">
+                                       <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                                    </svg>
+                                 </button>
+                              ) : (
+                                 <button
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
+                                 ></button>
                               );
                            })}
                         </div>
@@ -290,7 +302,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                   <hr className="border-slate-400" />
 
                   {/* uml box font style section */}
-                  <div className="flex flex-col pt-3">
+                  <div className="flex flex-col pt-3 pb-3">
                      <div className="flex justify-between">
                         <div className="font-bold">Text Styles</div>
                      </div>
@@ -299,41 +311,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                      </div>
                   </div>
 
-                  {/* <div className="flex flex-col">
-                     <div className="flex justify-between">
-                        <div>Edges</div>
-                        <div>+</div>
-                     </div>
-                     <div className="flex items-center gap-3 pl-2">
-                        <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                           <path
-                              d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                              fillRule="evenodd"
-                              fillOpacity="1"
-                              stroke="none"
-                           ></path>
-                        </svg>
-                        <div>Page 1</div>
-                     </div>
-                  </div>
-
-                  <div className="flex flex-col">
-                     <div className="flex justify-between">
-                        <div>Edges</div>
-                        <div>+</div>
-                     </div>
-                     <div className="flex items-center gap-3 pl-2">
-                        <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                           <path
-                              d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                              fillRule="evenodd"
-                              fillOpacity="1"
-                              stroke="none"
-                           ></path>
-                        </svg>
-                        <div>Page 1</div>
-                     </div>
-                  </div> */}
+                  <hr className="border-slate-400" />
                </div>
             )}
          </div>
