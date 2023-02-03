@@ -304,10 +304,8 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                      {/* the current color hex code of the box */}
                      <div className="mt-2  w-full flex">
                         <div
-                           style={{ color: `#${selectedBoxBackgroundColor}` }}
-                           className={`ml-9 mr-1 border border-black rounded-md h-6 w-6`}
+                           className={`ml-9 mr-1 border border-black rounded-md h-6 w-6 bg-[#${selectedBoxBackgroundColor}]`}
                         />
-
                         <input
                            placeholder={`#${selectedBoxBackgroundColor} `}
                            className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
@@ -364,10 +362,8 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                      {/* the current color hex code of the box */}
                      <div className="mt-2  w-full flex">
                         <div
-                           style={{ color: `#${selectedBoxBorderColor}` }}
-                           className={`ml-9 mr-1 border border-black rounded-md h-6 w-6`}
+                           className={`ml-9 mr-1 border border-black rounded-md h-6 w-6 bg-[#${selectedBoxBorderColor}]`}
                         />
-
                         <input
                            placeholder={`#${selectedBoxBorderColor} `}
                            className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
