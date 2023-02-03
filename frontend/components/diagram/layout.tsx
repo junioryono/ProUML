@@ -65,6 +65,9 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
       console.log("diagram", diagram);
    }, [diagram]);
 
+   // current color of a uml box
+   const [selectedBoxColor, setSelectedBoxColor] = useState("FFFFFF"); // <- default should be initial box color
+
    return (
       <div className="flex flex-col">
          <div className="flex justify-between items-center h-12 bg-diagram-menu text-white">
@@ -277,22 +280,23 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                            {/* all of the color options */}
                            {colorOptions.map((color) => {
                               console.log(color);
-                              // in future: box color retrieved from prop?
-                              var setColor = "FFFFFF";
 
                               // if the current collor
-                              return color === setColor ? (
+                              return color === selectedBoxColor ? (
                                  <button
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg h-9 w-9 bg-[#${color}]`}
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 25 25">
                                        <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
                                     </svg>
                                  </button>
                               ) : (
                                  <button
                                     className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
-                                 ></button>
+                                    onClick={() => {
+                                       setSelectedBoxColor(color);
+                                    }}
+                                 />
                               );
                            })}
                         </div>
