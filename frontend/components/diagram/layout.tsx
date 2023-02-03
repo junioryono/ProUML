@@ -15,8 +15,8 @@ import { HandTool } from "@/components/diagram/header/hand-tool";
 import { AddComment } from "@/components/diagram/header/add-comment";
 import { cn } from "@/lib/utils";
 
-// // color options for the right styling sidebar
-const colorOptions = [
+// bg color options for styling bar
+const backgroundColorOptions = [
    "FFFFFF", // white
    "DFFF00", // yellow
    "FFBF00", // orange
@@ -29,18 +29,14 @@ const colorOptions = [
    "CCCCFF", // pink
 ];
 
-// const colorOptions = [
-//    "grey", // white
-//    "yellow", // yellow
-//    "orange", // orange
-//    "red", // red
-//    "purple", // purple
-//    "lime", // lime
-//    "green", // green
-//    "teal", // teal
-//    "blue", // blue
-//    "pink", // pink
-// ];
+// border color options for styling bar
+const borderColorOptions = [
+   "000000", // black
+   "BBBBBB", // grey
+   "0B5394", // blue
+   "CC0000", // red
+   "6A329F", // purple
+];
 
 export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
@@ -65,8 +61,9 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
       console.log("diagram", diagram);
    }, [diagram]);
 
-   // current color of a uml box
-   const [selectedBoxColor, setSelectedBoxColor] = useState("FFFFFF"); // <- default should be initial box color
+   // for colors of selected uml box
+   const [selectedBoxBackgroundColor, setSelectedBoxBackgroundColor] = useState("FFFFFF"); // <- default should be initial bg color
+   const [selectedBoxBorderColor, setSelectedBoxBorderColor] = useState("000000"); // <- default should be initial border color
 
    return (
       <div className="flex flex-col">
@@ -114,7 +111,6 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                </div>
             )}
 
-            {/* Left bar */}
             {/* Left bar */}
             {ready && (
                <div className="w-60 p-2 flex flex-col border-gray-400 border-r-1">
@@ -275,15 +271,17 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                      <div className="flex justify-between">
                         <div className="font-bold">Background</div>
                      </div>
+
+                     {/* all of the background color options */}
                      <div className="flex items-center gap-2">
                         <div>
-                           {/* all of the color options */}
-                           {colorOptions.map((color) => {
+                           {backgroundColorOptions.map((color) => {
                               console.log(color);
 
-                              // if the current collor
-                              return color === selectedBoxColor ? (
+                              return color === selectedBoxBackgroundColor ? (
+                                 // if the current bg color is set to this color, put a checkmark svg on it
                                  <button
+                                    style={{ color: `#${color}` }}
                                     className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
                                  >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 25 25">
@@ -291,15 +289,95 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                                     </svg>
                                  </button>
                               ) : (
+                                 // if the current bg color is not set to this color
                                  <button
                                     className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
                                     onClick={() => {
-                                       setSelectedBoxColor(color);
+                                       setSelectedBoxBackgroundColor(color);
                                     }}
                                  />
                               );
                            })}
                         </div>
+                     </div>
+
+                     {/* the current color hex code of the box */}
+                     <div className="mt-2  w-full flex">
+                        <div
+                           style={{ color: `#${selectedBoxBackgroundColor}` }}
+                           className={`ml-9 mr-1 border border-black rounded-md h-6 w-6`}
+                        />
+
+                        <input
+                           placeholder={`#${selectedBoxBackgroundColor} `}
+                           className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                           type="text"
+                           autoCapitalize="none"
+                           autoComplete="both"
+                           autoCorrect="off"
+                           spellCheck="false"
+                           disabled
+                        />
+                     </div>
+                  </div>
+
+                  <hr className="border-slate-400" />
+
+                  {/* uml box border color section */}
+                  <div className="flex flex-col pt-3 pb-3">
+                     <div className="flex justify-between">
+                        <div className="font-bold">Border</div>
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <div>
+                           {/* all of the color options */}
+                           {borderColorOptions.map((color) => {
+                              console.log(color);
+
+                              // if the current collor
+                              return color === selectedBoxBorderColor ? (
+                                 <button
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
+                                 >
+                                    <svg
+                                       xmlns="http://www.w3.org/2000/svg"
+                                       width="16"
+                                       height="16"
+                                       viewBox="0 0 25 25"
+                                       fill="white"
+                                    >
+                                       <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                                    </svg>
+                                 </button>
+                              ) : (
+                                 <button
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
+                                    onClick={() => {
+                                       setSelectedBoxBorderColor(color);
+                                    }}
+                                 />
+                              );
+                           })}
+                        </div>
+                     </div>
+
+                     {/* the current color hex code of the box */}
+                     <div className="mt-2  w-full flex">
+                        <div
+                           style={{ color: `#${selectedBoxBorderColor}` }}
+                           className={`ml-9 mr-1 border border-black rounded-md h-6 w-6`}
+                        />
+
+                        <input
+                           placeholder={`#${selectedBoxBorderColor} `}
+                           className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                           type="text"
+                           autoCapitalize="none"
+                           autoComplete="both"
+                           autoCorrect="off"
+                           spellCheck="false"
+                           disabled
+                        />
                      </div>
                   </div>
 
