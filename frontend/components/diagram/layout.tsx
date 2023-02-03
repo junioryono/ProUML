@@ -13,7 +13,34 @@ import { Selector } from "@/components/diagram/header/selector";
 import { Components } from "@/components/diagram/header/components";
 import { HandTool } from "@/components/diagram/header/hand-tool";
 import { AddComment } from "@/components/diagram/header/add-comment";
-import Link from "next/link";
+import { cn } from "@/lib/utils";
+
+// // color options for the right styling sidebar
+const colorOptions = [
+   "FFFFFF", // white
+   "DFFF00", // yellow
+   "FFBF00", // orange
+   "FF7F50", // red orange
+   "DE3163", // red
+   "9FE2BF", // green
+   "40E0D0", // teal
+   "6495ED", // blue
+   "AF7AC5", // purple
+   "CCCCFF", // pink
+];
+
+// const colorOptions = [
+//    "grey", // white
+//    "yellow", // yellow
+//    "orange", // orange
+//    "red", // red
+//    "purple", // purple
+//    "lime", // lime
+//    "green", // green
+//    "teal", // teal
+//    "blue", // blue
+//    "pink", // pink
+// ];
 
 export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
@@ -38,6 +65,9 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
       console.log("diagram", diagram);
    }, [diagram]);
 
+   // current color of a uml box
+   const [selectedBoxColor, setSelectedBoxColor] = useState("FFFFFF"); // <- default should be initial box color
+
    return (
       <div className="flex flex-col">
          <div className="flex justify-between items-center h-12 bg-diagram-menu text-white">
@@ -48,20 +78,16 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                <Components graph={graph} />
                <AddComment graph={graph} />
             </div>
-            <div className="basis-2/4 flex justify-center items-center gap-2 text-sm select-none">
-               {diagram.project && (
-                  <>
-                     <Link
-                        href={"/dashboard/projects/[id]"}
-                        as={`/dashboard/projects/${diagram.project.id}`}
-                        className="opacity-70 hover:opacity-100 cursor-pointer"
-                     >
-                        {diagram.project.name}
-                     </Link>
-                     <div className="opacity-30 text-xl font-light">/</div>
-                  </>
-               )}
-               <div>{diagram.name}</div>
+            <div className="basis-2/4 flex justify-center items-center gap-2">
+               <h1 className="text-md">
+                  {diagram.project && (
+                     <>
+                        <div>{diagram.project.name}</div>
+                        <div>/</div>
+                     </>
+                  )}
+                  <div>{diagram.name}</div>
+               </h1>
                <svg className="svg" width="8" height="7" viewBox="0 0 8 7" xmlns="http://www.w3.org/2000/svg">
                   <path
                      d="M3.646 5.354l-3-3 .708-.708L4 4.293l2.646-2.647.708.708-3 3L4 5.707l-.354-.353z"
@@ -88,6 +114,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                </div>
             )}
 
+            {/* Left bar */}
             {/* Left bar */}
             {ready && (
                <div className="w-60 p-2 flex flex-col border-gray-400 border-r-1">
@@ -243,59 +270,52 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
             {/* Right bar */}
             {ready && (
                <div className="w-60 p-2 flex flex-col border-gray-400 border-l-1">
-                  <div className="flex flex-col">
+                  {/* uml box background color section */}
+                  <div className="flex flex-col pb-3">
                      <div className="flex justify-between">
-                        <div>Edges</div>
-                        <div>+</div>
+                        <div className="font-bold">Background</div>
                      </div>
-                     <div className="flex items-center gap-3 pl-2">
-                        <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                           <path
-                              d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                              fillRule="evenodd"
-                              fillOpacity="1"
-                              stroke="none"
-                           ></path>
-                        </svg>
-                        <div>Page 1</div>
+                     <div className="flex items-center gap-2">
+                        <div>
+                           {/* all of the color options */}
+                           {colorOptions.map((color) => {
+                              console.log(color);
+
+                              // if the current collor
+                              return color === selectedBoxColor ? (
+                                 <button
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
+                                 >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 25 25">
+                                       <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                                    </svg>
+                                 </button>
+                              ) : (
+                                 <button
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
+                                    onClick={() => {
+                                       setSelectedBoxColor(color);
+                                    }}
+                                 />
+                              );
+                           })}
+                        </div>
                      </div>
                   </div>
 
-                  <div className="flex flex-col">
+                  <hr className="border-slate-400" />
+
+                  {/* uml box font style section */}
+                  <div className="flex flex-col pt-3 pb-3">
                      <div className="flex justify-between">
-                        <div>Edges</div>
-                        <div>+</div>
+                        <div className="font-bold">Text Styles</div>
                      </div>
                      <div className="flex items-center gap-3 pl-2">
-                        <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                           <path
-                              d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                              fillRule="evenodd"
-                              fillOpacity="1"
-                              stroke="none"
-                           ></path>
-                        </svg>
-                        <div>Page 1</div>
+                        <div>{/* all of the color options */}</div>
                      </div>
                   </div>
 
-                  <div className="flex flex-col">
-                     <div className="flex justify-between">
-                        <div>Edges</div>
-                        <div>+</div>
-                     </div>
-                     <div className="flex items-center gap-3 pl-2">
-                        <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                           <path
-                              d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                              fillRule="evenodd"
-                              fillOpacity="1"
-                              stroke="none"
-                           ></path>
-                        </svg>
-                        <div>Page 1</div>
-                     </div>
-                  </div>
+                  <hr className="border-slate-400" />
                </div>
             )}
          </div>
