@@ -15,7 +15,7 @@ import { HandTool } from "@/components/diagram/header/hand-tool";
 import { AddComment } from "@/components/diagram/header/add-comment";
 import { cn } from "@/lib/utils";
 
-// bg color options for styling bar
+// bg color options for styling bar (lighter colors)
 const backgroundColorOptions = [
    "FFFFFF", // white
    "F8B4D9", // pink-300
@@ -29,13 +29,18 @@ const backgroundColorOptions = [
    "CABFFD", // purple-300
 ];
 
-// border color options for styling bar
+// border color options for styling bar (darker colors)
 const borderColorOptions = [
    "000000", // black
-   "5A5A5A", // grey
+   "046C4E", // green
    "0B5394", // blue
-   "CC0000", // red
    "6A329F", // purple
+   "800000", // maroon
+   "5A5A5A", // grey
+   "964B00", // brown
+   "CC0000", // red
+   "DB4914", // orange
+   "B58B00", // yellow
 ];
 
 export type LayoutProps = {
@@ -61,9 +66,17 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
       console.log("diagram", diagram);
    }, [diagram]);
 
+   // ---------------------- VARIABLES FOR THE RIGHT SIDEBAR -------------------------
+
    // for colors of selected uml box
-   const [selectedBoxBackgroundColor, setSelectedBoxBackgroundColor] = useState("FFFFFF"); // <- default should be initial bg color
-   const [selectedBoxBorderColor, setSelectedBoxBorderColor] = useState("000000"); // <- default should be initial border color
+   const [selectedCellBackgroundColor, setSelectedCellBackgroundColor] = useState("FFFFFF"); // <- default should be initial bg color
+   const [selectedCellBorderColor, setSelectedCellBorderColor] = useState("000000"); // <- default should be initial border color
+
+   // for if selected uml box position or size is locked
+   const [selectedCellPositionLocked, setSelectedCellPositionLocked] = useState(false);
+   const [selectedCellSizeLocked, setSelectedCellSizeLocked] = useState(false);
+
+   // --------------------------------------------------------------------------------
 
    return (
       <div className="flex flex-col">
@@ -269,22 +282,22 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                   {/* uml box background color section */}
                   <div className="flex flex-col pb-3">
                      <div className="flex justify-between">
-                        <div className="font-bold">Background</div>
+                        <div className="font-bold">Background Color</div>
                      </div>
 
                      {/* all of the background color options */}
                      <div className="flex items-center gap-2">
                         <div>
                            {backgroundColorOptions.map((color) => {
-                              console.log(color);
-
-                              return color === selectedBoxBackgroundColor ? (
+                              return color === selectedCellBackgroundColor ? (
                                  // if the current bg color is set to this color, put a checkmark svg on it
                                  <button
                                     style={{ color: `#${color}` }}
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current`}
+                                    className={
+                                       "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
+                                    }
                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 25 25">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 25 25">
                                        <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
                                     </svg>
                                  </button>
@@ -292,9 +305,11 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                                  // if the current bg color is not set to this color
                                  <button
                                     style={{ color: `#${color}` }}
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current`}
+                                    className={
+                                       "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
+                                    }
                                     onClick={() => {
-                                       setSelectedBoxBackgroundColor(color);
+                                       setSelectedCellBackgroundColor(color);
                                     }}
                                  />
                               );
@@ -305,11 +320,12 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                      {/* the current color hex code of the box */}
                      <div className="mt-2  w-full flex">
                         <div
-                           className={`ml-9 mr-1 border border-black rounded-md h-6 w-6 bg-[#${selectedBoxBackgroundColor}]`}
+                           style={{ color: `#${selectedCellBackgroundColor}` }}
+                           className={`ml-9 mr-1 border border-black rounded-md h-6 w-6 bg-current`}
                         />
                         <input
-                           placeholder={`#${selectedBoxBackgroundColor} `}
-                           className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                           value={`#${selectedCellBackgroundColor} `}
+                           className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md text-center focus:outline-none"
                            type="text"
                            autoCapitalize="none"
                            autoComplete="both"
@@ -325,24 +341,24 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                   {/* uml box border color section */}
                   <div className="flex flex-col pt-3 pb-3">
                      <div className="flex justify-between">
-                        <div className="font-bold">Border</div>
+                        <div className="font-bold">Border Color</div>
                      </div>
                      <div className="flex items-center gap-2">
                         <div>
                            {/* all of the color options */}
                            {borderColorOptions.map((color) => {
-                              console.log(color);
-
                               // if the current collor
-                              return color === selectedBoxBorderColor ? (
+                              return color === selectedCellBorderColor ? (
                                  <button
                                     style={{ color: `#${color}` }}
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current`}
+                                    className={
+                                       "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
+                                    }
                                  >
                                     <svg
                                        xmlns="http://www.w3.org/2000/svg"
-                                       width="16"
-                                       height="16"
+                                       width="18"
+                                       height="18"
                                        viewBox="0 0 25 25"
                                        fill="white"
                                     >
@@ -352,9 +368,11 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                               ) : (
                                  <button
                                     style={{ color: `#${color}` }}
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current`}
+                                    className={
+                                       "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
+                                    }
                                     onClick={() => {
-                                       setSelectedBoxBorderColor(color);
+                                       setSelectedCellBorderColor(color);
                                     }}
                                  />
                               );
@@ -362,14 +380,15 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                         </div>
                      </div>
 
-                     {/* the current color hex code of the box */}
+                     {/* the current color hex code of the cell */}
                      <div className="mt-2  w-full flex">
                         <div
-                           className={`ml-9 mr-1 border border-black rounded-md h-6 w-6 bg-[#${selectedBoxBorderColor}]`}
+                           style={{ color: `#${selectedCellBorderColor}` }}
+                           className={"ml-9 mr-1 border border-black rounded-md h-6 w-6 bg-current"}
                         />
                         <input
-                           placeholder={`#${selectedBoxBorderColor} `}
-                           className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                           value={`#${selectedCellBorderColor} `}
+                           className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md text-center focus:outline-none"
                            type="text"
                            autoCapitalize="none"
                            autoComplete="both"
@@ -382,10 +401,10 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
 
                   <hr className="border-slate-400" />
 
-                  {/* uml box font style section */}
+                  {/* cell border width section */}
                   <div className="flex flex-col pt-3 pb-3">
                      <div className="flex justify-between">
-                        <div className="font-bold">Text Styles</div>
+                        <div className="font-bold">Border Width</div>
                      </div>
                      <div className="flex items-center gap-3 pl-2">
                         <div>{/* all of the color options */}</div>
@@ -393,6 +412,128 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                   </div>
 
                   <hr className="border-slate-400" />
+
+                  {/* cell border style section */}
+                  <div className="flex flex-col pt-3 pb-3">
+                     <div className="flex justify-between">
+                        <div className="font-bold">Border Style</div>
+                     </div>
+                     <div className="flex items-center gap-3 pl-2">
+                        <div>{/* all of the color options */}</div>
+                     </div>
+                  </div>
+
+                  <hr className="border-slate-400" />
+
+                  {/* cell text style section */}
+                  <div className="flex flex-col pt-3 pb-3">
+                     <div className="flex justify-between">
+                        <div className="font-bold">Text Styling</div>
+                     </div>
+                     <div className="flex items-center gap-3 pl-2">
+                        <div>{/* all of the color options */}</div>
+                     </div>
+                  </div>
+
+                  <hr className="border-slate-400" />
+
+                  {/* cell position section */}
+                  <div className="flex flex-col pt-3 pb-3">
+                     <div className="flex justify-between">
+                        <div className="font-bold mb-2">Position</div>
+                     </div>
+
+                     <div className="items-center gap-3 pl-2">
+                        {/* x location input */}
+                        <div className="flex mb-1">
+                           <div className="w-1/7">X</div>
+                           <input
+                              value="20"
+                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                              type="text"
+                              autoCapitalize="none"
+                              autoComplete="both"
+                              autoCorrect="off"
+                              spellCheck="false"
+                              disabled={selectedCellPositionLocked}
+                           />
+                        </div>
+
+                        {/* y location input */}
+                        <div className="flex">
+                           <div className="w-1/7">Y</div>
+                           <input
+                              value="10"
+                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                              type="text"
+                              autoCapitalize="none"
+                              autoComplete="both"
+                              autoCorrect="off"
+                              spellCheck="false"
+                              disabled={selectedCellPositionLocked}
+                           />
+                        </div>
+
+                        <div className="flex mt-2.5">
+                           <input
+                              type="checkbox"
+                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0"
+                              onChange={() => setSelectedCellPositionLocked(!selectedCellPositionLocked)}
+                           />
+                           <label>Lock position</label>
+                        </div>
+                     </div>
+                  </div>
+
+                  <hr className="border-slate-400" />
+
+                  {/* cell size section */}
+                  <div className="flex flex-col pt-3 pb-3">
+                     <div className="flex justify-between">
+                        <div className="font-bold mb-1">Size</div>
+                     </div>
+
+                     <div className="items-center gap-3 pl-2">
+                        {/* width input */}
+                        <div className="flex mb-1">
+                           <div className="w-1/4">Width:</div>
+                           <input
+                              value="20"
+                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                              type="text"
+                              autoCapitalize="none"
+                              autoComplete="both"
+                              autoCorrect="off"
+                              spellCheck="false"
+                              disabled={selectedCellSizeLocked}
+                           />
+                        </div>
+
+                        {/* height input */}
+                        <div className="flex">
+                           <div className="w-1/4">Height:</div>
+                           <input
+                              value="10"
+                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                              type="text"
+                              autoCapitalize="none"
+                              autoComplete="both"
+                              autoCorrect="off"
+                              spellCheck="false"
+                              disabled={selectedCellSizeLocked}
+                           />
+                        </div>
+
+                        <div className="flex mt-2.5">
+                           <input
+                              type="checkbox"
+                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0"
+                              onChange={() => setSelectedCellSizeLocked(!selectedCellSizeLocked)}
+                           />
+                           <label>Lock size</label>
+                        </div>
+                     </div>
+                  </div>
                </div>
             )}
          </div>
