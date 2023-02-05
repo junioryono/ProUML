@@ -404,10 +404,108 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                   {/* cell border width section */}
                   <div className="flex flex-col pt-3 pb-3">
                      <div className="flex justify-between">
-                        <div className="font-bold">Border Width</div>
+                        <div className="font-bold mb-2">Border Width</div>
                      </div>
                      <div className="flex items-center gap-3 pl-2">
-                        <div>{/* all of the color options */}</div>
+                        <div>
+                           {/* 0% thickness */}
+                           <button className="border border-slate-400 rounded-md bg-slate-200 transition duration-500 hover:scale-125">
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="#000000"
+                                 width="40"
+                                 height="30"
+                                 viewBox="0 0 24 24"
+                              >
+                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                 <g
+                                    id="SVGRepo_tracerCarrier"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke="#CCCCCC"
+                                    stroke-width="0.096"
+                                 ></g>
+                                 <g id="SVGRepo_iconCarrier">
+                                    <path d="M23 13H2v-2h21v2z"></path>
+                                 </g>
+                              </svg>
+                           </button>
+
+                           {/* 33% thickness */}
+                           <button className="border border-slate-400 rounded-md bg-slate-200 ml-3 mr-3 transition duration-500 hover:scale-125">
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="#000000"
+                                 viewBox="0 0 24 24"
+                                 stroke="#000000"
+                                 stroke-width="0.792"
+                                 width="40"
+                                 height="30"
+                              >
+                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                 <g
+                                    id="SVGRepo_tracerCarrier"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke="#CCCCCC"
+                                    stroke-width="0.096"
+                                 ></g>
+                                 <g id="SVGRepo_iconCarrier">
+                                    <path d="M23 13H2v-2h21v2z"></path>
+                                 </g>
+                              </svg>
+                           </button>
+
+                           {/* 66% thickness */}
+                           <button className="border border-slate-400 rounded-md bg-slate-200 mr-3 transition duration-500 hover:scale-125">
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="#000000"
+                                 viewBox="0 0 24 24"
+                                 stroke="#000000"
+                                 stroke-width="1.608"
+                                 width="40"
+                                 height="30"
+                              >
+                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                 <g
+                                    id="SVGRepo_tracerCarrier"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke="#CCCCCC"
+                                    stroke-width="0.096"
+                                 ></g>
+                                 <g id="SVGRepo_iconCarrier">
+                                    <path d="M23 13H2v-2h21v2z"></path>
+                                 </g>
+                              </svg>
+                           </button>
+
+                           {/* 100% thickness */}
+                           <button className="border border-slate-400 rounded-md bg-slate-200 transition duration-500 hover:scale-125">
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="#000000"
+                                 viewBox="0 0 24 24"
+                                 stroke="#000000"
+                                 stroke-width="2.4"
+                                 width="40"
+                                 height="30"
+                              >
+                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                 <g
+                                    id="SVGRepo_tracerCarrier"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke="#CCCCCC"
+                                    stroke-width="0.096"
+                                 ></g>
+                                 <g id="SVGRepo_iconCarrier">
+                                    <path d="M23 13H2v-2h21v2z"></path>
+                                 </g>
+                              </svg>
+                           </button>
+                        </div>
                      </div>
                   </div>
 
@@ -416,22 +514,37 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                   {/* cell border style section */}
                   <div className="flex flex-col pt-3 pb-3">
                      <div className="flex justify-between">
-                        <div className="font-bold">Border Style</div>
+                        <div className="font-bold mb-2">Border Style</div>
                      </div>
                      <div className="flex items-center gap-3 pl-2">
-                        <div>{/* all of the color options */}</div>
-                     </div>
-                  </div>
-
-                  <hr className="border-slate-400" />
-
-                  {/* cell text style section */}
-                  <div className="flex flex-col pt-3 pb-3">
-                     <div className="flex justify-between">
-                        <div className="font-bold">Text Styling</div>
-                     </div>
-                     <div className="flex items-center gap-3 pl-2">
-                        <div>{/* all of the color options */}</div>
+                        <div>
+                           <button className="border border-slate-400 rounded-md bg-slate-200 transition duration-500 hover:scale-125">
+                              <svg width="50" height="30" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                 <path d="M23 13H1v-2h22z" />
+                                 <path fill="none" d="M0 0h24v24H0z" />
+                              </svg>
+                           </button>
+                           <button className="border border-slate-400 rounded-md bg-slate-200 ml-4 mr-4 transition duration-500 hover:scale-125">
+                              <svg width="50" height="30" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                 <path
+                                    fill-rule="evenodd"
+                                    clip-rule="evenodd"
+                                    d="M0 7.5C0 7.22386 0.223858 7 0.5 7H3C3.27614 7 3.5 7.22386 3.5 7.5C3.5 7.77614 3.27614 8 3 8H0.5C0.223858 8 0 7.77614 0 7.5ZM5.75 7.5C5.75 7.22386 5.97386 7 6.25 7H8.75C9.02614 7 9.25 7.22386 9.25 7.5C9.25 7.77614 9.02614 8 8.75 8H6.25C5.97386 8 5.75 7.77614 5.75 7.5ZM12 7C11.7239 7 11.5 7.22386 11.5 7.5C11.5 7.77614 11.7239 8 12 8H14.5C14.7761 8 15 7.77614 15 7.5C15 7.22386 14.7761 7 14.5 7H12Z"
+                                    fill="#000000"
+                                 />
+                              </svg>
+                           </button>
+                           <button className="border border-slate-400 rounded-md bg-slate-200 transition duration-500 hover:scale-125">
+                              <svg width="50" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                 <path d="M3 11H1V13H3V11Z" fill="#000000" />
+                                 <path d="M7 11H5V13H7V11Z" fill="#000000" />
+                                 <path d="M9 11H11V13H9V11Z" fill="#000000" />
+                                 <path d="M15 11H13V13H15V11Z" fill="#000000" />
+                                 <path d="M17 11H19V13H17V11Z" fill="#000000" />
+                                 <path d="M23 11H21V13H23V11Z" fill="#000000" />
+                              </svg>
+                           </button>
+                        </div>
                      </div>
                   </div>
 
@@ -477,7 +590,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                         <div className="flex mt-2.5">
                            <input
                               type="checkbox"
-                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0"
+                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125"
                               onChange={() => setSelectedCellPositionLocked(!selectedCellPositionLocked)}
                            />
                            <label>Lock position</label>
@@ -490,7 +603,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                   {/* cell size section */}
                   <div className="flex flex-col pt-3 pb-3">
                      <div className="flex justify-between">
-                        <div className="font-bold mb-1">Size</div>
+                        <div className="font-bold mb-2">Size</div>
                      </div>
 
                      <div className="items-center gap-3 pl-2">
@@ -527,11 +640,23 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                         <div className="flex mt-2.5">
                            <input
                               type="checkbox"
-                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0"
+                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125"
                               onChange={() => setSelectedCellSizeLocked(!selectedCellSizeLocked)}
                            />
                            <label>Lock size</label>
                         </div>
+                     </div>
+                  </div>
+
+                  <hr className="border-slate-400" />
+
+                  {/* cell text style section */}
+                  <div className="flex flex-col pt-3 pb-3">
+                     <div className="flex justify-between">
+                        <div className="font-bold">Text Styling</div>
+                     </div>
+                     <div className="flex items-center gap-3 pl-2">
+                        <div>{/* all of the color options */}</div>
                      </div>
                   </div>
                </div>
