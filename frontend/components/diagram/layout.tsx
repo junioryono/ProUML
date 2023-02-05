@@ -18,21 +18,21 @@ import { cn } from "@/lib/utils";
 // bg color options for styling bar
 const backgroundColorOptions = [
    "FFFFFF", // white
-   "DFFF00", // yellow
-   "FFBF00", // orange
-   "FF7F50", // red orange
-   "DE3163", // red
-   "9FE2BF", // green
-   "40E0D0", // teal
-   "6495ED", // blue
-   "AF7AC5", // purple
-   "CCCCFF", // pink
+   "F8B4D9", // pink-300
+   "F8B4B4", // red-300
+   "FDBA8C", // orange-300
+   "FACA15", // yellow-300
+   "84E1BC", // green-300
+   "7EDCE2", // teal-300
+   "A4CAFE", // blue-300
+   "B4C6FC", // indigo-300
+   "CABFFD", // purple-300
 ];
 
 // border color options for styling bar
 const borderColorOptions = [
    "000000", // black
-   "BBBBBB", // grey
+   "5A5A5A", // grey
    "0B5394", // blue
    "CC0000", // red
    "6A329F", // purple
@@ -282,7 +282,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                                  // if the current bg color is set to this color, put a checkmark svg on it
                                  <button
                                     style={{ color: `#${color}` }}
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current`}
                                  >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 25 25">
                                        <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
@@ -291,7 +291,8 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                               ) : (
                                  // if the current bg color is not set to this color
                                  <button
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
+                                    style={{ color: `#${color}` }}
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current`}
                                     onClick={() => {
                                        setSelectedBoxBackgroundColor(color);
                                     }}
@@ -335,7 +336,8 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                               // if the current collor
                               return color === selectedBoxBorderColor ? (
                                  <button
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
+                                    style={{ color: `#${color}` }}
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current`}
                                  >
                                     <svg
                                        xmlns="http://www.w3.org/2000/svg"
@@ -349,7 +351,8 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                                  </button>
                               ) : (
                                  <button
-                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-[#${color}]`}
+                                    style={{ color: `#${color}` }}
+                                    className={`m-1 border-2 transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current`}
                                     onClick={() => {
                                        setSelectedBoxBorderColor(color);
                                     }}
