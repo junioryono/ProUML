@@ -90,9 +90,9 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
 
             {/* Left bar */}
             {ready && (
-               <div className="w-60 p-2 flex flex-col border-gray-400 border-r-1">
+               <div className="w-60 py-2 flex flex-col border-gray-400 border-r-1">
                   <div className="flex flex-col">
-                     <div className="flex items-center cursor-pointer content-center gap-1">
+                     <div className="px-2 flex items-center cursor-pointer content-center gap-1">
                         <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                            <path
                               d="M9.04 9.81c-.739.576-1.668.917-2.676.917C3.953 10.727 2 8.775 2 6.364 2 3.953 3.953 2 6.364 2c2.41 0 4.363 1.953 4.363 4.364 0 1.008-.342 1.937-.916 2.676l3.484 3.483-.772.771L9.04 9.811zm.596-3.446c0 1.807-1.465 3.272-3.272 3.272-1.808 0-3.273-1.465-3.273-3.272 0-1.808 1.465-3.273 3.273-3.273 1.807 0 3.272 1.465 3.272 3.273z"
@@ -114,8 +114,8 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                            />
                         </div>
                      </div>
-                     <div className="flex justify-between">
-                        <div className="font-bold">Pages</div>
+                     <div className="px-2 flex justify-between">
+                        <div className="font-bold pt-1 ">Pages</div>
                         <div className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center">
                            <span
                               role="button"
@@ -139,26 +139,64 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                            </span>
                         </div>
                      </div>
-                     <div className="flex items-center gap-3 pl-2">
-                        <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                           <path
-                              d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                              fillRule="evenodd"
-                              fillOpacity="1"
-                              stroke="none"
-                           ></path>
-                        </svg>
-                        <div className="flex flex-col">
-                           <div>Diagram Name</div>
-                           <div>Diagram Name</div>
-                           <div>Diagram Name</div>
+                     <div
+                        className="hover:bg-slate-300 flex items-center gap-3 py-1 pl-4"
+                        onClick={(e) => {
+                           console.log("Clicked", e);
+                        }}
+                     >
+                        <div className="w-3">
+                           {false && (
+                              <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+                                 <path
+                                    d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
+                                    fillRule="evenodd"
+                                    fillOpacity="1"
+                                    stroke="none"
+                                 ></path>
+                              </svg>
+                           )}
                         </div>
+                        <div>Node 1</div>
+                     </div>
+                     <div className="flex items-baseline pt-2 gap-3 hover:bg-slate-200">
+                        <input type="checkbox" id="react-option" value="" className="hidden peer" />
+                        <label
+                           htmlFor="react-option"
+                           className="inline-flex items-center pl-6 justify-between w-full bg-white border-2 cursor-pointer dark:hover:text-gray-300 peer-checked:border-black hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                           <div className="block">
+                              <div className="w-full text-sm">Diagram 1</div>
+                           </div>
+                        </label>
+                     </div>
+                     <div className="flex items-baseline gap-3 hover:bg-slate-200">
+                        <input type="checkbox" id="react-option" value="" className="hidden peer" />
+                        <label
+                           htmlFor="react-option"
+                           className="inline-flex items-center pl-6 justify-between w-full bg-white border-2 cursor-pointer dark:hover:text-gray-300 peer-checked:border-black hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                           <div className="block">
+                              <div className="w-full text-sm">Diagram 2</div>
+                           </div>
+                        </label>
+                     </div>
+                     <div className="flex items-baseline gap-3 hover:bg-slate-200">
+                        <input type="checkbox" id="react-option" value="" className="hidden peer" />
+                        <label
+                           htmlFor="react-option"
+                           className="inline-flex items-center pl-6 justify-between w-full bg-white border-2 cursor-pointer dark:hover:text-gray-300 peer-checked:border-black hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                           <div className="block">
+                              <div className="w-full text-sm">Diagram 3</div>
+                           </div>
+                        </label>
                      </div>
                   </div>
 
-                  <div className="flex flex-col">
+                  <div className="flex flex-col pt-2">
                      <div className="flex justify-between">
-                        <div className="font-bold"> Nodes</div>
+                        <div className="font-bold">Nodes</div>
                         <div className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center">
                            <span
                               role="button"
@@ -182,7 +220,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                            </span>
                         </div>
                      </div>
-                     <div className="flex items-center gap-3 pl-2">
+                     <div className="flex items-center gap-3 pb-2 pl-2">
                         <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                            <path
                               d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
