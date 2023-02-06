@@ -57,7 +57,12 @@ export async function getSession(options?: RequestInit): Promise<APIResponse<Use
       .catch(() => defaultError);
 }
 
-export async function getDiagrams(options?: RequestInit): Promise<APIResponse<Diagram[]>> {
+export async function getDiagrams(options?: RequestInit): Promise<
+   APIResponse<{
+      projects: Project[];
+      diagrams: Diagram[];
+   }>
+> {
    return fetchAPI("/diagrams", {
       ...options,
    })

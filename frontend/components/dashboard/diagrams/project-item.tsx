@@ -3,27 +3,27 @@
 import Link from "next/link";
 
 import { formatDate } from "@/lib/utils";
-import { Diagram, Project } from "types";
-import { DiagramItemOptions } from "./diagram-item-options";
+import { Project } from "types";
+import { ProjectItemOptions } from "./project-item-options";
 import { LongPressDetectEvents, useLongPress } from "use-long-press";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-export function DiagramItem({ diagram, project }: { diagram: Diagram; project?: Project }) {
+export function ProjectItem({ project }: { project: Project }) {
    const [showMenu, setShowMenu] = useState(false);
    const linkRef = useRef<HTMLAnchorElement>(null);
-   // Store diagram.updated_at as a Date object
-   const [updatedAt, setUpdatedAt] = useState<string>(formatDate(diagram.updated_at.toString(), "Edited"));
+   // Store project.updated_at as a Date object
+   const [updatedAt, setUpdatedAt] = useState<string>(formatDate(project.updated_at.toString(), "Edited"));
 
    // Update the date every 15 seconds
    useEffect(() => {
-      if (!diagram) return;
+      if (!project) return;
 
       const interval = setInterval(() => {
-         setUpdatedAt(formatDate(diagram.updated_at.toString(), "Edited"));
+         setUpdatedAt(formatDate(project.updated_at.toString(), "Edited"));
       }, 15 * 1000);
 
       return () => clearInterval(interval);
-   }, [diagram]);
+   }, [project]);
 
    const onLongPress = useLongPress(
       () => {
@@ -54,15 +54,15 @@ export function DiagramItem({ diagram, project }: { diagram: Diagram; project?: 
    }, [showMenu]);
 
    return (
-      // Add a gray border to the diagram item
+      // Add a gray border to the project item
       // Add padding between each item
       <div className="w-1/2 sm:w-1/2 md:w-1/3 xl:w-1/4 mb-2">
-         {/* Add a link to the diagram item and open it in a new tab */}
-         <div className="m-2 border-gray-200 border rounded">
+         {/* Add a link to the project item and open it in a new tab */}
+         <div className="m-2 h-[267px] border-gray-200 border rounded">
             <Link
                ref={linkRef}
-               href="/dashboard/diagrams/[id]"
-               as={`/dashboard/diagrams/${diagram.id}`}
+               href="/dashboard/diagrams/project/[id]"
+               as={`/dashboard/diagrams/project/${project.id}`}
                {...onLongPress()}
                className="cursor-pointer"
                onContextMenu={(e) => {
@@ -70,18 +70,15 @@ export function DiagramItem({ diagram, project }: { diagram: Diagram; project?: 
                   return false;
                }}
             >
-               <div className="relative block h-48 overflow-hidden">
-                  <img className="block h-full w-full object-cover object-center" src="https://dummyimage.com/420x260" />
-               </div>
-               <div className="pt-3 pb-2 pl-4 pr-2 border-t border-gray-200 flex">
+               <div className="pl-4 pr-2 border-gray-200 flex h-full">
                   <div className="flex-grow overflow-hidden whitespace-nowrap">
                      <h2 className="title-font text-sm sm:text-lg font-medium text-gray-900 overflow-ellipsis overflow-hidden">
-                        {diagram.name}
+                        {project.name}
                      </h2>
                      <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p>
                   </div>
                   <div className="h-fit ml-auto md:mt-auto">
-                     <DiagramItemOptions diagram={diagram} project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
+                     <ProjectItemOptions project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
                   </div>
                </div>
             </Link>

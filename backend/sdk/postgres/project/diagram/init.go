@@ -67,7 +67,7 @@ func (d *Diagram_SDK) Delete(projectId, diagramId, idToken string) *types.Wrappe
 	}
 
 	// Update the diagram's project id
-	if err := d.db.Model(&models.DiagramModel{}).Where("id = ?", diagramId).Update("project_id", nil).Error; err != nil {
+	if err := d.db.Model(&models.DiagramModel{}).Where("id = ?", diagramId).Update("project_id", "default").Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 

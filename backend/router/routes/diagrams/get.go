@@ -27,8 +27,8 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 			offsetInt = conv
 		}
 
-		// Get the diagrams
-		diagrams, err := sdkP.Postgres.Diagrams.GetAllWithAccessRole(fbCtx.Cookies(auth.IdTokenCookieName), offsetInt)
+		// Get all projects
+		projects, err := sdkP.Postgres.Projects.GetAllWithAccessRole(fbCtx.Cookies(auth.IdTokenCookieName), offsetInt)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
@@ -36,17 +36,35 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		// If diagram length is 0, return empty array
-		if len(diagrams) == 0 {
-			return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
-				Success:  true,
-				Response: []interface{}{},
+		// Get the diagrams
+		diagrams, err := sdkP.Postgres.Diagrams.GetAllNotInProject(fbCtx.Cookies(auth.IdTokenCookieName), offsetInt)
+		if err != nil {
+			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+				Success: false,
+				Reason:  err.Error(),
 			})
+		}
+
+		var response struct {
+			Projects any `json:"projects"`
+			Diagrams any `json:"diagrams"`
+		}
+
+		if len(projects) == 0 {
+			response.Projects = []interface{}{}
+		} else {
+			response.Projects = projects
+		}
+
+		if len(diagrams) == 0 {
+			response.Diagrams = []interface{}{}
+		} else {
+			response.Diagrams = diagrams
 		}
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
 			Success:  true,
-			Response: diagrams,
+			Response: response,
 		})
 	}
 }
