@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import { Node } from "@antv/x6";
 import { register } from "@antv/x6-react-shape";

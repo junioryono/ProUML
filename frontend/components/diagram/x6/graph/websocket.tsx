@@ -95,3 +95,35 @@ export function wsDBUpdateCell(
       cell,
    } as any);
 }
+
+export function wsDBRemoveCell(
+   cell: X6Type.Cell,
+   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   sessionId: MutableRefObject<string>,
+) {
+   if (!sessionId.current) {
+      return;
+   }
+
+   websocket.sendJsonMessage({
+      sessionId: sessionId.current,
+      event: "broadcast/db_removeCell",
+      cell,
+   } as any);
+}
+
+export function wsDBAddCell(
+   cell: X6Type.Cell,
+   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   sessionId: MutableRefObject<string>,
+) {
+   if (!sessionId.current) {
+      return;
+   }
+
+   websocket.sendJsonMessage({
+      sessionId: sessionId.current,
+      event: "broadcast/db_addCell",
+      cell,
+   } as any);
+}

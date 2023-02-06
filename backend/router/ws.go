@@ -76,7 +76,7 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 				go sdkP.Redis.Publish(diagramId, msg)
 			}
 
-			if sliceContains(events, "db_updateCell") {
+			if sliceContains(events, "db_updateCell") || sliceContains(events, "db_addCell") || sliceContains(events, "db_removeCell") {
 				go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, payload.Cell, events)
 			}
 		}

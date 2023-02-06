@@ -114,6 +114,7 @@ export type Project = {
    updated_at: string;
    public: boolean;
    name: string;
+   diagrams?: Diagram[];
 };
 
 const enum AccessModifier {

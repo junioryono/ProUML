@@ -129,7 +129,7 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *typ
 
 	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
 	var diagram models.DiagramModel
-	if err := d.db.Preload("Project").Where("id = ?", diagramId).First(&diagram).Error; err != nil {
+	if err := d.db.Preload("Project").Preload("Project.Diagrams").Where("id = ?", diagramId).First(&diagram).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrDiagramNotFound)
 	}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import type X6Type from "@antv/x6";
-import { wsDBUpdateCell, wsLocalUpdateCell } from "@/components/diagram/x6/graph/websocket";
+import { wsDBAddCell, wsDBRemoveCell, wsDBUpdateCell, wsLocalUpdateCell } from "@/components/diagram/x6/graph/websocket";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
@@ -26,6 +26,24 @@ export default function (
       }
 
       wsLocalUpdateCell(args.cell, websocket, sessionId);
+   });
+
+   graph.current.on("cell:removed", (args) => {
+      console.log("cell:removed", args);
+      if (args.options.ws) {
+         return;
+      }
+
+      wsDBRemoveCell(args.cell, websocket, sessionId);
+   });
+
+   graph.current.on("cell:added", (args) => {
+      console.log("cell:added", args);
+      if (args.options.ws) {
+         return;
+      }
+
+      wsDBAddCell(args.cell, websocket, sessionId);
    });
 
    graph.current.on("node:moved", (args) => {

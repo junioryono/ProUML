@@ -30,11 +30,12 @@ type UserModel struct {
 }
 
 type ProjectModel struct {
-	ID        string    `gorm:"uniqueIndex" json:"id"`
-	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
-	Public    bool      `gorm:"default:false" json:"public"`
-	Name      string    `gorm:"default:'Untitled Project'" json:"name"`
+	ID        string         `gorm:"uniqueIndex" json:"id"`
+	CreatedAt time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	Public    bool           `gorm:"default:false" json:"public"`
+	Name      string         `gorm:"default:'Untitled Project'" json:"name"`
+	Diagrams  []DiagramModel `gorm:"foreignKey:ProjectID;references:ID" json:"diagrams"`
 }
 
 type TeamModel struct {
