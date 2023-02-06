@@ -736,82 +736,76 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
 
                      {/* section for the font type */}
                      <div className="flex items-center">
-                        <div className="w-full flex h-7">
-                           <label className="mt-0.5 mr-2">Font</label>
-                           <div className="inline-flex bg-slate-200 border border-slate-300 rounded-md w-44">
+                        <div className="w-full flex">
+                           <label className="mt-1 mr-2">Font</label>
+
+                           <div>
                               <button
-                                 className="text-left w-40 text-sm rounded-l-md bg-slate-200"
+                                 className="justify-between text-sm bg-transparent inline-flex bg-slate-200 border border-slate-300 rounded-md w-44 hover:border-slate-400 p-1 pl-2 pr-2"
                                  onClick={() => setShowFontOptions(!showFontOptions)}
                               >
-                                 <p className="truncate pl-2">{selectedCellFont}</p>
-                              </button>
+                                 <p className="truncate">{selectedCellFont}</p>
 
-                              <div>
-                                 <button
-                                    className="inline-flex items-center h-full px-1 bg-transparent"
-                                    onClick={() => setShowFontOptions(!showFontOptions)}
+                                 <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 20 20"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
                                  >
-                                    <svg
-                                       xmlns="http://www.w3.org/2000/svg"
-                                       className="w-4 h-4"
-                                       fill="none"
-                                       viewBox="0 0 24 24"
-                                       stroke="currentColor"
-                                       strokeWidth={2}
-                                    >
-                                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                 </button>
-                                 {showFontOptions && (
-                                    <div className="absolute w-56 right-2 z-10 mt-1 origin-top-right bg-slate-100 border border-slate-400 rounded-md shadow-xl">
-                                       <div className="p-1">
-                                          {fontOptions.map((font) => {
-                                             return font === selectedCellFont ? (
-                                                <button
-                                                   className={
-                                                      "flex pl-1 w-full text-justify py-2 text-sm rounded-lg hover:bg-slate-300"
-                                                   }
-                                                   onClick={() => {
-                                                      setShowFontOptions(!showFontOptions);
-                                                   }}
-                                                >
-                                                   <div className="mr-3">{font}</div>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                 </svg>
+                              </button>
+                              {showFontOptions && (
+                                 <div className="absolute w-56 right-2 z-10 mt-1 origin-top-right bg-slate-100 border border-slate-400 rounded-md shadow-xl">
+                                    <div className="p-1">
+                                       {fontOptions.map((font) => {
+                                          return font === selectedCellFont ? (
+                                             <button
+                                                className={
+                                                   "flex pl-1 w-full text-justify py-2 text-sm rounded-lg hover:bg-slate-300"
+                                                }
+                                                onClick={() => {
+                                                   setShowFontOptions(!showFontOptions);
+                                                }}
+                                             >
+                                                <div className="mr-3">{font}</div>
 
-                                                   {/* checkmark svg source: https://www.svgrepo.com/svg/452247/checkmark */}
-                                                   <svg
-                                                      xmlns="http://www.w3.org/2000/svg"
-                                                      width="16"
-                                                      height="16"
-                                                      viewBox="0 0 25 25"
-                                                   >
-                                                      <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
-                                                   </svg>
-                                                </button>
-                                             ) : (
-                                                <button
-                                                   className={
-                                                      "block pl-1 w-full text-justify py-2 text-sm rounded-lg hover:bg-slate-300"
-                                                   }
-                                                   onClick={() => {
-                                                      setSelectedCellFont(font);
-                                                      setShowFontOptions(!showFontOptions);
-                                                   }}
+                                                {/* checkmark svg source: https://www.svgrepo.com/svg/452247/checkmark */}
+                                                <svg
+                                                   xmlns="http://www.w3.org/2000/svg"
+                                                   width="16"
+                                                   height="16"
+                                                   viewBox="0 0 25 25"
                                                 >
-                                                   {font}
-                                                </button>
-                                             );
-                                          })}
-                                       </div>
+                                                   <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                                                </svg>
+                                             </button>
+                                          ) : (
+                                             <button
+                                                className={
+                                                   "block pl-1 w-full text-justify py-2 text-sm rounded-lg hover:bg-slate-300"
+                                                }
+                                                onClick={() => {
+                                                   setSelectedCellFont(font);
+                                                   setShowFontOptions(!showFontOptions);
+                                                }}
+                                             >
+                                                {font}
+                                             </button>
+                                          );
+                                       })}
                                     </div>
-                                 )}
-                              </div>
+                                 </div>
+                              )}
                            </div>
                         </div>
                      </div>
 
                      {/* section for the font style */}
                      <div className="flex items-center mt-2 mb-2 gap-1">
-                        <label className="mt-0.5 mr-2">Style</label>
+                        <label className="mr-1">Style</label>
 
                         {/* bold svg source: https://www.svgrepo.com/svg/375961/bold */}
                         <button
@@ -950,7 +944,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
 
                      {/* section for the text justification */}
                      <div className="flex items-center gap-1.5">
-                        <label className="mt-0.5 mr-2">Justify</label>
+                        <label className="mr-1">Justify</label>
 
                         {/* left justify svg source: https://www.svgrepo.com/svg/349047/justify-left */}
                         <button
@@ -1041,7 +1035,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                            <div className="w-1/7">X</div>
                            <input
                               value="20"
-                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400"
                               type="text"
                               autoCapitalize="none"
                               autoComplete="both"
@@ -1056,7 +1050,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                            <div className="w-1/7">Y</div>
                            <input
                               value="10"
-                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400"
                               type="text"
                               autoCapitalize="none"
                               autoComplete="both"
@@ -1090,7 +1084,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                            <div className="w-1/4">Width</div>
                            <input
                               value="20"
-                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center hover:border-slate-400 focus:outline-none focus:border-slate-400"
                               type="text"
                               autoCapitalize="none"
                               autoComplete="both"
@@ -1105,7 +1099,7 @@ export function DiagramLayout({ diagram }: { diagram: Diagram }) {
                            <div className="w-1/4">Height</div>
                            <input
                               value="10"
-                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none"
+                              className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400"
                               type="text"
                               autoCapitalize="none"
                               autoComplete="both"
