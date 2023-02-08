@@ -715,10 +715,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      value="20"
                      className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center ${
-                        selectedCellPositionLocked
-                           ? "hover:cursor-not-allowed"
-                           : "hover:border-slate-400 focus:border-slate-400"
-
+                        positionLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
                      autoCapitalize="none"
@@ -735,9 +732,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      value="10"
                      className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center ${
-                        selectedCellPositionLocked
-                           ? "hover:cursor-not-allowed"
-                           : "hover:border-slate-400 focus:border-slate-400"
+                        positionLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
                      autoCapitalize="none"
@@ -773,7 +768,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      value="20"
                      className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none ${
-                        selectedCellSizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
+                        sizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
                      autoCapitalize="none"
@@ -790,7 +785,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      value="10"
                      className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center ${
-                        selectedCellSizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
+                        sizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
                      autoCapitalize="none"
