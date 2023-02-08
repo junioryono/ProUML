@@ -33,36 +33,36 @@ const borderColorOptions = [
 
 export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for current background & border colors of selected cell
-   const [selectedCellBackgroundColor, setSelectedCellBackgroundColor] = useState("FFFFFF"); // <- default should be initial bg color
-   const [selectedCellBorderColor, setSelectedCellBorderColor] = useState("000000"); // <- default should be initial border color
+   const [backgroundColor, setBackgroundColor] = useState("FFFFFF"); // <- default should be initial bg color
+   const [borderColor, setBorderColor] = useState("000000"); // <- default should be initial border color
 
    // for current line width & style of selected cell
-   const [selectedCellBorderWidth, setSelectedCellBorderWidth] = useState(1); // <- default should be initial border width
-   const [selectedCellBorderStyle, setSelectedCellBorderStyle] = useState("solid"); // <- default should be initial border style
+   const [borderWidth, setBorderWidth] = useState(1); // <- default should be initial border width
+   const [borderStyle, setBorderStyle] = useState("solid"); // <- default should be initial border style
 
    // if selected cell currently has a shadow or not
-   const [selectedCellShadow, setSelectedCellShadow] = useState(false); // initially no shadow
+   const [shadow, setShadow] = useState(false); // initially no shadow
 
    // font options
    const fontOptions = ["Sans-Serif", "Times New Roman", "Tahoma", "Comic Sans MS", "Courier New", "Georgia"];
 
    // if the font options will be shown from the dropdown menu
    const [showFontOptions, setShowFontOptions] = useState(false);
-   const [selectedCellFont, setSelectedCellFont] = useState("Sans-Serif"); // <- default should be initial font
+   const [font, setFont] = useState("Sans-Serif"); // <- default should be initial font
 
    // all the text styles of the selected cell
-   const [selectedCellTextBold, setSelectedCellTextBold] = useState(false);
-   const [selectedCellTextItalic, setSelectedCellTextItalic] = useState(false);
-   const [selectedCellTextUnderline, setSelectedCellTextUnderline] = useState(false);
-   const [selectedCellTextOverline, setSelectedCellTextOverline] = useState(false);
-   const [selectedCellTextStrikethrough, setSelectedCellTextStrikethrough] = useState(false);
+   const [textBold, setTextBold] = useState(false);
+   const [textItalic, setTextItalic] = useState(false);
+   const [textUnderline, setTextUnderline] = useState(false);
+   const [textOverline, setTextOverline] = useState(false);
+   const [textStrikethrough, setTextStrikethrough] = useState(false);
 
    // text justification of the selected cell
-   const [selectedCellTextJustify, setSelectedCellTextJustify] = useState("center");
+   const [textJustify, setTextJustify] = useState("center");
 
    // if selected cell position or size is currently locked or not
-   const [selectedCellPositionLocked, setSelectedCellPositionLocked] = useState(false); // pos initially not locked
-   const [selectedCellSizeLocked, setSelectedCellSizeLocked] = useState(false); // size initially not locked
+   const [positionLocked, setPositionLocked] = useState(false); // pos initially not locked
+   const [sizeLocked, setSizeLocked] = useState(false); // size initially not locked
    // -----------------------------------------------------------------------------
 
    return (
@@ -77,7 +77,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="flex w-56 items-center gap-2">
                <div>
                   {backgroundColorOptions.map((color) => {
-                     return color === selectedCellBackgroundColor ? (
+                     return color === backgroundColor ? (
                         // if the current bg color is set to this color, put a checkmark svg on it
                         <button
                            style={{ color: `#${color}` }}
@@ -98,7 +98,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                               "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
                            }
                            onClick={() => {
-                              setSelectedCellBackgroundColor(color);
+                              setBackgroundColor(color);
                            }}
                         />
                      );
@@ -109,11 +109,11 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
             {/* the current color hex code of the box */}
             <div className="mt-1  w-full flex">
                <div
-                  style={{ color: `#${selectedCellBackgroundColor}` }}
+                  style={{ color: `#${backgroundColor}` }}
                   className={`ml-10 mr-1 border border-black rounded-md h-6.1 w-7 bg-current`}
                />
                <input
-                  value={`#${selectedCellBackgroundColor} `}
+                  value={`#${backgroundColor} `}
                   className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md text-center focus:outline-none"
                   type="text"
                   autoCapitalize="none"
@@ -136,7 +136,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   {/* all of the color options */}
                   {borderColorOptions.map((color) => {
                      // if the current collor
-                     return color === selectedCellBorderColor ? (
+                     return color === borderColor ? (
                         <button
                            style={{ color: `#${color}` }}
                            className={
@@ -154,7 +154,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                               "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
                            }
                            onClick={() => {
-                              setSelectedCellBorderColor(color);
+                              setBorderColor(color);
                            }}
                         />
                      );
@@ -165,11 +165,11 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
             {/* the current color hex code of the cell */}
             <div className="mt-1  w-full flex">
                <div
-                  style={{ color: `#${selectedCellBorderColor}` }}
+                  style={{ color: `#${borderColor}` }}
                   className={"ml-10 mr-1 border border-black rounded-md h-6.1 w-7 bg-current"}
                />
                <input
-                  value={`#${selectedCellBorderColor} `}
+                  value={`#${borderColor} `}
                   className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md text-center focus:outline-none"
                   type="text"
                   autoCapitalize="none"
@@ -193,8 +193,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* 0% thickness */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 
-                ${selectedCellBorderWidth !== 1 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellBorderWidth(1)}
+                ${borderWidth !== 1 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setBorderWidth(1)}
                >
                   <svg
                      viewBox="0 0 17 17"
@@ -223,8 +223,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* 25% thickness */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125
-                ${selectedCellBorderWidth !== 2 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellBorderWidth(2)}
+                ${borderWidth !== 2 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setBorderWidth(2)}
                >
                   <svg
                      viewBox="0 0 17 17"
@@ -253,8 +253,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* 50% thickness */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125
-                ${selectedCellBorderWidth !== 3 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellBorderWidth(3)}
+                ${borderWidth !== 3 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setBorderWidth(3)}
                >
                   <svg
                      viewBox="0 0 17 17"
@@ -283,8 +283,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* 75% thickness */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125
-                ${selectedCellBorderWidth !== 4 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellBorderWidth(4)}
+                ${borderWidth !== 4 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setBorderWidth(4)}
                >
                   <svg
                      viewBox="0 0 17 17"
@@ -313,8 +313,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* 100% thickness */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 
-                ${selectedCellBorderWidth !== 5 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellBorderWidth(5)}
+                ${borderWidth !== 5 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setBorderWidth(5)}
                >
                   <svg
                      viewBox="0 0 17 17"
@@ -352,8 +352,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* solid line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125
-             ${selectedCellBorderStyle !== "solid" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellBorderStyle("solid")}
+             ${borderStyle !== "solid" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setBorderStyle("solid")}
                >
                   <svg
                      viewBox="0 0 17 17"
@@ -382,8 +382,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* double line svg source: https://www.svgrepo.com/svg/409213/line-double */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125
-             ${selectedCellBorderStyle !== "double" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellBorderStyle("double")}
+             ${borderStyle !== "double" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setBorderStyle("double")}
                >
                   <svg
                      viewBox="0 0 17 17"
@@ -404,8 +404,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* dashed line svg source: https://www.svgrepo.com/svg/361694/border-dashed */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125
-                ${selectedCellBorderStyle !== "dashed" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellBorderStyle("dashed")}
+                ${borderStyle !== "dashed" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setBorderStyle("dashed")}
                >
                   <svg width="40" height="25" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                      <path
@@ -420,8 +420,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* dotted line svg source: https://www.svgrepo.com/svg/451059/line-dotted */}
                <button
                   className={`border border-slate-400 rounded-md bg-slate-200 transition duration-500 hover:scale-125
-                ${selectedCellBorderStyle !== "dotted" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellBorderStyle("dotted")}
+                ${borderStyle !== "dotted" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setBorderStyle("dotted")}
                >
                   <svg width="40" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                      <path d="M3 11H1V13H3V11Z" fill="#000000" />
@@ -437,8 +437,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                <input
                   type="checkbox"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                  onChange={() => setSelectedCellShadow(!selectedCellShadow)}
-                  checked={selectedCellShadow}
+                  onChange={() => setShadow(!shadow)}
+                  checked={shadow}
                />
                <label>Shadow</label>
             </div>
@@ -461,7 +461,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                         className="justify-between text-sm bg-transparent inline-flex bg-slate-200 border border-slate-300 rounded-md w-44 hover:border-slate-400 p-1 pl-2 pr-2"
                         onClick={() => setShowFontOptions(!showFontOptions)}
                      >
-                        <p className="truncate">{selectedCellFont}</p>
+                        <p className="truncate">{font}</p>
 
                         <svg
                            xmlns="http://www.w3.org/2000/svg"
@@ -478,7 +478,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                         <div className="absolute w-56 right-2 z-10 mt-1 origin-top-right bg-slate-100 border border-slate-400 rounded-md shadow-xl">
                            <div className="p-1">
                               {fontOptions.map((font) => {
-                                 return font === selectedCellFont ? (
+                                 return font === font ? (
                                     <button
                                        className={"flex pl-1 w-full text-justify py-2 text-sm rounded-lg hover:bg-slate-300"}
                                        onClick={() => {
@@ -498,7 +498,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                           "block pl-1 w-full text-justify py-2 text-sm rounded-lg hover:bg-slate-300"
                                        }
                                        onClick={() => {
-                                          setSelectedCellFont(font);
+                                          setFont(font);
                                           setShowFontOptions(!showFontOptions);
                                        }}
                                     >
@@ -520,8 +520,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* bold svg source: https://www.svgrepo.com/svg/375961/bold */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
-                ${!selectedCellTextBold ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellTextBold(!selectedCellTextBold)}
+                ${!textBold ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setTextBold(!textBold)}
                >
                   <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#000000" width="30" height="20">
                      <g id="SVGRepo_bgCarrier" stroke-width="0" />
@@ -538,8 +538,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* italic svg source: https://www.svgrepo.com/svg/379051/italic */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
-                ${!selectedCellTextItalic ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellTextItalic(!selectedCellTextItalic)}
+                ${!textItalic ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setTextItalic(!textItalic)}
                >
                   <svg
                      viewBox="0 0 16 16"
@@ -564,8 +564,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* underline svg source: xhttps://www.svgrepo.com/svg/378912/underline */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
-                ${!selectedCellTextUnderline ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellTextUnderline(!selectedCellTextUnderline)}
+                ${!textUnderline ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setTextUnderline(!textUnderline)}
                >
                   <svg
                      viewBox="0 0 16 16"
@@ -587,8 +587,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* overline svg source: https://www.svgrepo.com/svg/443896/gui-overline */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
-                ${!selectedCellTextOverline ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellTextOverline(!selectedCellTextOverline)}
+                ${!textOverline ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setTextOverline(!textOverline)}
                >
                   <svg
                      fill="#000000"
@@ -613,8 +613,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* strikethrough svg source: https://www.svgrepo.com/svg/332564/strikethrough */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
-                ${!selectedCellTextStrikethrough ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellTextStrikethrough(!selectedCellTextStrikethrough)}
+                ${!textStrikethrough ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setTextStrikethrough(!textStrikethrough)}
                >
                   <svg
                      fill="#000000"
@@ -642,8 +642,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* left justify svg source: https://www.svgrepo.com/svg/349047/justify-left */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
-                ${selectedCellTextJustify !== "left" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellTextJustify("left")}
+                ${textJustify !== "left" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setTextJustify("left")}
                >
                   <svg
                      fill="#000000"
@@ -664,8 +664,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* center justify svg source: https://www.svgrepo.com/svg/349046/justify-center */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
-                ${selectedCellTextJustify !== "center" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellTextJustify("center")}
+                ${textJustify !== "center" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setTextJustify("center")}
                >
                   <svg fill="#000000" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg" width="45" height="20">
                      <g id="SVGRepo_bgCarrier" stroke-width="0" />
@@ -679,8 +679,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* right justify svg source: https://www.svgrepo.com/svg/349047/justify-left */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
-                ${selectedCellTextJustify !== "right" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setSelectedCellTextJustify("right")}
+                ${textJustify !== "right" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                  onClick={() => setTextJustify("right")}
                >
                   <svg
                      fill="#000000"
@@ -714,16 +714,14 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      value="20"
                      className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400 ${
-                        selectedCellPositionLocked
-                           ? "hover:cursor-not-allowed"
-                           : "hover:border-slate-400 focus:border-slate-400"
+                        positionLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
                      autoCorrect="off"
                      spellCheck="false"
-                     disabled={selectedCellPositionLocked}
+                     disabled={positionLocked}
                   />
                </div>
 
@@ -733,24 +731,22 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      value="10"
                      className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400 ${
-                        selectedCellPositionLocked
-                           ? "hover:cursor-not-allowed"
-                           : "hover:border-slate-400 focus:border-slate-400"
+                        positionLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
                      autoCorrect="off"
                      spellCheck="false"
-                     disabled={selectedCellPositionLocked}
+                     disabled={positionLocked}
                   />
                </div>
                <div className="flex mt-1.5">
                   <input
                      type="checkbox"
                      className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                     onChange={() => setSelectedCellPositionLocked(!selectedCellPositionLocked)}
-                     checked={selectedCellPositionLocked}
+                     onChange={() => setPositionLocked(!positionLocked)}
+                     checked={positionLocked}
                   />
                   <label>Lock position</label>
                </div>
@@ -771,15 +767,13 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      value="20"
                      className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none 
-                     ${
-                        selectedCellSizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
-                     }`}
+                     ${sizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"}`}
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
                      autoCorrect="off"
                      spellCheck="false"
-                     disabled={selectedCellSizeLocked}
+                     disabled={sizeLocked}
                   />
                </div>
 
@@ -789,15 +783,13 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      value="10"
                      className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400
-                     ${
-                        selectedCellSizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
-                     }`}
+                     ${sizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"}`}
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
                      autoCorrect="off"
                      spellCheck="false"
-                     disabled={selectedCellSizeLocked}
+                     disabled={sizeLocked}
                   />
                </div>
 
@@ -805,8 +797,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      type="checkbox"
                      className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                     onChange={() => setSelectedCellSizeLocked(!selectedCellSizeLocked)}
-                     checked={selectedCellSizeLocked}
+                     onChange={() => setSizeLocked(!sizeLocked)}
+                     checked={sizeLocked}
                   />
                   <label>Lock size</label>
                </div>
