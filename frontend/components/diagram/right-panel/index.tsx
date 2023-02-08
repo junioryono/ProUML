@@ -578,7 +578,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      <g id="SVGRepo_bgCarrier" stroke-width="0" />
                      <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
                      <g id="SVGRepo_iconCarrier">
-                        <rect width="16" height="16" id="icon-bound" fill="none"></rect>{" "}
+                        <rect width="16" height="16" id="icon-bound" fill="none"></rect>
                         <path d="M3,13l10,0l0,2l-10,0l0,-2Zm8,-12l2,0l0,6c0,2.76 -2.24,5 -5,5c-2.76,0 -5,-2.24 -5,-5l0,-6l2,0l-0,6c-0,1.656 1.344,3 3,3c1.656,0 3,-1.344 3,-3l0,-6Z" />
                      </g>
                   </svg>
@@ -702,6 +702,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
          <hr className="border-slate-400" />
 
          {/* ---------------------- POSITION SECTION ---------------------- */}
+
          <div className="flex flex-col pt-3 pb-3">
             <div className="flex justify-between">
                <div className="font-bold mb-1.5">Position</div>
@@ -713,7 +714,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/7">X</div>
                   <input
                      value="20"
-                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400 ${
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center ${
                         selectedCellPositionLocked
                            ? "hover:cursor-not-allowed"
                            : "hover:border-slate-400 focus:border-slate-400"
@@ -732,7 +733,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/7">Y</div>
                   <input
                      value="10"
-                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400 ${
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center ${
                         selectedCellPositionLocked
                            ? "hover:cursor-not-allowed"
                            : "hover:border-slate-400 focus:border-slate-400"
@@ -770,8 +771,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/4">Width</div>
                   <input
                      value="20"
-                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none 
-                     ${
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none ${
                         selectedCellSizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
@@ -788,8 +788,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/4">Height</div>
                   <input
                      value="10"
-                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400
-                     ${
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center ${
                         selectedCellSizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
