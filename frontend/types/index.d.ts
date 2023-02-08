@@ -91,6 +91,7 @@ export type Diagram = {
    public: boolean;
    name: string;
    content: any[];
+   image?: string;
    project?: Project;
 };
 

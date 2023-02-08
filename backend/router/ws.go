@@ -79,6 +79,10 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			if sliceContains(events, "db_updateCell") || sliceContains(events, "db_addCell") || sliceContains(events, "db_removeCell") {
 				go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, payload.Cell, events)
 			}
+
+			if sliceContains(events, "db_updateGraphImage") {
+				go sdkP.Postgres.Diagram.UpdateImage(diagramId, idToken, payload.Image)
+			}
 		}
 
 		// Remove connection

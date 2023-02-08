@@ -46,6 +46,7 @@ func (d *Diagrams_SDK) GetAllNotInProject(idToken string, offset int) ([]models.
 			UpdatedAt: diagram.UpdatedAt,
 			Public:    diagram.Public,
 			Name:      diagram.Name,
+			Image:     diagram.Image,
 		}
 
 		if diagram.Project != nil && diagram.Project.ID != "default" {

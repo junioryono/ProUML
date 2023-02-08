@@ -71,7 +71,7 @@ export function DiagramItem({ diagram, project }: { diagram: Diagram; project?: 
                }}
             >
                <div className="relative block h-48 overflow-hidden">
-                  <img className="block h-full w-full object-cover object-center" src="https://dummyimage.com/420x260" />
+                  {diagram.image && <img className="block h-full w-full object-cover object-center" src={diagram.image} />}
                </div>
                <div className="pt-3 pb-2 pl-4 pr-2 border-t border-gray-200 flex">
                   <div className="flex-grow overflow-hidden whitespace-nowrap">

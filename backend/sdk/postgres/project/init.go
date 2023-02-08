@@ -169,7 +169,11 @@ func (p *Project_SDK) Get(projectId, idToken string) (*models.ProjectModelWithDi
 	}
 
 	// Get the diagram models from the database
-	if err := p.db.Model(&models.DiagramModel{}).Select("id, created_at, updated_at, name").Where("project_id = ?", projectId).Find(&project.Diagrams).Error; err != nil {
+	if err := p.db.Model(&models.DiagramModel{}).
+		Select("id, created_at, updated_at, name").
+		Where("project_id = ?", projectId).
+		Order("diagram_models.updated_at DESC").
+		Find(&project.Diagrams).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 

@@ -23,6 +23,7 @@ export default async function DashboardDiagramsProjectPage({ params: { id } }: {
          <DiagramsHeader
             diagramsLength={!projectRequest.success ? 0 : projectRequest.response.diagrams.length}
             showEmptyPlaceholder={showEmptyPlaceholder}
+            project={projectRequest.response}
          />
          <div className="flex flex-col">
             {showEmptyPlaceholder ? (

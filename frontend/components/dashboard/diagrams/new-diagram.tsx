@@ -1,11 +1,13 @@
 import { TemplateItem } from "@/components/dashboard/diagrams/template-item";
 import { cn } from "@/lib/utils";
-import { DiagramTemplate } from "types";
+import { DiagramTemplate, Project } from "types";
 import { ImportItem } from "./import-item";
 
-interface NewDiagramProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface NewDiagramProps extends React.HTMLAttributes<HTMLDivElement> {
+   project?: Project;
+}
 
-export function NewDiagram({ className, ...props }: NewDiagramProps) {
+export function NewDiagram({ className, project, ...props }: NewDiagramProps) {
    return (
       <div
          className={cn(
@@ -14,9 +16,9 @@ export function NewDiagram({ className, ...props }: NewDiagramProps) {
          )}
          {...props}
       >
-         <ImportItem />
+         <ImportItem project={project} />
          {templates.map((template) => (
-            <TemplateItem key={template.name} template={template} />
+            <TemplateItem key={template.name} template={template} project={project} />
          ))}
       </div>
    );

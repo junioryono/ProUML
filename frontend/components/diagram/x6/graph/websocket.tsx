@@ -52,6 +52,33 @@ function onWebSocketMessage(
             cellInGraph.setProp("angle", 0, { ws: true });
          }
       });
+   } else if (events.includes("local_removeCell")) {
+      const cell = message.cell;
+      if (!cell) {
+         return;
+      }
+
+      const cellInGraph = graph.current?.getCellById(cell.id);
+      if (!cellInGraph) {
+         return;
+      }
+
+      graph.current?.removeCell(cellInGraph);
+   } else if (events.includes("local_addNode")) {
+      const cell = message.cell;
+      if (!cell) {
+         return;
+      }
+
+      const node = graph.current?.createNode(cell);
+      graph.current?.addNode(node);
+   } else if (events.includes("local_addEdge")) {
+      const cell = message.cell;
+      if (!cell) {
+         return;
+      }
+
+      graph.current?.addEdge(graph.current?.createEdge(cell));
    } else if (events.includes("connected")) {
       console.log("connected");
 
@@ -62,6 +89,40 @@ function onWebSocketMessage(
 
       sessionId.current = message.sessionId;
    }
+}
+
+// export function wsDBUpdateGraph(
+//    cell: X6Type.Cell,
+//    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+//    sessionId: MutableRefObject<string>,
+// ) {
+//    if (!sessionId.current) {
+//       return;
+//    }
+
+//    websocket.sendJsonMessage({
+//       sessionId: sessionId.current,
+//       event: "broadcast/db_updateCell",
+//       cell,
+//    } as any);
+// }
+
+export function wsDBUpdateGraphImage(
+   base64JPEG: string,
+   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   sessionId: MutableRefObject<string>,
+) {
+   if (!sessionId.current) {
+      return;
+   }
+
+   console.log("wsDBUpdateGraphImage");
+
+   websocket.sendJsonMessage({
+      sessionId: sessionId.current,
+      event: "db_updateGraphImage",
+      image: base64JPEG,
+   } as any);
 }
 
 export function wsLocalUpdateCell(
@@ -96,7 +157,7 @@ export function wsDBUpdateCell(
    } as any);
 }
 
-export function wsDBRemoveCell(
+export function wsLocalAndDBRemoveCell(
    cell: X6Type.Cell,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
    sessionId: MutableRefObject<string>,
@@ -107,12 +168,12 @@ export function wsDBRemoveCell(
 
    websocket.sendJsonMessage({
       sessionId: sessionId.current,
-      event: "broadcast/db_removeCell",
+      event: "broadcast/local_removeCell/db_removeCell",
       cell,
    } as any);
 }
 
-export function wsDBAddCell(
+export function wsLocalAndDBAddNode(
    cell: X6Type.Cell,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
    sessionId: MutableRefObject<string>,
@@ -123,7 +184,23 @@ export function wsDBAddCell(
 
    websocket.sendJsonMessage({
       sessionId: sessionId.current,
-      event: "broadcast/db_addCell",
+      event: "broadcast/local_addNode/db_addCell",
+      cell,
+   } as any);
+}
+
+export function wsLocalAndDBAddEdge(
+   cell: X6Type.Cell,
+   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   sessionId: MutableRefObject<string>,
+) {
+   if (!sessionId.current) {
+      return;
+   }
+
+   websocket.sendJsonMessage({
+      sessionId: sessionId.current,
+      event: "broadcast/local_addEdge/db_addCell",
       cell,
    } as any);
 }

@@ -67,6 +67,7 @@ type DiagramModel struct {
 	UpdatedAt time.Time     `gorm:"autoUpdateTime" json:"updated_at"`
 	Public    bool          `gorm:"default:false" json:"public"`
 	Name      string        `gorm:"default:'Untitled Diagram'" json:"name"`
+	Image     string        `json:"image,omitempty"`
 	Content   []any         `gorm:"serializer:json" json:"content"`
 	ProjectID string        `gorm:"default:'default'" json:"project_id"`
 	Project   *ProjectModel `gorm:"foreignKey:ProjectID;references:ID" json:"project,omitempty"`
