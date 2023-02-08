@@ -110,7 +110,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="mt-1  w-full flex">
                <div
                   style={{ color: `#${selectedCellBackgroundColor}` }}
-                  className={`ml-9 mr-1 border border-black rounded-md h-6 w-6 bg-current`}
+                  className={`ml-10 mr-1 border border-black rounded-md h-6.1 w-7 bg-current`}
                />
                <input
                   value={`#${selectedCellBackgroundColor} `}
@@ -166,7 +166,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="mt-1  w-full flex">
                <div
                   style={{ color: `#${selectedCellBorderColor}` }}
-                  className={"ml-9 mr-1 border border-black rounded-md h-6 w-6 bg-current"}
+                  className={"ml-10 mr-1 border border-black rounded-md h-6.1 w-7 bg-current"}
                />
                <input
                   value={`#${selectedCellBorderColor} `}
@@ -713,7 +713,11 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/7">X</div>
                   <input
                      value="20"
-                     className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400"
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400 ${
+                        selectedCellPositionLocked
+                           ? "hover:cursor-not-allowed"
+                           : "hover:border-slate-400 focus:border-slate-400"
+                     }`}
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
@@ -728,7 +732,11 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/7">Y</div>
                   <input
                      value="10"
-                     className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400"
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400 ${
+                        selectedCellPositionLocked
+                           ? "hover:cursor-not-allowed"
+                           : "hover:border-slate-400 focus:border-slate-400"
+                     }`}
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
@@ -762,7 +770,10 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/4">Width</div>
                   <input
                      value="20"
-                     className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center hover:border-slate-400 focus:outline-none focus:border-slate-400"
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none 
+                     ${
+                        selectedCellSizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
+                     }`}
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
@@ -777,7 +788,10 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/4">Height</div>
                   <input
                      value="10"
-                     className="w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400"
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center  hover:border-slate-400 focus:outline-none focus:border-slate-400
+                     ${
+                        selectedCellSizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
+                     }`}
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
