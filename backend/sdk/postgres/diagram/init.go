@@ -129,7 +129,7 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *typ
 
 	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
 	var diagram models.DiagramModel
-	if err := d.db.Preload("Project").Where("id = ?", diagramId).First(&diagram).Error; err != nil {
+	if err := d.db.Preload("Project").Preload("Project.Diagrams").Where("id = ?", diagramId).First(&diagram).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrDiagramNotFound)
 	}
 
@@ -227,7 +227,7 @@ func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]i
 	}
 
 	cellId, ok := cell["id"].(string)
-	if !ok {
+	if !ok || cellId == "" {
 		return types.Wrap(errors.New("cell id not found"), types.ErrInvalidRequest)
 	}
 
@@ -241,6 +241,7 @@ func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]i
 			case map[string]interface{}:
 				if c["id"].(string) == cellId {
 					diagram.Content[i] = cell
+					break
 				}
 			}
 		}
@@ -250,13 +251,43 @@ func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]i
 			switch c := existingCell.(type) {
 			case map[string]interface{}:
 				if c["id"].(string) == cellId {
-					diagram.Content = append(diagram.Content[:i], diagram.Content[i+1:]...)
+					if i+1 < len(diagram.Content) {
+						diagram.Content = append(diagram.Content[:i], diagram.Content[i+1:]...)
+						break
+					}
+
+					diagram.Content = diagram.Content[:i]
+					break
 				}
 			}
 		}
 	}
 
 	if err := d.db.Save(&diagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	return nil
+}
+
+func (d *Diagram_SDK) UpdateImage(diagramId, idToken string, image string) *types.WrappedError {
+	// Get the user id from the id token
+	userId, err := d.auth.Client.GetUserId(idToken)
+	if err != nil {
+		return err
+	}
+
+	// Update the diagram in the database if the user is the owner or editor
+	var userDiagram models.DiagramUserRoleModel
+	if err := d.db.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if userDiagram.Role != "owner" && userDiagram.Role != "editor" {
+		return types.Wrap(errors.New("user is not the owner or editor of the diagram"), types.ErrInvalidRequest)
+	}
+
+	if err := d.db.Model(&models.DiagramModel{}).Where("id = ?", diagramId).Update("image", image).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 

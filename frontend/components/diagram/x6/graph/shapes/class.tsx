@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import { Node } from "@antv/x6";
 import { register } from "@antv/x6-react-shape";
@@ -40,24 +38,51 @@ function ShapeClass({ node }: { node?: Node }) {
 
    return (
       <div
-         className="flex flex-col w-full h-full bg-white border border-black"
          style={{
             fontFamily: font,
             fontSize: `${fontSize}px`,
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            height: "100%",
+            backgroundColor: "white",
+            border: "1px solid black",
          }}
       >
-         <div className="flex flex-col items-center py-1 border-b-1 border-black font-bold">
+         <div
+            style={{
+               display: "flex",
+               flexDirection: "column",
+               alignItems: "center",
+               padding: "4px 0",
+               borderBottom: "1px solid black",
+               fontWeight: "bold",
+            }}
+         >
             <div>{!className ? "ClassName" : className}</div>
          </div>
          {variables && (
-            <div className={cn("flex flex-col px-2 py-2", methods && "border-b-1 border-black")}>
+            <div
+               style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "8px",
+                  borderBottom: methods ? "1px solid black" : undefined,
+               }}
+            >
                {variables.map((variable, index) => (
                   <div key={index}>{variable.name}</div>
                ))}
             </div>
          )}
          {methods && (
-            <div className="flex flex-col px-2 py-2">
+            <div
+               style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "8px",
+               }}
+            >
                {methods.map((method, index) => (
                   <div key={index}>
                      {method.accessModifier

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { toast } from "@/ui/toast";
+import { Project } from "types";
 
 const validFileTypes = [
    "zip",
@@ -15,7 +16,7 @@ const validFileTypes = [
    "application/x-zip-compressed",
 ];
 
-export function ImportItem() {
+export function ImportItem({ project }: { project?: Project }) {
    const router = useRouter();
    const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -34,6 +35,10 @@ export function ImportItem() {
 
       const formData = new FormData();
       formData.append("project", e.target.files[0]);
+
+      if (project) {
+         formData.append("projectId", project.id);
+      }
 
       createDiagram(formData)
          .then((res) => {

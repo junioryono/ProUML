@@ -12,12 +12,17 @@ import (
 	"github.com/junioryono/ProUML/backend/types"
 )
 
+var (
+	IdTokenTime      = time.Now().Add(time.Hour * 10)
+	RefreshTokenTime = time.Now().Add(time.Hour * 24 * 365)
+)
+
 func (jwkSDK *JWK_SDK) CreateUserIdToken(user models.UserModel) (string, *types.WrappedError) {
-	return jwkSDK.createUserToken(user, time.Now().Add(time.Hour*10).Unix(), true)
+	return jwkSDK.createUserToken(user, IdTokenTime.Unix(), true)
 }
 
 func (jwkSDK *JWK_SDK) CreateUserRefreshToken(user models.UserModel) (string, *types.WrappedError) {
-	return jwkSDK.createUserToken(user, time.Now().Add(time.Hour*24*365).Unix(), false)
+	return jwkSDK.createUserToken(user, RefreshTokenTime.Unix(), false)
 }
 
 func (jwkSDK *JWK_SDK) createUserToken(user models.UserModel, exp int64, includeUserMetadata bool) (string, *types.WrappedError) {

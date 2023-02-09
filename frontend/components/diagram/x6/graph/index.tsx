@@ -21,7 +21,19 @@ export function useGraph(
    const [graphReady, setGraphReady] = useState(false);
 
    useEffect(() => {
-      if (!diagram || !container.current || !X6 || !X6.Plugin || !X6.Plugin.Scroller || !X6.Plugin.Transform) {
+      if (
+         !diagram ||
+         !container.current ||
+         !X6 ||
+         !X6.Plugin ||
+         !X6.Plugin.Scroller ||
+         !X6.Plugin.Transform ||
+         !X6.Plugin.Selection ||
+         !X6.Plugin.Keyboard ||
+         !X6.Plugin.Clipboard ||
+         !X6.Plugin.History ||
+         !X6.Plugin.Export
+      ) {
          return;
       }
 
@@ -61,6 +73,7 @@ export function useGraph(
       graph.current.use(
          new X6.Plugin.Scroller.Scroller({
             enabled: true,
+            graph: graph.current,
             className: "no-scrollbar",
             pageVisible: true,
          }),
@@ -108,6 +121,8 @@ export function useGraph(
             enabled: true,
          }),
       );
+
+      graph.current.use(new X6.Plugin.Export.Export());
 
       graph.current.fromJSON({ cells: diagram.content });
 

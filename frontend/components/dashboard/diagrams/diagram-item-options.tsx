@@ -15,10 +15,12 @@ import * as z from "zod";
 
 export function DiagramItemOptions({
    diagram,
+   project,
    showMenu,
    setShowMenu,
 }: {
    diagram: Diagram;
+   project?: Project;
    showMenu: boolean;
    setShowMenu: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) {
@@ -42,7 +44,7 @@ export function DiagramItemOptions({
    }, [assignProjectOpen]);
 
    useEffect(() => {
-      if (!didFetchProjects.current && !projects.length && assignProjectOpen) {
+      if (!project && !didFetchProjects.current && !projects.length && assignProjectOpen) {
          didFetchProjects.current = true;
 
          getProjects()
@@ -62,7 +64,7 @@ export function DiagramItemOptions({
                });
             });
       }
-   }, [projects, assignProjectOpen]);
+   }, [project, projects, assignProjectOpen]);
 
    useEffect(() => {
       console.log("diagram", diagram);
@@ -93,7 +95,7 @@ export function DiagramItemOptions({
             show={showMenu}
          >
             <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none top-8 sm:top-12">
-               {!diagram.project && (
+               {!project && (
                   <div className="py-1">
                      <Menu.Item>
                         {({ active }) => (
@@ -124,7 +126,7 @@ export function DiagramItemOptions({
                   </Menu.Item>
                </div>
                <div className="py-1">
-                  {diagram.project && (
+                  {project && (
                      <Menu.Item>
                         {({ active }) => (
                            <div
@@ -134,7 +136,7 @@ export function DiagramItemOptions({
                               )}
                               onClick={() => {
                                  setShowMenu(false);
-                                 removeDiagramFromProject(diagram.project.id, diagram.id).then((res) => {
+                                 removeDiagramFromProject(project.id, diagram.id).then((res) => {
                                     if (res.success === false) {
                                        return toast({
                                           title: "Something went wrong.",

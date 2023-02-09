@@ -19,7 +19,7 @@ func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagrams_SDK {
 	}
 }
 
-func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]models.DiagramModelHiddenContent, *types.WrappedError) {
+func (d *Diagrams_SDK) GetAllNotInProject(idToken string, offset int) ([]models.DiagramModelHiddenContent, *types.WrappedError) {
 	userId, err := d.Auth.Client.GetUserId(idToken)
 	if err != nil {
 		return nil, err
@@ -29,9 +29,8 @@ func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]model
 	if err := d.db.
 		Offset(offset).
 		Model(&models.DiagramModel{}).
-		Preload("Project").
 		Joins("JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").
-		Where("diagram_user_role_models.user_id = ?", userId).
+		Where("diagram_user_role_models.user_id = ? AND diagram_models.project_id = ?", userId, "default").
 		Order("diagram_models.updated_at DESC").
 		Limit(15).
 		Find(&diagrams).Error; err != nil {
@@ -47,6 +46,7 @@ func (d *Diagrams_SDK) GetAllWithAccessRole(idToken string, offset int) ([]model
 			UpdatedAt: diagram.UpdatedAt,
 			Public:    diagram.Public,
 			Name:      diagram.Name,
+			Image:     diagram.Image,
 		}
 
 		if diagram.Project != nil && diagram.Project.ID != "default" {

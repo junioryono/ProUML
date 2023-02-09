@@ -8,6 +8,7 @@ type DiagramModelHiddenContent struct {
 	UpdatedAt time.Time     `json:"updated_at"`
 	Public    bool          `json:"public"`
 	Name      string        `json:"name"`
+	Image     string        `json:"image,omitempty"`
 	Project   *ProjectModel `gorm:"-" json:"project,omitempty"`
 }
 

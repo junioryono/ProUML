@@ -469,10 +469,6 @@ function GraphView() {
   }, [title]);
 
   useEffect(() => {
-    if (!graph.current) {
-      return;
-    }
-
     // GROUPING
     // if (Array.isArray(selectedCells)) {
     //   for (const cell of selectedCells) {
@@ -514,8 +510,8 @@ function GraphView() {
     //   nodes: parsedForUML as any,
     // });
 
-    // graph.current.fromJSON(model);
-    // graph.current.zoomToFit();
+    // graph.current?.fromJSON(model);
+    // graph.current?.zoomToFit();
 
     return () => {
       graph.current?.dispose();
@@ -923,34 +919,10 @@ function GraphView() {
           <Divider flexItem orientation="vertical" sx={{ mx: 0.5, my: 1 }} />
 
           <StyledToggleButtonGroup size="small" aria-label="history">
-            <ToggleButton
-              value="undo"
-              aria-label="undo"
-              title="Undo"
-              disabled={!graph.current?.canUndo()}
-              onClick={() => {
-                if (!graph.current) {
-                  return;
-                }
-
-                graph.current.undo();
-              }}
-            >
+            <ToggleButton value="undo" aria-label="undo" title="Undo" disabled={!graph.current?.canUndo()} onClick={() => graph.current?.undo()}>
               <UndoIcon />
             </ToggleButton>
-            <ToggleButton
-              value="redo"
-              aria-label="redo"
-              title="Redo"
-              disabled={!graph.current?.canRedo()}
-              onClick={() => {
-                if (!graph.current) {
-                  return;
-                }
-
-                graph.current.redo();
-              }}
-            >
+            <ToggleButton value="redo" aria-label="redo" title="Redo" disabled={!graph.current?.canRedo()} onClick={() => graph.current?.redo()}>
               <RedoIcon />
             </ToggleButton>
           </StyledToggleButtonGroup>

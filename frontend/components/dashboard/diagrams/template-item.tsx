@@ -6,10 +6,10 @@ import { useState } from "react";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
-import { DiagramTemplate } from "types";
+import { DiagramTemplate, Project } from "types";
 import Image from "next/image";
 
-export function TemplateItem({ template }: { template: DiagramTemplate }) {
+export function TemplateItem({ template, project }: { template: DiagramTemplate; project?: Project }) {
    const router = useRouter();
    const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -22,6 +22,10 @@ export function TemplateItem({ template }: { template: DiagramTemplate }) {
 
       const formData = new FormData();
       formData.append("template", template.name);
+
+      if (project) {
+         formData.append("projectId", project.id);
+      }
 
       createDiagram(formData)
          .then((res) => {
