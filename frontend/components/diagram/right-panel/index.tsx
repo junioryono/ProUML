@@ -42,14 +42,6 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
          return;
       }
 
-      // graph.current.on("cell:selected", () => {
-      //    setSelectedCells(graph.current.getSelectedCells());
-      // });
-
-      // graph.current.on("cell:unselected", () => {
-      //    setSelectedCells(graph.current.getSelectedCells());
-      // });
-
       graph.current.on("node:selected", () => {
          setTab("nodes");
       });
