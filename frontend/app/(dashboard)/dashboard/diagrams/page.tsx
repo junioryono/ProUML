@@ -19,8 +19,6 @@ export default async function DashboardDiagramsPage() {
    const showEmptyPlaceholder =
       !diagramsRequest.success || (!diagramsRequest.response.diagrams.length && !diagramsRequest.response.projects.length);
 
-   console.log(diagramsRequest.response);
-
    return (
       <DashboardShell>
          <DiagramsHeader

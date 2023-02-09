@@ -2,7 +2,6 @@ package diagram
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
@@ -277,7 +276,6 @@ func (d *Diagram_SDK) UpdateImage(diagramId, idToken string, image string) *type
 	if err != nil {
 		return err
 	}
-	fmt.Println(userId)
 
 	// Update the diagram in the database if the user is the owner or editor
 	var userDiagram models.DiagramUserRoleModel
