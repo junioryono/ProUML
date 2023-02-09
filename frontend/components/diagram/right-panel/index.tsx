@@ -82,7 +82,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
       <div className="w-60 p-2 flex flex-col border-gray-400 border-l-1">
          {/* Render different panels based on the current tab */}
          {tab === "graph" ? (
-            <GraphPanel graph={graph} />
+            <EdgesPanel graph={graph} />
          ) : tab === "nodes" ? (
             <NodesPanel graph={graph} />
          ) : tab === "edges" ? (
