@@ -35,7 +35,6 @@
     "eslint-config-next": "13.1.2",
     "lucide-react": "^0.105.0",
     "next": "^13.1.7-canary.7",
-    "next-contentlayer": "^0.2.9",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.1",

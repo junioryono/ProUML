@@ -13,36 +13,32 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
    const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
 
    useEffect(() => {
-      if (!graph.current) {
-         return;
-      }
+      setNodes(graph.current?.getCells());
+      setEdges(graph.current?.getCells());
+      setSelectedCells(graph.current?.getSelectedCells());
 
-      setNodes(graph.current.getCells());
-      setEdges(graph.current.getCells());
-      setSelectedCells(graph.current.getSelectedCells());
-
-      graph.current.on("node:added", () => {
-         setNodes(graph.current.getCells());
+      graph.current?.on("node:added", () => {
+         setNodes(graph.current?.getCells());
       });
 
-      graph.current.on("node:removed", () => {
-         setNodes(graph.current.getCells());
+      graph.current?.on("node:removed", () => {
+         setNodes(graph.current?.getCells());
       });
 
-      graph.current.on("edge:added", () => {
-         setEdges(graph.current.getCells());
+      graph.current?.on("edge:added", () => {
+         setEdges(graph.current?.getCells());
       });
 
-      graph.current.on("edge:removed", () => {
-         setEdges(graph.current.getCells());
+      graph.current?.on("edge:removed", () => {
+         setEdges(graph.current?.getCells());
       });
 
-      graph.current.on("cell:selected", () => {
-         setSelectedCells(graph.current.getSelectedCells());
+      graph.current?.on("cell:selected", () => {
+         setSelectedCells(graph.current?.getSelectedCells());
       });
 
-      graph.current.on("cell:unselected", () => {
-         setSelectedCells(graph.current.getSelectedCells());
+      graph.current?.on("cell:unselected", () => {
+         setSelectedCells(graph.current?.getSelectedCells());
       });
 
       return () => {
@@ -139,7 +135,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                <div
                   className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                   onClick={() => {
-                     graph.current.addNode({
+                     graph.current?.addNode({
                         shape: "custom-class",
                         x: 100,
                         y: 100,

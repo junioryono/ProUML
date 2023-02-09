@@ -41,31 +41,26 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
    // Use effect to listen to the events on the `graph` and set the tab accordingly
    useEffect(() => {
-      // Return early if the `graph` is not set yet
-      if (!graph.current) {
-         return;
-      }
-
       // Listen to the "node:selected" event and set the tab to "nodes"
-      graph.current.on("node:selected", () => {
+      graph.current?.on("node:selected", () => {
          setTab("nodes");
       });
 
       // Listen to the "node:unselected" event and set the tab to "graph" if there's no selected cells
-      graph.current.on("node:unselected", () => {
-         if (graph.current.getSelectedCells().length === 0) {
+      graph.current?.on("node:unselected", () => {
+         if (graph.current?.getSelectedCells().length === 0) {
             setTab("graph");
          }
       });
 
       // Listen to the "edge:selected" event and set the tab to "edges"
-      graph.current.on("edge:selected", () => {
+      graph.current?.on("edge:selected", () => {
          setTab("edges");
       });
 
       // Listen to the "edge:unselected" event and set the tab to "graph" if there's no selected cells
-      graph.current.on("edge:unselected", () => {
-         if (graph.current.getSelectedCells().length === 0) {
+      graph.current?.on("edge:unselected", () => {
+         if (graph.current?.getSelectedCells().length === 0) {
             setTab("graph");
          }
       });
