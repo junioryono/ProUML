@@ -500,7 +500,6 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          <hr className="border-slate-400" />
 
          {/* ---------------------- POSITION SECTION ---------------------- */}
-
          <div className="flex flex-col pt-3 pb-3">
             <div className="flex justify-between">
                <div className="font-bold mb-1.5">Position</div>
@@ -512,8 +511,10 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/7">X</div>
                   <input
                      value="20"
-                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center ${
-                        positionLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
+                     className={`w-1/3 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
+                        positionLocked
+                           ? "hover:cursor-not-allowed text-slate-500"
+                           : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
                      autoCapitalize="none"
@@ -529,8 +530,10 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/7">Y</div>
                   <input
                      value="10"
-                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center ${
-                        positionLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
+                     className={`w-1/3 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
+                        positionLocked
+                           ? "hover:cursor-not-allowed text-slate-500"
+                           : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
                      autoCapitalize="none"
@@ -540,39 +543,34 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      disabled={positionLocked}
                   />
                </div>
-               <div className="flex mt-1.5">
-                  <input
-                     type="checkbox"
-                     className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                     onChange={() => setPositionLocked(!positionLocked)}
-                     checked={positionLocked}
-                  />
-                  <label>Lock position</label>
-               </div>
+            </div>
+            <div className="flex mt-1.5">
+               <input
+                  type="checkbox"
+                  className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
+                  onChange={() => setPositionLocked(!positionLocked)}
+                  checked={positionLocked}
+               />
+               <label>Lock position</label>
             </div>
          </div>
          <hr className="border-slate-400" />
 
          {/* ---------------------- SIZING SECTION ---------------------- */}
          <div className="flex flex-col pt-3 pb-3">
-            <div className="flex justify-between">
-               <div className="font-bold mb-1.5">Sizing</div>
-            </div>
-
+            <div className="font-bold mb-1.5 justify-between">Sizing</div>
             <div className="items-center gap-3">
                {/* width input */}
                <div className="flex mb-1">
                   <div className="w-1/4">Width</div>
                   <input
                      value="20"
-                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center focus:outline-none ${
-                        sizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
+                        sizeLocked
+                           ? "hover:cursor-not-allowed text-slate-500"
+                           : "hover:border-slate-400 focus:border-slate-400"
                      }`}
                      type="text"
-                     autoCapitalize="none"
-                     autoComplete="both"
-                     autoCorrect="off"
-                     spellCheck="false"
                      disabled={sizeLocked}
                   />
                </div>
@@ -582,18 +580,15 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="w-1/4">Height</div>
                   <input
                      value="10"
-                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md placeholder:text-black placeholder:text-center ${
-                        sizeLocked ? "hover:cursor-not-allowed" : "hover:border-slate-400 focus:border-slate-400"
+                     className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
+                        sizeLocked
+                           ? "hover:cursor-not-allowed text-slate-500"
+                           : "hover:border-slate-400 focus:border-slate-400 text-black"
                      }`}
                      type="text"
-                     autoCapitalize="none"
-                     autoComplete="both"
-                     autoCorrect="off"
-                     spellCheck="false"
                      disabled={sizeLocked}
                   />
                </div>
-
                <div className="flex mt-1.5">
                   <input
                      type="checkbox"
