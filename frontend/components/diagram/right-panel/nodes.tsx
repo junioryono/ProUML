@@ -15,7 +15,13 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
    // if selected cell currently has a shadow or not
    const [shadow, setShadow] = useState(false); // initially no shadow
+   const [shadowIntensity, setShadowIntensity] = useState(50);
 
+   // if selected cell currently has rounded corners or not
+   const [rounded, setRounded] = useState(false); // initially no round borders
+   const [roundedIntensity, setRoundedIntensity] = useState(50);
+
+   /*
    // font options
    const fontOptions = ["Sans-Serif", "Times New Roman", "Tahoma", "Comic Sans MS", "Courier New", "Georgia"];
 
@@ -32,6 +38,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
    // text justification of the selected cell
    const [textJustify, setTextJustify] = useState("center");
+   */
 
    // if selected cell position or size is currently locked or not
    const [positionLocked, setPositionLocked] = useState(false); // pos initially not locked
@@ -317,7 +324,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          <hr className="border-slate-400" />
 
          {/* ---------------------- BORDER STYLE SECTION ---------------------- */}
-         <div className="flex flex-col pt-3 pb-3">
+         <div className="flex flex-col pt-3">
             <div className="flex justify-between">
                <div className="font-bold mb-1">Border Style</div>
             </div>
@@ -406,25 +413,112 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </svg>
                </button>
             </div>
-            <div className="flex mt-2 ml-16">
-               <input
-                  type="checkbox"
-                  className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                  onChange={() => setShadow(!shadow)}
-                  checked={shadow}
-               />
-               <label>Shadow</label>
+
+            <div className="flex mt-2">
+               {/* shadow toggle */}
+               <div className="flex mt-5 h-8 w-24">
+                  <input
+                     type="checkbox"
+                     className="mr-2 w-5 h-5 border-slate-200 accent-black transition duration-500 hover:scale-125"
+                     onChange={() => setShadow(!shadow)}
+                     checked={shadow}
+                  />
+                  <label>Shadow</label>
+               </div>
+
+               {/* shadow intensity slider */}
+               <div className="flex-1 mx-auto mr-3">
+                  <div className="text-center">Intensity</div>
+                  <input
+                     type="range"
+                     min="0"
+                     max="100"
+                     value={shadowIntensity}
+                     className="w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
+                     onChange={(e) => setShadowIntensity(parseInt(e.target.value))}
+                     disabled={shadow}
+                  />
+               </div>
+               <style>
+                  {`
+                     input[type="range"]::-webkit-slider-thumb {
+                        height: 1.2rem;
+                        width: 1.2rem;
+                        background-color: #fff;
+                        border: 1px solid #475569;
+                        border-radius: 1.5rem;
+                        cursor: pointer;
+                        -webkit-appearance: none;
+
+                        transform: scale(1);
+                        transition: transform 0.2s ease-in-out;
+
+                        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+                     }
+
+                     input[type="range"]:hover::-webkit-slider-thumb {
+                        transform: scale(1.5);
+                        box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
+                     }
+                  `}
+               </style>
+            </div>
+
+            <div className="flex">
+               {/* rounded toggle */}
+               <div className="flex h-8 w-24">
+                  <input
+                     type="checkbox"
+                     className="mr-2 w-5 h-5 border-slate-300 accent-black transition duration-500 hover:scale-125"
+                     onChange={() => setRounded(!rounded)}
+                     checked={rounded}
+                  />
+                  <label>Rounded</label>
+               </div>
+
+               {/* shadow intensity slider */}
+               <div className="flex-1 mx-auto mr-3">
+                  <input
+                     type="range"
+                     min="0"
+                     max="100"
+                     value={roundedIntensity}
+                     className="w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
+                     onChange={(e) => setRoundedIntensity(parseInt(e.target.value))}
+                     disabled={shadow}
+                  />
+               </div>
+               <style>
+                  {`
+                  input[type="range"]::-webkit-slider-thumb {
+                     height: 1.2rem;
+                     width: 1.2rem;
+                     background-color: #fff;
+                     border: 1px solid black;
+                     border-radius: 1.5rem;
+                     cursor: pointer;
+                     -webkit-appearance: none;
+
+                     transform: scale(1);
+                     transition: transform 0.2s ease-in-out;
+                  }
+
+                  input[type="range"]:hover::-webkit-slider-thumb {
+                     transform: scale(1.5);
+                  }
+               `}
+               </style>
             </div>
          </div>
          <hr className="border-slate-400" />
 
          {/* ---------------------- TEXT STYLING SECTION ---------------------- */}
-         <div className="flex flex-col pt-3 pb-3">
+         {/* <div className="flex flex-col pt-3 pb-3">
             <div className="flex justify-between">
                <div className="font-bold mb-2">Text Styling</div>
             </div>
 
-            {/* section for the font type */}
+            section for the font type
             <div className="flex items-center">
                <div className="w-full flex">
                   <label className="mt-1 mr-2">Font</label>
@@ -460,7 +554,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                     >
                                        <div className="mr-3">{font}</div>
 
-                                       {/* checkmark svg source: https://www.svgrepo.com/svg/452247/checkmark */}
+                                       checkmark svg source: https://www.svgrepo.com/svg/452247/checkmark
                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 25 25">
                                           <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
                                        </svg>
@@ -486,11 +580,11 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
             </div>
 
-            {/* section for the font style */}
+            section for the font style
             <div className="flex items-center mt-2 mb-2 gap-1">
                <label className="mr-1">Style</label>
 
-               {/* bold svg source: https://www.svgrepo.com/svg/375961/bold */}
+               bold svg source: https://www.svgrepo.com/svg/375961/bold
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
         ${!textBold ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
@@ -508,7 +602,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </svg>
                </button>
 
-               {/* italic svg source: https://www.svgrepo.com/svg/379051/italic */}
+               italic svg source: https://www.svgrepo.com/svg/379051/italic
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
         ${!textItalic ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
@@ -534,7 +628,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </svg>
                </button>
 
-               {/* underline svg source: xhttps://www.svgrepo.com/svg/378912/underline */}
+               underline svg source: xhttps://www.svgrepo.com/svg/378912/underline
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
         ${!textUnderline ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
@@ -557,7 +651,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </svg>
                </button>
 
-               {/* overline svg source: https://www.svgrepo.com/svg/443896/gui-overline */}
+               overline svg source: https://www.svgrepo.com/svg/443896/gui-overline
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
         ${!textOverline ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
@@ -583,7 +677,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </svg>
                </button>
 
-               {/* strikethrough svg source: https://www.svgrepo.com/svg/332564/strikethrough */}
+               strikethrough svg source: https://www.svgrepo.com/svg/332564/strikethrough
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
         ${!textStrikethrough ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
@@ -608,11 +702,11 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </button>
             </div>
 
-            {/* section for the text justification */}
+            section for the text justification
             <div className="flex items-center gap-1.5">
                <label className="mr-1">Justify</label>
 
-               {/* left justify svg source: https://www.svgrepo.com/svg/349047/justify-left */}
+               left justify svg source: https://www.svgrepo.com/svg/349047/justify-left
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
         ${textJustify !== "left" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
@@ -634,7 +728,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </svg>
                </button>
 
-               {/* center justify svg source: https://www.svgrepo.com/svg/349046/justify-center */}
+               center justify svg source: https://www.svgrepo.com/svg/349046/justify-center
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
         ${textJustify !== "center" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
@@ -649,7 +743,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </svg>
                </button>
 
-               {/* right justify svg source: https://www.svgrepo.com/svg/349047/justify-left */}
+               right justify svg source: https://www.svgrepo.com/svg/349047/justify-left
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 py-1
         ${textJustify !== "right" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
@@ -672,7 +766,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </button>
             </div>
          </div>
-         <hr className="border-slate-400" />
+         <hr className="border-slate-400" /> */}
 
          {/* ---------------------- POSITION SECTION ---------------------- */}
 

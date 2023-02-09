@@ -34,42 +34,53 @@ export const borderColorOptions = [
    "B58B00", // yellow
 ];
 
+// RightPanel component, receives a `graph` prop of type `MutableRefObject<X6Type.Graph>`
 export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
+   // State to keep track of the current tab, either "graph", "nodes", or "edges"
    const [tab, setTab] = useState<"graph" | "nodes" | "edges">("graph");
 
+   // Use effect to listen to the events on the `graph` and set the tab accordingly
    useEffect(() => {
+      // Return early if the `graph` is not set yet
       if (!graph.current) {
          return;
       }
 
+      // Listen to the "node:selected" event and set the tab to "nodes"
       graph.current.on("node:selected", () => {
          setTab("nodes");
       });
 
+      // Listen to the "node:unselected" event and set the tab to "graph" if there's no selected cells
       graph.current.on("node:unselected", () => {
          if (graph.current.getSelectedCells().length === 0) {
             setTab("graph");
          }
       });
 
+      // Listen to the "edge:selected" event and set the tab to "edges"
       graph.current.on("edge:selected", () => {
          setTab("edges");
       });
 
+      // Listen to the "edge:unselected" event and set the tab to "graph" if there's no selected cells
       graph.current.on("edge:unselected", () => {
          if (graph.current.getSelectedCells().length === 0) {
             setTab("graph");
          }
       });
 
+      // Return a cleanup function to remove the event listeners when unmounting
       return () => {
          graph.current?.off("cell:selected");
          graph.current?.off("cell:unselected");
       };
    }, []);
 
+   // Render the component with a width of 60 and a left border of 1
    return (
       <div className="w-60 p-2 flex flex-col border-gray-400 border-l-1">
+         {/* Render different panels based on the current tab */}
          {tab === "graph" ? (
             <GraphPanel graph={graph} />
          ) : tab === "nodes" ? (
