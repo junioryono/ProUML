@@ -7,7 +7,7 @@ import NodesPanel from "./nodes";
 import EdgesPanel from "./edges";
 
 // background color options
-export const backgroundColorOptions = [
+export const lightColorOptions = [
    "FFFFFF", // white
    "F8B4D9", // pink-300
    "F8B4B4", // red-300
@@ -21,7 +21,7 @@ export const backgroundColorOptions = [
 ];
 
 // border color options
-export const borderColorOptions = [
+export const darkColorOptions = [
    "000000", // black
    "046C4E", // green
    "0B5394", // blue
