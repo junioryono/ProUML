@@ -37,6 +37,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      // if the current collor
                      return c === color ? (
                         <button
+                           key={c}
                            style={{ color: `#${c}` }}
                            className={
                               "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
@@ -101,17 +102,17 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      xmlns="http://www.w3.org/2000/svg"
                      fill="#000000"
                      stroke="#000000"
-                     stroke-width="0.00017"
+                     strokeWidth="0.00017"
                      width="35"
                      height="25"
                   >
-                     <g id="SVGRepo_bgCarrier" stroke-width="0" />
+                     <g id="SVGRepo_bgCarrier" strokeWidth="0" />
                      <g
                         id="SVGRepo_tracerCarrier"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         stroke="#CCCCCC"
-                        stroke-width="0.068"
+                        strokeWidth="0.068"
                      />
                      <g id="SVGRepo_iconCarrier">
                         <path d="M17 8v1h-17v-1h17z" fill="#000000" />
@@ -131,17 +132,17 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      xmlns="http://www.w3.org/2000/svg"
                      fill="#000000"
                      stroke="#000000"
-                     stroke-width="0.425"
+                     strokeWidth="0.425"
                      width="35"
                      height="25"
                   >
-                     <g id="SVGRepo_bgCarrier" stroke-width="0" />
+                     <g id="SVGRepo_bgCarrier" strokeWidth="0" />
                      <g
                         id="SVGRepo_tracerCarrier"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         stroke="#CCCCCC"
-                        stroke-width="0.068"
+                        strokeWidth="0.068"
                      />
                      <g id="SVGRepo_iconCarrier">
                         <path d="M17 8v1h-17v-1h17z" fill="#000000" />
@@ -161,17 +162,17 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      xmlns="http://www.w3.org/2000/svg"
                      fill="#000000"
                      stroke="#000000"
-                     stroke-width="0.85"
+                     strokeWidth="0.85"
                      width="35"
                      height="25"
                   >
-                     <g id="SVGRepo_bgCarrier" stroke-width="0" />
+                     <g id="SVGRepo_bgCarrier" strokeWidth="0" />
                      <g
                         id="SVGRepo_tracerCarrier"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         stroke="#CCCCCC"
-                        stroke-width="0.068"
+                        strokeWidth="0.068"
                      />
                      <g id="SVGRepo_iconCarrier">
                         <path d="M17 8v1h-17v-1h17z" fill="#000000" />
@@ -191,17 +192,17 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      xmlns="http://www.w3.org/2000/svg"
                      fill="#000000"
                      stroke="#000000"
-                     stroke-width="1.292"
+                     strokeWidth="1.292"
                      width="35"
                      height="25"
                   >
-                     <g id="SVGRepo_bgCarrier" stroke-width="0" />
+                     <g id="SVGRepo_bgCarrier" strokeWidth="0" />
                      <g
                         id="SVGRepo_tracerCarrier"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         stroke="#CCCCCC"
-                        stroke-width="0.068"
+                        strokeWidth="0.068"
                      />
                      <g id="SVGRepo_iconCarrier">
                         <path d="M17 8v1h-17v-1h17z" fill="#000000" />
@@ -221,17 +222,17 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      xmlns="http://www.w3.org/2000/svg"
                      fill="#000000"
                      stroke="#000000"
-                     stroke-width="1.7"
+                     strokeWidth="1.7"
                      width="35"
                      height="25"
                   >
-                     <g id="SVGRepo_bgCarrier" stroke-width="0" />
+                     <g id="SVGRepo_bgCarrier" strokeWidth="0" />
                      <g
                         id="SVGRepo_tracerCarrier"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         stroke="#CCCCCC"
-                        stroke-width="0.068"
+                        strokeWidth="0.068"
                      />
                      <g id="SVGRepo_iconCarrier">
                         <path d="M17 8v1h-17v-1h17z" fill="#000000" />
@@ -260,17 +261,17 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      xmlns="http://www.w3.org/2000/svg"
                      fill="#000000"
                      stroke="#000000"
-                     stroke-width="0.00017"
+                     strokeWidth="0.00017"
                      width="40"
                      height="25"
                   >
-                     <g id="SVGRepo_bgCarrier" stroke-width="0" />
+                     <g id="SVGRepo_bgCarrier" strokeWidth="0" />
                      <g
                         id="SVGRepo_tracerCarrier"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         stroke="#CCCCCC"
-                        stroke-width="0.068"
+                        strokeWidth="0.068"
                      />
                      <g id="SVGRepo_iconCarrier">
                         <path d="M17 8v1h-17v-1h17z" fill="#000000" />
@@ -292,8 +293,8 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      width="40"
                      height="25"
                   >
-                     <g id="SVGRepo_bgCarrier" stroke-width="0" />
-                     <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
+                     <g id="SVGRepo_bgCarrier" strokeWidth="0" />
+                     <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
                      <g id="SVGRepo_iconCarrier">
                         <path d="M17 6v1h-17v-1h17zM0 10h17v-1h-17v1z" fill="#000000" />
                      </g>

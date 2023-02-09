@@ -39,6 +39,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      return color === backgroundColor ? (
                         // if the current bg color is set to this color, put a checkmark svg on it
                         <button
+                           key={color}
                            style={{ color: `#${color}` }}
                            className={
                               "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
@@ -97,6 +98,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      // if the current collor
                      return color === borderColor ? (
                         <button
+                           key={color}
                            style={{ color: `#${color}` }}
                            className={
                               "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"

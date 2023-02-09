@@ -25,7 +25,8 @@ export default function (
       graph.current?.copy(cells);
    });
    graph.current?.bindKey("ctrl+v", () => {
-      graph.current?.paste();
+      graph.current.getCellsInClipboard();
+      // TODO need to paste to mouse position
    });
    graph.current?.bindKey("ctrl+z", () => {
       graph.current?.undo();

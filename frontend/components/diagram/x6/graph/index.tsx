@@ -73,6 +73,7 @@ export function useGraph(
       graph.current.use(
          new X6.Plugin.Scroller.Scroller({
             enabled: true,
+            graph: graph.current,
             className: "no-scrollbar",
             pageVisible: true,
          }),
