@@ -1,7 +1,7 @@
 "use client";
 
 import type X6Type from "@antv/x6";
-import { MutableRefObject, useState } from "react";
+import { MutableRefObject, useEffect, useState } from "react";
 import { lightColorOptions, darkColorOptions } from ".";
 
 export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
@@ -36,7 +36,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="flex w-56 items-center gap-2">
                <div>
                   {lightColorOptions.map((color) => {
-                     return color === backgroundColor ? (
+                     return (
                         // if the current bg color is set to this color, put a checkmark svg on it
                         <button
                            key={color}
@@ -44,24 +44,19 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                            className={
                               "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
                            }
+                           onClick={() => {
+                              if (color !== backgroundColor) {
+                                 setBackgroundColor(color);
+                              }
+                           }}
                         >
                            {/* checkmark svg source: https://www.svgrepo.com/svg/452247/checkmark */}
-                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 25 25">
-                              <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
-                           </svg>
+                           {color === backgroundColor && (
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 25 25">
+                                 <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                              </svg>
+                           )}
                         </button>
-                     ) : (
-                        // if the current bg color is not set to this color
-                        <button
-                           key={color}
-                           style={{ color: `#${color}` }}
-                           className={
-                              "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
-                           }
-                           onClick={() => {
-                              setBackgroundColor(color);
-                           }}
-                        />
                      );
                   })}
                </div>
@@ -97,19 +92,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   {/* all of the color options */}
                   {darkColorOptions.map((color) => {
                      // if the current collor
-                     return color === borderColor ? (
-                        <button
-                           key={color}
-                           style={{ color: `#${color}` }}
-                           className={
-                              "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
-                           }
-                        >
-                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 25 25" fill="white">
-                              <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
-                           </svg>
-                        </button>
-                     ) : (
+                     return (
                         <button
                            key={color}
                            style={{ color: `#${color}` }}
@@ -117,9 +100,23 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                               "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
                            }
                            onClick={() => {
-                              setBorderColor(color);
+                              if (color !== borderColor) {
+                                 setBorderColor(color);
+                              }
                            }}
-                        />
+                        >
+                           {color === borderColor && (
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 width="18"
+                                 height="18"
+                                 viewBox="0 0 25 25"
+                                 fill="white"
+                              >
+                                 <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                              </svg>
+                           )}
+                        </button>
                      );
                   })}
                </div>
