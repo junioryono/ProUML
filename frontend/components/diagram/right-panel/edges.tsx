@@ -35,19 +35,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   {/* all of the color options */}
                   {darkColorOptions.map((c) => {
                      // if the current collor
-                     return c === color ? (
-                        <button
-                           key={c}
-                           style={{ color: `#${c}` }}
-                           className={
-                              "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
-                           }
-                        >
-                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 25 25" fill="white">
-                              <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
-                           </svg>
-                        </button>
-                     ) : (
+                     return (
                         <button
                            key={c}
                            style={{ color: `#${c}` }}
@@ -55,9 +43,23 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                               "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
                            }
                            onClick={() => {
-                              setColor(c);
+                              if (c !== color) {
+                                 setColor(c);
+                              }
                            }}
-                        />
+                        >
+                           {c === color && (
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 width="18"
+                                 height="18"
+                                 viewBox="0 0 25 25"
+                                 fill="white"
+                              >
+                                 <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                              </svg>
+                           )}
+                        </button>
                      );
                   })}
                </div>
