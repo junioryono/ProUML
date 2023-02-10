@@ -7,7 +7,6 @@ import { Diagram, Project } from "types";
 import DiagramItemOptions from "./diagram-item-options";
 import { LongPressDetectEvents, useLongPress } from "use-long-press";
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 
 export default function DiagramItem({ diagram, project }: { diagram: Diagram; project?: Project }) {
    const [showMenu, setShowMenu] = useState(false);
@@ -73,7 +72,7 @@ export default function DiagramItem({ diagram, project }: { diagram: Diagram; pr
             >
                <div className="relative block h-48 overflow-hidden">
                   {diagram.image && (
-                     <Image
+                     <img
                         className="block h-full w-full object-cover object-center"
                         src={diagram.image}
                         alt={diagram.name}
