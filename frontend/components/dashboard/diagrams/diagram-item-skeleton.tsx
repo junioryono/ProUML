@@ -1,4 +1,4 @@
-export function DiagramItemSkeleton() {
+export default function DiagramItemSkeleton() {
    return (
       <div className="p-4">
          <div className="space-y-3">

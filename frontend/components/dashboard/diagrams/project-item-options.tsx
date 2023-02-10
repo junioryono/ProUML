@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { updateProject } from "@/lib/auth-fetch";
 
-export function ProjectItemOptions({
+export default function ProjectItemOptions({
    project,
    showMenu,
    setShowMenu,

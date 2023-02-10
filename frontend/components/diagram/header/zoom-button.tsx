@@ -5,7 +5,7 @@ import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { DropdownMenu, SubDropdownMenu } from "@/ui/dropdown";
 import { cn } from "@/lib/utils";
 
-export function ZoomButton({ graph, zoom }: { graph: MutableRefObject<X6Type.Graph>; zoom: number }) {
+export default function ZoomButton({ graph, zoom }: { graph: MutableRefObject<X6Type.Graph>; zoom: number }) {
    const [openArrow, setOpenArrow] = useState(false);
    const [open, setOpen] = useState(false);
    const [hovered, setHovered] = useState(false);

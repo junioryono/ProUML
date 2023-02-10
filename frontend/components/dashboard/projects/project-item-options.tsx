@@ -19,7 +19,7 @@ const projectRenameSchema = z.object({
 
 type FormData = z.infer<typeof projectRenameSchema>;
 
-export function ProjectItemOptions({
+export default function ProjectItemOptions({
    project,
    showMenu,
    setShowMenu,

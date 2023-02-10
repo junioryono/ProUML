@@ -8,7 +8,7 @@ import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 
-export function initializeListeners(
+export default function initializeListeners(
    graph: MutableRefObject<X6Type.Graph>,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
    sessionId: MutableRefObject<string>,

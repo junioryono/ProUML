@@ -4,11 +4,11 @@ import Link from "next/link";
 
 import { formatDate } from "@/lib/utils";
 import { Project } from "types";
-import { ProjectItemOptions } from "./project-item-options";
+import ProjectItemOptions from "./project-item-options";
 import { LongPressDetectEvents, useLongPress } from "use-long-press";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export function ProjectItem({ project }: { project: Project }) {
+export default function ProjectItem({ project }: { project: Project }) {
    const [showMenu, setShowMenu] = useState(false);
    const linkRef = useRef<HTMLAnchorElement>(null);
    // Store diagram.updated_at as a Date object

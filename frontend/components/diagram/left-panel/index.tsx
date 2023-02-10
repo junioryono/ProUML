@@ -41,15 +41,16 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          setSelectedCells(graph.current?.getSelectedCells());
       });
 
+      const graphRef = graph.current;
       return () => {
-         graph.current?.off("node:added");
-         graph.current?.off("node:removed");
-         graph.current?.off("edge:added");
-         graph.current?.off("edge:removed");
-         graph.current?.off("cell:selected");
-         graph.current?.off("cell:unselected");
+         graphRef?.off("node:added");
+         graphRef?.off("node:removed");
+         graphRef?.off("edge:added");
+         graphRef?.off("edge:removed");
+         graphRef?.off("cell:selected");
+         graphRef?.off("cell:unselected");
       };
-   }, []);
+   }, [graph]);
 
    return (
       <div className="w-60 py-2 flex flex-col border-gray-400 border-r-1">
@@ -202,7 +203,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                const isSelected = selectedCells.includes(node);
 
                return (
-                  <div className="flex items-center gap-3 pb-2 pl-2">
+                  <div key={nodeId} className="flex items-center gap-3 pb-2 pl-2">
                      {isSelected && (
                         <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                            <path

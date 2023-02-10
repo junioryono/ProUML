@@ -9,7 +9,7 @@ import { toast } from "@/ui/toast";
 
 interface UserCreateButtonProps extends React.HTMLAttributes<HTMLButtonElement> {}
 
-export function UserCreateButton({ className, ...props }: UserCreateButtonProps) {
+export default function UserCreateButton({ className, ...props }: UserCreateButtonProps) {
    const router = useRouter();
    const [isLoading, setIsLoading] = React.useState<boolean>(false);
 

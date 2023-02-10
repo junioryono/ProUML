@@ -16,7 +16,7 @@ const validFileTypes = [
    "application/x-zip-compressed",
 ];
 
-export function ImportItem({ project }: { project?: Project }) {
+export default function ImportItem({ project }: { project?: Project }) {
    const router = useRouter();
    const [isLoading, setIsLoading] = useState<boolean>(false);
 

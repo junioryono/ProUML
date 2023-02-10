@@ -11,7 +11,7 @@ interface DashboardNavProps {
    items: SidebarNavItem[];
 }
 
-export function DashboardNav({ items }: DashboardNavProps) {
+export default function DashboardNav({ items }: DashboardNavProps) {
    const path = usePathname();
 
    if (!items?.length) {

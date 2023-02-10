@@ -1,6 +1,7 @@
-import { DashboardNav } from "@/components/dashboard/nav";
-import { UserAccountNav } from "@/components/dashboard/user-account-nav";
-import { MainNav } from "@/components/main-nav";
+import DashboardNav from "@/components/dashboard/nav";
+import UserAccountNav from "@/components/dashboard/user-account-nav";
+import MainNav from "@/components/main-nav";
+
 import { getSession } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 

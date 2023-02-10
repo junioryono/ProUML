@@ -1,4 +1,4 @@
-import { DiagramItemSkeleton } from "@/components/dashboard/diagrams/diagram-item-skeleton";
+import DiagramItemSkeleton from "@/components/dashboard/diagrams/diagram-item-skeleton";
 
 export default function AdminDashboardUsersLoading() {
    return (

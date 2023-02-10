@@ -12,7 +12,7 @@ import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 
-export default function (
+export default function Cells(
    graph: MutableRefObject<X6Type.Graph>,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
    sessionId: MutableRefObject<string>,

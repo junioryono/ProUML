@@ -49,6 +49,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                         </button>
                      ) : (
                         <button
+                           key={c}
                            style={{ color: `#${c}` }}
                            className={
                               "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"

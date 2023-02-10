@@ -9,7 +9,7 @@ import { toast } from "@/ui/toast";
 
 interface JWTCreateButtonProps extends React.HTMLAttributes<HTMLButtonElement> {}
 
-export function JWTCreateButton({ className, ...props }: JWTCreateButtonProps) {
+export default function JWTCreateButton({ className, ...props }: JWTCreateButtonProps) {
    const router = useRouter();
    const [isLoading, setIsLoading] = React.useState<boolean>(false);
 

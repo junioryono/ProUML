@@ -9,7 +9,7 @@ import { toast } from "@/ui/toast";
 
 interface ClusterCreateButtonProps extends React.HTMLAttributes<HTMLButtonElement> {}
 
-export function ClusterCreateButton({ className, ...props }: ClusterCreateButtonProps) {
+export default function ClusterCreateButton({ className, ...props }: ClusterCreateButtonProps) {
    const router = useRouter();
    const [isLoading, setIsLoading] = React.useState<boolean>(false);
 

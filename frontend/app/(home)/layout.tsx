@@ -1,6 +1,6 @@
-import { MainNav } from "@/components/main-nav";
-import { SiteFooter } from "@/components/site-footer";
-import { UserAccountNav } from "@/components/dashboard/user-account-nav";
+import MainNav from "@/components/main-nav";
+import SiteFooter from "@/components/site-footer";
+import UserAccountNav from "@/components/dashboard/user-account-nav";
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
    return (

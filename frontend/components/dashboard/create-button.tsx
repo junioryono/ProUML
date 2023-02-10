@@ -9,7 +9,7 @@ interface CreateButtonProps extends HTMLAttributes<HTMLButtonElement> {
    isLoading?: boolean;
 }
 
-export function CreateButton({ className, title, isLoading, ...props }: CreateButtonProps) {
+export default function CreateButton({ className, title, isLoading, ...props }: CreateButtonProps) {
    return (
       <button
          className={cn(

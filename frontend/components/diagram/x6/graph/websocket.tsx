@@ -6,7 +6,7 @@ import { MutableRefObject, useRef } from "react";
 import useWebSocket from "react-use-websocket";
 import { getWSUrl } from "@/lib/utils";
 
-export function useGraphWebSocket(graph: MutableRefObject<X6Type.Graph>, diagramId: string) {
+export default function useGraphWebSocket(graph: MutableRefObject<X6Type.Graph>, diagramId: string) {
    const sessionId = useRef<string>();
 
    // WebSocket
@@ -22,6 +22,10 @@ function onWebSocketMessage(
    graph: React.MutableRefObject<X6Type.Graph | null>,
    sessionId: React.MutableRefObject<string | null>,
 ) {
+   if (!event || !event.data) {
+      return;
+   }
+
    const message = JSON.parse(event.data);
    if (!message || !message.event) {
       return;

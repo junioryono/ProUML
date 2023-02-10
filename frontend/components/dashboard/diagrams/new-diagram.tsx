@@ -1,13 +1,13 @@
-import { TemplateItem } from "@/components/dashboard/diagrams/template-item";
 import { cn } from "@/lib/utils";
 import { DiagramTemplate, Project } from "types";
-import { ImportItem } from "./import-item";
+import ImportItem from "@/components/dashboard/diagrams/import-item";
+import TemplateItem from "@/components/dashboard/diagrams/template-item";
 
 interface NewDiagramProps extends React.HTMLAttributes<HTMLDivElement> {
    project?: Project;
 }
 
-export function NewDiagram({ className, project, ...props }: NewDiagramProps) {
+export default function NewDiagram({ className, project, ...props }: NewDiagramProps) {
    return (
       <div
          className={cn(

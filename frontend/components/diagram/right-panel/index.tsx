@@ -66,13 +66,14 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
       });
 
       // Return a cleanup function to remove the event listeners when unmounting
+      const graphRef = graph.current;
       return () => {
-         graph.current?.off("node:selected");
-         graph.current?.off("node:unselected");
-         graph.current?.off("edge:selected");
-         graph.current?.off("edge:unselected");
+         graphRef?.off("node:selected");
+         graphRef?.off("node:unselected");
+         graphRef?.off("edge:selected");
+         graphRef?.off("edge:unselected");
       };
-   }, []);
+   }, [graph]);
 
    // Render the component with a width of 60 and a left border of 1
    return (

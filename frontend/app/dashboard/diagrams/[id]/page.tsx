@@ -1,6 +1,6 @@
 import { getSession, getDiagram } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
-import { DiagramLayout } from "@/components/diagram/layout";
+import DiagramLayout from "@/components/diagram/layout";
 
 export default async function DiagramPage({ params: { id } }: { params: { id: string } }) {
    const user = await getSession();

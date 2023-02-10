@@ -4,13 +4,14 @@ import type X6Type from "@antv/x6";
 import type { X6StateType } from "..";
 
 import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
-import { initializeListeners } from "@/components/diagram/x6/graph/listeners";
-import { useGraphWebSocket } from "@/components/diagram/x6/graph/websocket";
 import { LayoutProps } from "@/components/diagram/layout";
 import { Diagram } from "types";
 import { ReadyState } from "react-use-websocket";
 
-export function useGraph(
+import initializeListeners from "@/components/diagram/x6/graph/listeners";
+import useGraphWebSocket from "@/components/diagram/x6/graph/websocket";
+
+export default function useGraph(
    X6: X6StateType,
    container: MutableRefObject<HTMLDivElement>,
    diagram: Diagram,
@@ -32,7 +33,8 @@ export function useGraph(
          !X6.Plugin.Keyboard ||
          !X6.Plugin.Clipboard ||
          !X6.Plugin.History ||
-         !X6.Plugin.Export
+         !X6.Plugin.Export ||
+         websocket.readyState !== ReadyState.OPEN
       ) {
          return;
       }
@@ -140,7 +142,7 @@ export function useGraph(
          graph.current = null;
          setGraphReady(false);
       };
-   }, [diagram, container, X6]);
+   }, [diagram, container, X6, websocket.readyState]);
 
    useEffect(() => {
       console.log("graphReady", graphReady);

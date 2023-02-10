@@ -101,3 +101,5 @@ SubDropdownMenu.Arrow = function () {
       </svg>
    );
 };
+
+export default DropdownMenu;
