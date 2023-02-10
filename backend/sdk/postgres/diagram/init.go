@@ -9,6 +9,7 @@ import (
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/types"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Diagram_SDK struct {
@@ -221,8 +222,11 @@ func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]i
 		return types.Wrap(errors.New("user is not the owner or editor of the diagram"), types.ErrInvalidRequest)
 	}
 
+	tx := d.db.Begin()
+
 	var diagram models.DiagramModel
-	if err := d.db.Where("id = ?", diagramId).First(&diagram).Error; err != nil {
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", diagramId).First(&diagram).Error; err != nil {
+		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -263,7 +267,12 @@ func (d *Diagram_SDK) UpdateContent(diagramId, idToken string, cell map[string]i
 		}
 	}
 
-	if err := d.db.Save(&diagram).Error; err != nil {
+	if err := tx.Save(&diagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
