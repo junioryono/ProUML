@@ -18,7 +18,7 @@ const userAddSchema = z.object({
 
 type FormData = z.infer<typeof userAddSchema>;
 
-export function ShareButton({ diagram }: { diagram: Diagram }) {
+export default function ShareButton({ diagram }: { diagram: Diagram }) {
    const { user, setUser } = useAuth();
    const {
       handleSubmit,

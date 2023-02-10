@@ -1,8 +1,8 @@
+import DashboardShell from "@/components/dashboard/shell";
+import DashboardHeader from "@/components/dashboard/header";
+
 import { getSession } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
-
-import { DashboardShell } from "@/components/dashboard/shell";
-import { DashboardHeader } from "@/components/dashboard/header";
 
 export default async function DashboardIssuesLayout({ children }: { children: React.ReactNode }) {
    const user = await getSession();

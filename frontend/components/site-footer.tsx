@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Icons } from "@/components/icons";
 
-export function SiteFooter() {
+export default function SiteFooter() {
    return (
       <footer className="container bg-white text-slate-600">
          <div className="flex  flex-col items-center justify-between gap-4 border-t border-t-slate-200 py-10 md:h-24 md:flex-row md:py-0">

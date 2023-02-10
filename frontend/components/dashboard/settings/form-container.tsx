@@ -6,7 +6,7 @@ type ComponentWithSkeleton = React.ComponentType & {
    Skeleton: React.ComponentType;
 };
 
-export function FormContainer({ Component }: { Component: ComponentWithSkeleton }) {
+export default function FormContainer({ Component }: { Component: ComponentWithSkeleton }) {
    const { user } = useAuth();
 
    if (user === undefined) {

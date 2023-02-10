@@ -11,8 +11,8 @@ import type X6PluginClipboardType from "@antv/x6-plugin-clipboard";
 import type X6PluginHistoryType from "@antv/x6-plugin-history";
 import type X6PluginExportType from "@antv/x6-plugin-export";
 import { LayoutProps } from "@/components/diagram/layout";
-import { useGraph } from "@/components/diagram/x6/graph";
 import { Diagram } from "types";
+import useGraph from "@/components/diagram/x6/graph";
 
 export type X6StateType = {
    Core: typeof X6Type;
@@ -31,7 +31,7 @@ export type X6StateType = {
 };
 
 // Create a hook to initialize X6
-export function useX6(container: MutableRefObject<HTMLDivElement>, diagram: Diagram, layoutProps: LayoutProps) {
+export default function useX6(container: MutableRefObject<HTMLDivElement>, diagram: Diagram, layoutProps: LayoutProps) {
    const [X6, setX6] = useState<X6StateType>();
    const { graph, sessionId, ready } = useGraph(X6, container, diagram, layoutProps);
 

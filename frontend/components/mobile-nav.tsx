@@ -13,7 +13,7 @@ interface MobileNavProps {
    children?: React.ReactNode;
 }
 
-export function MobileNav({ items, children, hide }: MobileNavProps) {
+export default function MobileNav({ items, children, hide }: MobileNavProps) {
    useLockBody();
 
    return (

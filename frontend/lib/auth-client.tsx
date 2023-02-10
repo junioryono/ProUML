@@ -27,10 +27,6 @@ export function useAuth() {
 export function AuthProvider({ children }) {
    const [user, setUser] = useState<User | undefined>(undefined);
 
-   useEffect(() => {
-      value.getSession();
-   }, []);
-
    const value: AuthContextInterface = {
       login: async function (email: string, password: string) {
          return login(email, password).then((res) => {
@@ -73,6 +69,14 @@ export function AuthProvider({ children }) {
       user: user,
       setUser: setUser,
    };
+
+   useEffect(() => {
+      if (!value) {
+         return;
+      }
+
+      value.getSession();
+   }, [value]);
 
    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

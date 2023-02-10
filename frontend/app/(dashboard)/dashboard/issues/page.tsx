@@ -1,4 +1,5 @@
-import { EmptyPlaceholder } from "@/components/dashboard/empty-placeholder";
+import EmptyPlaceholder from "@/components/dashboard/empty-placeholder";
+
 import { getSession } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 

@@ -8,7 +8,7 @@ import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-export function Menu({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
+export default function Menu({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    const [openArrow, setOpenArrow] = useState(false);
 
    const [open, setOpen] = useState(false);

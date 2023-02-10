@@ -1,11 +1,12 @@
 "use client";
 
-import { NewDiagram } from "@/components/dashboard/diagrams/new-diagram";
 import { useState } from "react";
-import { CreateButton } from "@/components/dashboard/create-button";
 import { Project } from "types";
 
-export function DiagramsHeader({
+import NewDiagram from "@/components/dashboard/diagrams/new-diagram";
+import CreateButton from "@/components/dashboard/create-button";
+
+export default function DiagramsHeader({
    diagramsLength,
    showEmptyPlaceholder,
    project,

@@ -7,7 +7,7 @@ import { useSelectedLayoutSegment } from "next/navigation";
 import { MainNavItem } from "types";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
-import { MobileNav } from "@/components/mobile-nav";
+import MobileNav from "@/components/mobile-nav";
 import { useAuth } from "@/lib/auth-client";
 
 interface MainNavProps {
@@ -15,7 +15,7 @@ interface MainNavProps {
    children?: React.ReactNode;
 }
 
-export function MainNav({ items, children }: MainNavProps) {
+export default function MainNav({ items, children }: MainNavProps) {
    const { user } = useAuth();
    const segment = useSelectedLayoutSegment();
    const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);

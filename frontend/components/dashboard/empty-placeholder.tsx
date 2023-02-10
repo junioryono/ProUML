@@ -5,7 +5,7 @@ import { Icons } from "@/components/icons";
 
 interface EmptyPlaceholderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function EmptyPlaceholder({ className, children, ...props }: EmptyPlaceholderProps) {
+export default function EmptyPlaceholder({ className, children, ...props }: EmptyPlaceholderProps) {
    return (
       <div
          className={cn(

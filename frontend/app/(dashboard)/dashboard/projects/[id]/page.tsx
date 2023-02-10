@@ -1,8 +1,8 @@
-import { DashboardShell } from "@/components/dashboard/shell";
-import { DashboardHeader } from "@/components/dashboard/header";
-import { ProjectsHeader } from "@/components/dashboard/projects/header";
-import { ProjectItem } from "@/components/dashboard/projects/project-item";
-import { EmptyPlaceholder } from "@/components/dashboard/empty-placeholder";
+import DashboardShell from "@/components/dashboard/shell";
+import DashboardHeader from "@/components/dashboard/header";
+import ProjectsHeader from "@/components/dashboard/projects/header";
+import EmptyPlaceholder from "@/components/dashboard/empty-placeholder";
+
 import { getSession, getProject } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 

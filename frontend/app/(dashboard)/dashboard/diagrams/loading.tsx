@@ -1,6 +1,6 @@
-import { DashboardShell } from "@/components/dashboard/shell";
-import { DiagramsHeader } from "@/components/dashboard/diagrams/header";
-import { DiagramItemSkeleton } from "@/components/dashboard/diagrams/diagram-item-skeleton";
+import DashboardShell from "@/components/dashboard/shell";
+import DiagramsHeader from "@/components/dashboard/diagrams/header";
+import DiagramItemSkeleton from "@/components/dashboard/diagrams/diagram-item-skeleton";
 
 export default function DashboardDiagramsLoading() {
    return (

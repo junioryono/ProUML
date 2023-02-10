@@ -14,7 +14,7 @@ import { User } from "types";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { UserDeleteFormSkeleton } from "./user-delete-form-skeleton";
+import UserDeleteFormSkeleton from "./user-delete-form-skeleton";
 import { useAuth } from "@/lib/auth-client";
 
 const userDeleteSchema = z.object({
@@ -23,7 +23,7 @@ const userDeleteSchema = z.object({
 
 type FormData = z.infer<typeof userDeleteSchema>;
 
-export function UserDeleteForm() {
+export default function UserDeleteForm() {
    const { user, setUser } = useAuth();
    const {
       handleSubmit,

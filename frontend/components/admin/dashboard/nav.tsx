@@ -11,7 +11,7 @@ interface AdminDashboardNavProps {
    items: SidebarNavItem[];
 }
 
-export function AdminDashboardNav({ items }: AdminDashboardNavProps) {
+export default function AdminDashboardNav({ items }: AdminDashboardNavProps) {
    const path = usePathname();
 
    if (!items?.length) {

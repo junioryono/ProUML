@@ -4,9 +4,9 @@ import { createProject } from "@/lib/auth-fetch";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "@/ui/toast";
-import { CreateButton } from "@/components/dashboard/create-button";
+import CreateButton from "@/components/dashboard/create-button";
 
-export function ProjectsHeader() {
+export default function ProjectsHeader() {
    const router = useRouter();
    const [isLoading, setIsLoading] = useState(false);
 

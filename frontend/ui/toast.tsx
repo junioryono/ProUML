@@ -12,7 +12,7 @@ interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
    visible: boolean;
 }
 
-export function Toast({ visible, className, ...props }: ToastProps) {
+export default function Toast({ visible, className, ...props }: ToastProps) {
    return (
       <div
          className={cn(

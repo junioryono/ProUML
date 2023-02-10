@@ -1,19 +1,19 @@
 "use client";
 
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
-import { UserAccountNav } from "@/components/dashboard/user-account-nav";
+import UserAccountNav from "@/components/dashboard/user-account-nav";
 import { ReadyState } from "react-use-websocket";
 import { Diagram } from "types";
 import Link from "next/link";
 
-import { useX6 } from "@/components/diagram/x6";
-import { Menu } from "@/components/diagram/header/menu";
-import { ZoomButton } from "@/components/diagram/header/zoom-button";
-import { ShareButton } from "@/components/diagram/header/share-button";
-import { Selector } from "@/components/diagram/header/selector";
-import { Components } from "@/components/diagram/header/components";
-import { HandTool } from "@/components/diagram/header/hand-tool";
-import { AddComment } from "@/components/diagram/header/add-comment";
+import useX6 from "@/components/diagram/x6";
+import Menu from "@/components/diagram/header/menu";
+import ZoomButton from "@/components/diagram/header/zoom-button";
+import ShareButton from "@/components/diagram/header/share-button";
+import Selector from "@/components/diagram/header/selector";
+import Components from "@/components/diagram/header/components";
+import HandTool from "@/components/diagram/header/hand-tool";
+import AddComment from "@/components/diagram/header/add-comment";
 import LeftPanel from "@/components/diagram/left-panel";
 import RightPanel from "@/components/diagram/right-panel";
 
@@ -21,7 +21,7 @@ export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
 };
 
-export function DiagramLayout({ diagram }: { diagram: Diagram }) {
+export default function DiagramLayout({ diagram }: { diagram: Diagram }) {
    // States
    const [zoom, setZoom] = useState(1);
    const [panning, setPanning] = useState(false);

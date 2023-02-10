@@ -9,7 +9,7 @@ import { cn, fetchAPI } from "@/lib/utils";
 import { Card } from "@/ui/card";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
-import { UserNameFormSkeleton } from "./user-name-form-skeleton";
+import UserNameFormSkeleton from "./user-name-form-skeleton";
 import { useAuth } from "@/lib/auth-client";
 
 const userNameSchema = z.object({
@@ -18,7 +18,7 @@ const userNameSchema = z.object({
 
 type FormData = z.infer<typeof userNameSchema>;
 
-export function UserNameForm() {
+export default function UserNameForm() {
    const { user, setUser } = useAuth();
    const {
       handleSubmit,

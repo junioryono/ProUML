@@ -1,6 +1,6 @@
 import { Card } from "@/ui/card";
 
-export function UserDeleteFormSkeleton() {
+export default function UserDeleteFormSkeleton() {
    return (
       <Card>
          <Card.Header className="animate-pulse">

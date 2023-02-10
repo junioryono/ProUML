@@ -4,11 +4,11 @@ import Link from "next/link";
 
 import { formatDate } from "@/lib/utils";
 import { Diagram, Project } from "types";
-import { DiagramItemOptions } from "./diagram-item-options";
+import DiagramItemOptions from "./diagram-item-options";
 import { LongPressDetectEvents, useLongPress } from "use-long-press";
 import { useEffect, useRef, useState } from "react";
 
-export function DiagramItem({ diagram, project }: { diagram: Diagram; project?: Project }) {
+export default function DiagramItem({ diagram, project }: { diagram: Diagram; project?: Project }) {
    const [showMenu, setShowMenu] = useState(false);
    const linkRef = useRef<HTMLAnchorElement>(null);
    // Store diagram.updated_at as a Date object
@@ -71,7 +71,13 @@ export function DiagramItem({ diagram, project }: { diagram: Diagram; project?: 
                }}
             >
                <div className="relative block h-48 overflow-hidden">
-                  {diagram.image && <img className="block h-full w-full object-cover object-center" src={diagram.image} />}
+                  {diagram.image && (
+                     <img
+                        className="block h-full w-full object-cover object-center"
+                        src={diagram.image}
+                        alt={diagram.name}
+                     />
+                  )}
                </div>
                <div className="pt-3 pb-2 pl-4 pr-2 border-t border-gray-200 flex">
                   <div className="flex-grow overflow-hidden whitespace-nowrap">

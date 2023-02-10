@@ -9,7 +9,7 @@ import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/icons";
 
-export function UserAccountNav({ className }: { className?: string }) {
+export default function UserAccountNav({ className }: { className?: string }) {
    const router = useRouter();
    const { logout, user } = useAuth();
    const [isLoading, setIsLoading] = useState<boolean>(false);

@@ -3,7 +3,7 @@
 import type X6Type from "@antv/x6";
 import { MutableRefObject } from "react";
 
-export function AddComment({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
+export default function AddComment({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    return (
       <div
          className="w-10 h-full px-2 text-xs flex justify-center items-center gap-1 hover:bg-diagram-menu-item-hovered"

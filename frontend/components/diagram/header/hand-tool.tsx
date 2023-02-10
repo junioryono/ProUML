@@ -4,7 +4,7 @@ import type X6Type from "@antv/x6";
 import { MutableRefObject, Dispatch, SetStateAction } from "react";
 import { cn } from "@/lib/utils";
 
-export function HandTool({
+export default function HandTool({
    graph,
    panning,
    setPanning,
