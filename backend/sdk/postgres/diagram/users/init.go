@@ -95,11 +95,9 @@ func (u *Users_SDK) Add(diagramId, idToken, newUserId, newUserRole string) *type
 	// Use Join to make sure that the newUserId does not already have access to the diagram
 	if err := u.db.Joins("JOIN user_models ON user_models.id = diagram_user_role_models.user_id").
 		Where("user_models.id = ? AND diagram_user_role_models.diagram_id = ?", newUserId, diagramId).
-		First(&models.DiagramUserRoleModel{}).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return types.Wrap(err, types.ErrUserAlreadyAccess)
-		}
-
+		First(&models.DiagramUserRoleModel{}).Error; err == nil {
+		return types.Wrap(errors.New("user already has access to the diagram"), types.ErrUserAlreadyAccess)
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 

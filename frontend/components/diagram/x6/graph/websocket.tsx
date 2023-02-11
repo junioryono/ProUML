@@ -67,7 +67,7 @@ function onWebSocketMessage(
          return;
       }
 
-      graph.current?.removeCell(cellInGraph);
+      graph.current?.removeCell(cellInGraph, { ws: true });
    } else if (events.includes("local_addNode")) {
       const cell = message.cell;
       if (!cell) {
@@ -75,14 +75,15 @@ function onWebSocketMessage(
       }
 
       const node = graph.current?.createNode(cell);
-      graph.current?.addNode(node);
+      graph.current?.addNode(node, { ws: true });
    } else if (events.includes("local_addEdge")) {
       const cell = message.cell;
       if (!cell) {
          return;
       }
 
-      graph.current?.addEdge(graph.current?.createEdge(cell));
+      const edge = graph.current?.createEdge(cell);
+      graph.current?.addEdge(edge, { ws: true });
    } else if (events.includes("connected")) {
       console.log("connected");
 

@@ -81,16 +81,16 @@ export default function useGraph(
          }),
       );
 
-      graph.current.use(
-         new X6.Plugin.Transform.Transform({
-            resizing: {
-               enabled: true,
-            },
-            rotating: {
-               enabled: true,
-            },
-         }),
-      );
+      // graph.current.use(
+      //    new X6.Plugin.Transform.Transform({
+      //       resizing: {
+      //          enabled: true,
+      //       },
+      //       rotating: {
+      //          enabled: true,
+      //       },
+      //    }),
+      // );
 
       graph.current.use(
          new X6.Plugin.Selection.Selection({
@@ -121,6 +121,13 @@ export default function useGraph(
       graph.current.use(
          new X6.Plugin.History.History({
             enabled: true,
+            beforeAddCommand(_, args) {
+               // if ((args as any)?.options?.ws === true) {
+               //    return false;
+               // }
+
+               return true;
+            },
          }),
       );
 
