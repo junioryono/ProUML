@@ -15,6 +15,8 @@ module.exports = {
       },
       extend: {
          fontFamily: {
+            primary: ["var(--font-inter)", ...fontFamily.sans],
+            serif: ["var(--font-inter)", ...fontFamily.serif],
             sans: ["var(--font-inter)", ...fontFamily.sans],
          },
          colors: {

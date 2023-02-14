@@ -3,6 +3,7 @@ const nextConfig = {
    reactStrictMode: true,
    experimental: {
       esmExternals: "loose",
+      fontLoaders: [{ loader: "@next/font/google", options: { subsets: ["latin"] } }],
    },
    images: {
       remotePatterns: [
