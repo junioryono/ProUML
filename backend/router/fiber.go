@@ -116,9 +116,6 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 
 func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		idToken := fbCtx.Cookies(auth.IdTokenCookieName)
-		refreshToken := fbCtx.Cookies(auth.RefreshTokenCookieName)
-
 		unauthorizedUser := func() error {
 			auth.DeleteCookie(fbCtx, auth.IdTokenCookieName)
 			auth.DeleteCookie(fbCtx, auth.RefreshTokenCookieName)
@@ -129,16 +126,22 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		if idToken == "" || refreshToken == "" {
+		idToken := fbCtx.Cookies(auth.IdTokenCookieName)
+		refreshToken := fbCtx.Cookies(auth.RefreshTokenCookieName)
+
+		if idToken == "" && refreshToken == "" {
 			return unauthorizedUser()
 		}
 
 		// Check if id token is valid
-		userId, idTokenError := sdkP.Postgres.Auth.Client.GetUserId(idToken)
-
+		_, idTokenError := sdkP.Postgres.Auth.Client.GetUserId(idToken)
 		if idTokenError == nil {
-			fbCtx.Locals("user_id", userId)
+			fbCtx.Locals("idToken", idToken)
 			return fbCtx.Next()
+		}
+
+		if refreshToken == "" {
+			return unauthorizedUser()
 		}
 
 		// id token is invalid, check if refresh token is valid
@@ -157,7 +160,7 @@ func isAuthenticated(sdkP *sdk.SDK) fiber.Handler {
 				})
 			}
 
-			fbCtx.Locals("user_id", userId)
+			fbCtx.Locals("idToken", idToken)
 			return fbCtx.Next()
 		}
 

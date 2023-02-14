@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "@/ui/toast";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import * as z from "zod";
 
 import { LoginProviders } from "@/components/auth/login-providers";
@@ -183,6 +182,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             permanent: false,
          },
       };
+   }
+
+   if (userRequest.cookie) {
+      ctx.res.setHeader("set-cookie", userRequest.cookie);
    }
 
    return {

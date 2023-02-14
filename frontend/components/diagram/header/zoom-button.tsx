@@ -45,8 +45,8 @@ export default function ZoomButton({ graph, zoom }: { graph: MutableRefObject<X6
             </svg>
          </DropdownMenu.Trigger>
 
-         <DropdownMenu.Portal>
-            <DropdownMenu.Content className="mt-1 mr-2 py-1 md:w-52 rounded-none bg-diagram-menu" align="end">
+         <DropdownMenu.Portal className="">
+            <DropdownMenu.Content className="mt-1 mr-2 py-1 md:w-52 rounded-none bg-diagram-menu border-0" align="end">
                {/* Make an input that will take the users zoom input */}
                <input
                   className="pl-7 h-6 w-full bg-transparent text-white text-xs focus:outline-none"

@@ -177,7 +177,7 @@ export default function Index({ stars }: { stars: string }) {
 
 export const getStaticProps: GetStaticProps = async () => {
    const stars = await getGitHubStars();
-   console.log("stars", stars);
+
    return {
       props: {
          stars,

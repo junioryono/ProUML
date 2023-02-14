@@ -6,6 +6,20 @@ const defaultError: APIResponse<any> = {
    reason: "Failed to fetch.",
 };
 
+async function jsonResponse<T>(res: Response): Promise<APIResponse<T>> {
+   const cookie = res.headers.get("set-cookie");
+   const json = await res.json();
+
+   if (cookie === null) {
+      return json;
+   }
+
+   return {
+      ...json,
+      cookie,
+   };
+}
+
 export async function login(email: string, password: string, options?: RequestInit): Promise<APIResponse<User>> {
    const form = new FormData();
    form.append("email", email);
@@ -53,7 +67,7 @@ export async function getSession(options?: RequestInit): Promise<APIResponse<Use
    return fetchAPI("/auth/session", {
       ...options,
    })
-      .then((res) => res.json())
+      .then((res) => jsonResponse<User>(res))
       .catch(() => defaultError);
 }
 
@@ -66,7 +80,12 @@ export async function getDiagrams(options?: RequestInit): Promise<
    return fetchAPI("/diagrams", {
       ...options,
    })
-      .then((res) => res.json())
+      .then((res) =>
+         jsonResponse<{
+            projects: Project[];
+            diagrams: Diagram[];
+         }>(res),
+      )
       .catch(() => defaultError);
 }
 
@@ -80,7 +99,7 @@ export async function getDiagram(diagramId: string, options?: RequestInit): Prom
          ...options,
       },
    )
-      .then((res) => res.json())
+      .then((res) => jsonResponse<Diagram>(res))
       .catch(() => defaultError);
 }
 
@@ -90,7 +109,7 @@ export async function createDiagram(form: FormData, options?: RequestInit): Prom
       method: "POST",
       body: form,
    })
-      .then((res) => res.json())
+      .then((res) => jsonResponse<string>(res))
       .catch(() => defaultError);
 }
 
@@ -105,7 +124,7 @@ export async function deleteDiagram(diagramId: string, options?: RequestInit): P
          method: "DELETE",
       },
    )
-      .then((res) => res.json())
+      .then((res) => jsonResponse<null>(res))
       .catch(() => defaultError);
 }
 
@@ -128,7 +147,7 @@ export async function updateDiagram(
          },
       },
    )
-      .then((res) => res.json())
+      .then((res) => jsonResponse<null>(res))
       .catch(() => defaultError);
 }
 
@@ -136,7 +155,7 @@ export async function getProjects(options?: RequestInit): Promise<APIResponse<Pr
    return fetchAPI("/projects", {
       ...options,
    })
-      .then((res) => res.json())
+      .then((res) => jsonResponse<Project[]>(res))
       .catch(() => defaultError);
 }
 
@@ -150,7 +169,7 @@ export async function getProject(projectId: string, options?: RequestInit): Prom
          ...options,
       },
    )
-      .then((res) => res.json())
+      .then((res) => jsonResponse<Project>(res))
       .catch(() => defaultError);
 }
 
@@ -160,7 +179,7 @@ export async function createProject(form: FormData, options?: RequestInit): Prom
       method: "POST",
       body: form,
    })
-      .then((res) => res.json())
+      .then((res) => jsonResponse<string>(res))
       .catch(() => defaultError);
 }
 
@@ -175,7 +194,7 @@ export async function deleteProject(projectId: string, options?: RequestInit): P
          method: "DELETE",
       },
    )
-      .then((res) => res.json())
+      .then((res) => jsonResponse<null>(res))
       .catch(() => defaultError);
 }
 
@@ -198,7 +217,7 @@ export async function updateProject(
          },
       },
    )
-      .then((res) => res.json())
+      .then((res) => jsonResponse<null>(res))
       .catch(() => defaultError);
 }
 
@@ -212,7 +231,7 @@ export async function getProjectDiagrams(projectId: string, options?: RequestIni
          ...options,
       },
    )
-      .then((res) => res.json())
+      .then((res) => jsonResponse<Diagram[]>(res))
       .catch(() => defaultError);
 }
 
@@ -232,7 +251,7 @@ export async function addDiagramToProject(
          method: "PUT",
       },
    )
-      .then((res) => res.json())
+      .then((res) => jsonResponse<null>(res))
       .catch(() => defaultError);
 }
 
@@ -252,6 +271,6 @@ export async function removeDiagramFromProject(
          method: "DELETE",
       },
    )
-      .then((res) => res.json())
+      .then((res) => jsonResponse<null>(res))
       .catch(() => defaultError);
 }

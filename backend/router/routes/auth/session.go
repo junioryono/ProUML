@@ -8,7 +8,7 @@ import (
 
 func Session(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		idToken := fbCtx.Cookies(IdTokenCookieName)
+		idToken := fbCtx.Cookies(IdTokenCookieName, fbCtx.Locals("idToken").(string))
 		if idToken == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

@@ -2,7 +2,6 @@ package project
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/types"
 )
@@ -13,9 +12,7 @@ type body struct {
 
 func Put(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Get the project id from query string
 		projectId := fbCtx.Query("id")
-
 		if projectId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
@@ -32,7 +29,7 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		if b.Name != "" {
-			if err := sdkP.Postgres.Project.UpdateName(projectId, fbCtx.Cookies(auth.IdTokenCookieName), b.Name); err != nil {
+			if err := sdkP.Postgres.Project.UpdateName(projectId, fbCtx.Locals("idToken").(string), b.Name); err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 					Success: false,
 					Reason:  err.Error(),

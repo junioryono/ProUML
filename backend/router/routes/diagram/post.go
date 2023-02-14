@@ -8,7 +8,6 @@ import (
 	"archive/zip"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/templates"
 	"github.com/junioryono/ProUML/backend/transpiler"
@@ -104,7 +103,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			// Create a new diagram
-			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), projectId, transpiledProject)
+			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Locals("idToken").(string), projectId, transpiledProject)
 			if err2 != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
@@ -130,7 +129,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			// Create a new diagram
-			diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), projectId, template)
+			diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Locals("idToken").(string), projectId, template)
 			if err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
@@ -145,7 +144,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Create a new diagram
-		diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Cookies(auth.IdTokenCookieName), projectId, nil)
+		diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Locals("idToken").(string), projectId, nil)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 				Success: false,

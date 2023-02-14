@@ -42,12 +42,12 @@ export default function MainNav({ user, items, children }: MainNavProps) {
          href: "/",
       },
       {
-         title: "Projects",
-         href: "/dashboard/projects",
-      },
-      {
          title: "Diagrams",
          href: "/dashboard/diagrams",
+      },
+      {
+         title: "Projects",
+         href: "/dashboard/projects",
       },
       {
          title: "Issues",
