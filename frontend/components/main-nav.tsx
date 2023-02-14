@@ -1,23 +1,21 @@
-"use client";
-
-import * as React from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-
+import { ReactNode, useState } from "react";
 import { MainNavItem, User } from "types";
+import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
-import { Icons } from "@/components/icons";
+import Link from "next/link";
+
 import MobileNav from "@/components/mobile-nav";
+import { Icons } from "@/components/icons";
 
 interface MainNavProps {
    user: User;
    items?: MainNavItem[];
-   children?: React.ReactNode;
+   children?: ReactNode;
 }
 
 export default function MainNav({ user, items, children }: MainNavProps) {
    const router = useRouter();
-   const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
+   const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false);
 
    if (!items?.length) {
       items = [
