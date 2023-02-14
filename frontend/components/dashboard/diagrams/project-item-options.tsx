@@ -1,5 +1,3 @@
-"use client";
-
 import { Fragment, SetStateAction, useEffect, useRef, useState } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 

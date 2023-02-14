@@ -1,5 +1,3 @@
-"use client";
-
 import type X6Type from "@antv/x6";
 import initializeKeyBindingListeners from "@/components/diagram/x6/graph/listeners/key-bindings";
 import initializeCellChangeListeners from "@/components/diagram/x6/graph/listeners/cells";

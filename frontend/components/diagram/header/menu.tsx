@@ -1,5 +1,3 @@
-"use client";
-
 import type X6Type from "@antv/x6";
 
 import { MutableRefObject, useEffect, useRef, useState } from "react";

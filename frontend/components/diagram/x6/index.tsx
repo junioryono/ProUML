@@ -1,5 +1,3 @@
-"use client";
-
 import { Dispatch, MutableRefObject, SetStateAction, useEffect, useState } from "react";
 
 import type X6Type from "@antv/x6";

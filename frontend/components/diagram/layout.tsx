@@ -1,5 +1,3 @@
-"use client";
-
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import UserAccountNav from "@/components/dashboard/user-account-nav";
 import { ReadyState } from "react-use-websocket";
