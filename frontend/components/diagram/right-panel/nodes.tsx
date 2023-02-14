@@ -48,12 +48,10 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                               if (color !== backgroundColor) {
                                  setBackgroundColor(color);
 
-                                 // Get the selected node
-                                 const selectedNodes = graph.current?.getSelectedCells();
-
-                                 selectedNodes.forEach((cell) => {
-                                    cell.attr("body/fill", backgroundColor);
-                                 });
+                                 // set the background color of the selected cell
+                                 graph.current
+                                    .getSelectedCells()
+                                    .forEach((cell) => cell.attr({ body: { fill: `#${color}` } }));
                               }
                            }}
                         >

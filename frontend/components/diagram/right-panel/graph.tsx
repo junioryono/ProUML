@@ -1,19 +1,33 @@
 "use client";
 
 import type X6Type from "@antv/x6";
-import { MutableRefObject, useState } from "react";
+import { MutableRefObject, useEffect, useState } from "react";
 import { lightColorOptions } from ".";
 
 export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for the zoom of the graph
-   const [zoom, setZoom] = useState(0);
+   const [zoom, setZoom] = useState(100);
 
    // for if a grid is visible or not
    const [grid, setGrid] = useState(true);
 
+   // grid size
+   const [gridSize, setGridSize] = useState(10);
+
    // for current background & border colors of selected cell
    const [background, setBackground] = useState(false);
    const [backgroundColor, setBackgroundColor] = useState("FFFFFF"); // <- default should be initial bg color
+
+   // if the graph zoom changes, change the zoom to match
+   useEffect(() => {
+      graph.current?.on("scale", (args) => {
+         // set the zoom of the slider without decimals
+         setZoom(Math.round(args.sx * 100));
+      });
+
+      // set the zoom of the graph
+      graph.current?.zoomTo(zoom / 100);
+   }, [zoom]);
 
    return (
       <>
@@ -23,11 +37,11 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
             {/* zoom slider */}
             <div className="flex-1 m-1 mb-3">
-               <div className="mb-1.5">Zoom</div>
+               <div className="mb-1.5 ml-2.5">Zoom</div>
                <div className="flex items-center">
                   <input
                      value={`${zoom}x`}
-                     className="text-center w-1/3 h-5 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none"
+                     className="text-center w-16 h-5 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none"
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
@@ -38,11 +52,14 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      type="range"
                      min="0"
-                     max="100"
+                     max="1000"
                      value={zoom}
                      className="ml-3 w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
                      onChange={(e) => {
                         setZoom(parseInt(e.target.value));
+
+                        // set the zoom of the graph
+                        graph.current?.zoomTo(parseInt(e.target.value) / 100);
                      }}
                   />
                </div>
@@ -78,7 +95,18 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                <input
                   type="checkbox"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                  onChange={() => setGrid(!grid)}
+                  onChange={() => {
+                     setGrid(!grid);
+
+                     // if the user wants to show the grid, set the grid size to 10
+                     if (!grid) {
+                        graph.current.setGridSize(gridSize);
+                     }
+                     // if the user wants to hide the grid, set the grid size to 0
+                     else {
+                        graph.current.setGridSize(0);
+                     }
+                  }}
                   checked={grid}
                />
                <label>Show grid</label>
@@ -113,6 +141,11 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                  onClick={() => {
                                     if (color !== backgroundColor) {
                                        setBackgroundColor(color);
+
+                                       // change the background color of the graph
+                                       graph.current?.drawBackground({
+                                          color: `#${color}`,
+                                       });
                                     }
                                  }}
                               >
