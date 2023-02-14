@@ -10,7 +10,7 @@ import { Card } from "@/ui/card";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import UserNameFormSkeleton from "./user-name-form-skeleton";
-import { useAuth } from "@/lib/auth-client";
+import { User } from "types";
 
 const userNameSchema = z.object({
    fullName: z.string().min(3).max(32),
@@ -18,8 +18,7 @@ const userNameSchema = z.object({
 
 type FormData = z.infer<typeof userNameSchema>;
 
-export default function UserNameForm() {
-   const { user, setUser } = useAuth();
+export default function UserNameForm({ user }: { user: User }) {
    const {
       handleSubmit,
       register,
@@ -53,7 +52,7 @@ export default function UserNameForm() {
          .then((res) => res.json())
          .then((res) => {
             if (res && res.success === true) {
-               setUser((prev) => ({ ...prev, full_name: data.fullName }));
+               // setUser((prev) => ({ ...prev, full_name: data.fullName }));
                return true;
             }
 

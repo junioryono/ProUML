@@ -37,7 +37,7 @@ export const darkColorOptions = [
 // RightPanel component, receives a `graph` prop of type `MutableRefObject<X6Type.Graph>`
 export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // State to keep track of the current tab, either "graph", "nodes", or "edges"
-   const [tab, setTab] = useState<"graph" | "nodes" | "edges">("edges");
+   const [tab, setTab] = useState<"graph" | "nodes" | "edges" | "nodes&edges">("edges");
 
    // Use effect to listen to the events on the `graph` and set the tab accordingly
    useEffect(() => {
@@ -84,6 +84,8 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
          ) : tab === "nodes" ? (
             <NodesPanel graph={graph} />
          ) : tab === "edges" ? (
+            <EdgesPanel graph={graph} />
+         ) : tab === "nodes&edges" ? (
             <EdgesPanel graph={graph} />
          ) : null}
       </div>

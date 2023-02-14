@@ -66,10 +66,6 @@ export default function DiagramItemOptions({
       }
    }, [project, projects, assignProjectOpen]);
 
-   useEffect(() => {
-      console.log("diagram", diagram);
-   }, [diagram]);
-
    return (
       <Menu
          as="div"

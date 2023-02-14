@@ -1,21 +1,9 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-client";
+import { User } from "types";
 
-type ComponentWithSkeleton = React.ComponentType & {
-   Skeleton: React.ComponentType;
-};
+type ComponentWithSkeleton = React.ComponentType<{ user: User }>;
 
-export default function FormContainer({ Component }: { Component: ComponentWithSkeleton }) {
-   const { user } = useAuth();
-
-   if (user === undefined) {
-      return <Component.Skeleton />;
-   }
-
-   if (!user) {
-      return null;
-   }
-
-   return <Component />;
+export default function FormContainer({ Component, user }: { Component: ComponentWithSkeleton; user: User }) {
+   return <Component user={user} />;
 }

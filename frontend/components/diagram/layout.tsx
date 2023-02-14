@@ -3,7 +3,7 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import UserAccountNav from "@/components/dashboard/user-account-nav";
 import { ReadyState } from "react-use-websocket";
-import { Diagram } from "types";
+import { Diagram, User } from "types";
 import Link from "next/link";
 
 import useX6 from "@/components/diagram/x6";
@@ -21,7 +21,7 @@ export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
 };
 
-export default function DiagramLayout({ diagram }: { diagram: Diagram }) {
+export default function DiagramLayout({ user, diagram }: { user: User; diagram: Diagram }) {
    // States
    const [zoom, setZoom] = useState(1);
    const [panning, setPanning] = useState(false);
@@ -35,10 +35,6 @@ export default function DiagramLayout({ diagram }: { diagram: Diagram }) {
    const refContainer = useCallback((containerParam: HTMLDivElement) => {
       container.current = containerParam;
    }, []);
-
-   useEffect(() => {
-      console.log("diagram", diagram);
-   }, [diagram]);
 
    return (
       <div className="flex flex-col">
@@ -76,8 +72,8 @@ export default function DiagramLayout({ diagram }: { diagram: Diagram }) {
                </svg>
             </div>
             <div className="flex h-full items-center">
-               <UserAccountNav />
-               <ShareButton diagram={diagram} />
+               <UserAccountNav user={user} />
+               <ShareButton user={user} diagram={diagram} />
                <ZoomButton graph={graph} zoom={zoom} />
             </div>
          </div>

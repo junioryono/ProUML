@@ -2,22 +2,21 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useSelectedLayoutSegment } from "next/navigation";
+import { useRouter } from "next/router";
 
-import { MainNavItem } from "types";
+import { MainNavItem, User } from "types";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 import MobileNav from "@/components/mobile-nav";
-import { useAuth } from "@/lib/auth-client";
 
 interface MainNavProps {
+   user: User;
    items?: MainNavItem[];
    children?: React.ReactNode;
 }
 
-export default function MainNav({ items, children }: MainNavProps) {
-   const { user } = useAuth();
-   const segment = useSelectedLayoutSegment();
+export default function MainNav({ user, items, children }: MainNavProps) {
+   const router = useRouter();
    const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
 
    if (!items?.length) {
@@ -95,7 +94,7 @@ export default function MainNav({ items, children }: MainNavProps) {
                      target={item.newTab ? "_blank" : undefined}
                      className={cn(
                         "flex items-center text-sm font-semibold text-slate-600",
-                        item.href.startsWith(`/${segment}`) && "text-slate-900",
+                        item.href.startsWith(router.asPath) && "text-slate-900",
                         item.disabled && "cursor-not-allowed opacity-80",
                         item.hideOnXS && "hidden sm:flex",
                      )}

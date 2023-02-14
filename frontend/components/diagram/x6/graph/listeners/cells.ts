@@ -25,6 +25,14 @@ export default function Cells(
    //    });
    // }
 
+   graph.current?.on("node:mouseenter", (args) => {
+      console.log("node:mouseenter", args);
+   });
+
+   graph.current?.on("node:mouseleave", (args) => {
+      console.log("node:mouseleave", args);
+   });
+
    graph.current?.on("cell:change:*", (args) => {
       console.log("cell:change:*", args);
       if (args.options.ws) {
