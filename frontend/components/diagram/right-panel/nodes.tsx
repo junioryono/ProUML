@@ -47,6 +47,13 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                            onClick={() => {
                               if (color !== backgroundColor) {
                                  setBackgroundColor(color);
+
+                                 // Get the selected node
+                                 const selectedNodes = graph.current?.getSelectedCells();
+
+                                 selectedNodes.forEach((cell) => {
+                                    cell.attr("body/fill", backgroundColor);
+                                 });
                               }
                            }}
                         >

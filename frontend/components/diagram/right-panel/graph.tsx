@@ -22,28 +22,28 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="font-bold mb-1.5 justify-between">Graph Settings</div>
 
             {/* zoom slider */}
-            <div className="flex-1 mx-3 mb-3">
-               <div className="text-center mb-1.5">Zoom</div>
-               <div>
+            <div className="flex-1 m-1 mb-3">
+               <div className="mb-1.5">Zoom</div>
+               <div className="flex items-center">
                   <input
-                     type="range"
-                     min="0"
-                     max="1000"
-                     value={zoom}
-                     className="w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
-                     onChange={(e) => {
-                        setZoom(parseInt(e.target.value));
-                     }}
-                  />
-                  <input
-                     value={`${zoom / 10.0}x`}
-                     className="ml-2 text-center w-1/3 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none"
+                     value={`${zoom}x`}
+                     className="text-center w-1/3 h-5 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none"
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
                      autoCorrect="off"
                      spellCheck="false"
                      disabled
+                  />
+                  <input
+                     type="range"
+                     min="0"
+                     max="100"
+                     value={zoom}
+                     className="ml-3 w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
+                     onChange={(e) => {
+                        setZoom(parseInt(e.target.value));
+                     }}
                   />
                </div>
             </div>
@@ -71,8 +71,10 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   `}
             </style>
 
+            <hr className="border-slate-400" />
+
             {/* grid toggle */}
-            <div className="flex mb-3">
+            <div className="flex mb-3 mt-3">
                <input
                   type="checkbox"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
