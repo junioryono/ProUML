@@ -1,6 +1,7 @@
 import { getSession, getDiagram } from "@/lib/auth-fetch";
 import { GetServerSideProps } from "next";
 import { Diagram, User } from "types";
+import Link from "next/link";
 
 import DiagramLayout from "@/components/diagram/layout";
 
@@ -10,7 +11,7 @@ export default function DiagramPage({ user, diagram }: { user: User; diagram: Di
          <div>
             <div>Diagram not found</div>
             <div>
-               Go back to <a href="/dashboard/diagrams">Dashboard</a>
+               Go back to <Link href="/dashboard/diagrams">Dashboard</Link>
             </div>
          </div>
       );
