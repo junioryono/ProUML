@@ -9,8 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
-import { useAuth } from "@/lib/auth-client";
 import { LoginProviders } from "./login-providers";
+import { register as registerAuth } from "@/lib/auth-fetch";
 
 interface RegisterFormProps extends HTMLAttributes<HTMLDivElement> {}
 
@@ -33,13 +33,6 @@ export default function RegisterForm({ className, ...props }: RegisterFormProps)
    const [isLoading, setIsLoading] = useState<boolean>(false);
    const searchParams = useSearchParams();
    const router = useRouter();
-   const { register: registerAuth, user } = useAuth();
-
-   useEffect(() => {
-      if (user) {
-         router.push(searchParams.get("redirect") || "/dashboard/diagrams");
-      }
-   }, [user]);
 
    async function onSubmit(data: FormData) {
       setIsLoading(true);

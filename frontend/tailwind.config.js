@@ -4,7 +4,7 @@ const plugin = require("tailwindcss/plugin");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./ui/**/*.{ts,tsx}", "./content/**/*.{md,mdx}"],
+   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./ui/**/*.{ts,tsx}", "./content/**/*.{md,mdx}"],
    theme: {
       container: {
          center: true,

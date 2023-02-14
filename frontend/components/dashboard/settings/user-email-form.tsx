@@ -10,7 +10,7 @@ import { Card } from "@/ui/card";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import UserEmailFormSkeleton from "./user-email-form-skeleton";
-import { useAuth } from "@/lib/auth-client";
+import { User } from "types";
 
 const userEmailSchema = z.object({
    email: z.string().min(3).max(32),
@@ -18,9 +18,7 @@ const userEmailSchema = z.object({
 
 type FormData = z.infer<typeof userEmailSchema>;
 
-export default function UserEmailForm() {
-   const { user, setUser } = useAuth();
-
+export default function UserEmailForm({ user }: { user: User }) {
    const {
       handleSubmit,
       register,
@@ -56,7 +54,8 @@ export default function UserEmailForm() {
          .then((res) => res.json())
          .then((res) => {
             if (res && res.success === true) {
-               setUser((prev) => ({ ...prev, email: data.email }));
+               // TODO
+               // setUser((prev) => ({ ...prev, email: data.email }));
                return true;
             }
 

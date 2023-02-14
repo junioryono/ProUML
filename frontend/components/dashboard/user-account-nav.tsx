@@ -1,17 +1,15 @@
-"use client";
-
 import Link from "next/link";
 
 import { useState } from "react";
-import { useAuth } from "@/lib/auth-client";
 import { DropdownMenu } from "@/ui/dropdown";
 import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/components/icons";
+import { User } from "types";
+import { logout } from "@/lib/auth-fetch";
 
-export default function UserAccountNav({ className }: { className?: string }) {
+export default function UserAccountNav({ user, className }: { user: User; className?: string }) {
    const router = useRouter();
-   const { logout, user } = useAuth();
    const [isLoading, setIsLoading] = useState<boolean>(false);
 
    if (user === undefined) {

@@ -8,9 +8,8 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, Transition } from "@headlessui/react";
 import { toast } from "@/ui/toast";
-import { useAuth } from "@/lib/auth-client";
 import { Icons } from "@/components/icons";
-import { Diagram } from "types";
+import { Diagram, User } from "types";
 
 const userAddSchema = z.object({
    email: z.string().min(8),
@@ -18,8 +17,7 @@ const userAddSchema = z.object({
 
 type FormData = z.infer<typeof userAddSchema>;
 
-export default function ShareButton({ diagram }: { diagram: Diagram }) {
-   const { user, setUser } = useAuth();
+export default function ShareButton({ user, diagram }: { user: User; diagram: Diagram }) {
    const {
       handleSubmit,
       register,

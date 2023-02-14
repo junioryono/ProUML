@@ -41,10 +41,6 @@ export default function ProjectItemOptions({
       }
    }, [assignProjectOpen]);
 
-   useEffect(() => {
-      console.log("project", project);
-   }, [project]);
-
    return (
       <Menu
          as="div"
