@@ -123,7 +123,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             </div>
 
             {/* the current color hex code of the cell */}
-            <div className="mt-1  w-full flex">
+            <div className="mt-1 w-full flex">
                <div
                   style={{ color: `#${borderColor}` }}
                   className={"ml-10 mr-1 border border-black rounded-md h-6.1 w-7 bg-current"}
@@ -478,23 +478,26 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
                <style>
                   {`
-                  input[type="range"]::-webkit-slider-thumb {
-                     height: 1.2rem;
-                     width: 1.2rem;
-                     background-color: #fff;
-                     border: 1px solid black;
-                     border-radius: 1.5rem;
-                     cursor: pointer;
-                     -webkit-appearance: none;
+                     input[type="range"]::-webkit-slider-thumb {
+                        height: 1.2rem;
+                        width: 1.2rem;
+                        background-color: #fff;
+                        border: 1px solid #475569;
+                        border-radius: 1.5rem;
+                        cursor: pointer;
+                        -webkit-appearance: none;
 
-                     transform: scale(1);
-                     transition: transform 0.2s ease-in-out;
-                  }
+                        transform: scale(1);
+                        transition: transform 0.2s ease-in-out;
 
-                  input[type="range"]:hover::-webkit-slider-thumb {
-                     transform: scale(1.5);
-                  }
-               `}
+                        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+                     }
+
+                     input[type="range"]:hover::-webkit-slider-thumb {
+                        transform: scale(1.5);
+                        box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
+                     }
+                  `}
                </style>
             </div>
          </div>
