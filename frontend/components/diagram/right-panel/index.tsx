@@ -6,7 +6,7 @@ import GraphPanel from "./graph";
 import NodesPanel from "./nodes";
 import EdgesPanel from "./edges";
 
-// background color options
+// light color options (for backgrounds)
 export const lightColorOptions = [
    "FFFFFF", // white
    "F8B4D9", // pink-300
@@ -20,7 +20,7 @@ export const lightColorOptions = [
    "CABFFD", // purple-300
 ];
 
-// border color options
+// dark color options (for borders)
 export const darkColorOptions = [
    "000000", // black
    "046C4E", // green
