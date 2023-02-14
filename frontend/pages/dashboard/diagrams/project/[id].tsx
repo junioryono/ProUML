@@ -77,6 +77,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       };
    }
 
+   if (userRequest.cookie) {
+      ctx.res.setHeader("set-cookie", userRequest.cookie);
+   } else if (projectRequest.cookie) {
+      ctx.res.setHeader("set-cookie", projectRequest.cookie);
+   }
+
    return {
       props: {
          user: userRequest.response || null,

@@ -1,5 +1,3 @@
-"use client";
-
 import type X6Type from "@antv/x6";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { MutableRefObject, useRef } from "react";

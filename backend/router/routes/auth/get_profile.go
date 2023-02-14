@@ -8,7 +8,8 @@ import (
 
 func GetProfile(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		claims, err := sdkP.Postgres.Auth.Client.GetUser(fbCtx.Cookies(IdTokenCookieName))
+		idToken := fbCtx.Cookies(IdTokenCookieName, fbCtx.Locals("idToken").(string))
+		claims, err := sdkP.Postgres.Auth.Client.GetUser(idToken)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

@@ -8,8 +8,8 @@ import (
 
 func ResendVerificationEmail(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Resend verification email
-		if err := sdkP.Postgres.Auth.Client.ResendEmailVerificationEmail(fbCtx.Cookies(IdTokenCookieName)); err != nil {
+		idToken := fbCtx.Cookies(IdTokenCookieName, fbCtx.Locals("idToken").(string))
+		if err := sdkP.Postgres.Auth.Client.ResendEmailVerificationEmail(idToken); err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
 				Reason:  err.Error(),

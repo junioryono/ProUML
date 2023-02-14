@@ -24,7 +24,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
    const id = ctx.params.id as string;
    const cookies = ctx.req.headers.cookie;
 
-   const [userRequest, diagramsRequest] = await Promise.all([
+   const [userRequest, diagramRequest] = await Promise.all([
       getSession({
          headers: {
             cookie: cookies,
@@ -46,10 +46,16 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       };
    }
 
+   if (userRequest.cookie) {
+      ctx.res.setHeader("set-cookie", userRequest.cookie);
+   } else if (diagramRequest.cookie) {
+      ctx.res.setHeader("set-cookie", diagramRequest.cookie);
+   }
+
    return {
       props: {
          user: userRequest.response || null,
-         diagram: diagramsRequest.response || null,
+         diagram: diagramRequest.response || null,
       },
    };
 };

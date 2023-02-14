@@ -1,16 +1,13 @@
-"use client";
-
-import * as React from "react";
-import Link from "next/link";
-
-import { MainNavItem } from "types";
-import { cn } from "@/lib/utils";
 import { useLockBody } from "@/hooks/use-lock-body";
+import { MainNavItem } from "types";
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface MobileNavProps {
    hide: () => void;
    items: MainNavItem[];
-   children?: React.ReactNode;
+   children?: ReactNode;
 }
 
 export default function MobileNav({ items, children, hide }: MobileNavProps) {

@@ -6,6 +6,7 @@ type APIResponse<T> = {
    success: boolean;
    response?: T;
    reason?: string;
+   cookie?: string;
 };
 
 export type NavItem = {

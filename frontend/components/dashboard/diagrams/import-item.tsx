@@ -1,5 +1,3 @@
-"use client";
-
 import { useRouter } from "next/navigation";
 import { createDiagram } from "@/lib/auth-fetch";
 import { useState } from "react";

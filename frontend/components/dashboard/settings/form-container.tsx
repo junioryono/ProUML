@@ -1,5 +1,3 @@
-"use client";
-
 import { User } from "types";
 
 type ComponentWithSkeleton = React.ComponentType<{ user: User }>;

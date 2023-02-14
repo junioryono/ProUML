@@ -2,14 +2,12 @@ package diagramUsers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/types"
 )
 
 func Get(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		// Get the diagram id from query string
 		diagramId := fbCtx.Query("id")
 
 		if diagramId == "" {
@@ -20,7 +18,7 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Get all users that have access to the diagram
-		users, err := sdkP.Postgres.Diagram.Users.Get(diagramId, fbCtx.Cookies(auth.IdTokenCookieName))
+		users, err := sdkP.Postgres.Diagram.Users.Get(diagramId, fbCtx.Locals("idToken").(string))
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

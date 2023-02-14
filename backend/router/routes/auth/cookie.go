@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
 )
 
 var (
@@ -14,7 +13,6 @@ var (
 	IdTokenCookieName      = "id_token"
 	RefreshTokenCookieName = "refresh_token"
 	OAuthStateCookieName   = "oauthstate"
-	oauthStateTime         = time.Now().Add(365 * 24 * time.Hour)
 )
 
 func SetCookie(fbCtx *fiber.Ctx, name, value string) error {
@@ -25,11 +23,11 @@ func SetCookie(fbCtx *fiber.Ctx, name, value string) error {
 	}
 
 	if name == IdTokenCookieName {
-		cookie.Expires = jwk.IdTokenTime
+		cookie.Expires = time.Now().Add(time.Hour * 10)
 	} else if name == RefreshTokenCookieName {
-		cookie.Expires = jwk.RefreshTokenTime
+		cookie.Expires = time.Now().Add(time.Hour * 24 * 365)
 	} else if name == OAuthStateCookieName {
-		cookie.Expires = oauthStateTime
+		cookie.Expires = time.Now().Add(365 * 24 * time.Hour)
 	} else {
 		return errors.New("invalid cookie name")
 	}

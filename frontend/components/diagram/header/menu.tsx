@@ -1,5 +1,3 @@
-"use client";
-
 import type X6Type from "@antv/x6";
 
 import { MutableRefObject, useEffect, useRef, useState } from "react";
@@ -54,7 +52,7 @@ export default function Menu({ graph }: { graph: MutableRefObject<X6Type.Graph> 
             </svg>
          </DropdownMenu.Trigger>
          <DropdownMenu.Portal>
-            <DropdownMenu.Content className="mt-1 ml-2 py-1 md:w-48 rounded-none bg-diagram-menu" align="end">
+            <DropdownMenu.Content className="mt-1 ml-2 py-1 md:w-48 rounded-none bg-diagram-menu border-0" align="end">
                <Link href="/dashboard/diagrams">
                   <DropdownMenu.Item className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white">
                      Back to dashboard

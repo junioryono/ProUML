@@ -1,9 +1,10 @@
-import MainNav from "@/components/main-nav";
-import SiteFooter from "@/components/site-footer";
-import UserAccountNav from "@/components/dashboard/user-account-nav";
 import { User } from "types";
 
-export default function MarketingLayout({ user, children }: { user: User; children: React.ReactNode }) {
+import UserAccountNav from "@/components/dashboard/user-account-nav";
+import SiteFooter from "@/components/site-footer";
+import MainNav from "@/components/main-nav";
+
+export default function HomeLayout({ user, children }: { user: User; children: React.ReactNode }) {
    return (
       <div className="flex min-h-screen flex-col">
          <header className="container sticky top-0 z-10 bg-white">
