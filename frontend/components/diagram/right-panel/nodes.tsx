@@ -522,11 +522,12 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </style>
             </div>
          </div>
-         <hr className="border-slate-400" />
 
          {/* only show the size and position sections if multiple cells are selected */}
          {!multipleCellsSelected && (
             <>
+               <hr className="border-slate-400" />
+
                {/* ---------------------- POSITION SECTION ---------------------- */}
                <div className="flex flex-col pt-3 pb-3">
                   <div className="flex justify-between">
