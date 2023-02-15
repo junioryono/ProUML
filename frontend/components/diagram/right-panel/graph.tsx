@@ -39,7 +39,7 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                <div className="flex items-center">
                   <input
                      value={`${zoom}x`}
-                     className="text-center w-16 h-5 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none"
+                     className="text-center w-16 h-5 rounded-md border bg-slate-200 border-slate-300 py-3 px-1 text-md focus:outline-none"
                      type="text"
                      autoCapitalize="none"
                      autoComplete="both"
@@ -49,8 +49,8 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   />
                   <input
                      type="range"
-                     min="0"
-                     max="1000"
+                     min="1"
+                     max="1600"
                      value={zoom}
                      className="ml-3 w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
                      onChange={(e) => {

@@ -449,7 +449,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
             <div className="items-center gap-3">
                {/* x location input */}
-               <div className="flex mb-1">
+               <div className="flex items-center mb-1">
                   <div className="w-1/7">X</div>
                   <input
                      value="20"
@@ -468,7 +468,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
 
                {/* y location input */}
-               <div className="flex">
+               <div className="flex items-center">
                   <div className="w-1/7">Y</div>
                   <input
                      value="10"
@@ -489,11 +489,12 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="flex mt-1.5">
                <input
                   type="checkbox"
+                  id="position-lock"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                   onChange={() => setPositionLocked(!positionLocked)}
                   checked={positionLocked}
                />
-               <label>Lock position</label>
+               <label htmlFor="position-lock">Lock position</label>
             </div>
          </div>
          <hr className="border-slate-400" />
@@ -503,7 +504,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="font-bold mb-1.5 justify-between">Sizing</div>
             <div className="items-center gap-3">
                {/* width input */}
-               <div className="flex mb-1">
+               <div className="flex items-center mb-1">
                   <div className="w-1/4">Width</div>
                   <input
                      value="20"
@@ -518,7 +519,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
 
                {/* height input */}
-               <div className="flex">
+               <div className="flex items-center">
                   <div className="w-1/4">Height</div>
                   <input
                      value="10"
@@ -531,14 +532,16 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      disabled={sizeLocked}
                   />
                </div>
+
                <div className="flex mt-1.5">
                   <input
+                     id="size-lock"
                      type="checkbox"
                      className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                      onChange={() => setSizeLocked(!sizeLocked)}
                      checked={sizeLocked}
                   />
-                  <label>Lock size</label>
+                  <label htmlFor="size-lock">Lock size</label>
                </div>
             </div>
          </div>
