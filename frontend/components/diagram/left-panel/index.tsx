@@ -98,7 +98,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      </span>
                   </div>
                </div>
-
+            
                {diagram.project.diagrams.map((pDiagram) => {
                   return (
                      <div
@@ -128,7 +128,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          )}
 
          <div className="flex flex-col pt-2">
-            <div className="flex justify-between">
+            <div className="flex justify-between px-2 mt-2">
                <div className="font-bold">Nodes</div>
 
                <div
@@ -219,7 +219,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          </div>
 
          <div className="flex flex-col">
-            <div className="flex justify-between">
+            <div className="flex justify-between px-2 mt-2">
                <div className="font-bold">Edges</div>
                <div className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center">
                   <span
