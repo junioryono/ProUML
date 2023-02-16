@@ -98,7 +98,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      </span>
                   </div>
                </div>
-            
+
                {diagram.project.diagrams.map((pDiagram) => {
                   return (
                      <div
@@ -126,6 +126,8 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                })}
             </>
          )}
+
+         {/* <hr className="border-slate-400" /> */}
 
          <div className="flex flex-col pt-2">
             <div className="flex justify-between px-2 mt-2">
@@ -201,17 +203,23 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                const isSelected = selectedCells.includes(node);
 
                return (
-                  <div key={nodeId} className="flex items-center gap-3 pb-2 pl-2">
-                     {isSelected && (
-                        <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                           <path
-                              d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                              fillRule="evenodd"
-                              fillOpacity="1"
-                              stroke="none"
-                           />
-                        </svg>
-                     )}
+                  <div key={nodeId} className="flex items-center hover:bg-slate-300 cursor-pointer gap-3 py-1 pl-4">
+                     {/* onClick=
+                     {() => {
+                        router.push(`/dashboard/diagrams/node/${nodeId}`);
+                     }} */}
+                     <div className="w-3">
+                        {isSelected && (
+                           <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                 d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
+                                 fillRule="evenodd"
+                                 fillOpacity="1"
+                                 stroke="none"
+                              />
+                           </svg>
+                        )}
+                     </div>
                      <div>{nodeName}</div>
                   </div>
                );
@@ -238,15 +246,17 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                   </span>
                </div>
             </div>
-            <div className="flex items-center gap-3 pl-2">
-               <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                     d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                     fillRule="evenodd"
-                     fillOpacity="1"
-                     stroke="none"
-                  />
-               </svg>
+            <div className="flex items-center gap-3 pl-4 hover:bg-slate-300 cursor-pointer p-1">
+               <div className="w-3">
+                  <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+                     <path
+                        d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
+                        fillRule="evenodd"
+                        fillOpacity="1"
+                        stroke="none"
+                     />
+                  </svg>
+               </div>
                <div>Edge 1</div>
             </div>
          </div>
