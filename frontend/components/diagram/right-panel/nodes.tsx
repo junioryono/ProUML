@@ -679,6 +679,10 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
 
                            // set the name of the node
                            setNodeName(e.target.value);
+
+                           // set the name of the node in the cell
+                           if (e.target.value !== "") cell.prop("name", e.target.value);
+                           else cell.prop("name", "Untitled");
                         }}
                         // if the input is "Untitled" highlight the entire text
                         onFocus={(e) => {
