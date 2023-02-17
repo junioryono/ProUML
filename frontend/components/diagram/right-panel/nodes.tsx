@@ -700,19 +700,18 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                            <div
                               className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                               onClick={() => {
-                                 // if there is no attribues, create an attributes section in the cell props
-                                 if (!cell.prop("attributes")) {
-                                    cell.setProp("attributes", []);
-                                 }
-
-                                 // add a new attribute to the cell props
-                                 cell.setProp("attributes", {
-                                    ...cell.prop("attributes"),
-                                    [`${nodeName}Attribute`]: {
-                                       name: `${nodeName}Attribute`,
-                                       value: "",
-                                    },
-                                 });
+                                 // // if there is no attribues, create an attributes section in the cell props
+                                 // if (!cell.prop("attributes")) {
+                                 //    cell.setProp("attributes", []);
+                                 // }
+                                 // // add a new attribute to the cell props
+                                 // cell.setProp("attributes", {
+                                 //    ...cell.prop("attributes"),
+                                 //    [`${nodeName}Attribute`]: {
+                                 //       name: `${nodeName}Attribute`,
+                                 //       value: "",
+                                 //    },
+                                 // });
                               }}
                            >
                               <span
@@ -750,19 +749,18 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                            <div
                               className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                               onClick={() => {
-                                 // if there is no methods, create a methods section in the cell props
-                                 if (!cell.prop("methods")) {
-                                    cell.setProp("methods", []);
-                                 }
-
-                                 // add a new method to the cell props
-                                 cell.setProp("methods", {
-                                    ...cell.prop("methods"),
-                                    [`${nodeName}Method`]: {
-                                       name: `${nodeName}Method`,
-                                       value: "",
-                                    },
-                                 });
+                                 // // if there is no methods, create a methods section in the cell props
+                                 // if (!cell.prop("methods")) {
+                                 //    cell.setProp("methods", []);
+                                 // }
+                                 // // add a new method to the cell props
+                                 // cell.setProp("methods", {
+                                 //    ...cell.prop("methods"),
+                                 //    [`${nodeName}Method`]: {
+                                 //       name: `${nodeName}Method`,
+                                 //       value: "",
+                                 //    },
+                                 // });
                               }}
                            >
                               <span
