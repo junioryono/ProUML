@@ -658,14 +658,15 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
       <>
          <div className="flex flex-col pb-3">
             <div className="flex justify-between">
-               <div className="font-bold mb-1.5">"{nodeName}" Node Settings</div>
+               {/* show the nodeName if not empty but if empty, show "Untitled" */}
+               <div className="font-bold mb-1.5">"{nodeName !== "" ? nodeName : "Untitled"}" Node Settings</div>
             </div>
 
             {/*  */}
             <div className="flex w-56 items-center gap-2">
                <div className="items-center gap-3">
                   {/* node name input */}
-                  <div className="flex items-center mb-2">
+                  <div className="flex items-center mb-3">
                      <div className="w-1/4">Name</div>
                      <input
                         value={nodeName}
@@ -676,22 +677,31 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                            const cell = graph.current?.getSelectedCells()[0];
                            console.log(cell.prop());
 
-                           // if the input is empty, set the name to "Untitled"
+                           // set the name of the node
+                           setNodeName(e.target.value);
+
+                           // set the name of the node in the cell
+                           if (e.target.value !== "") cell.prop("name", e.target.value);
+                           else cell.prop("name", "Untitled");
+                        }}
+                        // if the input is "Untitled" highlight the entire text
+                        onFocus={(e) => {
+                           if (e.target.value === "Untitled") {
+                              e.target.select();
+                           }
+                        }}
+                        // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                        onBlur={(e) => {
                            if (e.target.value === "") {
                               setNodeName("Untitled");
-                              cell.setProp("name", "Untitled");
-                           }
-                           // otherwise, set the name to the input value
-                           else {
-                              setNodeName(e.target.value);
-                              cell.setProp("name", e.target.value);
+                              cell.prop("name", "Untitled");
                            }
                         }}
                      />
                   </div>
 
                   {/* node attributes  */}
-                  <div className="flex items-center mb-2">
+                  <div className="flex flex-col mb-3">
                      <div className="flex justify-between">
                         <div className="font-bold">Attributes</div>
 
@@ -700,19 +710,18 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                            <div
                               className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                               onClick={() => {
-                                 // if there is no attribues, create an attributes section in the cell props
-                                 if (!cell.prop("attributes")) {
-                                    cell.setProp("attributes", []);
-                                 }
-
-                                 // add a new attribute to the cell props
-                                 cell.setProp("attributes", {
-                                    ...cell.prop("attributes"),
-                                    [`${nodeName}Attribute`]: {
-                                       name: `${nodeName}Attribute`,
-                                       value: "",
-                                    },
-                                 });
+                                 // // if there is no attribues, create an attributes section in the cell props
+                                 // if (!cell.prop("attributes")) {
+                                 //    cell.setProp("attributes", []);
+                                 // }
+                                 // // add a new attribute to the cell props
+                                 // cell.setProp("attributes", {
+                                 //    ...cell.prop("attributes"),
+                                 //    [`${nodeName}Attribute`]: {
+                                 //       name: `${nodeName}Attribute`,
+                                 //       value: "",
+                                 //    },
+                                 // });
                               }}
                            >
                               <span
@@ -741,7 +750,7 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                   </div>
 
                   {/* node methods */}
-                  <div className="flex items-center mb-2">
+                  <div className="flex flex-col mb-2">
                      <div className="flex justify-between">
                         <div className="font-bold">Methods</div>
 
@@ -750,19 +759,18 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                            <div
                               className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                               onClick={() => {
-                                 // if there is no methods, create a methods section in the cell props
-                                 if (!cell.prop("methods")) {
-                                    cell.setProp("methods", []);
-                                 }
-
-                                 // add a new method to the cell props
-                                 cell.setProp("methods", {
-                                    ...cell.prop("methods"),
-                                    [`${nodeName}Method`]: {
-                                       name: `${nodeName}Method`,
-                                       value: "",
-                                    },
-                                 });
+                                 // // if there is no methods, create a methods section in the cell props
+                                 // if (!cell.prop("methods")) {
+                                 //    cell.setProp("methods", []);
+                                 // }
+                                 // // add a new method to the cell props
+                                 // cell.setProp("methods", {
+                                 //    ...cell.prop("methods"),
+                                 //    [`${nodeName}Method`]: {
+                                 //       name: `${nodeName}Method`,
+                                 //       value: "",
+                                 //    },
+                                 // });
                               }}
                            >
                               <span
