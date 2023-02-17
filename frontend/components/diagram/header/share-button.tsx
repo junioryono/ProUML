@@ -130,8 +130,28 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                  </div>
                               </div>
 
-                              <div className="bg-white px-6 pt-2 pb-4 ml-4 flex flex-col">
-                                 <div>Restricted</div>
+                              <div className="bg-white px-6 pt-2 pb-4 ml-4 mr-4 flex flex-row hover:bg-slate-300 rounded-md">
+                                 <svg
+                                    focusable="false"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    className="rounded-md border-b-gray-400 mt-1"
+                                 >
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path>
+                                 </svg>
+                                 <div className="hover:bg-slate-400 flex flex-row cursor-pointer rounded-md px-2">
+                                    Restricted
+                                    <svg
+                                       width="24"
+                                       height="24"
+                                       viewBox="0 0 24 24"
+                                       focusable="false"
+                                       className="Q6yead QJZfhe mig17c "
+                                    >
+                                       <path d="M7 10l5 5 5-5H7z"></path>
+                                    </svg>
+                                 </div>
                               </div>
 
                               <div className="bg-gray-50 px-4 py-3 flex flex-row sm:flex-row-reverse sm:px-6">
@@ -142,6 +162,17 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                     ref={cancelButtonRef}
                                  >
                                     Done
+                                 </button>
+                                 <button
+                                    type="button"
+                                    className="mr-auto w-fit ml-3 sm:ml-0 relative inline-flex h-9 items-center rounded-md border px-4 py-2 text-sm font-medium text-blue-500 hover:bg-blue-50 focus:outline-none"
+                                    //onClick={() => setOpen(false)}
+                                    ref={cancelButtonRef}
+                                 >
+                                    <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="pr-2">
+                                       <path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8z"></path>
+                                    </svg>
+                                    Copy Link
                                  </button>
                               </div>
                            </Dialog.Panel>
