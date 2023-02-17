@@ -21,29 +21,21 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    const [positionLocked, setPositionLocked] = useState(false); // pos initially not locked
    const [sizeLocked, setSizeLocked] = useState(false); // size initially not locked
 
-   // for the height of a cell
-   const [height, setHeight] = useState(0);
-   // for the width of a cell
-   const [width, setWidth] = useState(0);
+   // the selected cells
+   const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
 
-   // -----------------------------------------------------------------------------
-
-   // if there are multiple cells selected
-   const [multipleCellsSelected, setMultipleCellsSelected] = useState(false);
-
-   // if the selected cell is a group, set multipleCellsSelected to true
+   // when selecting cells, update the selected cells
    useEffect(() => {
-      if (graph.current?.getSelectedCells().length > 1) {
-         setMultipleCellsSelected(true);
-      } else {
-         setMultipleCellsSelected(false);
-      }
-   }, [graph.current?.getSelectedCells()]);
+      setSelectedCells(graph.current?.getSelectedCells());
+   }, [graph]);
 
    return (
       <>
+         {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
+         {selectedCells.length === 1 && <NodeSettings cell={selectedCells[0]} graph={graph} />}
+
          {/* ---------------------- BACKGROUND COLOR SECTION ---------------------- */}
-         <div className="flex flex-col pb-3">
+         <div className="flex flex-col pt-3 pb-3">
             <div className="flex justify-between">
                <div className="font-bold">Background Color</div>
             </div>
@@ -64,10 +56,10 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                               if (color !== backgroundColor) {
                                  setBackgroundColor(color);
 
-                                 // set the background color of the selected cell
-                                 graph.current
-                                    .getSelectedCells()
-                                    .forEach((cell) => cell.setAttrs({ body: { fill: `#${color}` } }));
+                                 // change the background color of all selected cells
+                                 selectedCells.forEach((node) => {
+                                    node.setProp("attrs/body/fill", `#${color}`);
+                                 });
                               }
                            }}
                         >
@@ -102,7 +94,6 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             </div>
          </div>
          <hr className="border-slate-400" />
-
          {/* ---------------------- BORDER COLOR SECTION ---------------------- */}
          <div className="flex flex-col pt-3 pb-3">
             <div className="flex justify-between">
@@ -123,6 +114,11 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                            onClick={() => {
                               if (color !== borderColor) {
                                  setBorderColor(color);
+
+                                 // edit the border color of the selected node(s), which is a custom shape
+                                 graph.current?.getSelectedCells().forEach((node) => {
+                                    node.attr("body/stroke", `#${color}`);
+                                 });
                               }
                            }}
                         >
@@ -162,10 +158,8 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             </div>
          </div>
          <hr className="border-slate-400" />
-
          {/*---------------------- BORDER WIDTH SECTION ---------------------- */}
          {/* line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
-
          <div className="flex flex-col pt-3 pb-3">
             <div className="flex justify-between">
                <div className="font-bold mb-1">Border Width</div>
@@ -175,7 +169,11 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125 
         ${borderWidth !== 1 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                  onClick={() => setBorderWidth(1)}
+                  onClick={() => {
+                     setBorderWidth(1);
+
+                     // change the border width of the selected cell(s)
+                  }}
                >
                   <svg
                      viewBox="0 0 17 17"
@@ -323,7 +321,6 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             </div>
          </div>
          <hr className="border-slate-400" />
-
          {/* ---------------------- BORDER STYLE SECTION ---------------------- */}
          <div className="flex flex-col pt-3">
             <div className="flex justify-between">
@@ -522,9 +519,8 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </style>
             </div>
          </div>
-
          {/* only show the size and position sections if multiple cells are selected */}
-         {!multipleCellsSelected && (
+         {selectedCells.length === 1 && (
             <>
                <hr className="border-slate-400" />
 
@@ -634,6 +630,171 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
             </>
          )}
+      </>
+   );
+}
+
+// if only one node is selected, show the node settings
+function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObject<X6Type.Graph> }) {
+   // for the name of the node
+   const [nodeName, setNodeName] = useState("");
+   // for the height of a cell
+   const [height, setHeight] = useState(0);
+   // for the width of a cell
+   const [width, setWidth] = useState(0);
+
+   useEffect(() => {
+      const props = cell.prop();
+      console.log("props", props);
+      setNodeName(props.name);
+
+      // // set the height of the node
+      // setHeight(cell.size().height);
+      // // set the width of the node
+      // setWidth(cell.size().width);
+   }, [cell]);
+
+   return (
+      <>
+         <div className="flex flex-col pb-3">
+            <div className="flex justify-between">
+               <div className="font-bold mb-1.5">"{nodeName}" Node Settings</div>
+            </div>
+
+            {/*  */}
+            <div className="flex w-56 items-center gap-2">
+               <div className="items-center gap-3">
+                  {/* node name input */}
+                  <div className="flex items-center mb-2">
+                     <div className="w-1/4">Name</div>
+                     <input
+                        value={nodeName}
+                        className={`w-full block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                        }`}
+                        type="text"
+                        onChange={(e) => {
+                           const cell = graph.current?.getSelectedCells()[0];
+                           console.log(cell.prop());
+
+                           // if the input is empty, set the name to "Untitled"
+                           if (e.target.value === "") {
+                              setNodeName("Untitled");
+                              cell.setProp("name", "Untitled");
+                           }
+                           // otherwise, set the name to the input value
+                           else {
+                              setNodeName(e.target.value);
+                              cell.setProp("name", e.target.value);
+                           }
+                        }}
+                     />
+                  </div>
+
+                  {/* node attributes  */}
+                  <div className="flex items-center mb-2">
+                     <div className="flex justify-between">
+                        <div className="font-bold">Attributes</div>
+
+                        {/* add button to add a new attribute to the selected node */}
+                        <div className="flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
+                           <div
+                              className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
+                              onClick={() => {
+                                 // if there is no attribues, create an attributes section in the cell props
+                                 if (!cell.prop("attributes")) {
+                                    cell.setProp("attributes", []);
+                                 }
+
+                                 // add a new attribute to the cell props
+                                 cell.setProp("attributes", {
+                                    ...cell.prop("attributes"),
+                                    [`${nodeName}Attribute`]: {
+                                       name: `${nodeName}Attribute`,
+                                       value: "",
+                                    },
+                                 });
+                              }}
+                           >
+                              <span
+                                 role="button"
+                                 className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                              >
+                                 <svg
+                                    className="svg"
+                                    width="10"
+                                    height="10"
+                                    viewBox="0 0 12 12"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                 >
+                                    <path
+                                       d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
+                                       fillRule="nonzero"
+                                       fillOpacity="1"
+                                       fill="#000"
+                                       stroke="none"
+                                    />
+                                 </svg>
+                              </span>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* node methods */}
+                  <div className="flex items-center mb-2">
+                     <div className="flex justify-between">
+                        <div className="font-bold">Methods</div>
+
+                        {/* add button to add a new method to the selected node */}
+                        <div className="flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
+                           <div
+                              className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
+                              onClick={() => {
+                                 // if there is no methods, create a methods section in the cell props
+                                 if (!cell.prop("methods")) {
+                                    cell.setProp("methods", []);
+                                 }
+
+                                 // add a new method to the cell props
+                                 cell.setProp("methods", {
+                                    ...cell.prop("methods"),
+                                    [`${nodeName}Method`]: {
+                                       name: `${nodeName}Method`,
+                                       value: "",
+                                    },
+                                 });
+                              }}
+                           >
+                              <span
+                                 role="button"
+                                 className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                              >
+                                 <svg
+                                    className="svg"
+                                    width="10"
+                                    height="10"
+                                    viewBox="0 0 12 12"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                 >
+                                    <path
+                                       d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
+                                       fillRule="nonzero"
+                                       fillOpacity="1"
+                                       fill="#000"
+                                       stroke="none"
+                                    />
+                                 </svg>
+                              </span>
+                           </div>
+
+                           {/* if there are existing methods in the selected node, map them out with options to remove and/or edit the parameters, name, return type of these methods */}
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <hr className="border-slate-400" />
       </>
    );
 }

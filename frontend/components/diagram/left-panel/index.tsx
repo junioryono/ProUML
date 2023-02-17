@@ -39,6 +39,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          setSelectedCells(graph.current?.getSelectedCells());
       });
 
+      // remove all event listeners
       const graphRef = graph.current;
       return () => {
          graphRef?.off("node:added");
