@@ -997,6 +997,10 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                         </div>
                      </div>
                   </div>
+
+                  {/* ---------------------- NODE SIZING SECTION ---------------------- */}
+
+                  {/* ---------------------- NODE POSITION SECTION ---------------------- */}
                </div>
             </div>
          </div>
