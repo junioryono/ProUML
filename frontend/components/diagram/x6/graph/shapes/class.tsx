@@ -71,16 +71,7 @@ function ShapeClass({ node }: { node?: Node }) {
                }}
             >
                {variables.map((variable, index) => (
-                  <div key={index}>
-                     {variable.accessModifier
-                        ? variable.accessModifier === "protected"
-                           ? "#"
-                           : variable.accessModifier === "private"
-                           ? "-"
-                           : "+"
-                        : "+"}
-                     {variable.name}: {variable.type}
-                  </div>
+                  <div key={index}>{variable.name}</div>
                ))}
             </div>
          )}
