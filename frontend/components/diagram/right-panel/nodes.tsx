@@ -26,16 +26,34 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
    // when selecting cells, update the selected cells
    useEffect(() => {
+      // set the selected cells to the current selected cells
       setSelectedCells(graph.current?.getSelectedCells());
+
+      // when a cell is selected, update the selected cells
+      graph.current?.on("cell:selected", () => {
+         setSelectedCells(graph.current?.getSelectedCells());
+      });
+
+      // when a cell is unselected, update the selected cells
+      graph.current?.on("cell:unselected", () => {
+         setSelectedCells(graph.current?.getSelectedCells());
+      });
+
+      // remove all event listeners
+      const graphRef = graph.current;
+      return () => {
+         graphRef?.off("cell:selected");
+         graphRef?.off("cell:unselected");
+      };
    }, [graph]);
 
    return (
       <>
          {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
-         {selectedCells.length === 1 && <NodeSettings cell={selectedCells[0]} graph={graph} />}
+         {selectedCells.length === 1 && <NodeSettings node={selectedCells[0] as X6Type.Node} graph={graph} />}
 
          {/* ---------------------- BACKGROUND COLOR SECTION ---------------------- */}
-         <div className="flex flex-col pt-3 pb-3">
+         <div className="flex flex-col pb-3">
             <div className="flex justify-between">
                <div className="font-bold">Background Color</div>
             </div>
@@ -635,24 +653,19 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 }
 
 // if only one node is selected, show the node settings
-function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObject<X6Type.Graph> }) {
+function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObject<X6Type.Graph> }) {
    // for the name of the node
    const [nodeName, setNodeName] = useState("");
    // for the height of a cell
-   const [height, setHeight] = useState(0);
+   const [height, setHeight] = useState(node.getProp("size")?.height || node.getProp("height"));
    // for the width of a cell
-   const [width, setWidth] = useState(0);
+   const [width, setWidth] = useState(node.getProp("size")?.width || node.getProp("width"));
 
    useEffect(() => {
-      const props = cell.prop();
+      const props = node.prop();
       console.log("props", props);
       setNodeName(props.name);
-
-      // // set the height of the node
-      // setHeight(cell.size().height);
-      // // set the width of the node
-      // setWidth(cell.size().width);
-   }, [cell]);
+   }, [node]);
 
    return (
       <>
@@ -674,15 +687,13 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                         }`}
                         type="text"
                         onChange={(e) => {
-                           const cell = graph.current?.getSelectedCells()[0];
-                           console.log(cell.prop());
+                           console.log(node.prop());
 
                            // set the name of the node
                            setNodeName(e.target.value);
 
-                           // set the name of the node in the cell
-                           if (e.target.value !== "") cell.prop("name", e.target.value);
-                           else cell.prop("name", "Untitled");
+                           if (e.target.value !== "") node.prop("name", e.target.value);
+                           else node.prop("name", "Untitled");
                         }}
                         // if the input is "Untitled" highlight the entire text
                         onFocus={(e) => {
@@ -694,7 +705,7 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                         onBlur={(e) => {
                            if (e.target.value === "") {
                               setNodeName("Untitled");
-                              cell.prop("name", "Untitled");
+                              node.prop("name", "Untitled");
                            }
                         }}
                      />
@@ -703,25 +714,30 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                   {/* node attributes  */}
                   <div className="flex flex-col mb-3">
                      <div className="flex justify-between">
-                        <div className="font-bold">Attributes</div>
+                        <div className="font-bold">Variables</div>
 
-                        {/* add button to add a new attribute to the selected node */}
+                        {/* add button to add a new variable to the selected node */}
                         <div className="flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
                            <div
                               className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                               onClick={() => {
-                                 // // if there is no attribues, create an attributes section in the cell props
-                                 // if (!cell.prop("attributes")) {
-                                 //    cell.setProp("attributes", []);
-                                 // }
-                                 // // add a new attribute to the cell props
-                                 // cell.setProp("attributes", {
-                                 //    ...cell.prop("attributes"),
-                                 //    [`${nodeName}Attribute`]: {
-                                 //       name: `${nodeName}Attribute`,
-                                 //       value: "",
-                                 //    },
-                                 // });
+                                 // get the selected cell and its variables
+                                 const variables = node.prop("variables");
+
+                                 // add this new variable to the array of variables
+                                 variables.push({
+                                    type: "String",
+                                    name: `variable${variables.length + 1}`,
+                                    value: "value",
+                                    accessModifier: "private",
+                                 });
+
+                                 node.prop("variables", variables);
+
+                                 const newHeight = height + 20;
+                                 node.resize(node.prop("size").width, newHeight);
+
+                                 setHeight(newHeight);
                               }}
                            >
                               <span
@@ -747,6 +763,148 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                            </div>
                         </div>
                      </div>
+                     {/* map out all the variables in the selected cell */}
+                     {node.prop("variables") &&
+                        node.prop("variables").map((variable: any, index: number) => (
+                           <div>
+                              {/* list all of the different variables on different lines */}
+                              <div className="flex gap-2">
+                                 <div className="flex mt-2">
+                                    {/* access modifier dropdown input */}
+                                    <div className="w-8 mr-1">
+                                       <div className="w-8 mr-1 relative">
+                                          <div className="absolute inset-y-0 left-0 flex items-center pl-2">
+                                             {variable.accessModifier === "private"
+                                                ? "-"
+                                                : variable.accessModifier === "public"
+                                                ? "+"
+                                                : variable.accessModifier === "protected"
+                                                ? "#"
+                                                : "-"}
+                                          </div>
+                                          <select
+                                             value={variable.accessModifier}
+                                             className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-1 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
+                                             onChange={(e) => {
+                                                // update the node's access modifier
+
+                                                node.prop("variables", variable);
+                                             }}
+                                          >
+                                             <option value="private">private</option>
+                                             <option value="public">public</option>
+                                             <option value="protected">protected</option>
+                                          </select>
+                                       </div>
+                                    </div>
+
+                                    {/* variable type text input */}
+                                    <div className="w-1/4 mr-1">
+                                       <input
+                                          value={variable.type}
+                                          className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-1 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                                          type="text"
+                                          onChange={(e) => {
+                                             // set the variable type in the node
+                                             variable.type = e.target.value;
+
+                                             // update the node
+                                             node.prop("variables", variable);
+                                          }}
+                                          // if the input is "Untitled" highlight the entire text
+                                          onFocus={(e) => {
+                                             if (e.target.value === "Untitled") {
+                                                e.target.select();
+                                             }
+                                          }}
+                                          // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                                          onBlur={(e) => {
+                                             if (e.target.value === "") {
+                                                setNodeName("Untitled");
+                                                node.prop("name", "Untitled");
+                                             }
+                                          }}
+                                       />
+                                    </div>
+
+                                    {/* variable name input */}
+                                    <input
+                                       value={variable.name}
+                                       className="w-24 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-1 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                                       type="text"
+                                       onChange={(e) => {
+                                          // set the name of the variable
+                                          variable.name = e.target.value;
+
+                                          if (e.target.value !== "") node.prop("variables", variable);
+                                          else node.prop("variables", variable);
+                                       }}
+                                       // if the input is "Untitled" highlight the entire text
+                                       onFocus={(e) => {
+                                          if (e.target.value === "Untitled") {
+                                             e.target.select();
+                                          }
+                                       }}
+                                       // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                                       onBlur={(e) => {
+                                          if (e.target.value === "") {
+                                             setNodeName("Untitled");
+                                             node.prop("variables", variable);
+                                          }
+                                       }}
+                                    />
+
+                                    {/* delete button to delete the variable */}
+                                    <div className="flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
+                                       <div
+                                          className="p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
+                                          onClick={() => {
+                                             // remove the variable from the node
+                                             const variables = node.prop("variables");
+                                             variables.splice(index, 1);
+                                             node.prop("variables", variables);
+
+                                             const newHeight = height - 20;
+                                             node.resize(node.prop("size").width, newHeight);
+
+                                             setHeight(newHeight);
+                                          }}
+                                       >
+                                          <span
+                                             role="button"
+                                             className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                                          >
+                                             {/* minus svg */}
+                                             <svg
+                                                width="20px"
+                                                height="20px"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                             >
+                                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                                <g
+                                                   id="SVGRepo_tracerCarrier"
+                                                   stroke-linecap="round"
+                                                   stroke-linejoin="round"
+                                                ></g>
+                                                <g id="SVGRepo_iconCarrier">
+                                                   <path
+                                                      d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
+                                                      stroke="#000000"
+                                                      stroke-width="1.5"
+                                                      stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                   ></path>
+                                                </g>
+                                             </svg>
+                                          </span>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        ))}
                   </div>
 
                   {/* node methods */}
@@ -802,7 +960,7 @@ function NodeSettings({ cell, graph }: { cell: X6Type.Cell; graph: MutableRefObj
                </div>
             </div>
          </div>
-         <hr className="border-slate-400" />
+         <hr className="border-slate-400 pb-3" />
       </>
    );
 }

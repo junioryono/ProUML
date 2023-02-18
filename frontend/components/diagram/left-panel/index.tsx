@@ -143,10 +143,24 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         y: 100,
                         size: {
                            width: 285,
-                           height: 90,
+                           height: 145,
                         },
                         package: "default",
                         name: "ClassName",
+                        variables: [
+                           {
+                              type: "String",
+                              name: "variable1",
+                              accessModifier: "private",
+                              static: true,
+                           },
+                           {
+                              type: "String",
+                              name: "variable2",
+                              accessModifier: "private",
+                              static: true,
+                           },
+                        ],
                         methods: [
                            {
                               type: "void",

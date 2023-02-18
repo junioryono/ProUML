@@ -31,10 +31,10 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
       <>
          {/* ---------------------- GRAPH SETTINGS SECTION ---------------------- */}
          <div className="flex flex-col pb-3">
-            <div className="font-bold mb-1.5 justify-between">Graph Settings</div>
+            <div className="font-bold mb-1 justify-between">Graph Settings</div>
 
             {/* zoom slider */}
-            <div className="flex-1 m-1 mb-3">
+            <div className="flex-1 mb-3">
                <div className="mb-1.5 ml-2.5">Zoom</div>
                <div className="flex items-center">
                   <input
