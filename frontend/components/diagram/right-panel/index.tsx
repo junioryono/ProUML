@@ -75,7 +75,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
    // Render the component with a width of 60 and a left border of 1
    return (
-      <div className="w-60 p-2 flex flex-col border-gray-400 border-l-1">
+      <div className="h-screen overflow-y-auto no-scrollbar overflow-x-hidden w-60 p-2 flex flex-col border-gray-400 border-l-1">
          {/* Render different panels based on the current tab */}
          {tab === "graph" ? (
             <GraphPanel graph={graph} />
@@ -86,6 +86,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
          ) : tab === "nodes&edges" ? (
             <EdgesPanel graph={graph} />
          ) : null}
+         <div className="border-l border-gray-400 absolute bottom-0 right-0 w-60 h-12 pointer-events-none after:absolute after:bottom-0 after:left-0 after:w-full after:h-16 after:pointer-events-none after:content-'' after:bg-gradient-to-t from-white to-transparent"></div>
       </div>
    );
 }
