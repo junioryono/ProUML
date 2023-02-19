@@ -224,6 +224,8 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         // }}
                      >
                         <div className="w-3">
+                           {/* if the node is selected show a checkmark svg next to it */}
+
                            {isSelected && (
                               <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                                  <path
