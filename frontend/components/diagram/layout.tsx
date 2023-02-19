@@ -35,7 +35,7 @@ export default function DiagramLayout({ user, diagram }: { user: User; diagram: 
    }, []);
 
    return (
-      <div className="flex flex-col">
+      <div className="flex-col h-screen overflow-hidden">
          <div className="flex justify-between items-center h-12 bg-diagram-menu text-white">
             <div className="flex h-full items-center">
                <Menu graph={graph} />
