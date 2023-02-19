@@ -42,8 +42,8 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       // remove all event listeners
       const graphRef = graph.current;
       return () => {
-         graphRef?.off("cell:selected");
-         graphRef?.off("cell:unselected");
+         // graphRef?.off("cell:selected");
+         // graphRef?.off("cell:unselected");
       };
    }, [graph]);
 
@@ -60,7 +60,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
 
                {/* all of the background color options */}
-               <div className="flex w-56 items-center gap-2">
+               <div className="flex items-center gap-2">
                   <div>
                      {lightColorOptions.map((color) => {
                         return (
@@ -118,7 +118,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                <div className="flex justify-between">
                   <div className="font-bold">Border Color</div>
                </div>
-               <div className="flex w-56 items-center gap-2">
+               <div className="flex   items-center gap-2">
                   <div>
                      {/* all of the color options */}
                      {darkColorOptions.map((color) => {
@@ -678,7 +678,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
             <div className="flex justify-between">
                <div className="font-bold mb-1.5">"{nodeName !== "" ? nodeName : "Untitled"}" Node Settings</div>
             </div>
-            <div className="flex w-56 items-center gap-2">
+            <div className="flex   items-center gap-2">
                <div className="items-center gap-2">
                   <div className="flex items-center mb-1.5">
                      <div className="w-1/4">Name</div>
@@ -749,7 +749,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                   </div>
 
                   {/* ---------------------- NODE VARIABLES SECTION ---------------------- */}
-                  <div className="flex w-56 flex-col mb-1.5">
+                  <div className="flex   flex-col mb-1.5">
                      <div className="flex justify-between mb-1">
                         <div className="font-bold">Variables</div>
 
