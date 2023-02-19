@@ -92,6 +92,7 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="flex mb-3 mt-3">
                <input
                   type="checkbox"
+                  id="grid-toggle"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                   onChange={() => {
                      setGrid(!grid);
@@ -107,18 +108,19 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   }}
                   checked={grid}
                />
-               <label>Show grid</label>
+               <label htmlFor="grid-toggle">Show grid</label>
             </div>
 
             {/* background color toggle */}
             <div className="flex mb-3">
                <input
                   type="checkbox"
+                  id="background-toggle"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                   onChange={() => setBackground(!background)}
                   checked={background}
                />
-               <label>Background color</label>
+               <label htmlFor="background-toggle">Background color</label>
             </div>
 
             {/* only show the background color options when the user wants a Background */}
