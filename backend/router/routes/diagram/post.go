@@ -103,7 +103,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			}
 
 			// Create a new diagram
-			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Locals("idToken").(string), projectId, transpiledProject)
+			diagramId, err2 := sdkP.Postgres.Diagram.Create(fbCtx.Locals("idToken").(string), projectId, &transpiledProject)
 			if err2 != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,

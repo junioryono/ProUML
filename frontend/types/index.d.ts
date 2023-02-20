@@ -1,4 +1,5 @@
 import { Icons } from "@/components/icons";
+import { Cell } from "@antv/x6";
 import { User } from "@prisma/client";
 import type { Icon } from "lucide-react";
 
@@ -91,7 +92,7 @@ export type Diagram = {
    updated_at: string;
    public: boolean;
    name: string;
-   content: any[];
+   content: Cell.Properties[];
    image?: string;
    project?: Project;
 };
@@ -128,6 +129,7 @@ const enum AccessModifier {
 
 export type ClassNode = {
    id: string;
+   type: string;
    shape: string;
    x: number;
    y: number;

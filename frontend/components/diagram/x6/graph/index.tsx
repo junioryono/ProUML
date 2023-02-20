@@ -131,6 +131,7 @@ export default function useGraph(
 
       graph.current.use(new X6.Plugin.Export.Export());
 
+      console.log("diagram.content", diagram.content);
       graph.current.fromJSON({ cells: diagram.content });
 
       const removeListeners = initializeListeners(graph, websocket, sessionId, layoutProps);

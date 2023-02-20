@@ -42,7 +42,7 @@ func TestGetProjectLanguage(t *testing.T) {
 func TestGetDiagramLayout(t *testing.T) {
 	type GetDiagramLayoutTest struct {
 		Input  *types.Project
-		Output *types.Project
+		Output []any
 	}
 
 	var tests = []GetDiagramLayoutTest{
@@ -723,7 +723,7 @@ func TestGetDiagramLayout(t *testing.T) {
 					},
 				},
 			},
-			Output: &types.Project{},
+			Output: []any{},
 		},
 	}
 

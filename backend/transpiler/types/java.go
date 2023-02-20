@@ -89,6 +89,7 @@ type JavaDiagram struct {
 	Shape  string  `json:"shape"`
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
-	Width  int     `json:"width"`
-	Height int     `json:"height"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
+	Type   string  `json:"type"`
 }

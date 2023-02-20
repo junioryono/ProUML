@@ -12,7 +12,7 @@ const enum ClassSection {
 
 function ShapeClass({ node }: { node?: Node }) {
    // Need to include types
-   const { package: packageName, name: className, variables, methods } = node.getProp() as ClassNode;
+   const { type, package: packageName, name: className, variables, methods } = node.getProp() as ClassNode;
 
    const [selectedSection, setSelectedSection] = useState<ClassSection>();
    const [font, setFont] = useState("Helvetica");
@@ -55,12 +55,23 @@ function ShapeClass({ node }: { node?: Node }) {
                flexDirection: "column",
                alignItems: "center",
                padding: "4px 0",
-               borderBottom: "1px solid black",
-               fontWeight: "bold",
+               borderBottom: variables || methods ? "1px solid black" : undefined,
             }}
          >
-            {/* for the name of the class */}
-            <div>{!className ? "ClassName" : className}</div>
+            {(type === "interface" || type === "enum") && (
+               <div
+                  style={{
+                     height: "17px",
+                  }}
+               >{`<<${type}>>`}</div>
+            )}
+            <div
+               style={{
+                  fontWeight: "bold",
+               }}
+            >
+               {!className ? "ClassName" : className}
+            </div>
          </div>
 
          {/* show the class variables if they exist */}
@@ -113,11 +124,11 @@ function ShapeClass({ node }: { node?: Node }) {
                      {method.name}
                      &#40;
                      {method.parameters
-                        .map((parameter) => {
+                        ?.map((parameter) => {
                            return `${parameter.name}: ${parameter.type}`;
                         })
                         .join(", ")}
-                     &#41;: {method.type}
+                     &#41;{method.type && `: ${method.type}`}
                   </div>
                ))}
             </div>
