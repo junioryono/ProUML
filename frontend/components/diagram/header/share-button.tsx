@@ -1,6 +1,6 @@
 import type X6Type from "@antv/x6";
 
-import { useState, useRef, Fragment } from "react";
+import { useState, useRef, Fragment, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +8,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import { Diagram, User } from "types";
+import { getDiagramUsers } from "@/lib/auth-fetch";
 
 const userAddSchema = z.object({
    email: z.string().min(8),
@@ -26,6 +27,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
    });
    const [isLoading, setIsLoading] = useState<boolean>(false);
    const [open, setOpen] = useState(false);
+   const [users, setUsers] = useState<User[]>(null);
    const cancelButtonRef = useRef(null);
 
    async function onSubmit(data: FormData) {
@@ -35,6 +37,29 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
          type: "success",
       });
    }
+
+   useEffect(() => {
+      if (!diagram) {
+         return;
+      }
+
+      if (!open) {
+         setUsers(null);
+         return;
+      }
+
+      getDiagramUsers(diagram.id).then((res) => {
+         console.log("res", res);
+         if (res && res.response) {
+            setUsers(res.response);
+         } else {
+            toast({
+               message: "Failed to get users.",
+               type: "error",
+            });
+         }
+      });
+   }, [open, diagram]);
 
    return (
       <>
@@ -129,90 +154,54 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                  </div>
                               </div>
 
-                              <div className="bg-white flex flex-row">
-                                 <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="40"
-                                    height="40"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    className="mt-2 ml-3"
-                                 >
-                                    <path
-                                       opacity="0.4"
-                                       d="M12 22.01C17.5228 22.01 22 17.5329 22 12.01C22 6.48716 17.5228 2.01001 12 2.01001C6.47715 2.01001 2 6.48716 2 12.01C2 17.5329 6.47715 22.01 12 22.01Z"
-                                       fill="#292D32"
-                                    />
-                                    <path
-                                       d="M12 6.93994C9.93 6.93994 8.25 8.61994 8.25 10.6899C8.25 12.7199 9.84 14.3699 11.95 14.4299C11.98 14.4299 12.02 14.4299 12.04 14.4299C12.06 14.4299 12.09 14.4299 12.11 14.4299C12.12 14.4299 12.13 14.4299 12.13 14.4299C14.15 14.3599 15.74 12.7199 15.75 10.6899C15.75 8.61994 14.07 6.93994 12 6.93994Z"
-                                       fill="#292D32"
-                                    />
-                                    <path
-                                       d="M18.7807 19.36C17.0007 21 14.6207 22.01 12.0007 22.01C9.3807 22.01 7.0007 21 5.2207 19.36C5.4607 18.45 6.1107 17.62 7.0607 16.98C9.7907 15.16 14.2307 15.16 16.9407 16.98C17.9007 17.62 18.5407 18.45 18.7807 19.36Z"
-                                       fill="#292D32"
-                                    />
-                                 </svg>
-                                 <div className="flex flex-col">
-                                    <div className="flex flex-row pt-2 pl-2">
-                                       First Last1
-                                       <div className="flex flex-row text-gray-600 hover:bg-slate-50 hover:text-black pl-3 cursor-pointer pl-auto  mr-1 rounded">
-                                          Editor
-                                          <svg
-                                             width="24"
-                                             height="24"
-                                             viewBox="0 0 24 24"
-                                             focusable="false"
-                                             className="cursor-pointer fill-slate-500"
-                                          >
-                                             <path d="M7 10l5 5 5-5H7z"></path>
-                                          </svg>
+                              {users &&
+                                 users.map((sharedUser) => (
+                                    <div className="bg-white flex flex-row">
+                                       <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="40"
+                                          height="40"
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          className="mt-2 ml-3"
+                                       >
+                                          <path
+                                             opacity="0.4"
+                                             d="M12 22.01C17.5228 22.01 22 17.5329 22 12.01C22 6.48716 17.5228 2.01001 12 2.01001C6.47715 2.01001 2 6.48716 2 12.01C2 17.5329 6.47715 22.01 12 22.01Z"
+                                             fill="#292D32"
+                                          />
+                                          <path
+                                             d="M12 6.93994C9.93 6.93994 8.25 8.61994 8.25 10.6899C8.25 12.7199 9.84 14.3699 11.95 14.4299C11.98 14.4299 12.02 14.4299 12.04 14.4299C12.06 14.4299 12.09 14.4299 12.11 14.4299C12.12 14.4299 12.13 14.4299 12.13 14.4299C14.15 14.3599 15.74 12.7199 15.75 10.6899C15.75 8.61994 14.07 6.93994 12 6.93994Z"
+                                             fill="#292D32"
+                                          />
+                                          <path
+                                             d="M18.7807 19.36C17.0007 21 14.6207 22.01 12.0007 22.01C9.3807 22.01 7.0007 21 5.2207 19.36C5.4607 18.45 6.1107 17.62 7.0607 16.98C9.7907 15.16 14.2307 15.16 16.9407 16.98C17.9007 17.62 18.5407 18.45 18.7807 19.36Z"
+                                             fill="#292D32"
+                                          />
+                                       </svg>
+                                       <div className="flex flex-col">
+                                          <div className="flex flex-row pt-2 pl-2">
+                                             {sharedUser.full_name}
+                                             {sharedUser.user_id === user.user_id && (
+                                                <span className="text-xs text-stone-500 pl-2 mb-1 mt-auto">(you)</span>
+                                             )}
+                                             <div className="flex flex-row text-gray-600 hover:bg-slate-50 hover:text-black pl-3 cursor-pointer pl-auto  mr-1 rounded">
+                                                Editor
+                                                <svg
+                                                   width="24"
+                                                   height="24"
+                                                   viewBox="0 0 24 24"
+                                                   focusable="false"
+                                                   className="cursor-pointer fill-slate-500"
+                                                >
+                                                   <path d="M7 10l5 5 5-5H7z"></path>
+                                                </svg>
+                                             </div>
+                                          </div>
+                                          <div className="text-xs text-stone-500 pb-1 pl-2">{sharedUser.email}</div>
                                        </div>
                                     </div>
-                                    <div className="text-xs text-stone-500 pb-1 pl-2">name@example.com</div>
-                                 </div>
-                              </div>
-                              <div className="bg-white pb-4 flex flex-row">
-                                 <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="40"
-                                    height="40"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    className="mt-2 ml-3"
-                                 >
-                                    <path
-                                       opacity="0.4"
-                                       d="M12 22.01C17.5228 22.01 22 17.5329 22 12.01C22 6.48716 17.5228 2.01001 12 2.01001C6.47715 2.01001 2 6.48716 2 12.01C2 17.5329 6.47715 22.01 12 22.01Z"
-                                       fill="#292D32"
-                                    />
-                                    <path
-                                       d="M12 6.93994C9.93 6.93994 8.25 8.61994 8.25 10.6899C8.25 12.7199 9.84 14.3699 11.95 14.4299C11.98 14.4299 12.02 14.4299 12.04 14.4299C12.06 14.4299 12.09 14.4299 12.11 14.4299C12.12 14.4299 12.13 14.4299 12.13 14.4299C14.15 14.3599 15.74 12.7199 15.75 10.6899C15.75 8.61994 14.07 6.93994 12 6.93994Z"
-                                       fill="#292D32"
-                                    />
-                                    <path
-                                       d="M18.7807 19.36C17.0007 21 14.6207 22.01 12.0007 22.01C9.3807 22.01 7.0007 21 5.2207 19.36C5.4607 18.45 6.1107 17.62 7.0607 16.98C9.7907 15.16 14.2307 15.16 16.9407 16.98C17.9007 17.62 18.5407 18.45 18.7807 19.36Z"
-                                       fill="#292D32"
-                                    />
-                                 </svg>
-                                 <div className="flex flex-col pb-2">
-                                    <div className="flex flex-row pt-2 pl-2">
-                                       First Last2
-                                       <div className="flex flex-row text-gray-600 hover:bg-slate-50 hover:text-black pl-3 cursor-pointer pl-auto  mr-1 rounded">
-                                          Editor
-                                          <svg
-                                             width="24"
-                                             height="24"
-                                             viewBox="0 0 24 24"
-                                             focusable="false"
-                                             className="cursor-pointer fill-slate-500"
-                                          >
-                                             <path d="M7 10l5 5 5-5H7z"></path>
-                                          </svg>
-                                       </div>
-                                    </div>
-                                    <div className="text-xs text-stone-500 pb-1 pl-2">name@example.com</div>
-                                 </div>
-                              </div>
+                                 ))}
 
                               <div className="bg-white px-4 sm:px-6">
                                  <div className="sm:flex sm:items-start">

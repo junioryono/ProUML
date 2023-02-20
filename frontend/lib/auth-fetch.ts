@@ -103,6 +103,20 @@ export async function getDiagram(diagramId: string, options?: RequestInit): Prom
       .catch(() => defaultError);
 }
 
+export async function getDiagramUsers(diagramId: string, options?: RequestInit): Promise<APIResponse<User[]>> {
+   return fetchAPI(
+      "/diagram/users?" +
+         new URLSearchParams({
+            id: diagramId,
+         }),
+      {
+         ...options,
+      },
+   )
+      .then((res) => jsonResponse<User[]>(res))
+      .catch(() => defaultError);
+}
+
 export async function createDiagram(form: FormData, options?: RequestInit): Promise<APIResponse<string>> {
    return fetchAPI("/diagram", {
       ...options,
