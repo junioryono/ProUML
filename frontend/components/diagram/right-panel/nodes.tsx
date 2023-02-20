@@ -782,7 +782,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                               className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                               onClick={() => {
                                  // get the selected cell and its variables
-                                 const variables = node.prop("variables");
+                                 const variables = node.prop("variables") || [];
 
                                  // add this new variable to the array of variables
                                  variables.push({
@@ -794,7 +794,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
 
                                  node.prop("variables", variables);
 
-                                 const newHeight = height + 20;
+                                 const newHeight = height + (variables.length > 1 ? 20 : 36);
                                  node.resize(node.prop("size").width, newHeight);
 
                                  setHeight(newHeight);
@@ -986,7 +986,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                                          variables.splice(index, 1);
                                                          node.prop("variables", variables);
 
-                                                         const newHeight = height - 20;
+                                                         const newHeight = height - (variables.length > 0 ? 20 : 36);
                                                          node.resize(node.prop("size").width, newHeight);
 
                                                          setHeight(newHeight);

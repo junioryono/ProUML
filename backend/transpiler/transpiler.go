@@ -244,8 +244,13 @@ func getNodeSize(name []byte, variables []types.JavaVariable, methods []types.Ja
 
 	// Variables
 	for _, variable := range variables {
+		variableString := string(variable.AccessModifier) + string(variable.Name) + ": " + string(variable.Type)
+		if variable.Value != nil {
+			variableString += " = " + string(variable.Value)
+		}
+
 		// Measure the width of the variable
-		w, _ := ggContext.MeasureString(string(variable.AccessModifier) + string(variable.Name) + ": " + string(variable.Type))
+		w, _ := ggContext.MeasureString(variableString)
 		if w > width {
 			width = w
 		}
