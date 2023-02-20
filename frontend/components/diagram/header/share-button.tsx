@@ -179,23 +179,25 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                              fill="#292D32"
                                           />
                                        </svg>
-                                       <div className="flex flex-col">
+                                       <div className="flex flex-col w-full">
                                           <div className="flex flex-row pt-2 pl-2">
                                              {sharedUser.full_name}
                                              {sharedUser.user_id === user.user_id && (
                                                 <span className="text-xs text-stone-500 pl-2 mb-1 mt-auto">(you)</span>
                                              )}
-                                             <div className="flex flex-row text-gray-600 hover:bg-slate-50 hover:text-black pl-3 cursor-pointer pl-auto  mr-1 rounded">
-                                                Editor
-                                                <svg
-                                                   width="24"
-                                                   height="24"
-                                                   viewBox="0 0 24 24"
-                                                   focusable="false"
-                                                   className="cursor-pointer fill-slate-500"
-                                                >
-                                                   <path d="M7 10l5 5 5-5H7z"></path>
-                                                </svg>
+                                             <div className="flex flex-row text-gray-600 hover:bg-slate-50 hover:text-black pl-3 cursor-pointer pl-auto mr-10 rounded ml-auto">
+                                                {capitalizeFirstLetter(sharedUser.role)}
+                                                {sharedUser.role !== "owner" && (
+                                                   <svg
+                                                      width="24"
+                                                      height="24"
+                                                      viewBox="0 0 24 24"
+                                                      focusable="false"
+                                                      className="cursor-pointer fill-slate-500"
+                                                   >
+                                                      <path d="M7 10l5 5 5-5H7z" />
+                                                   </svg>
+                                                )}
                                              </div>
                                           </div>
                                           <div className="text-xs text-stone-500 pb-1 pl-2">{sharedUser.email}</div>
@@ -266,4 +268,8 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
          </Transition.Root>
       </>
    );
+}
+
+function capitalizeFirstLetter(string: string) {
+   return string.charAt(0).toUpperCase() + string.slice(1);
 }
