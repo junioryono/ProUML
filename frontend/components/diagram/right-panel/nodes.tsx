@@ -665,10 +665,33 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
    // for the width of a cell
    const [width, setWidth] = useState(node.getProp("size")?.width || node.getProp("width"));
 
+   // ---------------------- FOR SCROLLABLE SECTIONS -----------------
+   // for if a top fade should be shown
+   const [showTopFade, setShowTopFade] = useState(false);
+   // for if a bottom fade should be shown
+   const [showBottomFade, setShowBottomFade] = useState(true);
+   // for the height of the scrollable container
+   const [containerHeight, setContainerHeight] = useState(0);
+   // for the scrollable container
+   const handleContainerRef = (ref) => {
+      if (ref) {
+         setContainerHeight(ref.offsetHeight); // Get the height of the container
+      }
+   };
+   // ----------------------------------------------------------------
+
+   // setting the node name
    useEffect(() => {
       const props = node.prop();
       console.log("props", props);
       setNodeName(props.name);
+   }, [node]);
+
+   // make sure to update the node values when the node is changed
+   useEffect(() => {
+      setNodeName(node.prop("name"));
+      setHeight(node.getProp("size")?.height || node.getProp("height"));
+      setWidth(node.getProp("size")?.width || node.getProp("width"));
    }, [node]);
 
    return (
@@ -678,7 +701,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
             <div className="flex justify-between">
                <div className="font-bold mb-1.5">Node Settings</div>
             </div>
-            <div className="flex   items-center gap-2">
+            <div className="flex items-center gap-2">
                <div className="items-center gap-2">
                   <div className="flex items-center mb-1.5">
                      <div className="w-1/4">Name</div>
@@ -800,155 +823,235 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                            </div>
                         </div>
                      </div>
+
                      {/* map out all the variables in the selected cell */}
-                     <div className="relative">
-                        <div className="overflow-y-scroll no-scrollbar overflow-x-hidden max-h-24 list-container">
-                           {node.prop("variables") &&
-                              node.prop("variables").map((variable: any, index: number) => (
-                                 <div>
-                                    {/* list all of the different variables on different lines */}
-                                    <div className="flex gap-2">
-                                       <div className="flex my-0.5">
-                                          {/* access modifier dropdown input */}
-                                          <div className="w-8 mr-1">
-                                             <div className="w-8 mr-1 relative">
-                                                <div className="absolute inset-y-0 left-0 flex items-center pl-2">
-                                                   {variable.accessModifier === "private"
-                                                      ? "-"
-                                                      : variable.accessModifier === "public"
-                                                      ? "+"
-                                                      : variable.accessModifier === "protected"
-                                                      ? "#"
-                                                      : "-"}
+                     {node.prop("variables") && (
+                        <>
+                           <div className="relative mb-1">
+                              <div
+                                 ref={handleContainerRef}
+                                 className="overflow-y-scroll no-scrollbar overflow-x-hidden max-h-28 list-container"
+                                 onScroll={(e: React.UIEvent<HTMLDivElement>) => {
+                                    const { scrollTop, clientHeight, scrollHeight } = e.target as HTMLDivElement;
+
+                                    // if the scroll bar is at the top of the list, show only the bottom fade effect
+                                    if (scrollTop === 0) {
+                                       setShowBottomFade(true);
+                                       setShowTopFade(false);
+                                    } else {
+                                       // if the scroll bar reaches the bottom of the list get rid of the bottom fade effect
+                                       if (scrollTop + clientHeight === scrollHeight) {
+                                          setShowBottomFade(false);
+                                          setShowTopFade(true);
+                                          // if the scroll bar is not at the top or bottom of the list, show both top and bottom fades
+                                       } else {
+                                          setShowTopFade(true);
+                                          setShowBottomFade(true);
+                                       }
+                                    }
+                                 }}
+                              >
+                                 {node.prop("variables").map((variable: any, index: number) => (
+                                    <>
+                                       <div>
+                                          {/* list all of the different variables on different lines */}
+                                          <div className="flex gap-2">
+                                             <div className="flex mb-0.5">
+                                                {/* access modifier dropdown input */}
+                                                <div className="w-6 mr-1">
+                                                   <div className="relative">
+                                                      <div className="absolute inset-y-0 left-0 flex items-center pl-1">
+                                                         {variable.accessModifier === "private"
+                                                            ? "-"
+                                                            : variable.accessModifier === "public"
+                                                            ? "+"
+                                                            : variable.accessModifier === "protected"
+                                                            ? "#"
+                                                            : "-"}
+                                                      </div>
+                                                      <select
+                                                         value={variable.accessModifier}
+                                                         className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
+                                                         onChange={(e) => {
+                                                            // update the node's access modifier
+
+                                                            node.prop("variables", variable);
+                                                         }}
+                                                      >
+                                                         <option value="private">private (-)</option>
+                                                         <option value="public">public (+)</option>
+                                                         <option value="protected">protected (#)</option>
+                                                      </select>
+                                                   </div>
                                                 </div>
-                                                <select
-                                                   value={variable.accessModifier}
-                                                   className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-1 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
+                                                {/* variable type text input */}
+                                                <div className="w-12 mr-1">
+                                                   <input
+                                                      value={variable.type}
+                                                      className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                                                      type="text"
+                                                      onChange={(e) => {
+                                                         // set the variable type in the node
+                                                         variable.type = e.target.value;
+
+                                                         // update the node
+                                                         node.prop("variables", variable);
+                                                      }}
+                                                      // if the input is "Untitled" highlight the entire text
+                                                      onFocus={(e) => {
+                                                         if (e.target.value === "Untitled") {
+                                                            e.target.select();
+                                                         }
+                                                      }}
+                                                      // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                                                      onBlur={(e) => {
+                                                         if (e.target.value === "") {
+                                                            setNodeName("Untitled");
+                                                            node.prop("name", "Untitled");
+                                                         }
+                                                      }}
+                                                   />
+                                                </div>
+                                                {/* variable name input */}
+                                                <input
+                                                   value={variable.name}
+                                                   className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                                                   type="text"
                                                    onChange={(e) => {
-                                                      // update the node's access modifier
+                                                      // set the name of the variable
+                                                      variable.name = e.target.value;
 
-                                                      node.prop("variables", variable);
+                                                      if (e.target.value !== "") node.prop("variables", variable);
+                                                      else node.prop("variables", variable);
                                                    }}
+                                                   // if the input is "Untitled" highlight the entire text
+                                                   onFocus={(e) => {
+                                                      if (e.target.value === "Untitled") {
+                                                         e.target.select();
+                                                      }
+                                                   }}
+                                                   // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                                                   onBlur={(e) => {
+                                                      if (e.target.value === "") {
+                                                         setNodeName("Untitled");
+                                                         node.prop("variables", variable);
+                                                      }
+                                                   }}
+                                                />
+                                                {/* variable value input */}
+                                                <div
+                                                   className={`ml-0.5 mr-0.5 ${
+                                                      !variable.value ? "text-slate-400" : "text-black"
+                                                   }`}
                                                 >
-                                                   <option value="private">private (-)</option>
-                                                   <option value="public">public (+)</option>
-                                                   <option value="protected">protected (#)</option>
-                                                </select>
-                                             </div>
-                                          </div>
+                                                   =
+                                                </div>
+                                                <input
+                                                   value={variable.value}
+                                                   className={`w-10 text-center block rounded-md border text-md focus:outline-none hover:border-slate-400 focus:border-slate-400
+                                                   ${
+                                                      !variable.value
+                                                         ? "border-2 border-dotted bg-slate-100 border-slate-400 h-6.5"
+                                                         : "bg-slate-200 border-slate-300 py-3 h-3"
+                                                   }`}
+                                                   type="text"
+                                                   onChange={(e) => {
+                                                      // set the value of the variable
+                                                      variable.value = e.target.value;
 
-                                          {/* variable type text input */}
-                                          <div className="w-1/4 mr-1">
-                                             <input
-                                                value={variable.type}
-                                                className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-1 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
-                                                type="text"
-                                                onChange={(e) => {
-                                                   // set the variable type in the node
-                                                   variable.type = e.target.value;
+                                                      if (e.target.value !== "") node.prop("variables", variable);
+                                                      else node.prop("variables", variable);
+                                                   }}
+                                                   // if the input is "Untitled" highlight the entire text
+                                                   onFocus={(e) => {
+                                                      if (e.target.value === "Untitled") {
+                                                         e.target.select();
+                                                      }
+                                                   }}
+                                                   // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                                                   onBlur={(e) => {
+                                                      if (e.target.value === "") {
+                                                         setNodeName("Untitled");
+                                                         node.prop("variables", variable);
+                                                      }
+                                                   }}
+                                                />
+                                                {/* delete button to delete the variable */}
+                                                <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">
+                                                   <div
+                                                      className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
+                                                      onClick={() => {
+                                                         // remove the variable from the node
+                                                         const variables = node.prop("variables");
+                                                         variables.splice(index, 1);
+                                                         node.prop("variables", variables);
 
-                                                   // update the node
-                                                   node.prop("variables", variable);
-                                                }}
-                                                // if the input is "Untitled" highlight the entire text
-                                                onFocus={(e) => {
-                                                   if (e.target.value === "Untitled") {
-                                                      e.target.select();
-                                                   }
-                                                }}
-                                                // if the input is empty after clicking out of the input field, set the name to "Untitled"
-                                                onBlur={(e) => {
-                                                   if (e.target.value === "") {
-                                                      setNodeName("Untitled");
-                                                      node.prop("name", "Untitled");
-                                                   }
-                                                }}
-                                             />
-                                          </div>
+                                                         const newHeight = height - 20;
+                                                         node.resize(node.prop("size").width, newHeight);
 
-                                          {/* variable name input */}
-                                          <input
-                                             value={variable.name}
-                                             className="w-24 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-1 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
-                                             type="text"
-                                             onChange={(e) => {
-                                                // set the name of the variable
-                                                variable.name = e.target.value;
-
-                                                if (e.target.value !== "") node.prop("variables", variable);
-                                                else node.prop("variables", variable);
-                                             }}
-                                             // if the input is "Untitled" highlight the entire text
-                                             onFocus={(e) => {
-                                                if (e.target.value === "Untitled") {
-                                                   e.target.select();
-                                                }
-                                             }}
-                                             // if the input is empty after clicking out of the input field, set the name to "Untitled"
-                                             onBlur={(e) => {
-                                                if (e.target.value === "") {
-                                                   setNodeName("Untitled");
-                                                   node.prop("variables", variable);
-                                                }
-                                             }}
-                                          />
-
-                                          {/* delete button to delete the variable */}
-                                          <div className="flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
-                                             <div
-                                                className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
-                                                onClick={() => {
-                                                   // remove the variable from the node
-                                                   const variables = node.prop("variables");
-                                                   variables.splice(index, 1);
-                                                   node.prop("variables", variables);
-
-                                                   const newHeight = height - 20;
-                                                   node.resize(node.prop("size").width, newHeight);
-
-                                                   setHeight(newHeight);
-                                                }}
-                                             >
-                                                <span
-                                                   role="button"
-                                                   className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
-                                                >
-                                                   {/* trash can svg */}
-                                                   <svg
-                                                      width="20px"
-                                                      height="20px"
-                                                      viewBox="0 0 24 24"
-                                                      fill="none"
-                                                      xmlns="http://www.w3.org/2000/svg"
+                                                         setHeight(newHeight);
+                                                      }}
                                                    >
-                                                      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                                      <g
-                                                         id="SVGRepo_tracerCarrier"
-                                                         stroke-linecap="round"
-                                                         stroke-linejoin="round"
-                                                      ></g>
-                                                      <g id="SVGRepo_iconCarrier">
-                                                         <path
-                                                            d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
-                                                            stroke="#000000"
-                                                            stroke-width="1.5"
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                         ></path>
-                                                      </g>
-                                                   </svg>
-                                                </span>
+                                                      <span
+                                                         role="button"
+                                                         className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                                                      >
+                                                         {/* trash can svg */}
+                                                         <svg
+                                                            width="20px"
+                                                            height="20px"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                         >
+                                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                                            <g
+                                                               id="SVGRepo_tracerCarrier"
+                                                               stroke-linecap="round"
+                                                               stroke-linejoin="round"
+                                                            ></g>
+                                                            <g id="SVGRepo_iconCarrier">
+                                                               <path
+                                                                  d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
+                                                                  stroke="#000000"
+                                                                  stroke-width="1.5"
+                                                                  stroke-linecap="round"
+                                                                  stroke-linejoin="round"
+                                                               ></path>
+                                                            </g>
+                                                         </svg>
+                                                      </span>
+                                                   </div>
+                                                </div>
                                              </div>
                                           </div>
                                        </div>
-                                    </div>
-                                 </div>
-                              ))}
-                        </div>
+                                    </>
+                                 ))}
+                              </div>
 
-                        {/* fade effect for bottom elements in the list */}
-                        <div className="absolute bottom-0 w-full h-8 pointer-events-none after:absolute after:bottom-0 after: after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-t from-white to-transparent"></div>
-                     </div>
+                              {/* if the list is too long (needs a scroll), show the fade effect */}
+                              {containerHeight > 90 && (
+                                 <>
+                                    {/* only show top fade if not at the top of list */}
+                                    {showTopFade && (
+                                       <>
+                                          {/* fade effect for top elements in the list */}
+                                          <div className="absolute top-0 w-full h-6 pointer-events-none after:absolute after:top-0 after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-b from-white to-transparent"></div>
+                                       </>
+                                    )}
+                                    {/* only show bottom fade if not at the bottom of list */}
+                                    {showBottomFade && (
+                                       <>
+                                          {/* fade effect for bottom elements in the list */}
+                                          <div className="absolute bottom-0 w-full h-6 pointer-events-none after:absolute after:bottom-0 after: after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-t from-white to-transparent"></div>
+                                       </>
+                                    )}
+                                 </>
+                              )}
+                           </div>
+                        </>
+                     )}
                   </div>
 
                   {/* ---------------------- NODE METHODS SECTION ---------------------- */}
