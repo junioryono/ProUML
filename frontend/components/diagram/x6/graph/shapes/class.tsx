@@ -59,8 +59,11 @@ function ShapeClass({ node }: { node?: Node }) {
                fontWeight: "bold",
             }}
          >
+            {/* for the name of the class */}
             <div>{!className ? "ClassName" : className}</div>
          </div>
+
+         {/* show the class variables if they exist */}
          {variables && (
             <div
                style={{
@@ -80,10 +83,16 @@ function ShapeClass({ node }: { node?: Node }) {
                            : "+"
                         : "+"}
                      {variable.name}: {variable.type}
+                     {/* if there is a variable value, show it */}
+                     {variable.value &&
+                        // if the value is a string, add quotes, if not show as it is
+                        (typeof variable.value === "string" ? ` = "${variable.value}"` : ` = variable.value`)}
                   </div>
                ))}
             </div>
          )}
+
+         {/* show the class methods if they exist */}
          {methods && (
             <div
                style={{
