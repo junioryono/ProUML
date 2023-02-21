@@ -874,8 +874,16 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                                          className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
                                                          onChange={(e) => {
                                                             // update the node's access modifier
+                                                            // find the index of the variable in the node's variables array
+                                                            console.log("e.target.value", e.target.value);
+                                                            const variableIndex = node
+                                                               .prop("variables")
+                                                               .findIndex((v: any) => v.name === variable.name);
 
-                                                            node.prop("variables", variable);
+                                                            // update the node's variables array
+                                                            const variables = node.prop("variables");
+                                                            variables[variableIndex].accessModifier = e.target.value;
+                                                            node.prop("variables", variables);
                                                          }}
                                                       >
                                                          <option value="private">private (-)</option>

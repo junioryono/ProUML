@@ -68,7 +68,7 @@ func (u *Users_SDK) Get(diagramId, idToken string) ([]models.DiagramUsersRolesHi
 	return response, nil
 }
 
-func (u *Users_SDK) Add(diagramId, idToken, newUserId, newUserRole string) *types.WrappedError {
+func (u *Users_SDK) Add(diagramId, idToken, newUserEmail, newUserRole string) *types.WrappedError {
 	// Get the user id from the id token
 	userId, err := u.Auth.Client.GetUserId(idToken)
 	if err != nil {
@@ -89,6 +89,12 @@ func (u *Users_SDK) Add(diagramId, idToken, newUserId, newUserRole string) *type
 			return types.Wrap(errors.New("user does not have access to the diagram"), types.ErrUserNoAccess)
 		}
 
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	// Get the newUserId from the newUserEmail using pluck
+	var newUserId string
+	if err := u.db.Model(&models.UserModel{}).Where("email = ?", newUserEmail).Pluck("id", &newUserId).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
