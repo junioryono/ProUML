@@ -8,10 +8,11 @@ import { Dialog, Transition } from "@headlessui/react";
 import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import { Diagram, User } from "types";
-import { getDiagramUsers } from "@/lib/auth-fetch";
+import { getDiagramUsers, addDiagramUser } from "@/lib/auth-fetch";
 
 const userAddSchema = z.object({
    email: z.string().min(8),
+   role: z.string().min(1),
 });
 
 type FormData = z.infer<typeof userAddSchema>;
@@ -24,18 +25,33 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
       formState: { errors },
    } = useForm<FormData>({
       resolver: zodResolver(userAddSchema),
+      defaultValues: {
+         email: "",
+         role: "editor",
+      },
    });
    const [isLoading, setIsLoading] = useState<boolean>(false);
    const [open, setOpen] = useState(false);
    const [users, setUsers] = useState<User[]>(null);
-   const cancelButtonRef = useRef(null);
 
    async function onSubmit(data: FormData) {
       console.log("onSubmit", data);
-      toast({
-         message: "Test Message.",
-         type: "success",
-      });
+      setIsLoading(true);
+      const res = await addDiagramUser(diagram.id, data.email, data.role);
+      setIsLoading(false);
+      if (res && res.success) {
+         toast({
+            message: "User added.",
+            type: "success",
+         });
+         setOpen(false);
+         reset();
+      } else {
+         toast({
+            message: "Failed to add user.",
+            type: "error",
+         });
+      }
    }
 
    useEffect(() => {
@@ -72,7 +88,6 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
          <Transition.Root show={open} as={Fragment}>
             <Dialog
                className="relative z-10"
-               initialFocus={cancelButtonRef}
                onClose={() => {
                   setOpen(false);
                   reset();
@@ -153,6 +168,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                     </div>
                                  </div>
                               </div>
+
                               <div>
                                  {users &&
                                     users.map((sharedUser) => (
@@ -243,16 +259,21 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                  <button
                                     type="button"
                                     className="w-fit ml-3 sm:ml-0 sm:mr-4 relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
-                                    onClick={() => setOpen(false)}
-                                    ref={cancelButtonRef}
+                                    onClick={handleSubmit(onSubmit)}
                                  >
                                     Invite
                                  </button>
                                  <button
                                     type="button"
+                                    className="w-fit ml-3 sm:ml-0 sm:mr-4 relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
+                                    onClick={() => setOpen(false)}
+                                 >
+                                    Cancel
+                                 </button>
+                                 <button
+                                    type="button"
                                     className="mr-auto w-fit ml-3 sm:ml-0 relative inline-flex h-9 items-center rounded-md border px-3 py-2 text-sm font-medium text-blue-500 hover:bg-blue-50 focus:outline-none"
                                     //onClick={() => setOpen(false)}
-                                    ref={cancelButtonRef}
                                  >
                                     <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="pr-2">
                                        <path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8z"></path>

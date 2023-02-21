@@ -117,6 +117,28 @@ export async function getDiagramUsers(diagramId: string, options?: RequestInit):
       .catch(() => defaultError);
 }
 
+export async function addDiagramUser(
+   diagramId: string,
+   email: string,
+   role: string,
+   options?: RequestInit,
+): Promise<APIResponse<undefined>> {
+   return fetchAPI(
+      "/diagram/users?" +
+         new URLSearchParams({
+            diagram_id: diagramId,
+            email: email,
+            role: role,
+         }),
+      {
+         ...options,
+         method: "POST",
+      },
+   )
+      .then((res) => jsonResponse<undefined>(res))
+      .catch(() => defaultError);
+}
+
 export async function createDiagram(form: FormData, options?: RequestInit): Promise<APIResponse<string>> {
    return fetchAPI("/diagram", {
       ...options,
