@@ -17,10 +17,6 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    // if selected cell currently has rounded corners or not
    const [roundedIntensity, setRoundedIntensity] = useState(0); // no roundness -> 0% intensity
 
-   // if selected cell position or size is currently locked or not
-   const [positionLocked, setPositionLocked] = useState(false); // pos initially not locked
-   const [sizeLocked, setSizeLocked] = useState(false); // size initially not locked
-
    // the selected cells
    const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
 
@@ -540,117 +536,6 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </style>
                </div>
             </div>
-            {/* only show the size and position sections if multiple cells are selected */}
-            {selectedCells.length === 1 && (
-               <>
-                  <hr className="border-slate-400" />
-
-                  {/* ---------------------- POSITION SECTION ---------------------- */}
-                  <div className="flex flex-col pt-1.5 pb-3">
-                     <div className="flex justify-between">
-                        <div className="font-bold mb-1.5">Position</div>
-                     </div>
-
-                     <div className="items-center gap-3">
-                        {/* x location input */}
-                        <div className="flex items-center mb-1">
-                           <div className="w-1/7">X</div>
-                           <input
-                              value="20"
-                              className={`w-1/3 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
-                                 positionLocked
-                                    ? "hover:cursor-not-allowed text-slate-500"
-                                    : "hover:border-slate-400 focus:border-slate-400"
-                              }`}
-                              type="text"
-                              autoCapitalize="none"
-                              autoComplete="both"
-                              autoCorrect="off"
-                              spellCheck="false"
-                              disabled={positionLocked}
-                           />
-                        </div>
-
-                        {/* y location input */}
-                        <div className="flex items-center">
-                           <div className="w-1/7">Y</div>
-                           <input
-                              value="10"
-                              className={`w-1/3 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
-                                 positionLocked
-                                    ? "hover:cursor-not-allowed text-slate-500"
-                                    : "hover:border-slate-400 focus:border-slate-400"
-                              }`}
-                              type="text"
-                              autoCapitalize="none"
-                              autoComplete="both"
-                              autoCorrect="off"
-                              spellCheck="false"
-                              disabled={positionLocked}
-                           />
-                        </div>
-                     </div>
-                     <div className="flex mt-1.5">
-                        <input
-                           type="checkbox"
-                           id="position-lock"
-                           className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                           onChange={() => setPositionLocked(!positionLocked)}
-                           checked={positionLocked}
-                        />
-                        <label htmlFor="position-lock">Lock position</label>
-                     </div>
-                  </div>
-                  <hr className="border-slate-400" />
-
-                  {/* ---------------------- SIZING SECTION ---------------------- */}
-                  <div className="flex flex-col pt-1.5 pb-3">
-                     <div className="font-bold mb-1.5 justify-between">Sizing</div>
-                     <div className="items-center gap-3">
-                        {/* width input */}
-                        <div className="flex items-center mb-1">
-                           <div className="w-1/4">Width</div>
-                           <input
-                              value="20"
-                              className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
-                                 sizeLocked
-                                    ? "hover:cursor-not-allowed text-slate-500"
-                                    : "hover:border-slate-400 focus:border-slate-400"
-                              }`}
-                              type="text"
-                              disabled={sizeLocked}
-                           />
-                        </div>
-
-                        {/* height input */}
-                        <div className="flex items-center">
-                           <div className="w-1/4">Height</div>
-                           <input
-                              value="10"
-                              className={`w-1/3 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
-                                 sizeLocked
-                                    ? "hover:cursor-not-allowed text-slate-500"
-                                    : "hover:border-slate-400 focus:border-slate-400 text-black"
-                              }`}
-                              type="text"
-                              disabled={sizeLocked}
-                           />
-                        </div>
-
-                        <div className="flex mt-1.5">
-                           <input
-                              type="checkbox"
-                              id="size-lock"
-                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                              onChange={() => setSizeLocked(!sizeLocked)}
-                              checked={sizeLocked}
-                           />
-                           <label htmlFor="size-lock">Lock size</label>
-                        </div>
-                     </div>
-                  </div>
-               </>
-            )}
          </div>
       </>
    );
@@ -664,6 +549,14 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
    const [height, setHeight] = useState(node.getProp("size")?.height || node.getProp("height"));
    // for the width of a cell
    const [width, setWidth] = useState(node.getProp("size")?.width || node.getProp("width"));
+   // for the x position of a cell
+   const [x, setX] = useState(node.getProp("position")?.x || node.getProp("x"));
+   // for the y position of a cell
+   const [y, setY] = useState(node.getProp("position")?.y || node.getProp("y"));
+
+   // if selected cell position or size is currently locked or not
+   const [positionLocked, setPositionLocked] = useState(false); // pos initially not locked
+   const [sizeLocked, setSizeLocked] = useState(false); // size initially not locked
 
    // ---------------------- FOR SCROLLABLE SECTIONS -----------------
    // for if a top fade should be shown
@@ -881,9 +774,14 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                                                .findIndex((v: any) => v.name === variable.name);
 
                                                             // update the node's variables array
-                                                            const variables = node.prop("variables");
-                                                            variables[variableIndex].accessModifier = e.target.value;
-                                                            node.prop("variables", variables);
+                                                            node.prop("variables")[variableIndex].accessModifier =
+                                                               e.target.value;
+
+                                                            // update the node
+                                                            node.prop("variables", node.prop("variables"));
+
+                                                            // change the selected access modifier in the dropdown menu
+                                                            variable.accessModifier = e.target.value;
                                                          }}
                                                       >
                                                          <option value="private">private (-)</option>
@@ -904,6 +802,9 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
 
                                                          // update the node
                                                          node.prop("variables", variable);
+
+                                                         // set the node name to the variable name
+                                                         setNodeName(variable.name);
                                                       }}
                                                       // if the input is "Untitled" highlight the entire text
                                                       onFocus={(e) => {
@@ -926,11 +827,11 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                                    className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
                                                    type="text"
                                                    onChange={(e) => {
-                                                      // set the name of the variable
+                                                      // set the variriable name prop of the node
                                                       variable.name = e.target.value;
 
-                                                      if (e.target.value !== "") node.prop("variables", variable);
-                                                      else node.prop("variables", variable);
+                                                      // update the node
+                                                      node.prop("variables", variable);
                                                    }}
                                                    // if the input is "Untitled" highlight the entire text
                                                    onFocus={(e) => {
@@ -1107,15 +1008,128 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                  </svg>
                               </span>
                            </div>
+                        </div>
+                     </div>
+                     {/* map out the methods of the node */}
+                     {node.prop("methods").map((method, index) => (
+                        <>
+                           <div>
+                              {/* list all of the different variables on different lines */}
+                              <div className="flex gap-2">
+                                 <div className="flex mb-0.5">
+                                    <div className="mb-1.5">{method.name}</div>
+                                 </div>
+                              </div>
+                           </div>
+                        </>
+                     ))}
+                  </div>
 
-                           {/* if there are existing methods in the selected node, map them out with options to remove and/or edit the parameters, name, return type of these methods */}
+                  <div className="flex justify-between">
+                     {/* ---------------------- NODE POSITION SECTION ---------------------- */}
+                     <div className="flex flex-col pt-1.5">
+                        <div className="flex justify-between">
+                           <div className="font-bold mb-1.5">Position</div>
+                        </div>
+
+                        <div className="items-center gap-3">
+                           {/* x location input */}
+                           <div className="flex items-center mb-1">
+                              <div className="w-1/7">X</div>
+                              <input
+                                 value={x}
+                                 className={`w-16 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
+                                    positionLocked
+                                       ? "hover:cursor-not-allowed text-slate-500"
+                                       : "hover:border-slate-400 focus:border-slate-400"
+                                 }`}
+                                 type="text"
+                                 autoCapitalize="none"
+                                 autoComplete="both"
+                                 autoCorrect="off"
+                                 spellCheck="false"
+                                 disabled={positionLocked}
+                              />
+                           </div>
+
+                           {/* y location input */}
+                           <div className="flex items-center">
+                              <div className="w-1/7">Y</div>
+                              <input
+                                 value={y}
+                                 className={`w-16 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
+                                    positionLocked
+                                       ? "hover:cursor-not-allowed text-slate-500"
+                                       : "hover:border-slate-400 focus:border-slate-400"
+                                 }`}
+                                 type="text"
+                                 autoCapitalize="none"
+                                 autoComplete="both"
+                                 autoCorrect="off"
+                                 spellCheck="false"
+                                 disabled={positionLocked}
+                              />
+                           </div>
+                        </div>
+                        <div className="flex mt-1.5">
+                           <input
+                              type="checkbox"
+                              id="position-lock"
+                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
+                              onChange={() => setPositionLocked(!positionLocked)}
+                              checked={positionLocked}
+                           />
+                           <label htmlFor="position-lock">Lock pos</label>
+                        </div>
+                     </div>
+
+                     {/* ---------------------- NODE SIZING SECTION ---------------------- */}
+                     <div className="flex flex-col pt-1.5">
+                        <div className="font-bold mb-1.5 justify-between">Sizing</div>
+                        <div className="items-center gap-3">
+                           {/* width input */}
+                           <div className="flex items-center mb-1">
+                              <div className="w-12">Width</div>
+                              <input
+                                 value={width}
+                                 className={`w-16 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
+                                    sizeLocked
+                                       ? "hover:cursor-not-allowed text-slate-500"
+                                       : "hover:border-slate-400 focus:border-slate-400"
+                                 }`}
+                                 type="text"
+                                 disabled={sizeLocked}
+                              />
+                           </div>
+
+                           {/* height input */}
+                           <div className="flex items-center">
+                              <div className="w-12">Height</div>
+                              <input
+                                 value={height}
+                                 className={`w-16 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
+                                    sizeLocked
+                                       ? "hover:cursor-not-allowed text-slate-500"
+                                       : "hover:border-slate-400 focus:border-slate-400 text-black"
+                                 }`}
+                                 type="text"
+                                 disabled={sizeLocked}
+                              />
+                           </div>
+
+                           <div className="flex mt-1.5">
+                              <input
+                                 type="checkbox"
+                                 id="size-lock"
+                                 className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
+                                 onChange={() => setSizeLocked(!sizeLocked)}
+                                 checked={sizeLocked}
+                              />
+                              <label htmlFor="size-lock">Lock size</label>
+                           </div>
                         </div>
                      </div>
                   </div>
-
-                  {/* ---------------------- NODE SIZING SECTION ---------------------- */}
-
-                  {/* ---------------------- NODE POSITION SECTION ---------------------- */}
                </div>
             </div>
          </div>
