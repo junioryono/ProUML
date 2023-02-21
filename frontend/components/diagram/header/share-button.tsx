@@ -128,7 +128,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                        disabled={isLoading}
                                        {...register("email")}
                                     />
-                                    <div className="flex flex-row hover:bg-slate-50 pl-2 ml-2 h-11 mb-1 border-2 rounded-xl cursor-pointer items-center">
+                                    <div className="flex flex-row hover:bg-slate-50 pl-2 ml-2 h-11 mb-1 border rounded-xl cursor-pointer items-center">
                                        Editor
                                        <svg
                                           width="24"
