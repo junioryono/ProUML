@@ -12,7 +12,11 @@ const enum ClassSection {
 
 function ShapeClass({ node }: { node?: Node }) {
    // Need to include types
-   const { type, package: packageName, name: className, variables, methods } = node.getProp() as ClassNode;
+   const [type, setType] = useState<ClassNode["type"]>("class");
+   const [packageName, setPackageName] = useState<ClassNode["package"]>();
+   const [className, setClassName] = useState<ClassNode["name"]>();
+   const [variables, setVariables] = useState<ClassNode["variables"]>();
+   const [methods, setMethods] = useState<ClassNode["methods"]>();
 
    const [selectedSection, setSelectedSection] = useState<ClassSection>();
    const [font, setFont] = useState("Helvetica");
@@ -30,11 +34,39 @@ function ShapeClass({ node }: { node?: Node }) {
    // }, []);
 
    useEffect(() => {
-      console.log("package", packageName);
-      console.log("name", className);
-      console.log("variables", variables);
-      console.log("methods", methods);
+      if (!node) {
+         return;
+      }
+
+      const { type, package: packageName, name: className, variables, methods } = node.getProp() as ClassNode;
+
+      setType(type);
+      setPackageName(packageName);
+      setClassName(className);
+      setVariables(variables);
+      setMethods(methods);
    }, []);
+
+   useEffect(() => {
+      if (!node) {
+         return;
+      }
+
+      node.on("change:variables", (variablesTemp: ClassNode["variables"]) => {
+         setVariables(variablesTemp);
+         node.model.graph.trigger("node:change:data", { cell: node, options: {} });
+      });
+
+      return () => {
+         node.off("change:variables");
+      };
+   }, [node]);
+
+   useEffect(() => {
+      if (Array.isArray(variables)) {
+         node.prop("variables", [...variables]);
+      }
+   }, [variables]);
 
    return (
       <div

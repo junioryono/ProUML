@@ -144,7 +144,7 @@ export function wsLocalUpdateCell(
    } as any);
 }
 
-export function wsDBUpdateCell(
+export function wsLocalAndDBUpdateCell(
    cell: X6Type.Cell,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
    sessionId: MutableRefObject<string>,
@@ -155,7 +155,7 @@ export function wsDBUpdateCell(
 
    websocket.sendJsonMessage({
       sessionId: sessionId.current,
-      event: "broadcast/db_updateCell",
+      event: "broadcast/local_updateCell/db_updateCell",
       cell,
    } as any);
 }
