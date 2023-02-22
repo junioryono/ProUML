@@ -224,7 +224,6 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                </div>
                {nodes.map((node) => {
                   const props = node.getProp();
-                  // console.log(props);
                   const nodeId = props.id;
                   const nodeName = props.name;
                   const isSelected = selectedCells.includes(node);
