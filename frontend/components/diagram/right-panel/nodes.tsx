@@ -766,22 +766,14 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                                          value={variable.accessModifier}
                                                          className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
                                                          onChange={(e) => {
-                                                            // update the node's access modifier
-                                                            // find the index of the variable in the node's variables array
-                                                            console.log("e.target.value", e.target.value);
                                                             const variableIndex = node
                                                                .prop("variables")
                                                                .findIndex((v: any) => v.name === variable.name);
 
                                                             // update the node's variables array
-                                                            node.prop("variables")[variableIndex].accessModifier =
-                                                               e.target.value;
-
-                                                            // update the node
-                                                            node.prop("variables", node.prop("variables"));
-
-                                                            // change the selected access modifier in the dropdown menu
-                                                            variable.accessModifier = e.target.value;
+                                                            const variablesTemp = node.prop("variables");
+                                                            variablesTemp[variableIndex].accessModifier = e.target.value;
+                                                            node.trigger("change:variables", variablesTemp);
                                                          }}
                                                       >
                                                          <option value="private">private (-)</option>
@@ -1017,7 +1009,106 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                               {/* list all of the different variables on different lines */}
                               <div className="flex gap-2">
                                  <div className="flex mb-0.5">
-                                    <div className="mb-1.5">{method.name}</div>
+                                    {/* access modifier dropdown input */}
+                                    <div className="w-6 mr-1">
+                                       <div className="relative">
+                                          <div className="absolute inset-y-0 left-0 flex items-center pl-1">
+                                             {method.accessModifier === "private"
+                                                ? "-"
+                                                : method.accessModifier === "public"
+                                                ? "+"
+                                                : method.accessModifier === "protected"
+                                                ? "#"
+                                                : "-"}
+                                          </div>
+                                          <select
+                                             value={method.accessModifier}
+                                             className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
+                                             onChange={(e) => {
+                                                // update the node's access modifier
+                                                // find the index of the variable in the node's variables array
+                                                console.log("e.target.value", e.target.value);
+                                                const variableIndex = node
+                                                   .prop("variables")
+                                                   .findIndex((v: any) => v.name === method.name);
+
+                                                // update the node's variables array
+                                                node.prop("variables")[variableIndex].accessModifier = e.target.value;
+
+                                                // update the node
+                                                node.prop("variables", node.prop("variables"));
+
+                                                // change the selected access modifier in the dropdown menu
+                                                method.accessModifier = e.target.value;
+                                             }}
+                                          >
+                                             <option value="private">private (-)</option>
+                                             <option value="public">public (+)</option>
+                                             <option value="protected">protected (#)</option>
+                                          </select>
+                                       </div>
+                                    </div>
+
+                                    {/* method return type input */}
+                                    <div className="w-12 mr-1">
+                                       <input
+                                          value={method.type}
+                                          className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                                          type="text"
+                                          onChange={(e) => {
+                                             // set the variable type in the node
+                                             method.type = e.target.value;
+
+                                             // update the node
+                                             node.prop("variables", method);
+
+                                             // set the node name to the variable name
+                                             setNodeName(method.name);
+                                          }}
+                                          // if the input is "Untitled" highlight the entire text
+                                          onFocus={(e) => {
+                                             if (e.target.value === "Untitled") {
+                                                e.target.select();
+                                             }
+                                          }}
+                                          // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                                          onBlur={(e) => {
+                                             if (e.target.value === "") {
+                                                setNodeName("Untitled");
+                                                node.prop("name", "Untitled");
+                                             }
+                                          }}
+                                       />
+                                    </div>
+
+                                    {/* method name input */}
+                                    <input
+                                       value={method.name}
+                                       className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                                       type="text"
+                                       onChange={(e) => {
+                                          // set the variriable name prop of the node
+                                          method.name = e.target.value;
+
+                                          // update the node
+                                          node.prop("variables", method);
+                                       }}
+                                       // if the input is "Untitled" highlight the entire text
+                                       onFocus={(e) => {
+                                          if (e.target.value === "Untitled") {
+                                             e.target.select();
+                                          }
+                                       }}
+                                       // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                                       onBlur={(e) => {
+                                          if (e.target.value === "") {
+                                             setNodeName("Untitled");
+                                             node.prop("variables", method);
+                                          }
+                                       }}
+                                    />
+
+                                    {/* method parameters dropdown menu with text inputs for each parameter */}
                                  </div>
                               </div>
                            </div>
