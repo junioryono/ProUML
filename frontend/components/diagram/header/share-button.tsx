@@ -149,7 +149,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                     />
                                     <div className="relative">
                                        <div
-                                          className="flex flex-row hover:bg-slate-50 pl-2 ml-2 h-11 mb-1 border rounded-xl cursor-pointer items-center"
+                                          className="flex flex-row hover:bg-slate-50 pl-2 ml-2 h-11 mb-1 mr-4 border rounded-xl cursor-pointer items-center"
                                           onClick={toggleDropdown}
                                        >
                                           Editor
@@ -164,9 +164,11 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                           </svg>
                                        </div>
                                        {isOpen && (
-                                          <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2 pr-2">
+                                          <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2">
                                              <ul>
-                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Viewer</li>
+                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t">
+                                                   Viewer
+                                                </li>
                                                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Commentator</li>
                                                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                                                    <svg
@@ -183,8 +185,10 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                                    </svg>
                                                    Editor
                                                 </li>
-                                                <hr className="border-slate-400 mx-2" />
-                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Remove Access</li>
+                                                <hr className="border-slate-400 ml-1.5 mr-2" />
+                                                <li className="pl-3 py-2 hover:bg-gray-100 rounded-b cursor-pointer">
+                                                   Remove Access
+                                                </li>
                                              </ul>
                                           </div>
                                        )}
