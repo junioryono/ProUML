@@ -33,6 +33,10 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
    const [isLoading, setIsLoading] = useState<boolean>(false);
    const [open, setOpen] = useState(false);
    const [users, setUsers] = useState<User[]>(null);
+   const [isOpen, setIsOpen] = useState(false);
+   const toggleDropdown = () => setIsOpen(!isOpen);
+   const [showMenu, setShowMenu] = useState(false);
+   const handleMenuClick = () => setShowMenu(!showMenu);
 
    async function onSubmit(data: FormData) {
       console.log("onSubmit", data);
@@ -143,17 +147,47 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                        disabled={isLoading}
                                        {...register("email")}
                                     />
-                                    <div className="flex flex-row hover:bg-slate-50 pl-2 ml-2 h-11 mb-1 border rounded-xl cursor-pointer items-center">
-                                       Editor
-                                       <svg
-                                          width="24"
-                                          height="24"
-                                          viewBox="0 0 24 24"
-                                          focusable="false"
-                                          className="cursor-pointer"
+                                    <div className="relative">
+                                       <div
+                                          className="flex flex-row hover:bg-slate-50 pl-2 ml-2 h-11 mb-1 border rounded-xl cursor-pointer items-center"
+                                          onClick={toggleDropdown}
                                        >
-                                          <path d="M7 10l5 5 5-5H7z"></path>
-                                       </svg>
+                                          Editor
+                                          <svg
+                                             width="24"
+                                             height="24"
+                                             viewBox="0 0 24 24"
+                                             focusable="false"
+                                             className="cursor-pointer"
+                                          >
+                                             <path d="M7 10l5 5 5-5H7z"></path>
+                                          </svg>
+                                       </div>
+                                       {isOpen && (
+                                          <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2 pr-2">
+                                             <ul>
+                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Viewer</li>
+                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Commentator</li>
+                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                                                   <svg
+                                                      width="16"
+                                                      height="16"
+                                                      viewBox="0 0 24 24"
+                                                      focusable="false"
+                                                      className="inline-block mr-3 text-black"
+                                                   >
+                                                      <path
+                                                         fill="currentColor"
+                                                         d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
+                                                      ></path>
+                                                   </svg>
+                                                   Editor
+                                                </li>
+                                                <hr className="border-slate-400 mx-2" />
+                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Remove Access</li>
+                                             </ul>
+                                          </div>
+                                       )}
                                     </div>
                                  </div>
                                  {errors?.email && <p className="text-sm mt-1 mb-1 text-red-600">{errors.email.message}</p>}
@@ -201,7 +235,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                                 {sharedUser.user_id === user.user_id && (
                                                    <span className="text-xs text-stone-500 pl-2 mb-1 mt-auto">(you)</span>
                                                 )}
-                                                <div className="flex flex-row text-gray-600 hover:bg-slate-50 hover:text-black pl-3 cursor-pointer pl-auto mr-10 rounded ml-auto">
+                                                <div className="flex flex-row text-gray-600 hover:bg-slate-50 hover:text-black px-2 cursor-pointer pl-auto mr-10 rounded ml-auto">
                                                    {capitalizeFirstLetter(sharedUser.role)}
                                                    {sharedUser.role !== "owner" && (
                                                       <svg
@@ -242,14 +276,39 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                  >
                                     <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path>
                                  </svg>
-                                 <div className=" flex flex-col cursor-pointer rounded-md px-2 mb-1">
-                                    <div className="flex flex-row text-sm cursor-pointer hover:bg-slate-200 w-28 pl-2 mt-1 rounded-md">
+                                 <div className="relative">
+                                    <div
+                                       className="flex flex-row text-sm cursor-pointer hover:bg-slate-200 w-24 pl-2 mt-1 rounded-md"
+                                       onClick={handleMenuClick}
+                                    >
                                        Restricted
                                        <svg width="20" height="20" viewBox="0 0 24 24" focusable="false" className="">
                                           <path d="M7 10l5 5 5-5H7z"></path>
                                        </svg>
                                     </div>
-                                    <div className="text-xs text-stone-500  pl-2">
+                                    {showMenu && (
+                                       <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-1">
+                                          <div className="pr-10 pl-5 pb-2 pt-2 text-sm hover:bg-gray-100 cursor-pointer rounded-t-md">
+                                             <svg
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                                focusable="false"
+                                                className="inline-block mr-3 text-black"
+                                             >
+                                                <path
+                                                   fill="currentColor"
+                                                   d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
+                                                ></path>
+                                             </svg>
+                                             Restricted
+                                          </div>
+                                          <div className="pr-10 pl-5 pb-3 pt-2 text-sm hover:bg-gray-100 cursor-pointer">
+                                             Anyone with link
+                                          </div>
+                                       </div>
+                                    )}
+                                    <div className="text-xs text-stone-500 pl-2">
                                        Only people with access can open the link
                                     </div>
                                  </div>
