@@ -95,7 +95,9 @@ function ShapeClass({ node }: { node?: Node }) {
                         : "+"}
                      {variable.name}: {variable.type}
                      {/* if there is a variable value, show it */}
-                     {variable.value && ` = ${variable.value}`}
+                     {variable.value &&
+                        // if the value is a string, add quotes
+                        (typeof variable.value === "string" ? ` = "${variable.value}"` : ` = ${variable.value}`)}
                   </div>
                ))}
             </div>
