@@ -30,29 +30,29 @@ function onWebSocketMessage(
    }
 
    const events = message.event.split("/");
-   if (events.includes("local_updateCell")) {
-      const cell = message.cell;
-      if (!cell) {
+   if (events.includes("local_updateNode")) {
+      const node = message.cell as X6Type.Node;
+      if (!node) {
          return;
       }
 
-      const cellInGraph = graph.current?.getCellById(cell.id);
-      if (!cellInGraph) {
+      const nodeInGraph = graph.current?.getCellById(node.id);
+      if (!nodeInGraph) {
          return;
       }
+
+      console.log("local_updateNode", node);
 
       graph.current?.batchUpdate(() => {
-         for (const key in cell) {
-            if (key === "id") {
-               continue;
-            }
+         nodeInGraph.trigger("change:className", { name: node["name"], ws: true });
+         nodeInGraph.trigger("change:variables", { variables: node["variables"] || [], ws: true });
+         nodeInGraph.trigger("change:methods", { methods: node["methods"] || [], ws: true });
 
-            cellInGraph.setProp(key, cell[key], { ws: true });
-         }
-
-         if (!cell.angle) {
-            cellInGraph.setProp("angle", 0, { ws: true });
-         }
+         nodeInGraph.setProp("package", node["package"], { ws: true });
+         nodeInGraph.setProp("type", node["type"], { ws: true });
+         nodeInGraph.setProp("angle", node["angle"] || 0, { ws: true });
+         node["size"] && nodeInGraph.setProp("size", node["size"], { ws: true });
+         node["position"] && nodeInGraph.setProp("position", node["position"], { ws: true });
       });
    } else if (events.includes("local_removeCell")) {
       const cell = message.cell;
@@ -128,7 +128,7 @@ export function wsDBUpdateGraphImage(
    } as any);
 }
 
-export function wsLocalUpdateCell(
+export function wsLocalUpdateNode(
    cell: X6Type.Cell,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
    sessionId: MutableRefObject<string>,
@@ -139,12 +139,12 @@ export function wsLocalUpdateCell(
 
    websocket.sendJsonMessage({
       sessionId: sessionId.current,
-      event: "broadcast/local_updateCell",
+      event: "broadcast/local_updateNode",
       cell,
    } as any);
 }
 
-export function wsLocalAndDBUpdateCell(
+export function wsLocalAndDBUpdateNode(
    cell: X6Type.Cell,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
    sessionId: MutableRefObject<string>,
@@ -155,7 +155,7 @@ export function wsLocalAndDBUpdateCell(
 
    websocket.sendJsonMessage({
       sessionId: sessionId.current,
-      event: "broadcast/local_updateCell/db_updateCell",
+      event: "broadcast/local_updateNode/db_updateCell",
       cell,
    } as any);
 }

@@ -1,5 +1,5 @@
 import type X6Type from "@antv/x6";
-import { wsLocalAndDBUpdateCell, wsDBUpdateGraphImage, wsLocalUpdateCell } from "@/components/diagram/x6/graph/websocket";
+import { wsLocalAndDBUpdateNode, wsDBUpdateGraphImage, wsLocalUpdateNode } from "@/components/diagram/x6/graph/websocket";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
@@ -13,7 +13,7 @@ export default function Graph(
    // const dbListeners = ["node:added", "node:removed", "node:resized", "node:moved", "node:rotated"];
    // for (const dbListener of dbListeners) {
    //    graph.current?.on(dbListener, (args: { cell: X6Type.Cell<X6Type.Cell.Properties> }) => {
-   //       wsLocalAndDBUpdateCell(args.cell, websocket, sessionId);
+   //       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    //    });
    // }
 

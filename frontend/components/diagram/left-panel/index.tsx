@@ -39,6 +39,10 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          setSelectedCells(graph.current?.getSelectedCells());
       });
 
+      graph.current?.on("node:change:className", () => {
+         setNodes(graph.current?.getCells());
+      });
+
       // remove all event listeners
       const graphRef = graph.current;
       return () => {

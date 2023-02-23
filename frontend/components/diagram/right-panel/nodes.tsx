@@ -1,5 +1,6 @@
 import type X6Type from "@antv/x6";
-import { MutableRefObject, useEffect, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { ClassNode } from "types";
 import { lightColorOptions, darkColorOptions } from ".";
 
 export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
@@ -553,6 +554,10 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
    const [x, setX] = useState(node.getProp("position")?.x || node.getProp("x"));
    // for the y position of a cell
    const [y, setY] = useState(node.getProp("position")?.y || node.getProp("y"));
+   // for the variables of a class node
+   const [variables, setVariables] = useState((node.getProp("variables") as ClassNode["variables"]) || []);
+   // for the methods of a class node
+   const [methods, setMethods] = useState((node.getProp("methods") as ClassNode["methods"]) || []);
 
    // if selected cell position or size is currently locked or not
    const [positionLocked, setPositionLocked] = useState(false); // pos initially not locked
@@ -575,16 +580,26 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
 
    // setting the node name
    useEffect(() => {
+      if (!node) {
+         return;
+      }
+
       const props = node.prop();
       console.log("props", props);
       setNodeName(props.name);
-   }, [node]);
+      setHeight(props.size?.height || props.height);
+      setWidth(props.size?.width || props.width);
 
-   // make sure to update the node values when the node is changed
-   useEffect(() => {
-      setNodeName(node.prop("name"));
-      setHeight(node.getProp("size")?.height || node.getProp("height"));
-      setWidth(node.getProp("size")?.width || node.getProp("width"));
+      node.on("change:size", (args) => {
+         const size = args.cell.getProp("size");
+         setWidth(size.width);
+         setHeight(size.height);
+      });
+
+      node.on("change:position", (cell) => {
+         setX(cell.current.x);
+         setY(cell.current.y);
+      });
    }, [node]);
 
    return (
@@ -608,8 +623,8 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                            // set the name of the node
                            setNodeName(e.target.value);
 
-                           if (e.target.value !== "") node.prop("name", e.target.value);
-                           else node.prop("name", "Untitled");
+                           // set the name of the node in the graph
+                           node.trigger("change:className", { name: e.target.value });
                         }}
                         // if the input is "Untitled" highlight the entire text
                         onFocus={(e) => {
@@ -675,22 +690,22 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                               className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                               onClick={() => {
                                  // get the selected cell and its variables
-                                 const variablesTemp = node.prop("variables") || [];
+                                 const variablesTemp = [...variables];
 
                                  // add this new variable to the array of variables
                                  variablesTemp.push({
                                     type: "String",
                                     name: `variable${variablesTemp.length + 1}`,
                                     value: "value",
+                                    // @ts-ignore
                                     accessModifier: "private",
                                  });
 
-                                 node.trigger("change:variables", variablesTemp);
+                                 setVariables(variablesTemp);
+                                 node.trigger("change:variables", { variables: variablesTemp });
 
                                  const newHeight = height + (variablesTemp.length > 1 ? 20 : 36);
                                  node.resize(node.prop("size").width, newHeight);
-
-                                 setHeight(newHeight);
                               }}
                            >
                               <span
@@ -718,241 +733,62 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                      </div>
 
                      {/* map out all the variables in the selected cell */}
-                     {node.prop("variables") && (
-                        <>
-                           <div className="relative mb-1">
-                              <div
-                                 ref={handleContainerRef}
-                                 className="overflow-y-scroll no-scrollbar overflow-x-hidden max-h-28 list-container"
-                                 onScroll={(e: React.UIEvent<HTMLDivElement>) => {
-                                    const { scrollTop, clientHeight, scrollHeight } = e.target as HTMLDivElement;
+                     <div className="relative mb-1">
+                        <div
+                           ref={handleContainerRef}
+                           className="overflow-y-scroll no-scrollbar overflow-x-hidden max-h-28 list-container"
+                           onScroll={(e: React.UIEvent<HTMLDivElement>) => {
+                              const { scrollTop, clientHeight, scrollHeight } = e.target as HTMLDivElement;
 
-                                    // if the scroll bar is at the top of the list, show only the bottom fade effect
-                                    if (scrollTop === 0) {
-                                       setShowBottomFade(true);
-                                       setShowTopFade(false);
-                                    } else {
-                                       // if the scroll bar reaches the bottom of the list get rid of the bottom fade effect
-                                       if (scrollTop + clientHeight === scrollHeight) {
-                                          setShowBottomFade(false);
-                                          setShowTopFade(true);
-                                          // if the scroll bar is not at the top or bottom of the list, show both top and bottom fades
-                                       } else {
-                                          setShowTopFade(true);
-                                          setShowBottomFade(true);
-                                       }
-                                    }
-                                 }}
-                              >
-                                 {node.prop("variables").map((variable: any, index: number) => (
-                                    <>
-                                       <div>
-                                          {/* list all of the different variables on different lines */}
-                                          <div className="flex gap-2">
-                                             <div className="flex mb-0.5">
-                                                {/* access modifier dropdown input */}
-                                                <div className="w-6 mr-1">
-                                                   <div className="relative">
-                                                      <div className="absolute inset-y-0 left-0 flex items-center pl-1">
-                                                         {variable.accessModifier === "private"
-                                                            ? "-"
-                                                            : variable.accessModifier === "public"
-                                                            ? "+"
-                                                            : variable.accessModifier === "protected"
-                                                            ? "#"
-                                                            : "-"}
-                                                      </div>
-                                                      <select
-                                                         value={variable.accessModifier}
-                                                         className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
-                                                         onChange={(e) => {
-                                                            const variableIndex = node
-                                                               .prop("variables")
-                                                               .findIndex((v: any) => v.name === variable.name);
+                              // if the scroll bar is at the top of the list, show only the bottom fade effect
+                              if (scrollTop === 0) {
+                                 setShowBottomFade(true);
+                                 setShowTopFade(false);
+                              } else {
+                                 // if the scroll bar reaches the bottom of the list get rid of the bottom fade effect
+                                 if (scrollTop + clientHeight === scrollHeight) {
+                                    setShowBottomFade(false);
+                                    setShowTopFade(true);
+                                    // if the scroll bar is not at the top or bottom of the list, show both top and bottom fades
+                                 } else {
+                                    setShowTopFade(true);
+                                    setShowBottomFade(true);
+                                 }
+                              }
+                           }}
+                        >
+                           {variables.map((variable, index) => (
+                              <NodeSettingsVariable
+                                 key={index}
+                                 node={node}
+                                 variables={variables}
+                                 variable={variable}
+                                 index={index}
+                                 setVariables={setVariables}
+                              />
+                           ))}
+                        </div>
 
-                                                            // update the node's variables array
-                                                            const variablesTemp = node.prop("variables");
-                                                            variablesTemp[variableIndex].accessModifier = e.target.value;
-                                                            node.trigger("change:variables", variablesTemp);
-                                                         }}
-                                                      >
-                                                         <option value="private">private (-)</option>
-                                                         <option value="public">public (+)</option>
-                                                         <option value="protected">protected (#)</option>
-                                                      </select>
-                                                   </div>
-                                                </div>
-                                                {/* variable type text input */}
-                                                <div className="w-12 mr-1">
-                                                   <input
-                                                      value={variable.type}
-                                                      className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
-                                                      type="text"
-                                                      onChange={(e) => {
-                                                         // set the variable type in the node
-                                                         variable.type = e.target.value;
-
-                                                         // update the node
-                                                         node.prop("variables", variable);
-
-                                                         // set the node name to the variable name
-                                                         setNodeName(variable.name);
-                                                      }}
-                                                      // if the input is "Untitled" highlight the entire text
-                                                      onFocus={(e) => {
-                                                         if (e.target.value === "Untitled") {
-                                                            e.target.select();
-                                                         }
-                                                      }}
-                                                      // if the input is empty after clicking out of the input field, set the name to "Untitled"
-                                                      onBlur={(e) => {
-                                                         if (e.target.value === "") {
-                                                            setNodeName("Untitled");
-                                                            node.prop("name", "Untitled");
-                                                         }
-                                                      }}
-                                                   />
-                                                </div>
-                                                {/* variable name input */}
-                                                <input
-                                                   value={variable.name}
-                                                   className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
-                                                   type="text"
-                                                   onChange={(e) => {
-                                                      // set the variriable name prop of the node
-                                                      variable.name = e.target.value;
-
-                                                      // update the node
-                                                      node.prop("variables", variable);
-                                                   }}
-                                                   // if the input is "Untitled" highlight the entire text
-                                                   onFocus={(e) => {
-                                                      if (e.target.value === "Untitled") {
-                                                         e.target.select();
-                                                      }
-                                                   }}
-                                                   // if the input is empty after clicking out of the input field, set the name to "Untitled"
-                                                   onBlur={(e) => {
-                                                      if (e.target.value === "") {
-                                                         setNodeName("Untitled");
-                                                         node.prop("variables", variable);
-                                                      }
-                                                   }}
-                                                />
-                                                {/* variable value input */}
-                                                <div
-                                                   className={`ml-0.5 mr-0.5 ${
-                                                      !variable.value ? "text-slate-400" : "text-black"
-                                                   }`}
-                                                >
-                                                   =
-                                                </div>
-                                                <input
-                                                   value={variable.value}
-                                                   className={`w-10 text-center block rounded-md border text-md focus:outline-none hover:border-slate-400 focus:border-slate-400
-                                                   ${
-                                                      !variable.value
-                                                         ? "border-2 border-dotted bg-slate-100 border-slate-400 h-6.5"
-                                                         : "bg-slate-200 border-slate-300 py-3 h-3"
-                                                   }`}
-                                                   type="text"
-                                                   onChange={(e) => {
-                                                      // set the value of the variable
-                                                      variable.value = e.target.value;
-
-                                                      if (e.target.value !== "") node.prop("variables", variable);
-                                                      else node.prop("variables", variable);
-                                                   }}
-                                                   // if the input is "Untitled" highlight the entire text
-                                                   onFocus={(e) => {
-                                                      if (e.target.value === "Untitled") {
-                                                         e.target.select();
-                                                      }
-                                                   }}
-                                                   // if the input is empty after clicking out of the input field, set the name to "Untitled"
-                                                   onBlur={(e) => {
-                                                      if (e.target.value === "") {
-                                                         setNodeName("Untitled");
-                                                         node.prop("variables", variable);
-                                                      }
-                                                   }}
-                                                />
-                                                {/* delete button to delete the variable */}
-                                                <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">
-                                                   <div
-                                                      className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
-                                                      onClick={() => {
-                                                         // remove the variable from the node
-                                                         const variablesTemp = node.prop("variables");
-                                                         variablesTemp.splice(index, 1);
-                                                         node.trigger("change:variables", variablesTemp);
-
-                                                         const newHeight = height - (variablesTemp.length > 0 ? 20 : 36);
-                                                         node.resize(node.prop("size").width, newHeight);
-
-                                                         setHeight(newHeight);
-                                                      }}
-                                                   >
-                                                      <span
-                                                         role="button"
-                                                         className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
-                                                      >
-                                                         {/* trash can svg */}
-                                                         <svg
-                                                            width="20px"
-                                                            height="20px"
-                                                            viewBox="0 0 24 24"
-                                                            fill="none"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                         >
-                                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                                            <g
-                                                               id="SVGRepo_tracerCarrier"
-                                                               stroke-linecap="round"
-                                                               stroke-linejoin="round"
-                                                            ></g>
-                                                            <g id="SVGRepo_iconCarrier">
-                                                               <path
-                                                                  d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
-                                                                  stroke="#000000"
-                                                                  stroke-width="1.5"
-                                                                  stroke-linecap="round"
-                                                                  stroke-linejoin="round"
-                                                               ></path>
-                                                            </g>
-                                                         </svg>
-                                                      </span>
-                                                   </div>
-                                                </div>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </>
-                                 ))}
-                              </div>
-
-                              {/* if the list is too long (needs a scroll), show the fade effect */}
-                              {containerHeight > 90 && (
+                        {/* if the list is too long (needs a scroll), show the fade effect */}
+                        {containerHeight > 90 && (
+                           <>
+                              {/* only show top fade if not at the top of list */}
+                              {showTopFade && (
                                  <>
-                                    {/* only show top fade if not at the top of list */}
-                                    {showTopFade && (
-                                       <>
-                                          {/* fade effect for top elements in the list */}
-                                          <div className="absolute top-0 w-full h-6 pointer-events-none after:absolute after:top-0 after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-b from-white to-transparent"></div>
-                                       </>
-                                    )}
-                                    {/* only show bottom fade if not at the bottom of list */}
-                                    {showBottomFade && (
-                                       <>
-                                          {/* fade effect for bottom elements in the list */}
-                                          <div className="absolute bottom-0 w-full h-6 pointer-events-none after:absolute after:bottom-0 after: after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-t from-white to-transparent"></div>
-                                       </>
-                                    )}
+                                    {/* fade effect for top elements in the list */}
+                                    <div className="absolute top-0 w-full h-6 pointer-events-none after:absolute after:top-0 after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-b from-white to-transparent"></div>
                                  </>
                               )}
-                           </div>
-                        </>
-                     )}
+                              {/* only show bottom fade if not at the bottom of list */}
+                              {showBottomFade && (
+                                 <>
+                                    {/* fade effect for bottom elements in the list */}
+                                    <div className="absolute bottom-0 w-full h-6 pointer-events-none after:absolute after:bottom-0 after: after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-t from-white to-transparent"></div>
+                                 </>
+                              )}
+                           </>
+                        )}
+                     </div>
                   </div>
 
                   {/* ---------------------- NODE METHODS SECTION ---------------------- */}
@@ -1056,14 +892,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                           className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
                                           type="text"
                                           onChange={(e) => {
-                                             // set the variable type in the node
-                                             method.type = e.target.value;
-
-                                             // update the node
-                                             node.prop("variables", method);
-
-                                             // set the node name to the variable name
-                                             setNodeName(method.name);
+                                             // TODO
                                           }}
                                           // if the input is "Untitled" highlight the entire text
                                           onFocus={(e) => {
@@ -1087,11 +916,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                        className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
                                        type="text"
                                        onChange={(e) => {
-                                          // set the variriable name prop of the node
-                                          method.name = e.target.value;
-
-                                          // update the node
-                                          node.prop("variables", method);
+                                          // TODO
                                        }}
                                        // if the input is "Untitled" highlight the entire text
                                        onFocus={(e) => {
@@ -1226,5 +1051,185 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
          </div>
          <hr className="border-slate-400 pb-1.5" />
       </>
+   );
+}
+
+function NodeSettingsVariable({
+   node,
+   variables,
+   variable,
+   index,
+   setVariables,
+}: {
+   node: X6Type.Node;
+   variables: ClassNode["variables"];
+   variable: ClassNode["variables"][0];
+   index: number;
+   setVariables: React.Dispatch<React.SetStateAction<ClassNode["variables"]>>;
+}) {
+   const [accessModifier, setAccessModifier] = useState(variable.accessModifier);
+   const [name, setName] = useState(variable.name);
+   const [type, setType] = useState(variable.type);
+   const [value, setValue] = useState(variable.value);
+
+   useEffect(() => {
+      // update the node's variables array
+      const newVariables = [...variables];
+      newVariables[index] = {
+         ...variable,
+         accessModifier,
+         name,
+         type,
+         value,
+      };
+      setVariables(newVariables);
+   }, [accessModifier, name, type, value]);
+
+   return (
+      <div>
+         {/* list all of the different variables on different lines */}
+         <div className="flex gap-2">
+            <div className="flex mb-0.5">
+               {/* access modifier dropdown input */}
+               <div className="w-6 mr-1">
+                  <div className="relative">
+                     <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none">
+                        {accessModifier === "private"
+                           ? "-"
+                           : accessModifier === "public"
+                           ? "+"
+                           : accessModifier === "protected"
+                           ? "#"
+                           : "-"}
+                     </div>
+                     <select
+                        value={accessModifier}
+                        className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
+                        onChange={(e) => {
+                           // update the node's variables array
+                           // @ts-ignore
+                           variables[index].accessModifier = e.target.value;
+                           node.trigger("change:variables", { variables });
+                           setAccessModifier(variables[index].accessModifier);
+                        }}
+                     >
+                        <option value="private">private (-)</option>
+                        <option value="public">public (+)</option>
+                        <option value="protected">protected (#)</option>
+                     </select>
+                  </div>
+               </div>
+               {/* variable type text input */}
+               <div className="w-12 mr-1">
+                  <input
+                     value={type}
+                     className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                     type="text"
+                     onChange={(e) => {
+                        // update the node's variables array
+                        setType(e.target.value);
+                        variables[index].type = e.target.value;
+                        console.log(variables[index].type);
+                        node.trigger("change:variables", { variables });
+                     }}
+                     // if the input is "Untitled" highlight the entire text
+                     onFocus={(e) => {
+                        if (e.target.value === "Untitled") {
+                           e.target.select();
+                        }
+                     }}
+                     // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                     onBlur={(e) => {}}
+                  />
+               </div>
+               {/* variable name input */}
+               <input
+                  value={name}
+                  className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                  type="text"
+                  onChange={(e) => {
+                     // update the node's variables array
+                     setName(e.target.value);
+                     variables[index].name = e.target.value;
+                     node.trigger("change:variables", { variables });
+                  }}
+                  // if the input is "Untitled" highlight the entire text
+                  onFocus={(e) => {
+                     if (e.target.value === "Untitled") {
+                        e.target.select();
+                     }
+                  }}
+                  // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                  onBlur={(e) => {}}
+               />
+               {/* variable value input */}
+               <div className={`ml-0.5 mr-0.5 ${!value ? "text-slate-400" : "text-black"}`}>=</div>
+               <input
+                  value={value}
+                  className={`w-10 text-center block rounded-md border text-md focus:outline-none hover:border-slate-400 focus:border-slate-400
+                     ${
+                        !value
+                           ? "border-2 border-dotted bg-slate-100 border-slate-400 h-6.5"
+                           : "bg-slate-200 border-slate-300 py-3 h-3"
+                     }`}
+                  type="text"
+                  onChange={(e) => {
+                     // update the node's variables array
+                     setValue(e.target.value);
+                     variables[index].value = e.target.value;
+                     node.trigger("change:variables", { variables });
+                  }}
+                  // if the input is "Untitled" highlight the entire text
+                  onFocus={(e) => {
+                     if (e.target.value === "Untitled") {
+                        e.target.select();
+                     }
+                  }}
+                  // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                  onBlur={(e) => {}}
+               />
+               {/* delete button to delete the variable */}
+               <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">
+                  <div
+                     className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
+                     onClick={() => {
+                        // update the node's variables array
+                        const newVariables = [...variables];
+                        newVariables.splice(index, 1);
+                        setVariables(newVariables);
+                        node.trigger("change:variables", { variables: newVariables });
+
+                        const currentWidth = node.prop("size").width;
+                        const currentHeight = node.prop("size").height;
+
+                        // update the node's size
+                        const newHeight = currentHeight - (newVariables.length === 0 ? 36 : 20);
+                        node.resize(currentWidth, newHeight);
+                     }}
+                  >
+                     <span
+                        role="button"
+                        className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                     >
+                        {/* trash can svg */}
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                           <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                           <g id="SVGRepo_iconCarrier">
+                              <path
+                                 d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
+                                 stroke="#000000"
+                                 stroke-width="1.5"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                              ></path>
+                           </g>
+                        </svg>
+                     </span>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
    );
 }
