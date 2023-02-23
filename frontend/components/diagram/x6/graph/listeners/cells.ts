@@ -3,8 +3,8 @@ import {
    wsLocalAndDBAddNode,
    wsLocalAndDBAddEdge,
    wsLocalAndDBRemoveCell,
-   wsLocalAndDBUpdateCell,
-   wsLocalUpdateCell,
+   wsLocalAndDBUpdateNode,
+   wsLocalUpdateNode,
 } from "@/components/diagram/x6/graph/websocket";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
@@ -19,7 +19,7 @@ export default function Cells(
    // const dbListeners = ["node:added", "node:removed", "node:resized", "node:moved", "node:rotated"];
    // for (const dbListener of dbListeners) {
    //    graph.current?.on(dbListener, (args: { cell: X6Type.Cell<X6Type.Cell.Properties> }) => {
-   //       wsLocalAndDBUpdateCell(args.cell, websocket, sessionId);
+   //       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    //    });
    // }
 
@@ -59,30 +59,36 @@ export default function Cells(
          return;
       }
 
-      wsLocalAndDBUpdateCell(args.cell, websocket, sessionId);
+      console.log(args.cell.prop("name"));
+
+      wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
+   });
+
+   graph.current?.on("node:move", (args) => {
+      graph.current?.select(args.cell);
    });
 
    graph.current?.on("node:moving", () => {
       graph.current?.getSelectedCells().forEach((cell) => {
          if (cell.isNode()) {
-            wsLocalUpdateCell(cell, websocket, sessionId);
+            wsLocalUpdateNode(cell, websocket, sessionId);
          }
       });
    });
 
    graph.current?.on("node:moved", (args) => {
       console.log("node:moved", args);
-      wsLocalAndDBUpdateCell(args.cell, websocket, sessionId);
+      wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    });
 
    graph.current?.on("node:resized", (args) => {
       console.log("node:resized", args);
-      wsLocalAndDBUpdateCell(args.cell, websocket, sessionId);
+      wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    });
 
    graph.current?.on("node:change:angle", (args) => {
       console.log("node:change:angle", args);
-      wsLocalAndDBUpdateCell(args.cell, websocket, sessionId);
+      wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    });
 
    return () => {

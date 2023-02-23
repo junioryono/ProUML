@@ -15,8 +15,8 @@ function ShapeClass({ node }: { node?: Node }) {
    const [type, setType] = useState<ClassNode["type"]>("class");
    const [packageName, setPackageName] = useState<ClassNode["package"]>();
    const [className, setClassName] = useState<ClassNode["name"]>();
-   const [variables, setVariables] = useState<ClassNode["variables"]>();
-   const [methods, setMethods] = useState<ClassNode["methods"]>();
+   const [variables, setVariables] = useState<ClassNode["variables"]>([]);
+   const [methods, setMethods] = useState<ClassNode["methods"]>([]);
 
    const [selectedSection, setSelectedSection] = useState<ClassSection>();
    const [font, setFont] = useState("Helvetica");
@@ -52,20 +52,33 @@ function ShapeClass({ node }: { node?: Node }) {
          return;
       }
 
-      node.on("change:variables", (variablesTemp: ClassNode["variables"]) => {
-         setVariables(variablesTemp);
-         node.model.graph.trigger("node:change:data", { cell: node, options: {} });
+      node.on("change:className", ({ name, ws }: { name: ClassNode["name"]; ws: boolean }) => {
+         setClassName(name);
+         node.prop("name", name, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         node.model.graph.trigger("node:change:className"); // This is for updating the left panel
+      });
+
+      node.on("change:variables", ({ variables, ws }: { variables: ClassNode["variables"]; ws: boolean }) => {
+         setVariables(variables);
+         node
+            .prop("variables", [...variables], { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
       });
 
       return () => {
+         node.off("change:className");
          node.off("change:variables");
+         node.off("change:position");
+         node.off("change:size");
       };
    }, [node]);
 
    useEffect(() => {
-      if (Array.isArray(variables)) {
-         node.prop("variables", [...variables]);
-      }
+      node.prop("name", className, { silent: true }); // This is for updating the node on the graph
+   }, [className]);
+
+   useEffect(() => {
+      node.prop("variables", [...variables], { silent: true });
    }, [variables]);
 
    return (
@@ -79,6 +92,7 @@ function ShapeClass({ node }: { node?: Node }) {
             height: "100%",
             backgroundColor: "white",
             border: "1px solid black",
+            overflow: "hidden",
          }}
       >
          <div
@@ -125,11 +139,9 @@ function ShapeClass({ node }: { node?: Node }) {
                            ? "-"
                            : "+"
                         : "+"}
-                     {variable.name}: {variable.type}
-                     {/* if there is a variable value, show it */}
-                     {variable.value &&
-                        // if the value is a string, add quotes
-                        (typeof variable.value === "string" ? ` = "${variable.value}"` : ` = ${variable.value}`)}
+                     {variable.name}
+                     {variable.type && `: ${variable.type}`}
+                     {variable.value && ` = ${variable.value}`}
                   </div>
                ))}
             </div>

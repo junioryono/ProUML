@@ -1,5 +1,4 @@
 import type X6Type from "@antv/x6";
-import { wsLocalAndDBRemoveCell, wsLocalAndDBUpdateCell, wsLocalUpdateCell } from "@/components/diagram/x6/graph/websocket";
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";

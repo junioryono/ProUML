@@ -4,7 +4,7 @@ import { lightColorOptions } from ".";
 
 export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for the zoom of the graph
-   const [zoom, setZoom] = useState(100);
+   const [zoom, setZoom] = useState(graph.current?.zoom() * 100 || 100);
 
    // for if a grid is visible or not
    const [grid, setGrid] = useState(true);
