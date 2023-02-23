@@ -675,19 +675,19 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                               className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                               onClick={() => {
                                  // get the selected cell and its variables
-                                 const variables = node.prop("variables") || [];
+                                 const variablesTemp = node.prop("variables") || [];
 
                                  // add this new variable to the array of variables
-                                 variables.push({
+                                 variablesTemp.push({
                                     type: "String",
-                                    name: `variable${variables.length + 1}`,
+                                    name: `variable${variablesTemp.length + 1}`,
                                     value: "value",
                                     accessModifier: "private",
                                  });
 
-                                 node.prop("variables", variables);
+                                 node.trigger("change:variables", variablesTemp);
 
-                                 const newHeight = height + (variables.length > 1 ? 20 : 36);
+                                 const newHeight = height + (variablesTemp.length > 1 ? 20 : 36);
                                  node.resize(node.prop("size").width, newHeight);
 
                                  setHeight(newHeight);
@@ -883,11 +883,11 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                                       className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
                                                       onClick={() => {
                                                          // remove the variable from the node
-                                                         const variables = node.prop("variables");
-                                                         variables.splice(index, 1);
-                                                         node.prop("variables", variables);
+                                                         const variablesTemp = node.prop("variables");
+                                                         variablesTemp.splice(index, 1);
+                                                         node.trigger("change:variables", variablesTemp);
 
-                                                         const newHeight = height - (variables.length > 0 ? 20 : 36);
+                                                         const newHeight = height - (variablesTemp.length > 0 ? 20 : 36);
                                                          node.resize(node.prop("size").width, newHeight);
 
                                                          setHeight(newHeight);
