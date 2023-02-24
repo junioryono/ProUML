@@ -136,9 +136,9 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                  <div className="flex">
                                     <input
                                        id="email"
-                                       placeholder="name@example.com"
-                                       className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-5 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
-                                       type="text"
+                                       placeholder="Add people and groups"
+                                       className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-5 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
+                                       type="email"
                                        autoCapitalize="none"
                                        autoComplete="both"
                                        autoCorrect="off"
@@ -210,14 +210,14 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                               <div className="pb-4">
                                  {users &&
                                     users.map((sharedUser) => (
-                                       <div className="bg-white flex flex-row hover:bg-slate-100 rounded-l-3xl">
+                                       <div className="bg-white flex flex-row hover:bg-slate-100 rounded-l-3xl ml-3">
                                           <svg
                                              xmlns="http://www.w3.org/2000/svg"
                                              width="40"
                                              height="40"
                                              viewBox="0 0 24 24"
                                              fill="none"
-                                             className="mt-1 ml-3"
+                                             className="mt-1 ml-1"
                                           >
                                              <path
                                                 opacity="0.4"
@@ -282,7 +282,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                  </svg>
                                  <div className="relative">
                                     <div
-                                       className="flex flex-row text-sm cursor-pointer hover:bg-slate-200 w-24 pl-2 mt-1 rounded-md"
+                                       className="flex flex-row text-sm cursor-pointer text-stone-900 hover:bg-slate-200 w-24 pl-2 mt-1 rounded-md"
                                        onClick={handleMenuClick}
                                     >
                                        Restricted
@@ -312,7 +312,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                           </div>
                                        </div>
                                     )}
-                                    <div className="text-xs text-stone-500 pl-2">
+                                    <div className="text-xs text-stone-500 pl-2 mb-1">
                                        Only people with access can open the link
                                     </div>
                                  </div>

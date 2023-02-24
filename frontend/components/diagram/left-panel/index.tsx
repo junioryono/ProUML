@@ -147,7 +147,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          )}
 
          {/* ---------------------- NODES SECTION ---------------------- */}
-         <div className="pb-3">
+         <div className="pb-7">
             <div className="flex flex-col">
                <div className="flex justify-between mt-2">
                   <div className="font-bold pt-1 mb-1">Nodes</div>
