@@ -1,8 +1,9 @@
 import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useState } from "react";
 import GraphPanel from "./graph";
-import NodesPanel from "./nodes";
+
 import EdgesPanel from "./edges";
+import NodesPanel from "./nodes";
 
 // light color options (for backgrounds)
 export const lightColorOptions = [

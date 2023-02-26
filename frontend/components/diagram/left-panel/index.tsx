@@ -114,38 +114,40 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      </div>
                   </div>
 
-                  {diagram.project.diagrams.map((pDiagram) => {
-                     return (
-                        <div
-                           key={pDiagram.id}
-                           className="hover:bg-slate-300 flex items-center gap-3 py-1 pl-4 cursor-pointer"
-                           onClick={() => {
-                              router.push(`/dashboard/diagrams/${pDiagram.id}`);
-                           }}
-                        >
-                           <div className="w-3">
-                              {pDiagram.id === diagram.id && (
-                                 <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                       d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                                       fillRule="evenodd"
-                                       fillOpacity="1"
-                                       stroke="none"
-                                    />
-                                 </svg>
-                              )}
+                  <div style={{ height: "70px", overflowY: "scroll" }}>
+                     {diagram.project.diagrams.map((pDiagram) => {
+                        return (
+                           <div
+                              key={pDiagram.id}
+                              className="hover:bg-slate-200 rounded flex items-center gap-3 py-1 pl-4 cursor-pointer"
+                              onClick={() => {
+                                 router.push(`/dashboard/diagrams/${pDiagram.id}`);
+                              }}
+                           >
+                              <div className="w-3">
+                                 {pDiagram.id === diagram.id && (
+                                    <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+                                       <path
+                                          d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
+                                          fillRule="evenodd"
+                                          fillOpacity="1"
+                                          stroke="none"
+                                       />
+                                    </svg>
+                                 )}
+                              </div>
+                              <div>{pDiagram.name}</div>
                            </div>
-                           <div>{pDiagram.name}</div>
-                        </div>
-                     );
-                  })}
+                        );
+                     })}
+                  </div>
                </div>
                <hr className="border-slate-400" />
             </>
          )}
 
          {/* ---------------------- NODES SECTION ---------------------- */}
-         <div className="pb-3">
+         <div className="pb-7">
             <div className="flex flex-col">
                <div className="flex justify-between mt-2">
                   <div className="font-bold pt-1 mb-1">Nodes</div>
@@ -235,7 +237,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                   return (
                      <div
                         key={nodeId}
-                        className="flex items-center hover:bg-slate-300 cursor-pointer gap-3 py-1 pl-4"
+                        className="flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4"
                         // onClick={() => {
                         //    router.push(`/dashboard/diagrams/node/${nodeId}`);
                         // }}
@@ -284,7 +286,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      </span>
                   </div>
                </div>
-               <div className="flex items-center gap-3 pl-4 hover:bg-slate-300 cursor-pointer py-1 px-1">
+               <div className="flex items-center gap-3 pl-4 hover:bg-slate-200 rounded cursor-pointer py-1 px-1">
                   <div className="w-3">
                      <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                         <path
