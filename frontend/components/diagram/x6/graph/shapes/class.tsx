@@ -135,7 +135,8 @@ function ShapeClass({ node }: { node?: Node }) {
                   fontWeight: "bold",
                }}
             >
-               {!className ? "ClassName" : className}
+               {/* if the class is abstract, it's classname should be italicized */}
+               {type === "abstract" ? <i>{!className ? "ClassName" : className}</i> : !className ? "ClassName" : className}
             </div>
          </div>
 
