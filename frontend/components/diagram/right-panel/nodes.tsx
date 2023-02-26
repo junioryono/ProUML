@@ -1,3 +1,4 @@
+import { ScrollFade } from "@/components/scroll-fade";
 import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { ClassNode } from "types";
@@ -563,21 +564,6 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
    const [positionLocked, setPositionLocked] = useState(false); // pos initially not locked
    const [sizeLocked, setSizeLocked] = useState(false); // size initially not locked
 
-   // ---------------------- FOR SCROLLABLE SECTIONS -----------------
-   // for if a top fade should be shown
-   const [showTopFade, setShowTopFade] = useState(false);
-   // for if a bottom fade should be shown
-   const [showBottomFade, setShowBottomFade] = useState(true);
-   // for the height of the scrollable container
-   const [containerHeight, setContainerHeight] = useState(0);
-   // for the scrollable container
-   const handleContainerRef = (ref) => {
-      if (ref) {
-         setContainerHeight(ref.offsetHeight); // Get the height of the container
-      }
-   };
-   // ----------------------------------------------------------------
-
    // setting the node name
    useEffect(() => {
       if (!node) {
@@ -734,29 +720,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
 
                      {/* map out all the variables in the selected cell */}
                      <div className="relative mb-1">
-                        <div
-                           ref={handleContainerRef}
-                           className="overflow-y-scroll no-scrollbar overflow-x-hidden max-h-28 list-container"
-                           onScroll={(e: React.UIEvent<HTMLDivElement>) => {
-                              const { scrollTop, clientHeight, scrollHeight } = e.target as HTMLDivElement;
-
-                              // if the scroll bar is at the top of the list, show only the bottom fade effect
-                              if (scrollTop === 0) {
-                                 setShowBottomFade(true);
-                                 setShowTopFade(false);
-                              } else {
-                                 // if the scroll bar reaches the bottom of the list get rid of the bottom fade effect
-                                 if (scrollTop + clientHeight === scrollHeight) {
-                                    setShowBottomFade(false);
-                                    setShowTopFade(true);
-                                    // if the scroll bar is not at the top or bottom of the list, show both top and bottom fades
-                                 } else {
-                                    setShowTopFade(true);
-                                    setShowBottomFade(true);
-                                 }
-                              }
-                           }}
-                        >
+                        <ScrollFade maxHeight={90}>
                            {variables.map((variable, index) => (
                               <NodeSettingsVariable
                                  key={index}
@@ -767,27 +731,7 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                                  setVariables={setVariables}
                               />
                            ))}
-                        </div>
-
-                        {/* if the list is too long (needs a scroll), show the fade effect */}
-                        {containerHeight > 90 && (
-                           <>
-                              {/* only show top fade if not at the top of list */}
-                              {showTopFade && (
-                                 <>
-                                    {/* fade effect for top elements in the list */}
-                                    <div className="absolute top-0 w-full h-6 pointer-events-none after:absolute after:top-0 after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-b from-white to-transparent"></div>
-                                 </>
-                              )}
-                              {/* only show bottom fade if not at the bottom of list */}
-                              {showBottomFade && (
-                                 <>
-                                    {/* fade effect for bottom elements in the list */}
-                                    <div className="absolute bottom-0 w-full h-6 pointer-events-none after:absolute after:bottom-0 after: after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-t from-white to-transparent"></div>
-                                 </>
-                              )}
-                           </>
-                        )}
+                        </ScrollFade>
                      </div>
                   </div>
 
@@ -801,18 +745,24 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                            <div
                               className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
                               onClick={() => {
-                                 // // if there is no methods, create a methods section in the cell props
-                                 // if (!cell.prop("methods")) {
-                                 //    cell.setProp("methods", []);
-                                 // }
-                                 // // add a new method to the cell props
-                                 // cell.setProp("methods", {
-                                 //    ...cell.prop("methods"),
-                                 //    [`${nodeName}Method`]: {
-                                 //       name: `${nodeName}Method`,
-                                 //       value: "",
-                                 //    },
-                                 // });
+                                 // get the selected cell and its variables
+                                 const methodsTemp = [...methods];
+
+                                 // add this new variable to the array of variables
+                                 methodsTemp.push({
+                                    type: "String",
+                                    name: `method${methodsTemp.length + 1}`,
+                                    parameters: [],
+
+                                    // @ts-ignore
+                                    accessModifier: "public",
+                                 });
+
+                                 setMethods(methodsTemp);
+                                 node.trigger("change:methods", { methods: methodsTemp });
+
+                                 const newHeight = height + (methodsTemp.length > 1 ? 20 : 36);
+                                 node.resize(node.prop("size").width, newHeight);
                               }}
                            >
                               <span
@@ -838,107 +788,21 @@ function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObj
                            </div>
                         </div>
                      </div>
-                     {/* map out the methods of the node */}
-                     {node.prop("methods").map((method, index) => (
-                        <>
-                           <div>
-                              {/* list all of the different variables on different lines */}
-                              <div className="flex gap-2">
-                                 <div className="flex mb-0.5">
-                                    {/* access modifier dropdown input */}
-                                    <div className="w-6 mr-1">
-                                       <div className="relative">
-                                          <div className="absolute inset-y-0 left-0 flex items-center pl-1">
-                                             {method.accessModifier === "private"
-                                                ? "-"
-                                                : method.accessModifier === "public"
-                                                ? "+"
-                                                : method.accessModifier === "protected"
-                                                ? "#"
-                                                : "-"}
-                                          </div>
-                                          <select
-                                             value={method.accessModifier}
-                                             className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
-                                             onChange={(e) => {
-                                                // update the node's access modifier
-                                                // find the index of the variable in the node's variables array
-                                                console.log("e.target.value", e.target.value);
-                                                const variableIndex = node
-                                                   .prop("variables")
-                                                   .findIndex((v: any) => v.name === method.name);
-
-                                                // update the node's variables array
-                                                node.prop("variables")[variableIndex].accessModifier = e.target.value;
-
-                                                // update the node
-                                                node.prop("variables", node.prop("variables"));
-
-                                                // change the selected access modifier in the dropdown menu
-                                                method.accessModifier = e.target.value;
-                                             }}
-                                          >
-                                             <option value="private">private (-)</option>
-                                             <option value="public">public (+)</option>
-                                             <option value="protected">protected (#)</option>
-                                          </select>
-                                       </div>
-                                    </div>
-
-                                    {/* method return type input */}
-                                    <div className="w-12 mr-1">
-                                       <input
-                                          value={method.type}
-                                          className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
-                                          type="text"
-                                          onChange={(e) => {
-                                             // TODO
-                                          }}
-                                          // if the input is "Untitled" highlight the entire text
-                                          onFocus={(e) => {
-                                             if (e.target.value === "Untitled") {
-                                                e.target.select();
-                                             }
-                                          }}
-                                          // if the input is empty after clicking out of the input field, set the name to "Untitled"
-                                          onBlur={(e) => {
-                                             if (e.target.value === "") {
-                                                setNodeName("Untitled");
-                                                node.prop("name", "Untitled");
-                                             }
-                                          }}
-                                       />
-                                    </div>
-
-                                    {/* method name input */}
-                                    <input
-                                       value={method.name}
-                                       className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
-                                       type="text"
-                                       onChange={(e) => {
-                                          // TODO
-                                       }}
-                                       // if the input is "Untitled" highlight the entire text
-                                       onFocus={(e) => {
-                                          if (e.target.value === "Untitled") {
-                                             e.target.select();
-                                          }
-                                       }}
-                                       // if the input is empty after clicking out of the input field, set the name to "Untitled"
-                                       onBlur={(e) => {
-                                          if (e.target.value === "") {
-                                             setNodeName("Untitled");
-                                             node.prop("variables", method);
-                                          }
-                                       }}
-                                    />
-
-                                    {/* method parameters dropdown menu with text inputs for each parameter */}
-                                 </div>
-                              </div>
-                           </div>
-                        </>
-                     ))}
+                     {/* map out all the variables in the selected cell */}
+                     <div className="relative mb-1">
+                        <ScrollFade maxHeight={90}>
+                           {methods.map((method, index) => (
+                              <NodeSettingsMethod
+                                 key={index}
+                                 node={node}
+                                 methods={methods}
+                                 method={method}
+                                 index={index}
+                                 setMethods={setMethods}
+                              />
+                           ))}
+                        </ScrollFade>
+                     </div>
                   </div>
 
                   <div className="flex justify-between">
@@ -1204,6 +1068,162 @@ function NodeSettingsVariable({
 
                         // update the node's size
                         const newHeight = currentHeight - (newVariables.length === 0 ? 36 : 20);
+                        node.resize(currentWidth, newHeight);
+                     }}
+                  >
+                     <span
+                        role="button"
+                        className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                     >
+                        {/* trash can svg */}
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                           <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                           <g id="SVGRepo_iconCarrier">
+                              <path
+                                 d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
+                                 stroke="#000000"
+                                 stroke-width="1.5"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                              ></path>
+                           </g>
+                        </svg>
+                     </span>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   );
+}
+
+function NodeSettingsMethod({
+   node,
+   methods,
+   method,
+   index,
+   setMethods,
+}: {
+   node: X6Type.Node;
+   methods: ClassNode["methods"];
+   method: ClassNode["methods"][0];
+   index: number;
+   setMethods: React.Dispatch<React.SetStateAction<ClassNode["methods"]>>;
+}) {
+   const [accessModifier, setAccessModifier] = useState(method.accessModifier);
+   const [name, setName] = useState(method.name);
+   const [type, setType] = useState(method.type);
+   const [parameters, setParameters] = useState(method.parameters);
+
+   useEffect(() => {
+      // update the node's methods array
+      const newMethods = [...methods];
+      newMethods[index] = {
+         ...method,
+         accessModifier,
+         name,
+         type,
+         parameters,
+      };
+      setMethods(newMethods);
+   }, [accessModifier, name, type, parameters]);
+
+   return (
+      <div>
+         {/* list all of the different methods on different lines */}
+         <div className="flex gap-2">
+            <div className="flex mb-0.5">
+               {/* access modifier dropdown input */}
+               <div className="w-6 mr-1">
+                  <div className="relative">
+                     <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none">
+                        {accessModifier === "private"
+                           ? "-"
+                           : accessModifier === "public"
+                           ? "+"
+                           : accessModifier === "protected"
+                           ? "#"
+                           : "-"}
+                     </div>
+                     <select
+                        value={accessModifier}
+                        className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
+                        onChange={(e) => {
+                           // update the node's method array
+                           // @ts-ignore
+                           methods[index].accessModifier = e.target.value;
+                           node.trigger("change:methods", { methods });
+                           setAccessModifier(methods[index].accessModifier);
+                        }}
+                     >
+                        <option value="private">private (-)</option>
+                        <option value="public">public (+)</option>
+                        <option value="protected">protected (#)</option>
+                     </select>
+                  </div>
+               </div>
+               {/* method type text input */}
+               <div className="w-12 mr-1">
+                  <input
+                     value={type}
+                     className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                     type="text"
+                     onChange={(e) => {
+                        // update the node's methods array
+                        setType(e.target.value);
+                        methods[index].type = e.target.value;
+                        console.log(methods[index].type);
+                        node.trigger("change:methods", { methods });
+                     }}
+                     // if the input is "Untitled" highlight the entire text
+                     onFocus={(e) => {
+                        if (e.target.value === "Untitled") {
+                           e.target.select();
+                        }
+                     }}
+                     // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                     onBlur={(e) => {}}
+                  />
+               </div>
+               {/* method name input */}
+               <input
+                  value={name}
+                  className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                  type="text"
+                  onChange={(e) => {
+                     // update the node's variables array
+                     setName(e.target.value);
+                     methods[index].name = e.target.value;
+                     node.trigger("change:methods", { methods });
+                  }}
+                  // if the input is "Untitled" highlight the entire text
+                  onFocus={(e) => {
+                     if (e.target.value === "Untitled") {
+                        e.target.select();
+                     }
+                  }}
+                  // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                  onBlur={(e) => {}}
+               />
+               {/* method parameters dropdown */}
+
+               {/* delete button to delete the variable */}
+               <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">
+                  <div
+                     className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
+                     onClick={() => {
+                        // update the node's variables array
+                        const newMethods = [...methods];
+                        newMethods.splice(index, 1);
+                        setMethods(newMethods);
+                        node.trigger("change:methods", { methods: newMethods });
+
+                        const currentWidth = node.prop("size").width;
+                        const currentHeight = node.prop("size").height;
+
+                        // update the node's size
+                        const newHeight = currentHeight - (newMethods.length === 0 ? 36 : 20);
                         node.resize(currentWidth, newHeight);
                      }}
                   >
