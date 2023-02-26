@@ -957,7 +957,7 @@ function NodeSettingsVariable({
                {/* access modifier dropdown input */}
                <div className="w-6 mr-1">
                   <div className="relative">
-                     <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none">
+                     <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none text-xs">
                         {accessModifier === "private"
                            ? "-"
                            : accessModifier === "public"
@@ -987,7 +987,7 @@ function NodeSettingsVariable({
                <div className="w-12 mr-1">
                   <input
                      value={type}
-                     className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                     className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
                      type="text"
                      onChange={(e) => {
                         // update the node's variables array
@@ -1009,7 +1009,7 @@ function NodeSettingsVariable({
                {/* variable name input */}
                <input
                   value={name}
-                  className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                  className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
                   type="text"
                   onChange={(e) => {
                      // update the node's variables array
@@ -1030,7 +1030,7 @@ function NodeSettingsVariable({
                <div className={`ml-0.5 mr-0.5 ${!value ? "text-slate-400" : "text-black"}`}>=</div>
                <input
                   value={value}
-                  className={`w-10 text-center block rounded-md border text-md focus:outline-none hover:border-slate-400 focus:border-slate-400
+                  className={`w-10 text-center block rounded-md border text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400
                      ${
                         !value
                            ? "border-2 border-dotted bg-slate-100 border-slate-400 h-6.5"
@@ -1115,6 +1115,7 @@ function NodeSettingsMethod({
    const [name, setName] = useState(method.name);
    const [type, setType] = useState(method.type);
    const [parameters, setParameters] = useState(method.parameters);
+   const [showParameters, setShowParameters] = useState(false);
 
    useEffect(() => {
       // update the node's methods array
@@ -1137,18 +1138,18 @@ function NodeSettingsMethod({
                {/* access modifier dropdown input */}
                <div className="w-6 mr-1">
                   <div className="relative">
-                     <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none">
+                     <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none text-xs">
                         {accessModifier === "private"
                            ? "-"
                            : accessModifier === "public"
                            ? "+"
                            : accessModifier === "protected"
                            ? "#"
-                           : "-"}
+                           : "+"}
                      </div>
                      <select
                         value={accessModifier}
-                        className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
+                        className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
                         onChange={(e) => {
                            // update the node's method array
                            // @ts-ignore
@@ -1167,7 +1168,7 @@ function NodeSettingsMethod({
                <div className="w-12 mr-1">
                   <input
                      value={type}
-                     className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                     className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
                      type="text"
                      onChange={(e) => {
                         // update the node's methods array
@@ -1189,7 +1190,7 @@ function NodeSettingsMethod({
                {/* method name input */}
                <input
                   value={name}
-                  className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                  className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
                   type="text"
                   onChange={(e) => {
                      // update the node's variables array
@@ -1206,7 +1207,37 @@ function NodeSettingsMethod({
                   // if the input is empty after clicking out of the input field, set the name to "Untitled"
                   onBlur={(e) => {}}
                />
-               {/* method parameters dropdown */}
+               {/* method parameters dropdown button */}
+               <div className="ml-0.5">
+                  (
+                  <button
+                     className="justify-between text-sm bg-transparent inline-flex bg-slate-200 border border-slate-300 rounded-md w-8 hover:border-slate-400 p-1 pl-2 pr-2"
+                     onClick={() => setShowParameters(!showParameters)}
+                  >
+                     <span className="text-xs">{parameters.length}...</span>
+                     <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 20 20"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                     >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                     </svg>
+                  </button>
+                  {showParameters && (
+                     <div className="absolute w-56 right-0 z-10 mt-1 origin-top-right bg-slate-100 border border-slate-400 rounded-md shadow-xl">
+                        {/* show all parameters in a vertical list */}
+                        <div className="py-1">
+                           {parameters.map((parameter, index) => {
+                              return <div className="flex">{parameter.name}</div>;
+                           })}
+                        </div>
+                     </div>
+                  )}
+                  )
+               </div>
 
                {/* delete button to delete the variable */}
                <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">

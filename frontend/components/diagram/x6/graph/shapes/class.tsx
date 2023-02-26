@@ -52,12 +52,14 @@ function ShapeClass({ node }: { node?: Node }) {
          return;
       }
 
+      // if the class name is changed, update the node
       node.on("change:className", ({ name, ws }: { name: ClassNode["name"]; ws: boolean }) => {
          setClassName(name);
          node.prop("name", name, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
          node.model.graph.trigger("node:change:className"); // This is for updating the left panel
       });
 
+      // if the variables are changed, update the node
       node.on("change:variables", ({ variables, ws }: { variables: ClassNode["variables"]; ws: boolean }) => {
          setVariables(variables);
          node
@@ -65,21 +67,38 @@ function ShapeClass({ node }: { node?: Node }) {
             .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
       });
 
+      // if the methods are changed, update the node
+      node.on("change:methods", ({ methods, ws }: { methods: ClassNode["methods"]; ws: boolean }) => {
+         setMethods(methods);
+         node
+            .prop("methods", [...methods], { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
+      // turn off the event listeners when the component unmounts
       return () => {
          node.off("change:className");
          node.off("change:variables");
+         node.off("change:methods");
          node.off("change:position");
          node.off("change:size");
       };
    }, [node]);
 
+   // update the node when the class name changes
    useEffect(() => {
       node.prop("name", className, { silent: true }); // This is for updating the node on the graph
    }, [className]);
 
+   // update the node when the variables change
    useEffect(() => {
       node.prop("variables", [...variables], { silent: true });
    }, [variables]);
+
+   // update the node when the methods change
+   useEffect(() => {
+      node.prop("methods", [...methods], { silent: true });
+   }, [methods]);
 
    return (
       <div
@@ -141,7 +160,9 @@ function ShapeClass({ node }: { node?: Node }) {
                         : "+"}
                      {variable.name}
                      {variable.type && `: ${variable.type}`}
-                     {variable.value && ` = ${variable.value}`}
+                     {variable.value &&
+                        // if the value is a string, add quotes
+                        (typeof variable.value === "string" ? ` = "${variable.value}"` : ` = ${variable.value}`)}
                   </div>
                ))}
             </div>
