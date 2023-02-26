@@ -31,7 +31,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
    const [positionLocked, setPositionLocked] = useState(false); // pos initially not locked
    const [sizeLocked, setSizeLocked] = useState(false); // size initially not locked
 
-   // setting the node name
+   // when the node changes, update the state information of the node
    useEffect(() => {
       if (!node) {
          return;
@@ -40,6 +40,8 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
       const props = node.prop();
       console.log("props", props);
       setNodeName(props.name);
+      setVariables(props.variables);
+      setMethods(props.methods);
       setHeight(props.size?.height || props.height);
       setWidth(props.size?.width || props.width);
 
