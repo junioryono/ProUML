@@ -48,25 +48,21 @@ function ShapeClass({ node }: { node?: Node }) {
    }, []);
 
    useEffect(() => {
-      if (!node) {
-         return;
-      }
-
       // if the class name is changed, update the node
-      node.on("change:className", ({ name, ws }: { name: ClassNode["name"]; ws: boolean }) => {
+      node?.on("change:className", ({ name, ws }: { name: ClassNode["name"]; ws: boolean }) => {
          setClassName(name);
-         node.prop("name", name, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
-         node.model.graph.trigger("node:change:className"); // This is for updating the left panel
+         node?.prop("name", name, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         node?.model.graph.trigger("node:change:className"); // This is for updating the left panel
       });
 
       // if the class type is changed, update the node
-      node.on("change:classType", ({ type, ws }: { type: ClassNode["type"]; ws: boolean }) => {
+      node?.on("change:classType", ({ type, ws }: { type: ClassNode["type"]; ws: boolean }) => {
          setType(type);
-         node.prop("type", type, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         node?.prop("type", type, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
       });
 
       // if the variables are changed, update the node
-      node.on("change:variables", ({ variables, ws }: { variables: ClassNode["variables"]; ws: boolean }) => {
+      node?.on("change:variables", ({ variables, ws }: { variables: ClassNode["variables"]; ws: boolean }) => {
          setVariables(variables);
          node
             .prop("variables", [...variables], { silent: true })
@@ -74,7 +70,7 @@ function ShapeClass({ node }: { node?: Node }) {
       });
 
       // if the methods are changed, update the node
-      node.on("change:methods", ({ methods, ws }: { methods: ClassNode["methods"]; ws: boolean }) => {
+      node?.on("change:methods", ({ methods, ws }: { methods: ClassNode["methods"]; ws: boolean }) => {
          setMethods(methods);
          node
             .prop("methods", [...methods], { silent: true })
@@ -83,12 +79,12 @@ function ShapeClass({ node }: { node?: Node }) {
 
       // turn off the event listeners when the component unmounts
       return () => {
-         node.off("change:className");
-         node.off("change:classType");
-         node.off("change:variables");
-         node.off("change:methods");
-         node.off("change:position");
-         node.off("change:size");
+         node?.off("change:className");
+         node?.off("change:classType");
+         node?.off("change:variables");
+         node?.off("change:methods");
+         node?.off("change:position");
+         node?.off("change:size");
       };
    }, [node]);
 

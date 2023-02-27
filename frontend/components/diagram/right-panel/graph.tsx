@@ -7,10 +7,10 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
    const [zoom, setZoom] = useState(graph.current?.zoom() * 100 || 100);
 
    // for if a grid is visible or not
-   const [grid, setGrid] = useState(true);
+   const [grid, setGrid] = useState(graph.current?.getGridSize() <= 1 ? false : true);
 
    // grid size
-   const [gridSize, setGridSize] = useState(10);
+   const [gridSize, setGridSize] = useState(graph.current?.getGridSize() <= 1 ? 16 : graph.current?.getGridSize());
 
    // for current background & border colors of selected cell
    const [background, setBackground] = useState(false);

@@ -157,7 +157,27 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               checked={isInterface}
                               onChange={(e) => {
                                  setIsInterface(e.target.checked);
-                                 node.trigger("change:type", { type: e.target.checked && "interface" });
+
+                                 if (e.target.checked) {
+                                    setIsAbstract(false);
+                                    node.trigger("change:classType", { type: "interface" });
+
+                                    const currentWidth = node.prop("size").width;
+                                    const currentHeight = node.prop("size").height;
+
+                                    // update the node's size
+                                    const newHeight = currentHeight + 17;
+                                    node.resize(currentWidth, newHeight);
+                                 } else {
+                                    node.trigger("change:classType", { type: "class" });
+
+                                    const currentWidth = node.prop("size").width;
+                                    const currentHeight = node.prop("size").height;
+
+                                    // update the node's size
+                                    const newHeight = currentHeight - 17;
+                                    node.resize(currentWidth, newHeight);
+                                 }
                               }}
                            />
                            <label htmlFor="is-interface">Interface</label>
@@ -170,7 +190,22 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               checked={isAbstract}
                               onChange={(e) => {
                                  setIsAbstract(e.target.checked);
-                                 node.trigger("change:isAbstract", { isAbstract: e.target.checked });
+
+                                 if (e.target.checked) {
+                                    if (isInterface) {
+                                       setIsInterface(false);
+                                       const currentWidth = node.prop("size").width;
+                                       const currentHeight = node.prop("size").height;
+
+                                       // update the node's size
+                                       const newHeight = currentHeight - 17;
+                                       node.resize(currentWidth, newHeight);
+                                    }
+
+                                    node.trigger("change:classType", { type: "abstract" });
+                                 } else {
+                                    node.trigger("change:classType", { type: "class" });
+                                 }
                               }}
                            />
                            <label htmlFor="is-abstract">Abstract</label>
