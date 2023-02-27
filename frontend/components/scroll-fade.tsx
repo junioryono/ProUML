@@ -1,10 +1,12 @@
 import { useState } from "react";
 
+// props for the ScrollFade component
 interface ScrollFadeProps {
    children: React.ReactNode;
    maxHeight?: number;
 }
 
+// fade effect for scrollable lists
 export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
    // for if a top fade should be shown
    const [showTopFade, setShowTopFade] = useState(false);
@@ -20,7 +22,7 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
       }
    };
 
-   //
+   // is called when the scroll bar is scrolled
    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
       const { scrollTop, clientHeight, scrollHeight } = e.target as HTMLDivElement;
 
@@ -43,6 +45,7 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
 
    return (
       <div>
+         {/* scrollable container */}
          <div
             ref={handleContainerRef}
             className={`overflow-y-scroll no-scrollbar overflow-x-hidden list-container`}

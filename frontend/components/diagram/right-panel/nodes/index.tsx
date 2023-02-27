@@ -1,7 +1,7 @@
 import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { ClassNode } from "types";
-import { lightColorOptions, darkColorOptions } from "..";
+import { lightColorOptions, darkColorOptions } from "../styling-options/colors";
 import ColorPicker from "../styling-options/color-picker";
 import LineWidth from "../styling-options/line-width";
 import NodeSettings from "./node-settings";
@@ -24,32 +24,32 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    // the selected cells
    const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
 
-   // when the background color changes, change the background color of all selected cells
-   useEffect(() => {
-      selectedCells.forEach((node) => {
-         node.attr("body", {
-            fill: `#${backgroundColor}`,
-         });
-      });
-   }, [backgroundColor]);
+   // // when the background color changes, change the background color of all selected cells
+   // useEffect(() => {
+   //    selectedCells.forEach((node) => {
+   //       node.attr("body", {
+   //          fill: `#${backgroundColor}`,
+   //       });
+   //    });
+   // }, [backgroundColor]);
 
-   // when the border color changes, change the border color of all selected cells
-   useEffect(() => {
-      selectedCells.forEach((node) => {
-         node.attr("body", {
-            stroke: `#${borderColor}`,
-         });
-      });
-   }, [borderColor]);
+   // // when the border color changes, change the border color of all selected cells
+   // useEffect(() => {
+   //    selectedCells.forEach((node) => {
+   //       node.attr("body", {
+   //          stroke: `#${borderColor}`,
+   //       });
+   //    });
+   // }, [borderColor]);
 
-   // when the border width changes, change the border width of all selected cells
-   useEffect(() => {
-      selectedCells.forEach((node) => {
-         node.attr("body", {
-            strokeWidth: borderWidth,
-         });
-      });
-   }, [borderWidth]);
+   // // when the border width changes, change the border width of all selected cells
+   // useEffect(() => {
+   //    selectedCells.forEach((node) => {
+   //       node.attr("body", {
+   //          strokeWidth: borderWidth,
+   //       });
+   //    });
+   // }, [borderWidth]);
 
    // when selecting cells, update the selected cells
    useEffect(() => {
