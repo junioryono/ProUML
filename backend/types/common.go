@@ -12,9 +12,11 @@ type WebSocketBody struct {
 	SessionId string `json:"sessionId,omitempty"`
 	Events    string `json:"event"`
 
-	Public bool                              `json:"public,omitempty"`
-	Image  string                            `json:"image,omitempty"`
-	Name   string                            `json:"name,omitempty"`
-	Cell   map[string]interface{}            `json:"cell,omitempty"`
-	User   *models.DiagramUsersHiddenContent `json:"user,omitempty"`
+	Public          bool                              `json:"public,omitempty"`
+	Image           string                            `json:"image,omitempty"`
+	Name            string                            `json:"name,omitempty"`
+	Cell            map[string]interface{}            `json:"cell,omitempty"`
+	User            *models.DiagramUsersHiddenContent `json:"user,omitempty"`
+	BackgroundColor string                            `json:"backgroundColor,omitempty"`
+	ShowGrid        bool                              `json:"showGrid,omitempty"`
 }

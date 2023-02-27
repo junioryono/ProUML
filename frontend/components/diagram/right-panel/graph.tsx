@@ -2,19 +2,22 @@ import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useState } from "react";
 import { lightColorOptions } from "./styling-options/colors";
 
-export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
+// TODO - add a way to change the background color of the graph
+export default function GraphPanel({
+   graph,
+   backgroundColor,
+}: {
+   graph: MutableRefObject<X6Type.Graph>;
+   backgroundColor: string;
+}) {
    // for the zoom of the graph
    const [zoom, setZoom] = useState(graph.current?.zoom() * 100 || 100);
 
    // for if a grid is visible or not
    const [grid, setGrid] = useState(graph.current?.getGridSize() <= 1 ? false : true);
 
-   // grid size
-   const [gridSize, setGridSize] = useState(graph.current?.getGridSize() <= 1 ? 16 : graph.current?.getGridSize());
-
    // for current background & border colors of selected cell
-   const [background, setBackground] = useState(false);
-   const [backgroundColor, setBackgroundColor] = useState("FFFFFF"); // <- default should be initial bg color
+   const [background, setBackground] = useState(backgroundColor === "FFFFFF" ? false : true);
 
    // if the graph zoom changes, change the zoom to match
    useEffect(() => {
@@ -23,6 +26,12 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
          setZoom(Math.round(args.sx * 100));
       });
 
+      return () => {
+         graph.current?.off("scale");
+      };
+   }, [zoom]);
+
+   useEffect(() => {
       // set the zoom of the graph
       graph.current?.zoomTo(zoom / 100);
    }, [zoom]);
@@ -95,15 +104,16 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   id="grid-toggle"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                   onChange={() => {
+                     graph.current?.trigger("grid:changed", { showGrid: !grid });
                      setGrid(!grid);
 
                      // if the user wants to show the grid, set the grid size to 10
                      if (!grid) {
-                        graph.current.setGridSize(gridSize);
+                        graph.current.setGridSize(16);
                      }
-                     // if the user wants to hide the grid, set the grid size to 0
+                     // if the user wants to hide the grid, set the grid size to 1
                      else {
-                        graph.current.setGridSize(0);
+                        graph.current.setGridSize(1);
                      }
                   }}
                   checked={grid}
@@ -117,7 +127,10 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   type="checkbox"
                   id="background-toggle"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                  onChange={() => setBackground(!background)}
+                  onChange={() => {
+                     setBackground(!background);
+                     graph.current?.trigger("background:changed", { color: backgroundColor });
+                  }}
                   checked={background}
                />
                <label htmlFor="background-toggle">Background color</label>
@@ -140,12 +153,7 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                  }
                                  onClick={() => {
                                     if (color !== backgroundColor) {
-                                       setBackgroundColor(color);
-
-                                       // change the background color of the graph
-                                       graph.current?.drawBackground({
-                                          color: `#${color}`,
-                                       });
+                                       graph.current?.trigger("background:changed", { color: color });
                                     }
                                  }}
                               >
@@ -168,7 +176,7 @@ export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.G
                         className={`ml-10 mr-1 border border-black rounded-md h-6.1 w-7 bg-current`}
                      />
                      <input
-                        value={`#${backgroundColor} `}
+                        value={`#${backgroundColor}`}
                         className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md text-center focus:outline-none"
                         type="text"
                         autoCapitalize="none"

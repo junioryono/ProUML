@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -78,10 +79,15 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 
 			if sliceContains(events, "db_updateCell") || sliceContains(events, "db_addCell") || sliceContains(events, "db_removeCell") {
 				go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, payload.Cell, events)
-			}
-
-			if sliceContains(events, "db_updateGraphImage") {
+			} else if sliceContains(events, "db_updateGraphImage") {
 				go sdkP.Postgres.Diagram.UpdateImage(diagramId, idToken, payload.Image)
+			} else if sliceContains(events, "db_updateGraphName") {
+				go sdkP.Postgres.Diagram.UpdateName(diagramId, idToken, payload.Name)
+			} else if sliceContains(events, "db_updateGraphBackgroundColor") {
+				go sdkP.Postgres.Diagram.UpdateBackgroundColor(diagramId, idToken, payload.BackgroundColor)
+			} else if sliceContains(events, "db_updateGraphShowGrid") {
+				fmt.Println("db_updateGraphShowGrid", payload.ShowGrid)
+				go sdkP.Postgres.Diagram.UpdateShowGrid(diagramId, idToken, payload.ShowGrid)
 			}
 		}
 

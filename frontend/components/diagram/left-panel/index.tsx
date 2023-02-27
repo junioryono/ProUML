@@ -6,29 +6,29 @@ import { Diagram } from "types";
 export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph: MutableRefObject<X6Type.Graph> }) {
    const router = useRouter();
 
-   const [nodes, setNodes] = useState<X6Type.Cell[]>([]);
-   const [edges, setEdges] = useState<X6Type.Cell[]>([]);
+   const [nodes, setNodes] = useState<X6Type.Node[]>([]);
+   const [edges, setEdges] = useState<X6Type.Edge[]>([]);
    const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
 
    useEffect(() => {
-      setNodes(graph.current?.getCells());
-      setEdges(graph.current?.getCells());
+      setNodes(graph.current?.getNodes());
+      setEdges(graph.current?.getEdges());
       setSelectedCells(graph.current?.getSelectedCells());
 
       graph.current?.on("node:added", () => {
-         setNodes(graph.current?.getCells());
+         setNodes(graph.current?.getNodes());
       });
 
       graph.current?.on("node:removed", () => {
-         setNodes(graph.current?.getCells());
+         setNodes(graph.current?.getNodes());
       });
 
       graph.current?.on("edge:added", () => {
-         setEdges(graph.current?.getCells());
+         setEdges(graph.current?.getEdges());
       });
 
       graph.current?.on("edge:removed", () => {
-         setEdges(graph.current?.getCells());
+         setEdges(graph.current?.getEdges());
       });
 
       graph.current?.on("cell:selected", () => {
@@ -39,8 +39,9 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          setSelectedCells(graph.current?.getSelectedCells());
       });
 
+      // Need to change node names in the left panel when the node name is changed in the graph
       graph.current?.on("node:change:className", () => {
-         setNodes(graph.current?.getCells());
+         setNodes(graph.current?.getNodes());
       });
 
       // remove all event listeners
@@ -87,7 +88,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          {/* ---------------------- DIAGRAMS SECTION ---------------------- */}
          {diagram.project && (
             <>
-               <div className="pb-3">
+               <div>
                   <div className="mt-2 flex justify-between">
                      <div className="font-bold pt-1 pb-1">Diagrams</div>
                      <div className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center">
@@ -114,7 +115,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      </div>
                   </div>
 
-                  <div style={{ height: "70px", overflowY: "scroll" }}>
+                  <div style={{ height: "155px", overflowY: "scroll" }}>
                      {diagram.project.diagrams.map((pDiagram) => {
                         return (
                            <div
@@ -147,7 +148,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          )}
 
          {/* ---------------------- NODES SECTION ---------------------- */}
-         <div className="pb-7">
+         <div className="pb-3">
             <div className="flex flex-col">
                <div className="flex justify-between mt-2">
                   <div className="font-bold pt-1 mb-1">Nodes</div>
@@ -269,6 +270,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
             <div className="flex flex-col">
                <div className="flex justify-between mt-2">
                   <div className="font-bold pt-1 mb-1">Edges</div>
+
                   <div className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center">
                      <span
                         role="button"
@@ -286,19 +288,39 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      </span>
                   </div>
                </div>
-               <div className="flex items-center gap-3 pl-4 hover:bg-slate-200 rounded cursor-pointer py-1 px-1">
-                  <div className="w-3">
-                     <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                           d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                           fillRule="evenodd"
-                           fillOpacity="1"
-                           stroke="none"
-                        />
-                     </svg>
-                  </div>
-                  <div>Edge 1</div>
-               </div>
+
+               {edges.map((node) => {
+                  const props = node.getProp();
+                  const nodeId = props.id;
+                  const nodeName = props.name;
+                  const isSelected = selectedCells.includes(node);
+
+                  return (
+                     <div
+                        key={nodeId}
+                        className="flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4"
+                        // onClick={() => {
+                        //    router.push(`/dashboard/diagrams/node/${nodeId}`);
+                        // }}
+                     >
+                        <div className="w-3">
+                           {/* if the node is selected show a checkmark svg next to it */}
+
+                           {isSelected && (
+                              <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+                                 <path
+                                    d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
+                                    fillRule="evenodd"
+                                    fillOpacity="1"
+                                    stroke="none"
+                                 />
+                              </svg>
+                           )}
+                        </div>
+                        <div>{nodeName}</div>
+                     </div>
+                  );
+               })}
             </div>
          </div>
       </div>

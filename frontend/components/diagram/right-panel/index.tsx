@@ -3,9 +3,16 @@ import { MutableRefObject, useEffect, useState } from "react";
 import GraphPanel from "./graph";
 import EdgesPanel from "./edges";
 import NodesPanel from "./nodes";
+import { Diagram } from "types";
 
 // RightPanel component, receives a `graph` prop of type `MutableRefObject<X6Type.Graph>`
-export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
+export default function RightPanel({
+   graph,
+   backgroundColor,
+}: {
+   graph: MutableRefObject<X6Type.Graph>;
+   backgroundColor: string;
+}) {
    // State to keep track of the current tab, either "graph", "nodes", or "edges"
    const [tab, setTab] = useState<"graph" | "nodes" | "edges" | "nodes&edges">("edges");
 
@@ -50,7 +57,7 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
       <div className="min-h-screen max-h-screen overflow-y-auto no-scrollbar overflow-x-hidden w-60 p-2 border-gray-400 border-l-1">
          {/* Render different panels based on the current tab */}
          {tab === "graph" ? (
-            <GraphPanel graph={graph} />
+            <GraphPanel graph={graph} backgroundColor={backgroundColor} />
          ) : tab === "nodes" ? (
             <NodesPanel graph={graph} />
          ) : tab === "edges" ? (

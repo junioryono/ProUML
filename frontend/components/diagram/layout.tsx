@@ -17,17 +17,23 @@ import RightPanel from "@/components/diagram/right-panel";
 
 export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
+   setDiagramName: Dispatch<SetStateAction<string>>;
+   setBackgroundColor: Dispatch<SetStateAction<string>>;
 };
 
 export default function DiagramLayout({ user, diagram }: { user: User; diagram: Diagram }) {
    // States
    const [zoom, setZoom] = useState(1);
+   const [diagramName, setDiagramName] = useState(diagram.name);
+   const [backgroundColor, setBackgroundColor] = useState(diagram.background_color);
    const [panning, setPanning] = useState(false);
 
    // Core
    const container = useRef<HTMLDivElement>();
    const { graph, sessionId, ready } = useX6(container, diagram, {
       setZoom,
+      setDiagramName,
+      setBackgroundColor,
    });
 
    const refContainer = useCallback((containerParam: HTMLDivElement) => {
@@ -57,7 +63,7 @@ export default function DiagramLayout({ user, diagram }: { user: User; diagram: 
                      <div className="opacity-30 text-xl font-light">/</div>
                   </>
                )}
-               <div>{diagram.name}</div>
+               <div>{diagramName}</div>
                <svg className="svg" width="8" height="7" viewBox="0 0 8 7" xmlns="http://www.w3.org/2000/svg">
                   <path
                      d="M3.646 5.354l-3-3 .708-.708L4 4.293l2.646-2.647.708.708-3 3L4 5.707l-.354-.353z"
@@ -90,7 +96,7 @@ export default function DiagramLayout({ user, diagram }: { user: User; diagram: 
                <div ref={refContainer} />
             </div>
 
-            {ready && <RightPanel graph={graph} />}
+            {ready && <RightPanel graph={graph} backgroundColor={backgroundColor} />}
          </div>
       </div>
    );

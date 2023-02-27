@@ -95,6 +95,8 @@ export type Diagram = {
    content: Cell.Properties[];
    image?: string;
    project?: Project;
+   background_color: string;
+   show_grid: boolean;
 };
 
 export type DiagramUserRole = {
@@ -133,8 +135,10 @@ export type ClassNode = {
    shape: string;
    x: number;
    y: number;
+   lockPosition: boolean;
    width: number;
    height: number;
+   lockSize: boolean;
    package: string;
    name: string;
    variables?: {

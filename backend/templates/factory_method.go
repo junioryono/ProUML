@@ -8,7 +8,7 @@ import (
 func getFactoryMethod() *[]any {
 	return &[]any{
 		types.JavaClass{
-			JavaDiagram: types.JavaDiagram{
+			JavaDiagramNode: types.JavaDiagramNode{
 				ID:     uuid.New().String(),
 				Shape:  "custom-class",
 				Width:  100,

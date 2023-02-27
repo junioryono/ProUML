@@ -192,15 +192,9 @@ export default function NodeSettingsMethod({
                         // update the node's variables array
                         const newMethods = [...methods];
                         newMethods.splice(index, 1);
-                        setMethods(newMethods);
-                        node.trigger("change:methods", { methods: newMethods });
 
-                        const currentWidth = node.prop("size").width;
-                        const currentHeight = node.prop("size").height;
-
-                        // update the node's size
-                        const newHeight = currentHeight - (newMethods.length === 0 ? 36 : 20);
-                        node.resize(currentWidth, newHeight);
+                        const newHeight = node.prop("size").height - (newMethods.length === 0 ? 36 : 20);
+                        node.trigger("change:methods", { methods: newMethods, newHeight: newHeight });
                      }}
                   >
                      <span

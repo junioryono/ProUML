@@ -62,20 +62,28 @@ function ShapeClass({ node }: { node?: Node }) {
       });
 
       // if the variables are changed, update the node
-      node?.on("change:variables", ({ variables, ws }: { variables: ClassNode["variables"]; ws: boolean }) => {
-         setVariables(variables);
-         node
-            .prop("variables", [...variables], { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
-      });
+      node?.on(
+         "change:variables",
+         ({ variables, newHeight, ws }: { variables: ClassNode["variables"]; newHeight: number; ws: boolean }) => {
+            setVariables(variables);
+            node
+               .prop("variables", [...variables], { silent: true })
+               .resize(node.size().width, newHeight || node.size().height)
+               .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         },
+      );
 
       // if the methods are changed, update the node
-      node?.on("change:methods", ({ methods, ws }: { methods: ClassNode["methods"]; ws: boolean }) => {
-         setMethods(methods);
-         node
-            .prop("methods", [...methods], { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
-      });
+      node?.on(
+         "change:methods",
+         ({ methods, newHeight, ws }: { methods: ClassNode["methods"]; newHeight: number; ws: boolean }) => {
+            setMethods(methods);
+            node
+               .prop("methods", [...methods], { silent: true })
+               .resize(node.size().width, newHeight || node.size().height)
+               .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         },
+      );
 
       // turn off the event listeners when the component unmounts
       return () => {

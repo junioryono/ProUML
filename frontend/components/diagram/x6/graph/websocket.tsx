@@ -3,13 +3,18 @@ import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { MutableRefObject, useRef } from "react";
 import useWebSocket from "react-use-websocket";
 import { getWSUrl } from "@/lib/utils";
+import { LayoutProps } from "../../layout";
 
-export default function useGraphWebSocket(graph: MutableRefObject<X6Type.Graph>, diagramId: string) {
+export default function useGraphWebSocket(
+   graph: MutableRefObject<X6Type.Graph>,
+   diagramId: string,
+   layoutProps: LayoutProps,
+) {
    const sessionId = useRef<string>();
 
    // WebSocket
    const websocket = useWebSocket(getWSUrl() + "/" + diagramId, {
-      onMessage: (event) => onWebSocketMessage(event, graph, sessionId),
+      onMessage: (event) => onWebSocketMessage(event, graph, sessionId, layoutProps),
    });
 
    return { websocket, sessionId };
@@ -19,6 +24,7 @@ function onWebSocketMessage(
    event: MessageEvent<any>,
    graph: React.MutableRefObject<X6Type.Graph | null>,
    sessionId: React.MutableRefObject<string | null>,
+   layoutProps: LayoutProps,
 ) {
    if (!event || !event.data) {
       return;
@@ -91,6 +97,15 @@ function onWebSocketMessage(
       }
 
       sessionId.current = message.sessionId;
+   } else if (events.includes("local_updateGraphShowGrid")) {
+      graph.current.setGridSize(message.showGrid ? 16 : 1);
+   } else if (events.includes("local_updateGraphBackgroundColor")) {
+      layoutProps.setBackgroundColor(message.backgroundColor);
+      graph.current?.drawBackground({
+         color: `#${message.backgroundColor}`,
+      });
+   } else if (events.includes("local_updateGraphName")) {
+      layoutProps.setDiagramName(message.name);
    }
 }
 
@@ -110,6 +125,22 @@ function onWebSocketMessage(
 //    } as any);
 // }
 
+export function wsLocalAndDBUpdateGraphName(
+   name: boolean,
+   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   sessionId: MutableRefObject<string>,
+) {
+   if (!sessionId.current) {
+      return;
+   }
+
+   websocket.sendJsonMessage({
+      sessionId: sessionId.current,
+      event: "broadcast/local_updateGraphName/db_updateGraphName",
+      name,
+   } as any);
+}
+
 export function wsDBUpdateGraphImage(
    base64JPEG: string,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
@@ -125,6 +156,38 @@ export function wsDBUpdateGraphImage(
       sessionId: sessionId.current,
       event: "db_updateGraphImage",
       image: base64JPEG,
+   } as any);
+}
+
+export function wsLocalAndDBUpdateGraphShowGrid(
+   showGrid: boolean,
+   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   sessionId: MutableRefObject<string>,
+) {
+   if (!sessionId.current) {
+      return;
+   }
+
+   websocket.sendJsonMessage({
+      sessionId: sessionId.current,
+      event: "broadcast/local_updateGraphShowGrid/db_updateGraphShowGrid",
+      showGrid,
+   } as any);
+}
+
+export function wsLocalAndDBUpdateGraphBackgroundColor(
+   backgroundColor: boolean,
+   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   sessionId: MutableRefObject<string>,
+) {
+   if (!sessionId.current) {
+      return;
+   }
+
+   websocket.sendJsonMessage({
+      sessionId: sessionId.current,
+      event: "broadcast/local_updateGraphBackgroundColor/db_updateGraphBackgroundColor",
+      backgroundColor,
    } as any);
 }
 

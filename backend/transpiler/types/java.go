@@ -47,7 +47,7 @@ type JavaAbstract struct {
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
 	Dependencies  []CustomByteSlice `json:"-"`
-	JavaDiagram
+	JavaDiagramNode
 }
 
 type JavaClass struct {
@@ -60,7 +60,7 @@ type JavaClass struct {
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
 	Dependencies  []CustomByteSlice `json:"-"`
-	JavaDiagram
+	JavaDiagramNode
 }
 
 type JavaInterface struct {
@@ -72,7 +72,7 @@ type JavaInterface struct {
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
 	Dependencies  []CustomByteSlice `json:"-"`
-	JavaDiagram
+	JavaDiagramNode
 }
 
 type JavaEnum struct {
@@ -81,15 +81,17 @@ type JavaEnum struct {
 	Name          CustomByteSlice   `json:"name"`
 	Declarations  []CustomByteSlice `json:"declarations,omitempty"`
 	Implements    []CustomByteSlice `json:"-,omitempty"`
-	JavaDiagram
+	JavaDiagramNode
 }
 
-type JavaDiagram struct {
-	ID     string  `json:"id"`
-	Shape  string  `json:"shape"`
-	X      float64 `json:"x"`
-	Y      float64 `json:"y"`
-	Width  float64 `json:"width"`
-	Height float64 `json:"height"`
-	Type   string  `json:"type"`
+type JavaDiagramNode struct {
+	ID           string  `json:"id"`
+	Shape        string  `json:"shape"`
+	X            float64 `json:"x"`
+	Y            float64 `json:"y"`
+	LockPosition bool    `json:"lockPosition"`
+	Width        float64 `json:"width"`
+	Height       float64 `json:"height"`
+	LockSize     bool    `json:"lockSize"`
+	Type         string  `json:"type"`
 }

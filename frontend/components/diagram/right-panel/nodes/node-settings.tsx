@@ -66,6 +66,28 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
          setX(cell.current.x);
          setY(cell.current.y);
       });
+
+      node.on("change:variables", (args) => {
+         setVariables(args.variables);
+         if (args.newHeight) {
+            setHeight(args.newHeight);
+         }
+      });
+
+      node.on("change:methods", (args) => {
+         setMethods(args.methods);
+         if (args.newHeight) {
+            setHeight(args.newHeight);
+         }
+      });
+
+      node.on("change:locked", (args) => {
+         setPositionLocked(args.locked);
+      });
+
+      node.on("change:resizable", (args) => {
+         setSizeLocked(args.resizable);
+      });
    }, [node]);
 
    return (
@@ -235,11 +257,8 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                                     accessModifier: "private",
                                  });
 
-                                 setVariables(variablesTemp);
-                                 node.trigger("change:variables", { variables: variablesTemp });
-
                                  const newHeight = height + (variablesTemp.length > 1 ? 20 : 36);
-                                 node.resize(node.prop("size").width, newHeight);
+                                 node.trigger("change:variables", { variables: variablesTemp, newHeight: newHeight });
                               }}
                            >
                               <span
@@ -308,11 +327,8 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                                     accessModifier: "public",
                                  });
 
-                                 setMethods(methodsTemp);
-                                 node.trigger("change:methods", { methods: methodsTemp });
-
                                  const newHeight = height + (methodsTemp.length > 1 ? 20 : 36);
-                                 node.resize(node.prop("size").width, newHeight);
+                                 node.trigger("change:methods", { methods: methodsTemp, newHeight: newHeight });
                               }}
                            >
                               <span

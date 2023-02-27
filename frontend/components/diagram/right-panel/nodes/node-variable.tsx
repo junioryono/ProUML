@@ -151,15 +151,9 @@ export default function NodeSettingsVariable({
                         // update the node's variables array
                         const newVariables = [...variables];
                         newVariables.splice(index, 1);
-                        setVariables(newVariables);
-                        node.trigger("change:variables", { variables: newVariables });
 
-                        const currentWidth = node.prop("size").width;
-                        const currentHeight = node.prop("size").height;
-
-                        // update the node's size
-                        const newHeight = currentHeight - (newVariables.length === 0 ? 36 : 20);
-                        node.resize(currentWidth, newHeight);
+                        const newHeight = node.prop("size").height - (newVariables.length === 0 ? 36 : 20);
+                        node.trigger("change:variables", { variables: newVariables, newHeight: newHeight });
                      }}
                   >
                      <span

@@ -16,7 +16,7 @@ export default function useGraph(
    layoutProps: LayoutProps,
 ) {
    const graph = useRef<X6Type.Graph>();
-   const { websocket, sessionId } = useGraphWebSocket(graph, diagram.id);
+   const { websocket, sessionId } = useGraphWebSocket(graph, diagram.id, layoutProps);
    const [graphReady, setGraphReady] = useState(false);
 
    useEffect(() => {
@@ -36,7 +36,6 @@ export default function useGraph(
       ) {
          return;
       }
-
       const getGraphWidth = () => window.innerWidth - 480;
       const getGraphHeight = () => window.innerHeight - 48;
 
@@ -137,6 +136,11 @@ export default function useGraph(
       const removeListeners = initializeListeners(graph, websocket, sessionId, layoutProps);
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
       window.addEventListener("resize", handleResize);
+
+      graph.current.setGridSize(diagram.show_grid ? 16 : 0);
+      graph.current?.drawBackground({
+         color: `#${diagram.background_color}`,
+      });
 
       setGraphReady(true);
 
