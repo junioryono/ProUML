@@ -2,7 +2,6 @@ package diagram
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
@@ -134,8 +133,6 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *typ
 	if err := d.db.Preload("Project").Preload("Project.Diagrams").Where("id = ?", diagramId).First(&diagram).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrDiagramNotFound)
 	}
-
-	fmt.Println("diagram.ShowGrid", diagram.ShowGrid)
 
 	if !diagram.Public {
 		var userDiagram models.DiagramUserRoleModel
