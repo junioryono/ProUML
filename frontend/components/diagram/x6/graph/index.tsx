@@ -137,7 +137,7 @@ export default function useGraph(
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
       window.addEventListener("resize", handleResize);
 
-      graph.current.setGridSize(diagram.show_grid ? 16 : 0);
+      graph.current.setGridSize(diagram.show_grid ? 16 : 1);
       graph.current?.drawBackground({
          color: `#${diagram.background_color}`,
       });

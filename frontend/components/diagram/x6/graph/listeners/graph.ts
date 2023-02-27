@@ -24,7 +24,7 @@ export default function Graph(
    // }
 
    let jsonString: string = JSON.stringify(graph.current?.toJSON());
-   document.addEventListener("mouseleave", () => {
+   const mouseLeaveFunction = () => {
       const newJSON = graph.current?.toJSON();
       const newJSONString = JSON.stringify(newJSON);
       if (jsonString === newJSONString) {
@@ -42,7 +42,8 @@ export default function Graph(
          padding: 20,
          quality: 1,
       });
-   });
+   };
+   document.addEventListener("mouseleave", mouseLeaveFunction);
 
    graph.current?.on("scale", (args) => {
       console.log("scale", args);
@@ -73,6 +74,9 @@ export default function Graph(
    });
 
    return () => {
+      document.removeEventListener("mouseleave", mouseLeaveFunction);
       graph.current?.off("scale");
+      graph.current?.off("grid:changed");
+      graph.current?.off("background:changed");
    };
 }
