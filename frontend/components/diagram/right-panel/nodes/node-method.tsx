@@ -34,6 +34,14 @@ export default function NodeSettingsMethod({
       setMethods(newMethods);
    }, [accessModifier, name, type, parameters]);
 
+   useEffect(() => {
+      setAccessModifier(method.accessModifier);
+      setName(method.name);
+      setType(method.type);
+      setParameters(method.parameters);
+      setShowParameters(false);
+   }, [method]);
+
    return (
       <div>
          {/* list all of the different methods on different lines */}

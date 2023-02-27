@@ -33,6 +33,13 @@ export default function NodeSettingsVariable({
       setVariables(newVariables);
    }, [accessModifier, name, type, value]);
 
+   useEffect(() => {
+      setAccessModifier(variable.accessModifier);
+      setName(variable.name);
+      setType(variable.type);
+      setValue(variable.value);
+   }, [variable]);
+
    return (
       <div>
          {/* list all of the different variables on different lines */}
