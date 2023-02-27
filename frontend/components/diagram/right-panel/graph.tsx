@@ -1,6 +1,6 @@
 import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useState } from "react";
-import { lightColorOptions } from ".";
+import { lightColorOptions } from "./styling-options/colors";
 
 export default function GraphPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for the zoom of the graph
