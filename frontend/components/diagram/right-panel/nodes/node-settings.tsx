@@ -33,24 +33,35 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
 
    // when the node changes, update the state information of the node
    useEffect(() => {
+      // if the node is undefined, return
       if (!node) {
          return;
       }
 
+      // get the properties of the node
       const props = node.prop();
       console.log("props", props);
+
+      // update the state information of the node
       setNodeName(props.name);
       setVariables(props.variables);
       setMethods(props.methods);
       setHeight(props.size?.height || props.height);
       setWidth(props.size?.width || props.width);
 
+      // re-render when the selected node changes
+      node.on("change:className", (args) => {
+         setNodeName(args.name);
+      });
+
+      // re-render when the node size changes
       node.on("change:size", (args) => {
          const size = args.cell.getProp("size");
          setWidth(size.width);
          setHeight(size.height);
       });
 
+      // re-render when the node position changes
       node.on("change:position", (cell) => {
          setX(cell.current.x);
          setY(cell.current.y);
@@ -136,9 +147,9 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
 
                   {/* ---------------------- NODE CLASS TYPE SECTION ---------------------- */}
                   <div className="flex items-center mb-1.5">
-                     {/* check boxes of whether the class is an interface or abstract class */}
                      <div className="flex justify-between">
                         <div className="flex items-center gap-2">
+                           {/* if the class node is an interface */}
                            <input
                               type="checkbox"
                               id="is-interface"
@@ -146,11 +157,12 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               checked={isInterface}
                               onChange={(e) => {
                                  setIsInterface(e.target.checked);
-                                 node.trigger("change:isInterface", { isInterface: e.target.checked });
+                                 node.trigger("change:type", { type: e.target.checked && "interface" });
                               }}
                            />
                            <label htmlFor="is-interface">Interface</label>
 
+                           {/* if the class node is an abstract class */}
                            <input
                               type="checkbox"
                               id="is-abstract"
@@ -222,16 +234,18 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                      {/* map out all the variables in the selected cell */}
                      <div className="relative mb-1">
                         <ScrollFade maxHeight={90}>
-                           {variables.map((variable, index) => (
-                              <NodeSettingsVariable
-                                 key={index}
-                                 node={node}
-                                 variables={variables}
-                                 variable={variable}
-                                 index={index}
-                                 setVariables={setVariables}
-                              />
-                           ))}
+                           <div className="max-h-28">
+                              {variables.map((variable, index) => (
+                                 <NodeSettingsVariable
+                                    key={index}
+                                    node={node}
+                                    variables={variables}
+                                    variable={variable}
+                                    index={index}
+                                    setVariables={setVariables}
+                                 />
+                              ))}
+                           </div>
                         </ScrollFade>
                      </div>
                   </div>
@@ -292,16 +306,18 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                      {/* map out all the variables in the selected cell */}
                      <div className="relative mb-1">
                         <ScrollFade maxHeight={90}>
-                           {methods.map((method, index) => (
-                              <NodeSettingsMethod
-                                 key={index}
-                                 node={node}
-                                 methods={methods}
-                                 method={method}
-                                 index={index}
-                                 setMethods={setMethods}
-                              />
-                           ))}
+                           <div className="max-h-28">
+                              {methods.map((method, index) => (
+                                 <NodeSettingsMethod
+                                    key={index}
+                                    node={node}
+                                    methods={methods}
+                                    method={method}
+                                    index={index}
+                                    setMethods={setMethods}
+                                 />
+                              ))}
+                           </div>
                         </ScrollFade>
                      </div>
                   </div>

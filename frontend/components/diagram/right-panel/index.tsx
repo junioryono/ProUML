@@ -87,7 +87,6 @@ export default function RightPanel({ graph }: { graph: MutableRefObject<X6Type.G
          ) : tab === "nodes&edges" ? (
             <EdgesPanel graph={graph} />
          ) : null}
-         {/* <div className="border-l border-gray-400 absolute bottom-0 right-0 w-60 h-12 pointer-events-none after:absolute after:bottom-0 after:left-0 after:w-full after:h-16 after:pointer-events-none after:content-'' after:bg-gradient-to-t from-white to-transparent"></div> */}
       </div>
    );
 }

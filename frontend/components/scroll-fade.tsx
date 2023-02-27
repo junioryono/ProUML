@@ -12,6 +12,7 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
    const [showBottomFade, setShowBottomFade] = useState(true);
    // for the height of the scrollable container
    const [containerHeight, setContainerHeight] = useState(0);
+
    // for the scrollable container
    const handleContainerRef = (ref) => {
       if (ref) {
@@ -19,30 +20,33 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
       }
    };
 
+   //
+   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+      const { scrollTop, clientHeight, scrollHeight } = e.target as HTMLDivElement;
+
+      // if the scroll bar is at the top of the list, show only the bottom fade effect
+      if (scrollTop === 0) {
+         setShowBottomFade(true);
+         setShowTopFade(false);
+      } else {
+         // if the scroll bar reaches the bottom of the list get rid of the bottom fade effect
+         if (scrollTop + clientHeight === scrollHeight) {
+            setShowBottomFade(false);
+            setShowTopFade(true);
+            // if the scroll bar is not at the top or bottom of the list, show both top and bottom fades
+         } else {
+            setShowTopFade(true);
+            setShowBottomFade(true);
+         }
+      }
+   };
+
    return (
       <div>
          <div
             ref={handleContainerRef}
-            className="overflow-y-scroll no-scrollbar overflow-x-hidden max-h-28 list-container"
-            onScroll={(e: React.UIEvent<HTMLDivElement>) => {
-               const { scrollTop, clientHeight, scrollHeight } = e.target as HTMLDivElement;
-
-               // if the scroll bar is at the top of the list, show only the bottom fade effect
-               if (scrollTop === 0) {
-                  setShowBottomFade(true);
-                  setShowTopFade(false);
-               } else {
-                  // if the scroll bar reaches the bottom of the list get rid of the bottom fade effect
-                  if (scrollTop + clientHeight === scrollHeight) {
-                     setShowBottomFade(false);
-                     setShowTopFade(true);
-                     // if the scroll bar is not at the top or bottom of the list, show both top and bottom fades
-                  } else {
-                     setShowTopFade(true);
-                     setShowBottomFade(true);
-                  }
-               }
-            }}
+            className={`overflow-y-scroll no-scrollbar overflow-x-hidden list-container`}
+            onScroll={handleScroll}
          >
             {children}
          </div>
