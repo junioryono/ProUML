@@ -100,12 +100,12 @@ function ShapeClass({ node }: { node?: Node }) {
 
    // update the node when the variables change
    useEffect(() => {
-      node.prop("variables", [...variables], { silent: true });
+      node.prop("variables", Array.isArray(variables) ? [...variables] : [], { silent: true });
    }, [variables]);
 
    // update the node when the methods change
    useEffect(() => {
-      node.prop("methods", [...methods], { silent: true });
+      node.prop("methods", Array.isArray(methods) ? [...methods] : [], { silent: true });
    }, [methods]);
 
    return (
