@@ -1,4 +1,3 @@
-import { ScrollFade } from "@/components/scroll-fade";
 import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { ClassNode } from "types";

@@ -59,6 +59,12 @@ function ShapeClass({ node }: { node?: Node }) {
          node.model.graph.trigger("node:change:className"); // This is for updating the left panel
       });
 
+      // if the class type is changed, update the node
+      node.on("change:classType", ({ type, ws }: { type: ClassNode["type"]; ws: boolean }) => {
+         setType(type);
+         node.prop("type", type, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
       // if the variables are changed, update the node
       node.on("change:variables", ({ variables, ws }: { variables: ClassNode["variables"]; ws: boolean }) => {
          setVariables(variables);
@@ -78,6 +84,7 @@ function ShapeClass({ node }: { node?: Node }) {
       // turn off the event listeners when the component unmounts
       return () => {
          node.off("change:className");
+         node.off("change:classType");
          node.off("change:variables");
          node.off("change:methods");
          node.off("change:position");
@@ -89,6 +96,11 @@ function ShapeClass({ node }: { node?: Node }) {
    useEffect(() => {
       node.prop("name", className, { silent: true }); // This is for updating the node on the graph
    }, [className]);
+
+   // update the node when the class type changes
+   useEffect(() => {
+      node.prop("type", type, { silent: true });
+   }, [type]);
 
    // update the node when the variables change
    useEffect(() => {
@@ -163,7 +175,7 @@ function ShapeClass({ node }: { node?: Node }) {
                      {variable.type && `: ${variable.type}`}
                      {variable.value &&
                         // if the value is a string, add quotes
-                        (typeof variable.value === "string" ? ` = "${variable.value}"` : ` = ${variable.value}`)}
+                        (variable.type === "String" ? ` = "${variable.value}"` : ` = ${variable.value}`)}
                   </div>
                ))}
             </div>
