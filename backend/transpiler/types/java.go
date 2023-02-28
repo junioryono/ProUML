@@ -85,13 +85,11 @@ type JavaEnum struct {
 }
 
 type JavaDiagramNode struct {
-	ID           string  `json:"id"`
-	Shape        string  `json:"shape"`
-	X            float64 `json:"x"`
-	Y            float64 `json:"y"`
-	LockPosition bool    `json:"lockPosition"`
-	Width        float64 `json:"width"`
-	Height       float64 `json:"height"`
-	LockSize     bool    `json:"lockSize"`
-	Type         string  `json:"type"`
+	ID     string  `json:"id"`
+	Shape  string  `json:"shape"`
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
+	Type   string  `json:"type"`
 }

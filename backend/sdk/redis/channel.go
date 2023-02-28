@@ -79,59 +79,6 @@ func (c *channel) listen() {
 			}
 		}
 	}()
-
-	// // Send a connection status message to the client
-	// go func(c *connection) {
-	// 	c.mu.Lock()
-	// 	c.ws.WriteJSON(struct {
-	// 		Events           string `json:"event"`
-	// 		ConnectionStatus string `json:"connectionStatus"`
-	// 	}{
-	// 		Events:           "connectionStatus",
-	// 		ConnectionStatus: "success",
-	// 	})
-	// 	c.mu.Unlock()
-	// }(conn)
-
-	// go func(c *connection, u *models.UserModel, r2 *Redis_SDK, channelId2 string) {
-	// 	// Create a DiagramUsersRolesHiddenContent
-	// 	userHiddenContent := &models.DiagramUsersHiddenContent{
-	// 		UserId:   user.ID,
-	// 		Email:    user.Email,
-	// 		FullName: user.FullName,
-	// 		Picture:  user.Picture,
-	// 	}
-
-	// 	marshaledMsg, err := json.Marshal(struct {
-	// 		Event string                            `json:"event"`
-	// 		User  *models.DiagramUsersHiddenContent `json:"user"`
-	// 	}{
-	// 		Event: "newConnection",
-	// 		User:  userHiddenContent,
-	// 	})
-	// 	if err != nil {
-	// 		fmt.Printf("error marshaling message: %v\n", err.Error())
-	// 	}
-
-	// 	// Publish the message
-	// 	if err := r2.Publish(channelId2, marshaledMsg); err != nil {
-	// 		fmt.Printf("error publishing message: %v\n", err.Error())
-	// 	}
-
-	// 	// // Need to get all the users currently connected to the channel using LRANGE
-	// 	// if otherUsers, err := r2.client.LRange(r2.context, channel, 0, -1).Result(); err == nil {
-	// 	// 	// Send a message to the client with all the users currently connected to the channel
-	// 	// 	go func(c2 *connection) {
-	// 	// 		// Iterate through all the users
-	// 	// 		for _, u := range otherUsers {
-	// 	// 			fmt.Printf("u: %v\n", u)
-	// 	// 		}
-	// 	// 	}(c)
-	// 	// }
-
-	// 	// Need to add this user the key of the channel using RPUSH
-	// 	// r2.client.RPush(r2.context, channel, marshaledMsg)
-	// }(conn, user, r, channelId)
 }
 
 // Returns true if there are no more connections in the channel

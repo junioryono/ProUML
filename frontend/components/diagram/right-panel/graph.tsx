@@ -129,7 +129,7 @@ export default function GraphPanel({
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                   onChange={() => {
                      setBackground(!background);
-                     graph.current?.trigger("background:changed", { color: backgroundColor });
+                     graph.current?.trigger("background:changed", { color: background ? "FFFFFF" : backgroundColor });
                   }}
                   checked={background}
                />

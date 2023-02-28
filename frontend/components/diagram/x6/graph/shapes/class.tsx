@@ -17,10 +17,14 @@ function ShapeClass({ node }: { node?: Node }) {
    const [className, setClassName] = useState<ClassNode["name"]>();
    const [variables, setVariables] = useState<ClassNode["variables"]>([]);
    const [methods, setMethods] = useState<ClassNode["methods"]>([]);
+   const [backgroundColor, setBackgroundColor] = useState("FFFFFF");
+   const [borderColor, setBorderColor] = useState("000000");
+   const [borderWidth, setBorderWidth] = useState(1);
+   const [borderStyle, setBorderStyle] = useState("solid");
+   const [shadowIntensity, setShadowIntensity] = useState(0);
+   const [roundedIntensity, setRoundedIntensity] = useState(0);
 
    const [selectedSection, setSelectedSection] = useState<ClassSection>();
-   const [font, setFont] = useState("Helvetica");
-   const [fontSize, setFontSize] = useState(12);
    // const [width, setWidth] = useState(0);
    // const [height, setHeight] = useState(0);
 
@@ -38,28 +42,59 @@ function ShapeClass({ node }: { node?: Node }) {
          return;
       }
 
-      const { type, package: packageName, name: className, variables, methods } = node.getProp() as ClassNode;
+      const {
+         type,
+         package: packageName,
+         name: className,
+         variables,
+         methods,
+         backgroundColor,
+         borderColor,
+         borderWidth,
+         borderStyle,
+         shadowIntensity,
+         roundedIntensity,
+      } = node.getProp() as ClassNode;
 
       setType(type);
       setPackageName(packageName);
       setClassName(className);
-      setVariables(variables);
-      setMethods(methods);
+      setVariables(variables || []);
+      setMethods(methods || []);
+      setBackgroundColor(backgroundColor || "FFFFFF");
+      setBorderColor(borderColor || "000000");
+      setBorderWidth(borderWidth || 1);
+      setBorderStyle(borderStyle || "solid");
+      setShadowIntensity(shadowIntensity || 0);
+      setRoundedIntensity(roundedIntensity || 0);
    }, []);
 
    useEffect(() => {
+      node?.on("change:package", ({ package: packageName, ws }: { package: ClassNode["package"]; ws: boolean }) => {
+         setPackageName(packageName);
+         node
+            .prop("package", packageName, { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
       // if the class name is changed, update the node
       node?.on("change:className", ({ name, ws }: { name: ClassNode["name"]; ws: boolean }) => {
          setClassName(name);
-         node?.prop("name", name, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         node.prop("name", name, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
          node?.model.graph.trigger("node:change:className"); // This is for updating the left panel
       });
 
       // if the class type is changed, update the node
-      node?.on("change:classType", ({ type, ws }: { type: ClassNode["type"]; ws: boolean }) => {
-         setType(type);
-         node?.prop("type", type, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
-      });
+      node?.on(
+         "change:classType",
+         ({ type, newHeight, ws }: { type: ClassNode["type"]; newHeight: number; ws: boolean }) => {
+            setType(type);
+            node
+               .prop("type", type, { silent: true })
+               .resize(node.size().width, newHeight || node.size().height)
+               .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         },
+      );
 
       // if the variables are changed, update the node
       node?.on(
@@ -85,6 +120,66 @@ function ShapeClass({ node }: { node?: Node }) {
          },
       );
 
+      // if the background color is changed, update the node
+      node?.on("change:backgroundColor", ({ backgroundColor, ws }: { backgroundColor: string; ws: boolean }) => {
+         setBackgroundColor(backgroundColor);
+         node
+            .prop("backgroundColor", backgroundColor, { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
+      // if the border color is changed, update the node
+      node?.on("change:borderColor", ({ borderColor, ws }: { borderColor: string; ws: boolean }) => {
+         setBorderColor(borderColor);
+         node
+            .prop("borderColor", borderColor, { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
+      // if the border width is changed, update the node
+      node?.on("change:borderWidth", ({ borderWidth, ws }: { borderWidth: number; ws: boolean }) => {
+         setBorderWidth(borderWidth);
+         node
+            .prop("borderWidth", borderWidth, { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
+      // if the border style is changed, update the node
+      node?.on("change:borderStyle", ({ borderStyle, ws }: { borderStyle: string; ws: boolean }) => {
+         setBorderStyle(borderStyle);
+         node
+            .prop("borderStyle", borderStyle, { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
+      // if the shadow intensity is changed, update the node
+      node?.on("change:shadowIntensity", ({ shadowIntensity, ws }: { shadowIntensity: number; ws: boolean }) => {
+         setShadowIntensity(shadowIntensity);
+         node
+            .prop("shadowIntensity", shadowIntensity, { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
+      // if the rounded intensity is changed, update the node
+      node?.on("change:roundedIntensity", ({ roundedIntensity, ws }: { roundedIntensity: number; ws: boolean }) => {
+         setRoundedIntensity(roundedIntensity);
+         node
+            .prop("roundedIntensity", roundedIntensity, { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
+      node?.on("change:lockPosition", ({ lockPosition, ws }: { lockPosition: boolean; ws: boolean }) => {
+         node
+            .prop("lockPosition", lockPosition, { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
+      node?.on("change:lockSize", ({ lockSize, ws }: { lockSize: boolean; ws: boolean }) => {
+         node
+            .prop("lockSize", lockSize, { silent: true })
+            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      });
+
       // turn off the event listeners when the component unmounts
       return () => {
          node?.off("change:className");
@@ -93,40 +188,69 @@ function ShapeClass({ node }: { node?: Node }) {
          node?.off("change:methods");
          node?.off("change:position");
          node?.off("change:size");
+         node?.off("change:backgroundColor");
+         node?.off("change:borderColor");
+         node?.off("change:borderWidth");
+         node?.off("change:borderStyle");
+         node?.off("change:shadowIntensity");
+         node?.off("change:roundedIntensity");
+         node?.off("change:lockPosition");
+         node?.off("change:lockSize");
       };
    }, [node]);
 
-   // update the node when the class name changes
+   // All the useEffects below are to trigger the graph to update the node
    useEffect(() => {
       node.prop("name", className, { silent: true }); // This is for updating the node on the graph
    }, [className]);
 
-   // update the node when the class type changes
    useEffect(() => {
       node.prop("type", type, { silent: true });
    }, [type]);
 
-   // update the node when the variables change
    useEffect(() => {
-      node.prop("variables", Array.isArray(variables) ? [...variables] : [], { silent: true });
+      node.prop("variables", [...variables], { silent: true });
    }, [variables]);
 
-   // update the node when the methods change
    useEffect(() => {
-      node.prop("methods", Array.isArray(methods) ? [...methods] : [], { silent: true });
+      node.prop("methods", [...methods], { silent: true });
    }, [methods]);
+
+   useEffect(() => {
+      node.prop("backgroundColor", backgroundColor, { silent: true });
+   }, [backgroundColor]);
+
+   useEffect(() => {
+      node.prop("borderColor", borderColor, { silent: true });
+   }, [borderColor]);
+
+   useEffect(() => {
+      node.prop("borderWidth", borderWidth, { silent: true });
+   }, [borderWidth]);
+
+   useEffect(() => {
+      node.prop("borderStyle", borderStyle, { silent: true });
+   }, [borderStyle]);
+
+   useEffect(() => {
+      node.prop("shadowIntensity", shadowIntensity, { silent: true });
+   }, [shadowIntensity]);
+
+   useEffect(() => {
+      node.prop("roundedIntensity", roundedIntensity, { silent: true });
+   }, [roundedIntensity]);
 
    return (
       <div
          style={{
-            fontFamily: font,
-            fontSize: `${fontSize}px`,
+            fontFamily: "Helvetica",
+            fontSize: 12,
             display: "flex",
             flexDirection: "column",
             width: "100%",
             height: "100%",
-            backgroundColor: "white",
-            border: "1px solid black",
+            backgroundColor: `#${backgroundColor}`,
+            border: `${borderWidth}px ${borderStyle} #${borderColor}`,
             overflow: "hidden",
          }}
       >
@@ -136,7 +260,7 @@ function ShapeClass({ node }: { node?: Node }) {
                flexDirection: "column",
                alignItems: "center",
                padding: "4px 0",
-               borderBottom: variables || methods ? "1px solid black" : undefined,
+               borderBottom: variables || methods ? `${borderWidth}px ${borderStyle} #${borderColor}` : undefined,
             }}
          >
             {(type === "interface" || type === "enum") && (
@@ -157,13 +281,13 @@ function ShapeClass({ node }: { node?: Node }) {
          </div>
 
          {/* show the class variables if they exist */}
-         {variables && variables.length > 0 && (
+         {variables.length > 0 && (
             <div
                style={{
                   display: "flex",
                   flexDirection: "column",
                   padding: "8px",
-                  borderBottom: methods ? "1px solid black" : undefined,
+                  borderBottom: methods ? `${borderWidth}px ${borderStyle} #${borderColor}` : undefined,
                }}
             >
                {variables.map((variable, index) => (
@@ -186,7 +310,7 @@ function ShapeClass({ node }: { node?: Node }) {
          )}
 
          {/* show the class methods if they exist */}
-         {methods && methods.length > 0 && (
+         {methods.length > 0 && (
             <div
                style={{
                   display: "flex",

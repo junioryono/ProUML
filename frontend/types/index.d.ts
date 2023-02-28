@@ -133,11 +133,21 @@ export type ClassNode = {
    id: string;
    type: string;
    shape: string;
-   x: number;
-   y: number;
+   backgroundColor: string;
+   borderColor: string;
+   borderWidth: number;
+   borderStyle: string;
+   shadowIntensity: number;
+   roundedIntensity: number;
+   position: {
+      x: number;
+      y: number;
+   };
+   size: {
+      width: number;
+      height: number;
+   };
    lockPosition: boolean;
-   width: number;
-   height: number;
    lockSize: boolean;
    package: string;
    name: string;

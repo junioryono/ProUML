@@ -81,12 +81,29 @@ export default function Cells(
       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    });
 
-   graph.current?.on("node:resized", (args) => {
-      console.log("node:resized", args);
+   graph.current?.on("node:change:position", (args) => {
+      if (args.options.ws) {
+         return;
+      }
+
+      console.log("node:change:position", args);
+      wsLocalUpdateNode(args.cell, websocket, sessionId);
+   });
+
+   graph.current?.on("node:change:size", (args) => {
+      if (args.options.ws) {
+         return;
+      }
+
+      console.log("node:change:size", args);
       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    });
 
    graph.current?.on("node:change:angle", (args) => {
+      if (args.options.ws) {
+         return;
+      }
+
       console.log("node:change:angle", args);
       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    });

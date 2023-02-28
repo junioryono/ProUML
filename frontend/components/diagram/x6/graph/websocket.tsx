@@ -37,12 +37,12 @@ function onWebSocketMessage(
 
    const events = message.event.split("/");
    if (events.includes("local_updateNode")) {
-      const node = message.cell as X6Type.Node;
+      const node = message.cell;
       if (!node) {
          return;
       }
 
-      const nodeInGraph = graph.current?.getCellById(node.id);
+      const nodeInGraph = graph.current?.getCellById(node.id) as X6Type.Node;
       if (!nodeInGraph) {
          return;
       }
@@ -50,15 +50,23 @@ function onWebSocketMessage(
       console.log("local_updateNode", node);
 
       graph.current?.batchUpdate(() => {
+         nodeInGraph.trigger("change:package", { package: node["package"], ws: true });
          nodeInGraph.trigger("change:className", { name: node["name"], ws: true });
+         nodeInGraph.trigger("change:classType", { type: node["type"], ws: true });
          nodeInGraph.trigger("change:variables", { variables: node["variables"] || [], ws: true });
          nodeInGraph.trigger("change:methods", { methods: node["methods"] || [], ws: true });
+         nodeInGraph.trigger("change:backgroundColor", { backgroundColor: node["backgroundColor"], ws: true });
+         nodeInGraph.trigger("change:borderColor", { borderColor: node["borderColor"], ws: true });
+         nodeInGraph.trigger("change:borderWidth", { borderWidth: node["borderWidth"], ws: true });
+         nodeInGraph.trigger("change:borderStyle", { borderStyle: node["borderStyle"], ws: true });
+         nodeInGraph.trigger("change:shadowIntensity", { shadowIntensity: node["shadowIntensity"], ws: true });
+         nodeInGraph.trigger("change:roundedIntensity", { roundedIntensity: node["roundedIntensity"], ws: true });
+         nodeInGraph.trigger("change:lockPosition", { lockPosition: node["lockPosition"], ws: true });
+         nodeInGraph.trigger("change:lockSize", { lockSize: node["lockSize"], ws: true });
 
-         nodeInGraph.setProp("package", node["package"], { ws: true });
-         nodeInGraph.setProp("type", node["type"], { ws: true });
-         nodeInGraph.setProp("angle", node["angle"] || 0, { ws: true });
-         node["size"] && nodeInGraph.setProp("size", node["size"], { ws: true });
-         node["position"] && nodeInGraph.setProp("position", node["position"], { ws: true });
+         nodeInGraph.angle(node["angle"] || 0, { ws: true });
+         nodeInGraph.setSize(node["size"], { ws: true });
+         nodeInGraph.setPosition(node["position"], { ws: true });
       });
    } else if (events.includes("local_removeCell")) {
       const cell = message.cell;

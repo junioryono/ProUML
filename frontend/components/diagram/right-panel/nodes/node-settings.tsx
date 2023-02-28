@@ -81,12 +81,12 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
          }
       });
 
-      node.on("change:locked", (args) => {
-         setPositionLocked(args.locked);
+      node.on("change:lockPosition", (args) => {
+         setPositionLocked(!!args.lockPosition);
       });
 
-      node.on("change:resizable", (args) => {
-         setSizeLocked(args.resizable);
+      node.on("change:lockSize", (args) => {
+         setSizeLocked(!!args.lockSize);
       });
    }, [node]);
 
@@ -182,23 +182,12 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
 
                                  if (e.target.checked) {
                                     setIsAbstract(false);
-                                    node.trigger("change:classType", { type: "interface" });
 
-                                    const currentWidth = node.prop("size").width;
-                                    const currentHeight = node.prop("size").height;
-
-                                    // update the node's size
-                                    const newHeight = currentHeight + 17;
-                                    node.resize(currentWidth, newHeight);
+                                    const newHeight = node.prop("size").height + 17;
+                                    node.trigger("change:classType", { type: "interface", newHeight: newHeight });
                                  } else {
-                                    node.trigger("change:classType", { type: "class" });
-
-                                    const currentWidth = node.prop("size").width;
-                                    const currentHeight = node.prop("size").height;
-
-                                    // update the node's size
-                                    const newHeight = currentHeight - 17;
-                                    node.resize(currentWidth, newHeight);
+                                    const newHeight = node.prop("size").height - 17;
+                                    node.trigger("change:classType", { type: "class", newHeight: newHeight });
                                  }
                               }}
                            />
@@ -216,15 +205,11 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                                  if (e.target.checked) {
                                     if (isInterface) {
                                        setIsInterface(false);
-                                       const currentWidth = node.prop("size").width;
-                                       const currentHeight = node.prop("size").height;
-
-                                       // update the node's size
-                                       const newHeight = currentHeight - 17;
-                                       node.resize(currentWidth, newHeight);
+                                       const newHeight = node.prop("size").height - 17;
+                                       node.trigger("change:classType", { type: "abstract", newHeight: newHeight });
+                                    } else {
+                                       node.trigger("change:classType", { type: "abstract" });
                                     }
-
-                                    node.trigger("change:classType", { type: "abstract" });
                                  } else {
                                     node.trigger("change:classType", { type: "class" });
                                  }
@@ -386,6 +371,10 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               <div className="w-1/7">X</div>
                               <input
                                  value={x}
+                                 onChange={(e) => {
+                                    const newX = parseInt(e.target.value);
+                                    node.setPosition(newX || 0, y);
+                                 }}
                                  className={`w-16 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
                                     positionLocked
                                        ? "hover:cursor-not-allowed text-slate-500"
@@ -405,6 +394,10 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               <div className="w-1/7">Y</div>
                               <input
                                  value={y}
+                                 onChange={(e) => {
+                                    const newY = parseInt(e.target.value);
+                                    node.setPosition(x, newY || 0);
+                                 }}
                                  className={`w-16 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
                                     positionLocked
                                        ? "hover:cursor-not-allowed text-slate-500"
@@ -424,7 +417,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               type="checkbox"
                               id="position-lock"
                               className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                              onChange={() => setPositionLocked(!positionLocked)}
+                              onChange={() => node.trigger("change:lockPosition", { lockPosition: !positionLocked })}
                               checked={positionLocked}
                            />
                            <label htmlFor="position-lock">Lock pos</label>
@@ -440,6 +433,10 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               <div className="w-12">Width</div>
                               <input
                                  value={width}
+                                 onChange={(e) => {
+                                    const newWidth = parseInt(e.target.value);
+                                    node.resize(newWidth || 0, height);
+                                 }}
                                  className={`w-16 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
                                     sizeLocked
                                        ? "hover:cursor-not-allowed text-slate-500"
@@ -455,6 +452,10 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               <div className="w-12">Height</div>
                               <input
                                  value={height}
+                                 onChange={(e) => {
+                                    const newHeight = parseInt(e.target.value);
+                                    node.resize(width, newHeight || 0);
+                                 }}
                                  className={`w-16 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
                                     sizeLocked
                                        ? "hover:cursor-not-allowed text-slate-500"
@@ -470,7 +471,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                                  type="checkbox"
                                  id="size-lock"
                                  className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                                 onChange={() => setSizeLocked(!sizeLocked)}
+                                 onChange={() => node.trigger("change:lockSize", { lockSize: !sizeLocked })}
                                  checked={sizeLocked}
                               />
                               <label htmlFor="size-lock">Lock size</label>
