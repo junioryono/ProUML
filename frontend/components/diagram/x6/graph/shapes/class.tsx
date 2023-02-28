@@ -65,6 +65,10 @@ function ShapeClass({ node }: { node?: Node }) {
 
    useEffect(() => {
       node?.on("change:package", ({ package: packageName, ws }: { package: ClassNode["package"]; ws: boolean }) => {
+         if (packageName === "") {
+            packageName = "default";
+         }
+
          setPackageName(packageName);
          node
             .prop("package", packageName, { silent: true })
@@ -73,6 +77,10 @@ function ShapeClass({ node }: { node?: Node }) {
 
       // if the class name is changed, update the node
       node?.on("change:className", ({ name, ws }: { name: ClassNode["name"]; ws: boolean }) => {
+         if (name === "") {
+            name = "ClassName";
+         }
+
          setClassName(name);
          node.prop("name", name, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
          node?.model.graph.trigger("node:change:className"); // This is for updating the left panel
