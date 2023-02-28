@@ -9,45 +9,48 @@ import NodeSettingsVariable from "./node-variable";
 export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObject<X6Type.Graph> }) {
    // for the name of the node
    const [nodeName, setNodeName] = useState("");
-   // for the class type of a class node
-   const [classType, setClassType] = useState(node.getProp("type") as ClassNode["type"]);
    // for if the node is an interface or not
-   const [isInterface, setIsInterface] = useState((node.getProp("type") as ClassNode["type"]) === "interface");
+   const [isInterface, setIsInterface] = useState<boolean>(false);
    // if if the node is an abstract class or not
-   const [isAbstract, setIsAbstract] = useState((node.getProp("type") as ClassNode["type"]) === "abstract");
+   const [isAbstract, setIsAbstract] = useState<boolean>(false);
    // for the variables of a class node
-   const [variables, setVariables] = useState((node.getProp("variables") as ClassNode["variables"]) || []);
+   const [variables, setVariables] = useState<ClassNode["variables"]>([]);
    // for the methods of a class node
-   const [methods, setMethods] = useState((node.getProp("methods") as ClassNode["methods"]) || []);
+   const [methods, setMethods] = useState<ClassNode["methods"]>([]);
    // for the x position of a cell
-   const [x, setX] = useState(node.getProp("position")?.x || node.getProp("x"));
+   const [x, setX] = useState<number>(0);
    // for the y position of a cell
-   const [y, setY] = useState(node.getProp("position")?.y || node.getProp("y"));
+   const [y, setY] = useState<number>(0);
    // for the height of a cell
-   const [height, setHeight] = useState(node.getProp("size")?.height || node.getProp("height"));
+   const [height, setHeight] = useState<number>(0);
    // for the width of a cell
-   const [width, setWidth] = useState(node.getProp("size")?.width || node.getProp("width"));
-   // if selected cell position or size is currently locked or not
-   const [positionLocked, setPositionLocked] = useState(false); // pos initially not locked
-   const [sizeLocked, setSizeLocked] = useState(false); // size initially not locked
+   const [width, setWidth] = useState<number>(0);
+   // if the position of the node is locked or not
+   const [positionLocked, setPositionLocked] = useState<boolean>(false);
+   // if the size of the node is locked or not
+   const [sizeLocked, setSizeLocked] = useState<boolean>(false);
 
    // when the node changes, update the state information of the node
    useEffect(() => {
-      // if the node is undefined, return
       if (!node) {
          return;
       }
 
       // get the properties of the node
       const props = node.prop();
-      console.log("props", props);
 
       // update the state information of the node
-      setNodeName(props.name);
-      setVariables(props.variables);
-      setMethods(props.methods);
-      setHeight(props.size?.height || props.height);
-      setWidth(props.size?.width || props.width);
+      setNodeName(props.name || "");
+      setIsInterface(props.type === "interface");
+      setIsAbstract(props.type === "abstract");
+      setVariables(props.variables || []);
+      setMethods(props.methods || []);
+      setX(props.position?.x || 0);
+      setY(props.position?.y || 0);
+      setHeight(props.size?.height || 0);
+      setWidth(props.size?.width || 0);
+      setPositionLocked(props.lockPosition || false);
+      setSizeLocked(props.lockSize || false);
 
       // re-render when the selected node changes
       node.on("change:className", (args) => {
