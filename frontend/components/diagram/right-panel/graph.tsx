@@ -31,10 +31,6 @@ export default function GraphPanel({
          // set the zoom of the slider without decimals
          setZoom(Math.round(args.sx * 100));
       });
-
-      return () => {
-         graph.current?.off("scale");
-      };
    }, [zoom]);
 
    useEffect(() => {
