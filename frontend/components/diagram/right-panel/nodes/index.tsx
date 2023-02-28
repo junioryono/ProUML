@@ -8,12 +8,12 @@ import NodeSettings from "./node-settings";
 
 export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for current background & border colors of selected cell
-   const [backgroundColor, setBackgroundColor] = useState("FFFFFF"); // <- default should be initial bg color
-   const [borderColor, setBorderColor] = useState("000000"); // <- default should be initial border color
+   const [backgroundColor, setBackgroundColor] = useState<string>(); // <- default should be initial bg color
+   const [borderColor, setBorderColor] = useState<string>(); // <- default should be initial border color
 
    // for current line width & style of selected cell
-   const [borderWidth, setBorderWidth] = useState(1); // <- default should be initial border width
-   const [borderStyle, setBorderStyle] = useState("solid"); // <- default should be initial border style
+   const [borderWidth, setBorderWidth] = useState<number>(); // <- default should be initial border width
+   const [borderStyle, setBorderStyle] = useState<string>(); // <- default should be initial border style
 
    // the selected cells
    const [selectedNodes, setSelectedNodes] = useState<X6Type.Node[]>([]);
