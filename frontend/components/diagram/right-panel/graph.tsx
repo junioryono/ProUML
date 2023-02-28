@@ -19,6 +19,12 @@ export default function GraphPanel({
    // for current background & border colors of selected cell
    const [background, setBackground] = useState(backgroundColor === "FFFFFF" ? false : true);
 
+   useEffect(() => {
+      if (backgroundColor !== "FFFFFF") {
+         setBackground(true);
+      }
+   }, [backgroundColor]);
+
    // if the graph zoom changes, change the zoom to match
    useEffect(() => {
       graph.current?.on("scale", (args) => {
