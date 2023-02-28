@@ -1,5 +1,5 @@
 import type X6Type from "@antv/x6";
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
 import { ClassNode } from "types";
 import { lightColorOptions, darkColorOptions } from "../styling-options/colors";
 import ColorPicker from "../styling-options/color-picker";
@@ -15,70 +15,165 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    const [borderWidth, setBorderWidth] = useState(1); // <- default should be initial border width
    const [borderStyle, setBorderStyle] = useState("solid"); // <- default should be initial border style
 
-   // if selected cell currently has a shadow or not
-   const [shadowIntensity, setShadowIntensity] = useState(0); // no shadow -> 0% intensity
-
-   // if selected cell currently has rounded corners or not
-   const [roundedIntensity, setRoundedIntensity] = useState(0); // no roundness -> 0% intensity
-
    // the selected cells
-   const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
-
-   // // when the background color changes, change the background color of all selected cells
-   // useEffect(() => {
-   //    selectedCells.forEach((node) => {
-   //       node.attr("body", {
-   //          fill: `#${backgroundColor}`,
-   //       });
-   //    });
-   // }, [backgroundColor]);
-
-   // // when the border color changes, change the border color of all selected cells
-   // useEffect(() => {
-   //    selectedCells.forEach((node) => {
-   //       node.attr("body", {
-   //          stroke: `#${borderColor}`,
-   //       });
-   //    });
-   // }, [borderColor]);
-
-   // // when the border width changes, change the border width of all selected cells
-   // useEffect(() => {
-   //    selectedCells.forEach((node) => {
-   //       node.attr("body", {
-   //          strokeWidth: borderWidth,
-   //       });
-   //    });
-   // }, [borderWidth]);
+   const [selectedNodes, setSelectedNodes] = useState<X6Type.Node[]>([]);
 
    // when selecting cells, update the selected cells
+   const getSelectedNodes = () => {
+      const selectedCells = graph.current?.getSelectedCells();
+      const newSelectedNodes: X6Type.Node[] = [];
+      const selectedBgColors = [];
+      const selectedBdColors = [];
+      const selectedBdWidths = [];
+      const selectedBdStyles = [];
+      for (const cell of selectedCells) {
+         if (cell.isNode()) {
+            newSelectedNodes.push(cell);
+
+            const bgColor = cell.getProp("backgroundColor");
+            if (bgColor) {
+               selectedBgColors.push(bgColor);
+            }
+
+            const bdColor = cell.getProp("borderColor");
+            if (bdColor) {
+               selectedBdColors.push(bdColor);
+            }
+
+            const bdWidth = cell.getProp("borderWidth");
+            if (bdWidth) {
+               selectedBdWidths.push(bdWidth);
+            }
+
+            const bdStyle = cell.getProp("borderStyle");
+            if (bdStyle) {
+               selectedBdStyles.push(bdStyle);
+            }
+         }
+      }
+      setSelectedNodes(newSelectedNodes);
+
+      // Check if all selected cells have the same background color
+      if (selectedBgColors.every((color) => color === selectedBgColors[0])) {
+         setBackgroundColor(selectedBgColors[0]);
+      } else {
+         setBackgroundColor("Multiple");
+      }
+
+      // Check if all selected cells have the same border color
+      if (selectedBdColors.every((color) => color === selectedBdColors[0])) {
+         setBorderColor(selectedBdColors[0]);
+      } else {
+         setBorderColor("Multiple");
+      }
+
+      // Check if all selected cells have the same border width
+      if (selectedBdWidths.every((width) => width === selectedBdWidths[0])) {
+         setBorderWidth(selectedBdWidths[0]);
+      } else {
+         setBorderWidth(-1);
+      }
+
+      // Check if all selected cells have the same border style
+      if (selectedBdStyles.every((style) => style === selectedBdStyles[0])) {
+         setBorderStyle(selectedBdStyles[0]);
+      } else {
+         setBorderStyle("Multiple");
+      }
+   };
+
    useEffect(() => {
       // set the selected cells to the current selected cells
-      setSelectedCells(graph.current?.getSelectedCells());
+      getSelectedNodes();
 
       // when a cell is selected, update the selected cells
       graph.current?.on("cell:selected", () => {
-         setSelectedCells(graph.current?.getSelectedCells());
+         getSelectedNodes();
       });
 
       // when a cell is unselected, update the selected cells
       graph.current?.on("cell:unselected", () => {
-         setSelectedCells(graph.current?.getSelectedCells());
+         getSelectedNodes();
       });
 
       // remove all event listeners
-      const graphRef = graph.current;
       return () => {
          // graphRef?.off("cell:selected");
          // graphRef?.off("cell:unselected");
       };
    }, [graph]);
 
+   // useCallback on setBackgroundColor
+   const setBackgroundColorFunction = useCallback(
+      (color: string) => {
+         setBackgroundColor(color);
+         for (const node of selectedNodes) {
+            node.trigger("change:backgroundColor", {
+               backgroundColor: color,
+            });
+         }
+      },
+      [selectedNodes],
+   );
+
+   const setBorderColorFunction = useCallback(
+      (color: string) => {
+         setBorderColor(color);
+         for (const node of selectedNodes) {
+            node.trigger("change:borderColor", {
+               borderColor: color,
+            });
+         }
+      },
+      [selectedNodes],
+   );
+
+   const setBorderWidthFunction = useCallback(
+      (width: number) => {
+         setBorderWidth(width);
+         for (const node of selectedNodes) {
+            node.trigger("change:borderWidth", {
+               borderWidth: width,
+            });
+         }
+      },
+      [selectedNodes],
+   );
+
+   const setBorderStyleFunction = useCallback(
+      (style: string) => {
+         setBorderStyle(style);
+         for (const node of selectedNodes) {
+            node.trigger("change:borderStyle", {
+               borderStyle: style,
+            });
+         }
+      },
+      [selectedNodes],
+   );
+
+   useEffect(() => {
+      for (const node of selectedNodes) {
+         node.on("change:backgroundColor", (args) => {
+            setBackgroundColor(args.backgroundColor);
+         });
+         node.on("change:borderColor", (args) => {
+            setBorderColor(args.borderColor);
+         });
+         node.on("change:borderWidth", (args) => {
+            setBorderWidth(args.borderWidth);
+         });
+         node.on("change:borderStyle", (args) => {
+            setBorderStyle(args.borderStyle);
+         });
+      }
+   }, [selectedNodes]);
+
    return (
       <>
          <div className="w-56">
             {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
-            {selectedCells.length === 1 && <NodeSettings node={selectedCells[0] as X6Type.Node} graph={graph} />}
+            {selectedNodes.length === 1 && <NodeSettings node={selectedNodes[0] as X6Type.Node} graph={graph} />}
 
             {/* ---------------------- BACKGROUND COLOR SECTION ---------------------- */}
             <div className="flex flex-col pb-3">
@@ -87,7 +182,11 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
 
                {/* all of the background color options */}
-               <ColorPicker colorOptions={lightColorOptions} objColor={backgroundColor} setObjColor={setBackgroundColor} />
+               <ColorPicker
+                  colorOptions={lightColorOptions}
+                  objColor={backgroundColor}
+                  setObjColor={setBackgroundColorFunction}
+               />
             </div>
             <hr className="border-slate-400" />
 
@@ -98,7 +197,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
 
                {/* all of the border color options */}
-               <ColorPicker colorOptions={darkColorOptions} objColor={borderColor} setObjColor={setBorderColor} />
+               <ColorPicker colorOptions={darkColorOptions} objColor={borderColor} setObjColor={setBorderColorFunction} />
             </div>
             <hr className="border-slate-400" />
 
@@ -109,7 +208,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <div className="font-bold mb-1">Border Width</div>
                </div>
 
-               <LineWidth lineWidth={borderWidth} setLineWidth={setBorderWidth} />
+               <LineWidth lineWidth={borderWidth} setLineWidth={setBorderWidthFunction} />
             </div>
             <hr className="border-slate-400" />
 
@@ -123,7 +222,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <button
                      className={`border rounded-md transition duration-500 hover:scale-125
      ${borderStyle !== "solid" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                     onClick={() => setBorderStyle("solid")}
+                     onClick={() => setBorderStyleFunction("solid")}
                   >
                      <svg
                         viewBox="0 0 17 17"
@@ -153,7 +252,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <button
                      className={`border rounded-md transition duration-500 hover:scale-125
      ${borderStyle !== "double" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                     onClick={() => setBorderStyle("double")}
+                     onClick={() => setBorderStyleFunction("double")}
                   >
                      <svg
                         viewBox="0 0 17 17"
@@ -175,7 +274,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <button
                      className={`border rounded-md transition duration-500 hover:scale-125
         ${borderStyle !== "dashed" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                     onClick={() => setBorderStyle("dashed")}
+                     onClick={() => setBorderStyleFunction("dashed")}
                   >
                      <svg width="40" height="25" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -191,7 +290,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <button
                      className={`border border-slate-400 rounded-md bg-slate-200 transition duration-500 hover:scale-125
         ${borderStyle !== "dotted" ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                     onClick={() => setBorderStyle("dotted")}
+                     onClick={() => setBorderStyleFunction("dotted")}
                   >
                      <svg width="40" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 11H1V13H3V11Z" fill="#000000" />
@@ -202,113 +301,6 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                         <path d="M23 11H21V13H23V11Z" fill="#000000" />
                      </svg>
                   </button>
-               </div>
-
-               <div className="flex mt-2">
-                  {/* shadow toggle */}
-                  <div className="flex mt-5 h-8 w-24">
-                     <input
-                        id="shadow-toggle"
-                        type="checkbox"
-                        className="mr-2 w-5 h-5 border-slate-200 accent-black transition duration-500 hover:scale-125"
-                        onChange={() => {
-                           if (shadowIntensity === 0) setShadowIntensity(50);
-                           else setShadowIntensity(0);
-                        }}
-                        checked={shadowIntensity !== 0}
-                     />
-                     <label htmlFor="shadow-toggle">Shadow</label>
-                  </div>
-
-                  {/* shadow intensity slider */}
-                  <div className="flex-1 mx-auto mr-3">
-                     <div className="text-center">Intensity</div>
-                     <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={shadowIntensity}
-                        className="w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
-                        onChange={(e) => {
-                           setShadowIntensity(parseInt(e.target.value));
-                        }}
-                     />
-                  </div>
-                  <style>
-                     {`
-                     input[type="range"]::-webkit-slider-thumb {
-                        height: 1.2rem;
-                        width: 1.2rem;
-                        background-color: #fff;
-                        border: 1px solid #475569;
-                        border-radius: 1.5rem;
-                        cursor: pointer;
-                        -webkit-appearance: none;
-
-                        transform: scale(1);
-                        transition: transform 0.2s ease-in-out;
-
-                        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
-                     }
-
-                     input[type="range"]:hover::-webkit-slider-thumb {
-                        transform: scale(1.5);
-                        box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
-                     }
-                  `}
-                  </style>
-               </div>
-
-               <div className="flex">
-                  {/* rounded toggle */}
-                  <div className="flex h-8 w-24">
-                     <input
-                        id="rounded-toggle"
-                        type="checkbox"
-                        className="mr-2 w-5 h-5 border-slate-300 accent-black transition duration-500 hover:scale-125"
-                        onChange={() => {
-                           if (roundedIntensity === 0) setRoundedIntensity(50);
-                           else setRoundedIntensity(0);
-                        }}
-                        checked={roundedIntensity !== 0}
-                     />
-                     <label htmlFor="rounded-toggle">Rounded</label>
-                  </div>
-
-                  {/* rounded intensity slider */}
-                  <div className="flex-1 mx-auto mr-3">
-                     <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={roundedIntensity}
-                        className="w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
-                        onChange={(e) => setRoundedIntensity(parseInt(e.target.value))}
-                     />
-                  </div>
-                  <style>
-                     {`
-                     input[type="range"]::-webkit-slider-thumb {
-                        height: 1.2rem;
-                        width: 1.2rem;
-                        background-color: #fff;
-                        border: 1px solid #475569;
-                        border-radius: 1.5rem;
-                        cursor: pointer;
-                        -webkit-appearance: none;
-
-                        transform: scale(1);
-                        transition: transform 0.2s ease-in-out;
-
-                        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
-                     }
-
-                     input[type="range"]:hover::-webkit-slider-thumb {
-                        transform: scale(1.5);
-                        box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
-                     }
-                  `}
-                  </style>
                </div>
             </div>
          </div>

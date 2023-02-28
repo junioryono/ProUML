@@ -13,9 +13,6 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    const [width, setWidth] = useState(1); // <- default should be initial border width
    const [style, setStyle] = useState("solid"); // <- default should be initial border style
 
-   // if selected cell currently has a shadow or not
-   const [shadowIntensity, setShadowIntensity] = useState(0); // no shadow -> 0% intensity
-
    // if selected cell currently has rounded corners or not
    const [roundedIntensity, setRoundedIntensity] = useState(0); // no roundness -> 0% intensity
 
@@ -138,110 +135,6 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      <path d="M23 11H21V13H23V11Z" fill="#000000" />
                   </svg>
                </button>
-            </div>
-
-            <div className="flex mt-2">
-               {/* shadow toggle */}
-               <div className="flex mt-5 h-8 w-24">
-                  <input
-                     id="shadow-toggle"
-                     type="checkbox"
-                     className="mr-2 w-5 h-5 border-slate-200 accent-black transition duration-500 hover:scale-125"
-                     onChange={() => {
-                        if (shadowIntensity === 0) setShadowIntensity(50);
-                        else setShadowIntensity(0);
-                     }}
-                     checked={shadowIntensity !== 0}
-                  />
-                  <label htmlFor="shadow-toggle">Shadow</label>
-               </div>
-
-               {/* shadow intensity slider */}
-               <div className="flex-1 mx-auto mr-3">
-                  <div className="text-center">Intensity</div>
-                  <input
-                     type="range"
-                     min="0"
-                     max="100"
-                     value={shadowIntensity}
-                     className="w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
-                     onChange={(e) => {
-                        setShadowIntensity(parseInt(e.target.value));
-                     }}
-                  />
-               </div>
-               <style>
-                  {`
-                     input[type="range"]::-webkit-slider-thumb {
-                        height: 1.2rem;
-                        width: 1.2rem;
-                        background-color: #fff;
-                        border: 1px solid #475569;
-                        border-radius: 1.5rem;
-                        cursor: pointer;
-                        -webkit-appearance: none;
-
-                        transform: scale(1);
-                        transition: transform 0.2s ease-in-out;
-
-                        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
-                     }
-
-                     input[type="range"]:hover::-webkit-slider-thumb {
-                        transform: scale(1.5);
-                        box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
-                     }
-                  `}
-               </style>
-            </div>
-
-            <div className="flex">
-               {/* rounded toggle */}
-               <div className="flex h-8 w-24">
-                  <input
-                     id="rounded-toggle"
-                     type="checkbox"
-                     className="mr-2 w-5 h-5 border-slate-300 accent-black transition duration-500 hover:scale-125"
-                     onChange={() => {
-                        if (roundedIntensity === 0) setRoundedIntensity(50);
-                        else setRoundedIntensity(0);
-                     }}
-                     checked={roundedIntensity !== 0}
-                  />
-                  <label htmlFor="rounded-toggle">Rounded</label>
-               </div>
-
-               {/* rounded intensity slider */}
-               <div className="flex-1 mx-auto mr-3">
-                  <input
-                     type="range"
-                     min="0"
-                     max="100"
-                     value={roundedIntensity}
-                     className="w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
-                     onChange={(e) => setRoundedIntensity(parseInt(e.target.value))}
-                  />
-               </div>
-               <style>
-                  {`
-                  input[type="range"]::-webkit-slider-thumb {
-                     height: 1.2rem;
-                     width: 1.2rem;
-                     background-color: #fff;
-                     border: 1px solid black;
-                     border-radius: 1.5rem;
-                     cursor: pointer;
-                     -webkit-appearance: none;
-
-                     transform: scale(1);
-                     transition: transform 0.2s ease-in-out;
-                  }
-
-                  input[type="range"]:hover::-webkit-slider-thumb {
-                     transform: scale(1.5);
-                  }
-               `}
-               </style>
             </div>
          </div>
       </>

@@ -137,8 +137,6 @@ export type ClassNode = {
    borderColor: string;
    borderWidth: number;
    borderStyle: string;
-   shadowIntensity: number;
-   roundedIntensity: number;
    position: {
       x: number;
       y: number;

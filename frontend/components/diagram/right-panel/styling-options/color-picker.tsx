@@ -43,11 +43,11 @@ export default function ColorPicker({
          {/* the current color hex code of the box */}
          <div className="mt-1  w-full flex">
             <div
-               style={{ color: `#${objColor}` }}
+               style={{ color: objColor !== "Multiple" ? `#${objColor}` : "white" }}
                className={`ml-10 mr-1 border border-black rounded-md h-6.1 w-7 bg-current`}
             />
             <input
-               value={`#${objColor} `}
+               value={objColor !== "Multiple" ? `#${objColor}` : ""}
                className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md text-center focus:outline-none"
                type="text"
                autoCapitalize="none"

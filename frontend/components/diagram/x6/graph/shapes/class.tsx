@@ -21,8 +21,6 @@ function ShapeClass({ node }: { node?: Node }) {
    const [borderColor, setBorderColor] = useState("000000");
    const [borderWidth, setBorderWidth] = useState(1);
    const [borderStyle, setBorderStyle] = useState("solid");
-   const [shadowIntensity, setShadowIntensity] = useState(0);
-   const [roundedIntensity, setRoundedIntensity] = useState(0);
 
    const [selectedSection, setSelectedSection] = useState<ClassSection>();
    // const [width, setWidth] = useState(0);
@@ -52,8 +50,6 @@ function ShapeClass({ node }: { node?: Node }) {
          borderColor,
          borderWidth,
          borderStyle,
-         shadowIntensity,
-         roundedIntensity,
       } = node.getProp() as ClassNode;
 
       setType(type);
@@ -65,8 +61,6 @@ function ShapeClass({ node }: { node?: Node }) {
       setBorderColor(borderColor || "000000");
       setBorderWidth(borderWidth || 1);
       setBorderStyle(borderStyle || "solid");
-      setShadowIntensity(shadowIntensity || 0);
-      setRoundedIntensity(roundedIntensity || 0);
    }, []);
 
    useEffect(() => {
@@ -122,6 +116,7 @@ function ShapeClass({ node }: { node?: Node }) {
 
       // if the background color is changed, update the node
       node?.on("change:backgroundColor", ({ backgroundColor, ws }: { backgroundColor: string; ws: boolean }) => {
+         console.log("Changing background color", backgroundColor);
          setBackgroundColor(backgroundColor);
          node
             .prop("backgroundColor", backgroundColor, { silent: true })
@@ -152,22 +147,6 @@ function ShapeClass({ node }: { node?: Node }) {
             .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
       });
 
-      // if the shadow intensity is changed, update the node
-      node?.on("change:shadowIntensity", ({ shadowIntensity, ws }: { shadowIntensity: number; ws: boolean }) => {
-         setShadowIntensity(shadowIntensity);
-         node
-            .prop("shadowIntensity", shadowIntensity, { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
-      });
-
-      // if the rounded intensity is changed, update the node
-      node?.on("change:roundedIntensity", ({ roundedIntensity, ws }: { roundedIntensity: number; ws: boolean }) => {
-         setRoundedIntensity(roundedIntensity);
-         node
-            .prop("roundedIntensity", roundedIntensity, { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
-      });
-
       node?.on("change:lockPosition", ({ lockPosition, ws }: { lockPosition: boolean; ws: boolean }) => {
          node
             .prop("lockPosition", lockPosition, { silent: true })
@@ -192,8 +171,6 @@ function ShapeClass({ node }: { node?: Node }) {
          node?.off("change:borderColor");
          node?.off("change:borderWidth");
          node?.off("change:borderStyle");
-         node?.off("change:shadowIntensity");
-         node?.off("change:roundedIntensity");
          node?.off("change:lockPosition");
          node?.off("change:lockSize");
       };
@@ -231,14 +208,6 @@ function ShapeClass({ node }: { node?: Node }) {
    useEffect(() => {
       node.prop("borderStyle", borderStyle, { silent: true });
    }, [borderStyle]);
-
-   useEffect(() => {
-      node.prop("shadowIntensity", shadowIntensity, { silent: true });
-   }, [shadowIntensity]);
-
-   useEffect(() => {
-      node.prop("roundedIntensity", roundedIntensity, { silent: true });
-   }, [roundedIntensity]);
 
    return (
       <div
