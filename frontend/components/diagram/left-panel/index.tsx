@@ -43,17 +43,6 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
       graph.current?.on("node:change:className", () => {
          setNodes(graph.current?.getNodes());
       });
-
-      // remove all event listeners
-      const graphRef = graph.current;
-      return () => {
-         graphRef?.off("node:added");
-         graphRef?.off("node:removed");
-         graphRef?.off("edge:added");
-         graphRef?.off("edge:removed");
-         graphRef?.off("cell:selected");
-         graphRef?.off("cell:unselected");
-      };
    }, [graph]);
 
    return (

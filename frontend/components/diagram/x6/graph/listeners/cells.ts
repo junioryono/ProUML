@@ -115,5 +115,15 @@ export default function Cells(
       graph.current?.off("node:moved");
       graph.current?.off("node:resized");
       graph.current?.off("node:change:angle");
+
+      // From other components
+      graph.current?.off("node:added");
+      graph.current?.off("node:removed");
+      graph.current?.off("edge:added");
+      graph.current?.off("edge:removed");
+      graph.current?.off("node:selected");
+      graph.current?.off("node:unselected");
+      graph.current?.off("cell:selected");
+      graph.current?.off("cell:unselected");
    };
 }

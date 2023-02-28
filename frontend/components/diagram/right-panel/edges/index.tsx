@@ -33,13 +33,6 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       graph.current?.on("cell:unselected", () => {
          setSelectedCells(graph.current?.getSelectedCells());
       });
-
-      // remove all event listeners
-      const graphRef = graph.current;
-      return () => {
-         // graphRef?.off("cell:selected");
-         // graphRef?.off("cell:unselected");
-      };
    }, [graph]);
 
    return (

@@ -95,12 +95,6 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       graph.current?.on("cell:unselected", () => {
          getSelectedNodes();
       });
-
-      // remove all event listeners
-      return () => {
-         // graphRef?.off("cell:selected");
-         // graphRef?.off("cell:unselected");
-      };
    }, [graph]);
 
    // useCallback on setBackgroundColor

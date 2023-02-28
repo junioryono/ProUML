@@ -41,15 +41,6 @@ export default function RightPanel({
             setTab("graph");
          }
       });
-
-      // Return a cleanup function to remove the event listeners when unmounting
-      const graphRef = graph.current;
-      return () => {
-         graphRef?.off("node:selected");
-         graphRef?.off("node:unselected");
-         graphRef?.off("edge:selected");
-         graphRef?.off("edge:unselected");
-      };
    }, [graph]);
 
    // Render the component with a width of 60 and a left border of 1
