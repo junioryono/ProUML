@@ -85,7 +85,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
    }
 
    if (userRequest.cookie) {
-      console.log("Setting cookie");
       ctx.res.setHeader("set-cookie", userRequest.cookie);
    } else if (diagramsRequest.cookie) {
       ctx.res.setHeader("set-cookie", diagramsRequest.cookie);

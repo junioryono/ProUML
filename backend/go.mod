@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/aws/aws-sdk-go v1.44.162
+	github.com/fogleman/gg v1.3.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/gofiber/fiber/v2 v2.41.0
 	github.com/gofiber/websocket/v2 v2.1.2
@@ -22,7 +23,6 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.0-20210816181553-5444fa50b93d // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fasthttp/websocket v1.5.0 // indirect
-	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
