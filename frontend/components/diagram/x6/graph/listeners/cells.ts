@@ -32,8 +32,12 @@ export default function Cells(
    });
 
    graph.current?.on("node:selected", (args) => {
-      console.log("node:selected", args);
+      args.node.trigger("selected", args);
       hidePorts(args.node);
+   });
+
+   graph.current?.on("node:unselected", (args) => {
+      args.node.trigger("unselected", args);
    });
 
    graph.current?.on("edge:connected", (args) => {

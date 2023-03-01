@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -53,6 +54,27 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		for {
 			msgType, msg, err := wc.ReadMessage()
 			if err != nil {
+				// If the connection is closed, catch the error
+				if !websocket.IsCloseError(err,
+					websocket.CloseNormalClosure,
+					websocket.CloseGoingAway,
+					websocket.CloseProtocolError,
+					websocket.CloseUnsupportedData,
+					websocket.CloseNoStatusReceived,
+					websocket.CloseAbnormalClosure,
+					websocket.CloseInvalidFramePayloadData,
+					websocket.ClosePolicyViolation,
+					websocket.CloseMessageTooBig,
+					websocket.CloseMandatoryExtension,
+					websocket.CloseInternalServerErr,
+					websocket.CloseServiceRestart,
+					websocket.CloseTryAgainLater,
+					websocket.CloseTLSHandshake,
+				) {
+					break
+				}
+
+				go sdkP.Redis.Publish(diagramId, []byte(fmt.Sprintf(`{"sessionId": "%s", "event": "disconnected"}`, sessionId)))
 				break
 			}
 

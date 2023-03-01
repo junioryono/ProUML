@@ -3,7 +3,7 @@ import { register } from "@antv/x6-react-shape";
 import { useEffect, useRef, useState } from "react";
 import { ClassNode } from "types";
 
-function ShapeNode({ node, graph }: { node?: X6Type.Node; graph: X6Type.Graph }) {
+function ShapeNode({ node }: { node?: X6Type.Node }) {
    const [selected, setSelected] = useState<boolean>(false);
 
    const [type, setType] = useState<ClassNode["type"]>("class");
@@ -39,7 +39,6 @@ function ShapeNode({ node, graph }: { node?: X6Type.Node; graph: X6Type.Graph })
          borderStyle,
       } = node.getProp() as ClassNode;
 
-      setSelected(graph?.isSelected(node));
       setType(type);
       setPackageName(packageName);
       setClassName(className);
@@ -52,16 +51,12 @@ function ShapeNode({ node, graph }: { node?: X6Type.Node; graph: X6Type.Graph })
    }, []);
 
    useEffect(() => {
-      graph?.on("node:selected", () => {
-         const selectedNodes = graph.getSelectedCells();
-         const isSelected = selectedNodes.some((selectedNode) => selectedNode.id === node?.id);
-         setSelected(isSelected);
+      node?.on("selected", (args) => {
+         setSelected(true);
       });
 
-      graph?.on("node:unselected", () => {
-         const selectedNodes = graph.getSelectedCells();
-         const isSelected = selectedNodes.some((selectedNode) => selectedNode.id === node?.id);
-         setSelected(isSelected);
+      node?.on("unselected", (args) => {
+         setSelected(false);
       });
 
       node?.on("change:package", ({ package: packageName, ws }: { package: ClassNode["package"]; ws: boolean }) => {

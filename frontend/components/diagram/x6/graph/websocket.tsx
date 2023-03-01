@@ -35,6 +35,8 @@ function onWebSocketMessage(
       return;
    }
 
+   console.log("onWebSocketMessage", message);
+
    const events = message.event.split("/");
    if (events.includes("local_updateNode")) {
       const node = message.cell;
