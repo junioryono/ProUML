@@ -274,7 +274,11 @@ function ShapeClass({ node }: { node?: Node }) {
                      {variable.type && `: ${variable.type}`}
                      {variable.value &&
                         // if the value is a string, add quotes
-                        (variable.type === "String" ? ` = "${variable.value}"` : ` = ${variable.value}`)}
+                        (variable.type === "String" &&
+                        // If the quotes are already there, don't add them again
+                        !(variable.value.charAt(0) === '"' && variable.value.charAt(variable.value.length - 1) === '"')
+                           ? ` = "${variable.value}"`
+                           : ` = ${variable.value}`)}
                   </div>
                ))}
             </div>
