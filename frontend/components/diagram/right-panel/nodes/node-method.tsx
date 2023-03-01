@@ -122,24 +122,35 @@ export default function NodeSettingsMethod({
                />
 
                {/* method parameters dropdown button */}
-               <div className="ml-0.5 flex items-center">
+               {/* <button
+                  onClick={() => setShowParameters(!showParameters)}
+                  className="ml-0.5 flex items-center hover:border-slate-400"
+               >
                   <div>(</div>
-                  {/* <select
-                      className="justify-between h-6.5 text-xs bg-transparent inline-flex bg-slate-200 border border-slate-300 rounded-md w-8 hover:border-slate-400 p-1 pl-2 pr-2"
-                      onClick={() => setShowParameters(!showParameters)}
-                   >
-                      <span className="text-xs">{parameters.length}...</span>
-                   </select> */}
-                  {/* method parameters dropdown button */}
                   <div className="w-8">
                      <div className="relative">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-1.5 select-none text-xs">
-                           <span className="text-xs">...</span>
+                           <span className="text-xs hover:border-slate-400">...</span>
                         </div>
+                        <div className="hover:border-slate-400">
+                           <select className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none"></select>
+                        </div>
+                     </div>
+                  </div>
+                  <div>)</div>
+               </button> */}
+
+               {/* access modifier dropdown input */}
+               <div className="flex items-center ml-0.5">
+                  <div>(</div>
+                  <div className="w-8">
+                     <div className="relative">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none text-xs">...</div>
                         <select
-                           className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                           value={accessModifier}
+                           className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
                            onClick={() => setShowParameters(!showParameters)}
-                        ></select>
+                        />
                      </div>
                   </div>
                   <div>)</div>
@@ -183,10 +194,41 @@ export default function NodeSettingsMethod({
          </div>
          {/* method parameters appearing section */}
          <div
-            className={`bg-slate-300 mt-0.5 mb-1 py-1 justify-center rounded-md shadow-xl ${
-               showParameters ? "" : "hidden"
+            className={`border border-slate-400 bg-slate-100 mt-0.5 mb-1 py-1 px-2 rounded-md ${
+               !showParameters && "hidden"
             } items-center`}
          >
+            <div className="flex justify-between mb-1">
+               <div className="font-bold">Parameters</div>
+
+               {/* add button to add a new method to the selected node */}
+               <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
+                  <div
+                     className="p-2 transform transition duration-500 hover:scale-150 flex justify-center items-center"
+                     onClick={() => {
+                        // add the new parameter to the method's parameters array
+                        const newMethods = [...methods];
+                        newMethods[index].parameters.push({ name: "Untitled", type: "int" });
+                        node.trigger("change:methods", { methods: newMethods });
+                     }}
+                  >
+                     <span
+                        role="button"
+                        className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                     >
+                        <svg className="svg" width="10" height="10" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                           <path
+                              d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
+                              fillRule="nonzero"
+                              fillOpacity="1"
+                              fill="#000"
+                              stroke="none"
+                           />
+                        </svg>
+                     </span>
+                  </div>
+               </div>
+            </div>
             {parameters.map((parameter, index) => {
                return (
                   <NodeSettingsParameter
@@ -199,40 +241,6 @@ export default function NodeSettingsMethod({
                   />
                );
             })}
-
-            {/* add button to add a new parameter */}
-            <div
-               className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer"
-               onClick={() => {
-                  // update the node's variables array
-                  const newParameters = [...parameters];
-                  newParameters.push({ type: "int", name: "Untitled" });
-
-                  node.trigger("change:parameters", { parameters: newParameters });
-               }}
-            >
-               <div className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center">
-                  <span
-                     role="button"
-                     className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
-                  >
-                     {/* plus svg */}
-                     <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                        <g id="SVGRepo_iconCarrier">
-                           <path
-                              d="M12 6V18M6 12H18"
-                              stroke="#000000"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                           ></path>
-                        </g>
-                     </svg>
-                  </span>
-               </div>
-            </div>
          </div>
       </div>
    );
