@@ -74,7 +74,7 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 					break
 				}
 
-				go sdkP.Redis.Publish(diagramId, []byte(fmt.Sprintf(`{"sessionId": "%s", "event": "disconnected"}`, sessionId)))
+				sdkP.Redis.Publish(diagramId, []byte(fmt.Sprintf(`{"sessionId": "%s", "event": "disconnected"}`, sessionId)))
 				break
 			}
 
