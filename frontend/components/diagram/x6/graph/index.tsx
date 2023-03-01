@@ -142,12 +142,12 @@ export default function useGraph(
          color: `#${diagram.background_color}`,
       });
 
-      const nodes = graph.current.getNodes();
-      graph.current.addEdge({
-         shape: "association",
-         source: nodes[0],
-         target: nodes[1],
-      });
+      // const nodes = graph.current.getNodes();
+      // graph.current.addEdge({
+      //    shape: "association",
+      //    source: nodes[0],
+      //    target: nodes[1],
+      // });
 
       setGraphReady(true);
 
