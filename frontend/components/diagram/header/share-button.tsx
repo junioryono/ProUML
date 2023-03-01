@@ -169,17 +169,16 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                        {isOpen && (
                                           <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2">
                                              <ul>
-                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t">
+                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t text-center">
                                                    Viewer
                                                 </li>
-                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Commentator</li>
                                                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                                                    <svg
                                                       width="16"
                                                       height="16"
                                                       viewBox="0 0 24 24"
                                                       focusable="false"
-                                                      className="inline-block mr-3 text-black"
+                                                      className="inline-block mr-2 text-black"
                                                    >
                                                       <path
                                                          fill="currentColor"
@@ -223,10 +222,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                                 {sharedUser.user_id === user.user_id && (
                                                    <span className="text-xs text-stone-500 pl-2 mb-1 mt-auto">(you)</span>
                                                 )}
-                                                <div
-                                                   className="flex flex-row text-gray-600 text-sm px-2 hover:bg-slate-200 mt-1 hover:text-black cursor-pointer pl-auto mr-10 rounded ml-auto"
-                                                   onClick={dropDownSet}
-                                                >
+                                                <div className="flex flex-row text-gray-600 text-sm px-2 hover:bg-slate-200 mt-1 hover:text-black cursor-pointer pl-auto mr-10 rounded ml-auto">
                                                    {capitalizeFirstLetter(sharedUser.role)}
                                                    {sharedUser.role !== "owner" && (
                                                       <svg
@@ -240,33 +236,6 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                                       </svg>
                                                    )}
                                                 </div>
-                                                {dropDown && (
-                                                   <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2">
-                                                      <ul>
-                                                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t">
-                                                            Viewer
-                                                         </li>
-                                                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                                            Commentator
-                                                         </li>
-                                                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                                            <svg
-                                                               width="16"
-                                                               height="16"
-                                                               viewBox="0 0 24 24"
-                                                               focusable="false"
-                                                               className="inline-block mr-3 text-black"
-                                                            >
-                                                               <path
-                                                                  fill="currentColor"
-                                                                  d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
-                                                               ></path>
-                                                            </svg>
-                                                            Editor
-                                                         </li>
-                                                      </ul>
-                                                   </div>
-                                                )}
                                              </div>
                                              <div className="text-xs text-stone-500 pb-1 pl-1">{sharedUser.email}</div>
                                           </div>

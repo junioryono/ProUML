@@ -69,6 +69,18 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      autoComplete="both"
                      autoCorrect="off"
                      spellCheck="false"
+                     onChange={(event) => {
+                        const searchText = event.target.value.toLowerCase();
+                        const elements = document.querySelectorAll(".searchable");
+                        elements.forEach((element) => {
+                           const text = element.textContent.toLowerCase();
+                           if (text.includes(searchText)) {
+                              //element.style.display = "block";
+                           } else {
+                              //element.style.display = "none";
+                           }
+                        });
+                     }}
                   />
                </div>
             </div>
