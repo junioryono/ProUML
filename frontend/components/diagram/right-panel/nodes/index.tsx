@@ -126,8 +126,11 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       (width: number) => {
          setBorderWidth(width);
          for (const node of selectedNodes) {
+            const currentBorderWidth = node.getProp("borderWidth") || 1;
+            const newHeight = node.size().height + (width - currentBorderWidth) * 4;
             node.trigger("change:borderWidth", {
                borderWidth: width,
+               newHeight: newHeight,
             });
          }
       },

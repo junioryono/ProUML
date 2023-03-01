@@ -17,13 +17,6 @@ export default function Graph(
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
 ) {
-   // const dbListeners = ["node:added", "node:removed", "node:resized", "node:moved", "node:rotated"];
-   // for (const dbListener of dbListeners) {
-   //    graph.current?.on(dbListener, (args: { cell: X6Type.Cell<X6Type.Cell.Properties> }) => {
-   //       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
-   //    });
-   // }
-
    let jsonString: string = JSON.stringify(graph.current?.toJSON());
    const mouseLeaveFunction = () => {
       const newJSON = graph.current?.toJSON();
