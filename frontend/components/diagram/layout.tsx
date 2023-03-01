@@ -76,8 +76,8 @@ export default function DiagramLayout({ user, diagram }: { user: User; diagram: 
                </svg>
             </div>
             <div className="flex h-full items-center">
-               <UserAccountNav user={user} />
                <ShareButton user={user} diagram={diagram} />
+               <UserAccountNav user={user} className="mx-2" />
                <ZoomButton graph={graph} zoom={zoom} />
             </div>
          </div>
