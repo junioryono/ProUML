@@ -1,6 +1,6 @@
 import { Node } from "@antv/x6";
 import { register } from "@antv/x6-react-shape";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ClassNode } from "types";
 
 const enum ClassSection {
@@ -21,7 +21,11 @@ function ShapeClass({ node }: { node?: Node }) {
    const [borderWidth, setBorderWidth] = useState(1);
    const [borderStyle, setBorderStyle] = useState("solid");
 
-   const [selectedSection, setSelectedSection] = useState<ClassSection>();
+   const borderWidthRef = useRef(1);
+
+   useEffect(() => {
+      borderWidthRef.current = borderWidth;
+   }, [borderWidth]);
 
    useEffect(() => {
       if (!node) {
@@ -129,9 +133,11 @@ function ShapeClass({ node }: { node?: Node }) {
 
       // if the border width is changed, update the node
       node?.on("change:borderWidth", ({ borderWidth, ws }: { borderWidth: number; ws: boolean }) => {
+         const addHeight = (borderWidth - borderWidthRef.current) * 4;
          setBorderWidth(borderWidth);
          node
             .prop("borderWidth", borderWidth, { silent: true })
+            .resize(node.size().width, node.size().height + addHeight)
             .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
       });
 

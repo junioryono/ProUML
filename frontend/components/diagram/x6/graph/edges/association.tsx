@@ -5,8 +5,10 @@ Graph.registerEdge("association", {
    width: 1,
    attrs: {
       line: {
-         stroke: "#000",
+         stroke: "#000000",
          strokeWidth: 1,
+         sourceMarker: null,
+         targetMarker: null,
       },
    },
    //    router: {

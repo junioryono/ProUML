@@ -254,75 +254,63 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                })}
             </div>
          </div>
-         <hr className="border-slate-400" />
 
-         {/* ---------------------- EDGES SECTION ---------------------- */}
-         <div className="pb-3">
-            <div className="flex flex-col">
-               <div className="flex justify-between mt-2">
-                  <div className="font-bold pt-1 mb-1">Edges</div>
+         {edges.length > 0 && (
+            <>
+               <hr className="border-slate-400" />
 
-                  <div className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center">
-                     <span
-                        role="button"
-                        className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
-                     >
-                        <svg className="svg" width="10" height="10" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-                           <path
-                              d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
-                              fillRule="nonzero"
-                              fillOpacity="1"
-                              fill="#000"
-                              stroke="none"
-                           />
-                        </svg>
-                     </span>
+               {/* ---------------------- EDGES SECTION ---------------------- */}
+               <div className="pb-3">
+                  <div className="flex flex-col">
+                     <div className="flex justify-between mt-2">
+                        <div className="font-bold pt-1 mb-1">Edges</div>
+                     </div>
+
+                     {edges.map((node) => {
+                        const props = node.getProp();
+                        console.log("props edges", props);
+                        const edgeId = props.id;
+                        const isSelected = selectedCells.includes(node);
+
+                        const sourceNodeName = graph.current.getCellById(props.source.cell)?.prop("name");
+                        const targetNodeName = graph.current.getCellById(props.target.cell)?.prop("name");
+
+                        return (
+                           <div
+                              key={edgeId}
+                              className="flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4"
+                              onClick={() => {
+                                 graph.current.centerCell(node);
+                                 graph.current.cleanSelection(node);
+                                 graph.current.select(node);
+                              }}
+                           >
+                              <div className="w-3">
+                                 {/* if the node is selected show a checkmark svg next to it */}
+
+                                 {isSelected && (
+                                    <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+                                       <path
+                                          d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
+                                          fillRule="evenodd"
+                                          fillOpacity="1"
+                                          stroke="none"
+                                       />
+                                    </svg>
+                                 )}
+                              </div>
+                              <div>
+                                 {sourceNodeName}
+                                 {" -> "}
+                                 {targetNodeName}
+                              </div>
+                           </div>
+                        );
+                     })}
                   </div>
                </div>
-
-               {edges.map((node) => {
-                  const props = node.getProp();
-                  console.log("props edges", props);
-                  const edgeId = props.id;
-                  const isSelected = selectedCells.includes(node);
-
-                  const sourceNodeName = graph.current.getCellById(props.source.cell)?.prop("name");
-                  const targetNodeName = graph.current.getCellById(props.target.cell)?.prop("name");
-
-                  return (
-                     <div
-                        key={edgeId}
-                        className="flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4"
-                        onClick={() => {
-                           graph.current.centerCell(node);
-                           graph.current.cleanSelection(node);
-                           graph.current.select(node);
-                        }}
-                     >
-                        <div className="w-3">
-                           {/* if the node is selected show a checkmark svg next to it */}
-
-                           {isSelected && (
-                              <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                                 <path
-                                    d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                                    fillRule="evenodd"
-                                    fillOpacity="1"
-                                    stroke="none"
-                                 />
-                              </svg>
-                           )}
-                        </div>
-                        <div>
-                           {sourceNodeName}
-                           {" -> "}
-                           {targetNodeName}
-                        </div>
-                     </div>
-                  );
-               })}
-            </div>
-         </div>
+            </>
+         )}
       </div>
    );
 }
