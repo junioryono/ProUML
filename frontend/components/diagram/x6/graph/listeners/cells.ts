@@ -23,12 +23,191 @@ export default function Cells(
    //    });
    // }
 
+   const addPorts = (node: X6Type.Node) => {
+      node.removePorts();
+
+      const nodeBbox = node.getBBox();
+      const nodeWidth = nodeBbox.width;
+      const nodeHeight = nodeBbox.height;
+
+      node.addPorts(
+         [
+            {
+               id: "top-middle",
+               group: "group1",
+               args: {
+                  x: nodeWidth / 2,
+                  y: 0,
+               },
+            },
+            {
+               id: "top-left",
+               group: "group1",
+               args: {
+                  x: 0,
+                  y: 0,
+               },
+            },
+            {
+               id: "top-right",
+               group: "group1",
+               args: {
+                  x: nodeWidth,
+                  y: 0,
+               },
+            },
+            {
+               id: "top-left-middle",
+               group: "group1",
+               args: {
+                  x: nodeWidth / 4,
+                  y: 0,
+               },
+            },
+            {
+               id: "top-right-middle",
+               group: "group1",
+               args: {
+                  x: (nodeWidth / 4) * 3,
+                  y: 0,
+               },
+            },
+            {
+               id: "left-middle-top",
+               group: "group1",
+               args: {
+                  x: 0,
+                  y: nodeHeight / 4,
+               },
+            },
+            {
+               id: "left-middle",
+               group: "group1",
+               args: {
+                  x: 0,
+                  y: nodeHeight / 2,
+               },
+            },
+            {
+               id: "left-middle-bottom",
+               group: "group1",
+               args: {
+                  x: 0,
+                  y: (nodeHeight / 4) * 3,
+               },
+            },
+            {
+               id: "right-middle-top",
+               group: "group1",
+               args: {
+                  x: nodeWidth,
+                  y: nodeHeight / 4,
+               },
+            },
+            {
+               id: "right-middle",
+               group: "group1",
+               args: {
+                  x: nodeWidth,
+                  y: nodeHeight / 2,
+               },
+            },
+            {
+               id: "right-middle-bottom",
+               group: "group1",
+               args: {
+                  x: nodeWidth,
+                  y: (nodeHeight / 4) * 3,
+               },
+            },
+            {
+               id: "bottom-middle",
+               group: "group1",
+               args: {
+                  x: nodeWidth / 2,
+                  y: nodeHeight,
+               },
+            },
+            {
+               id: "bottom-left",
+               group: "group1",
+               args: {
+                  x: 0,
+                  y: nodeHeight,
+               },
+            },
+            {
+               id: "bottom-right",
+               group: "group1",
+               args: {
+                  x: nodeWidth,
+                  y: nodeHeight,
+               },
+            },
+            {
+               id: "bottom-left-middle",
+               group: "group1",
+               args: {
+                  x: nodeWidth / 4,
+                  y: nodeHeight,
+               },
+            },
+            {
+               id: "bottom-right-middle",
+               group: "group1",
+               args: {
+                  x: (nodeWidth / 4) * 3,
+                  y: nodeHeight,
+               },
+            },
+         ],
+         {
+            silent: true,
+         },
+      );
+   };
+
+   const showPorts = (node: X6Type.Node) => {
+      for (const port of node.getPorts()) {
+         //port.attrs.style.visibility = "visible";
+         node.portProp(port.id, "attrs/circle/style/visibility", "visible");
+      }
+   };
+
+   const hidePorts = (node: X6Type.Node) => {
+      for (const port of node.getPorts()) {
+         //port.attrs.style.visibility = "hidden";
+         node.setPortProp(port.id, "attrs/circle/style/visibility", "hidden");
+      }
+   };
+
    graph.current?.on("node:mouseenter", (args) => {
       console.log("node:mouseenter", args);
+      showPorts(args.node);
    });
 
    graph.current?.on("node:mouseleave", (args) => {
       console.log("node:mouseleave", args);
+      hidePorts(args.node);
+   });
+
+   graph.current?.on("edge:added", (args) => {
+      console.log("edge:added", args);
+      const sourceCell = args.edge.getSourceCell();
+      const targetCell = args.edge.getTargetCell();
+      if (!sourceCell || !targetCell) {
+         for (const node of graph.current?.getNodes() as X6Type.Node[]) {
+            showPorts(node);
+         }
+      }
+   });
+
+   graph.current?.on("edge:connected", (args) => {
+      console.log("edge:connected", args);
+      console.log(graph.current.toJSON());
+      for (const node of graph.current?.getNodes() as X6Type.Node[]) {
+         hidePorts(node);
+      }
    });
 
    graph.current?.on("cell:removed", (args) => {
@@ -37,11 +216,17 @@ export default function Cells(
          return;
       }
 
+      if (args.cell.isEdge()) {
+         for (const node of graph.current?.getNodes() as X6Type.Node[]) {
+            hidePorts(node);
+         }
+      }
+
       wsLocalAndDBRemoveCell(args.cell, websocket, sessionId);
    });
 
    graph.current?.on("cell:added", (args) => {
-      console.log("node:added", args);
+      console.log("cell:added", args);
       if (args.options.ws) {
          return;
       }
@@ -50,6 +235,8 @@ export default function Cells(
          wsLocalAndDBAddEdge(args.cell, websocket, sessionId);
          return;
       }
+
+      addPorts(args.cell as X6Type.Node);
 
       wsLocalAndDBAddNode(args.cell, websocket, sessionId);
    });
@@ -67,9 +254,16 @@ export default function Cells(
    graph.current?.on("node:move", (args) => {
       const isSelected = graph.current?.isSelected(args.cell);
       if (!isSelected) {
+         const selectedCells = graph.current?.getSelectedCells();
+         for (const cell of selectedCells) {
+            if (cell.isNode()) {
+               hidePorts(cell);
+            }
+         }
          graph.current?.cleanSelection();
       }
 
+      hidePorts(args.cell);
       graph.current?.select(args.cell);
    });
 
@@ -84,6 +278,8 @@ export default function Cells(
    graph.current?.on("node:moved", (args) => {
       console.log("node:moved", args);
       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
+
+      showPorts(args.cell);
    });
 
    graph.current?.on("node:change:position", (args) => {

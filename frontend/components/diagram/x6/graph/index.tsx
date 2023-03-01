@@ -59,6 +59,29 @@ export default function useGraph(
                },
             ],
          },
+         connecting: {
+            snap: true,
+            allowBlank: false,
+            // allowLoop: true,
+            // allowNode: false,
+            // allowEdge: false,
+            // allowMulti: true,
+            // allowPort: true,
+            router: {
+               name: "manhattan",
+               args: {
+                  startDirections: ["right", "left"],
+                  padding: 16,
+               },
+            },
+            connectionPoint: "boundary",
+            validateConnection({ sourceView, targetView }) {
+               if (sourceView === targetView) {
+                  return false;
+               }
+               return true;
+            },
+         },
          background: {
             // color: "#e5e5e5",
          },
@@ -91,7 +114,7 @@ export default function useGraph(
 
       graph.current.use(
          new X6.Plugin.Selection.Selection({
-            enabled: true,
+            enabled: false,
             multiple: true,
             rubberband: true,
             movable: true,

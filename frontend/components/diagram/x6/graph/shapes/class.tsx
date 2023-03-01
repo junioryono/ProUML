@@ -321,4 +321,25 @@ function ShapeClass({ node }: { node?: Node }) {
 register({
    shape: "custom-class",
    component: ShapeClass,
+   ports: {
+      groups: {
+         group1: {
+            attrs: {
+               circle: {
+                  r: 4,
+                  magnet: true,
+                  stroke: "#31d0c6",
+                  strokeWidth: 2,
+                  fill: "#fff",
+                  style: {
+                     visibility: "hidden",
+                  },
+               },
+            },
+            position: {
+               name: "absolute",
+            },
+         },
+      },
+   },
 });
