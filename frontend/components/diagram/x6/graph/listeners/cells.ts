@@ -28,7 +28,7 @@ export default function Cells(
 
    graph.current?.on("node:mouseleave", (args) => {
       console.log("node:mouseleave", args);
-      hidePorts(args.node);
+      hideAllPorts(graph.current);
    });
 
    graph.current?.on("node:selected", (args) => {
@@ -36,17 +36,17 @@ export default function Cells(
       hidePorts(args.node);
    });
 
+   graph.current?.on("edge:connected", (args) => {
+      console.log("edge:connected", args.edge);
+      wsLocalAndDBUpdateEdge(args.edge, websocket, sessionId);
+   });
+
    graph.current?.on("edge:change:source", (args) => {
       if ((args.previous as any).ws) {
          return;
       }
 
-      // If the edge's source and target is connected to a node
-      if (args.edge.getSourceCell() && args.edge.getTargetCell()) {
-         wsLocalAndDBUpdateEdge(args.cell, websocket, sessionId);
-      } else {
-         wsLocalUpdateEdge(args.cell, websocket, sessionId);
-      }
+      wsLocalUpdateEdge(args.cell, websocket, sessionId);
    });
 
    graph.current?.on("edge:change:target", (args) => {
@@ -55,16 +55,8 @@ export default function Cells(
          return;
       }
 
-      // If the edge's source and target is connected to a node
-      if (args.edge.getSourceCell() && args.edge.getTargetCell()) {
-         console.log("edge:change:target", args);
-         wsLocalAndDBUpdateEdge(args.cell, websocket, sessionId);
-      } else {
-         wsLocalUpdateEdge(args.cell, websocket, sessionId);
-      }
+      wsLocalUpdateEdge(args.cell, websocket, sessionId);
    });
-
-   graph.current?.on("cell", (args) => {});
 
    graph.current?.on("cell:removed", (args) => {
       console.log("cell:removed", args);
@@ -79,27 +71,29 @@ export default function Cells(
       wsLocalAndDBRemoveCell(args.cell, websocket, sessionId);
    });
 
-   graph.current?.on("cell:added", (args) => {
-      console.log("cell:added", args);
+   graph.current?.on("node:added", (args) => {
       if (args.options.ws) {
-         return;
-      }
-
-      if (args.cell.isEdge()) {
-         const edge = args.cell as X6Type.Edge;
-         wsLocalAndDBAddEdge(edge, websocket, sessionId);
-
-         const sourceCell = edge.getSourceCell();
-         const targetCell = edge.getTargetCell();
-         if (!sourceCell || !targetCell) {
-            graph.current?.cleanSelection();
-            showAllPorts(graph.current);
-         }
          return;
       }
 
       addPorts(args.cell as X6Type.Node);
       wsLocalAndDBAddNode(args.cell, websocket, sessionId);
+   });
+
+   graph.current?.on("edge:added", (args) => {
+      if (args.options.ws) {
+         return;
+      }
+
+      const edge = args.cell as X6Type.Edge;
+      wsLocalAndDBAddEdge(edge, websocket, sessionId);
+
+      const sourceCell = edge.getSourceCell();
+      const targetCell = edge.getTargetCell();
+      if (!sourceCell || !targetCell) {
+         graph.current?.cleanSelection();
+         showAllPorts(graph.current);
+      }
    });
 
    graph.current?.on("node:change:data", (args) => {
