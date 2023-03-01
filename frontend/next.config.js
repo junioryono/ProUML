@@ -13,6 +13,12 @@ const nextConfig = {
             port: "",
             pathname: "/images/**",
          },
+         {
+            protocol: "https",
+            hostname: "cdn.auth0.com",
+            port: "",
+            pathname: "/avatars/**",
+         },
       ],
    },
    async redirects() {

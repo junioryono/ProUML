@@ -9,6 +9,7 @@ import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import { Diagram, User } from "types";
 import { getDiagramUsers, addDiagramUser } from "@/lib/auth-fetch";
+import Image from "next/image";
 
 const userAddSchema = z.object({
    email: z.string().min(8),
@@ -37,6 +38,8 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
    const toggleDropdown = () => setIsOpen(!isOpen);
    const [showMenu, setShowMenu] = useState(false);
    const handleMenuClick = () => setShowMenu(!showMenu);
+   const [dropDown, setDropDown] = useState(false);
+   const dropDownSet = () => setDropDown(!dropDown);
 
    async function onSubmit(data: FormData) {
       console.log("onSubmit", data);
@@ -149,7 +152,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                     />
                                     <div className="relative">
                                        <div
-                                          className="flex flex-row hover:bg-slate-50 pl-2 ml-2 h-11 mb-1 mr-4 border rounded-xl cursor-pointer items-center"
+                                          className="flex flex-row pl-2 ml-2 h-10 mr-4 border border-slate-300 hover:border-slate-400 rounded-xl cursor-pointer items-center"
                                           onClick={toggleDropdown}
                                        >
                                           Editor
@@ -185,10 +188,6 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                                    </svg>
                                                    Editor
                                                 </li>
-                                                <hr className="border-slate-400 ml-1.5 mr-2" />
-                                                <li className="pl-3 py-2 hover:bg-gray-100 rounded-b cursor-pointer">
-                                                   Remove Access
-                                                </li>
                                              </ul>
                                           </div>
                                        )}
@@ -211,35 +210,23 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                  {users &&
                                     users.map((sharedUser) => (
                                        <div className="bg-white flex flex-row hover:bg-slate-100 rounded-l-3xl ml-3">
-                                          <svg
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             width="40"
-                                             height="40"
-                                             viewBox="0 0 24 24"
-                                             fill="none"
-                                             className="mt-1 ml-1"
-                                          >
-                                             <path
-                                                opacity="0.4"
-                                                d="M12 22.01C17.5228 22.01 22 17.5329 22 12.01C22 6.48716 17.5228 2.01001 12 2.01001C6.47715 2.01001 2 6.48716 2 12.01C2 17.5329 6.47715 22.01 12 22.01Z"
-                                                fill="#292D32"
-                                             />
-                                             <path
-                                                d="M12 6.93994C9.93 6.93994 8.25 8.61994 8.25 10.6899C8.25 12.7199 9.84 14.3699 11.95 14.4299C11.98 14.4299 12.02 14.4299 12.04 14.4299C12.06 14.4299 12.09 14.4299 12.11 14.4299C12.12 14.4299 12.13 14.4299 12.13 14.4299C14.15 14.3599 15.74 12.7199 15.75 10.6899C15.75 8.61994 14.07 6.93994 12 6.93994Z"
-                                                fill="#292D32"
-                                             />
-                                             <path
-                                                d="M18.7807 19.36C17.0007 21 14.6207 22.01 12.0007 22.01C9.3807 22.01 7.0007 21 5.2207 19.36C5.4607 18.45 6.1107 17.62 7.0607 16.98C9.7907 15.16 14.2307 15.16 16.9407 16.98C17.9007 17.62 18.5407 18.45 18.7807 19.36Z"
-                                                fill="#292D32"
-                                             />
-                                          </svg>
+                                          <Image
+                                             src={sharedUser.picture}
+                                             width={35}
+                                             height={35}
+                                             className="rounded-full m-2"
+                                             alt="avatar"
+                                          />
                                           <div className="flex flex-col w-full">
-                                             <div className="flex flex-row pt-1 pl-2">
+                                             <div className="flex flex-row pt-1 pl-1">
                                                 {sharedUser.full_name}
                                                 {sharedUser.user_id === user.user_id && (
                                                    <span className="text-xs text-stone-500 pl-2 mb-1 mt-auto">(you)</span>
                                                 )}
-                                                <div className="flex flex-row text-gray-600 text-sm px-2 hover:bg-slate-200 mt-1 hover:text-black cursor-default pl-auto mr-10 rounded ml-auto">
+                                                <div
+                                                   className="flex flex-row text-gray-600 text-sm px-2 hover:bg-slate-200 mt-1 hover:text-black cursor-pointer pl-auto mr-10 rounded ml-auto"
+                                                   onClick={dropDownSet}
+                                                >
                                                    {capitalizeFirstLetter(sharedUser.role)}
                                                    {sharedUser.role !== "owner" && (
                                                       <svg
@@ -247,14 +234,41 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                                          height="20"
                                                          viewBox="0 0 24 24"
                                                          focusable="false"
-                                                         className="cursor-pointer fill-slate-500"
+                                                         className="fill-slate-500"
                                                       >
                                                          <path d="M7 10l5 5 5-5H7z" />
                                                       </svg>
                                                    )}
                                                 </div>
+                                                {dropDown && (
+                                                   <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2">
+                                                      <ul>
+                                                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t">
+                                                            Viewer
+                                                         </li>
+                                                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                                                            Commentator
+                                                         </li>
+                                                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                                                            <svg
+                                                               width="16"
+                                                               height="16"
+                                                               viewBox="0 0 24 24"
+                                                               focusable="false"
+                                                               className="inline-block mr-3 text-black"
+                                                            >
+                                                               <path
+                                                                  fill="currentColor"
+                                                                  d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
+                                                               ></path>
+                                                            </svg>
+                                                            Editor
+                                                         </li>
+                                                      </ul>
+                                                   </div>
+                                                )}
                                              </div>
-                                             <div className="text-xs text-stone-500 pb-1 pl-2">{sharedUser.email}</div>
+                                             <div className="text-xs text-stone-500 pb-1 pl-1">{sharedUser.email}</div>
                                           </div>
                                        </div>
                                     ))}
