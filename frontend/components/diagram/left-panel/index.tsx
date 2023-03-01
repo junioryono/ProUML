@@ -228,9 +228,11 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      <div
                         key={nodeId}
                         className="flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4"
-                        // onClick={() => {
-                        //    router.push(`/dashboard/diagrams/node/${nodeId}`);
-                        // }}
+                        onClick={() => {
+                           graph.current.centerCell(node);
+                           graph.current.cleanSelection(node);
+                           graph.current.select(node);
+                        }}
                      >
                         <div className="w-3">
                            {/* if the node is selected show a checkmark svg next to it */}
@@ -280,17 +282,22 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
 
                {edges.map((node) => {
                   const props = node.getProp();
-                  const nodeId = props.id;
-                  const nodeName = props.name;
+                  console.log("props edges", props);
+                  const edgeId = props.id;
                   const isSelected = selectedCells.includes(node);
+
+                  const sourceNodeName = graph.current.getCellById(props.source.cell)?.prop("name");
+                  const targetNodeName = graph.current.getCellById(props.target.cell)?.prop("name");
 
                   return (
                      <div
-                        key={nodeId}
+                        key={edgeId}
                         className="flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4"
-                        // onClick={() => {
-                        //    router.push(`/dashboard/diagrams/node/${nodeId}`);
-                        // }}
+                        onClick={() => {
+                           graph.current.centerCell(node);
+                           graph.current.cleanSelection(node);
+                           graph.current.select(node);
+                        }}
                      >
                         <div className="w-3">
                            {/* if the node is selected show a checkmark svg next to it */}
@@ -306,7 +313,11 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                               </svg>
                            )}
                         </div>
-                        <div>{nodeName}</div>
+                        <div>
+                           {sourceNodeName}
+                           {" -> "}
+                           {targetNodeName}
+                        </div>
                      </div>
                   );
                })}

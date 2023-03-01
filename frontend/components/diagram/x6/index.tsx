@@ -26,6 +26,9 @@ export type X6StateType = {
    Shape: {
       Class: any;
    };
+   Edge: {
+      Association: any;
+   };
 };
 
 // Create a hook to initialize X6
@@ -48,6 +51,7 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
             X6PluginHistoryInstance,
             X6PluginExportInstance,
             ShapeClass,
+            EdgeAssociation,
          ] = await Promise.all([
             await import("@antv/x6"),
             await import("@antv/x6-plugin-scroller"),
@@ -58,6 +62,7 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
             await import("@antv/x6-plugin-history"),
             await import("@antv/x6-plugin-export"),
             await import("./graph/shapes/class"),
+            await import("./graph/edges/association"),
          ]);
 
          if (!isUnmounted) {
@@ -74,6 +79,9 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
                },
                Shape: {
                   Class: ShapeClass,
+               },
+               Edge: {
+                  Association: EdgeAssociation,
                },
             });
          }

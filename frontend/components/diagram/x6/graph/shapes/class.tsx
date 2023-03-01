@@ -1,8 +1,7 @@
-import { cn } from "@/lib/utils";
 import { Node } from "@antv/x6";
 import { register } from "@antv/x6-react-shape";
 import { useEffect, useState } from "react";
-import { ClassNode, AccessModifier } from "types";
+import { ClassNode } from "types";
 
 const enum ClassSection {
    Name,
@@ -23,17 +22,6 @@ function ShapeClass({ node }: { node?: Node }) {
    const [borderStyle, setBorderStyle] = useState("solid");
 
    const [selectedSection, setSelectedSection] = useState<ClassSection>();
-   // const [width, setWidth] = useState(0);
-   // const [height, setHeight] = useState(0);
-
-   // useEffect(() => {
-   //    const { dontDetectSize } = node.getProp();
-   //    if (!dontDetectSize) {
-   //       console.log("Detecting size");
-   //       const { width, height } = detectClassSize(node);
-   //       // node.resize(width, height);
-   //    }
-   // }, []);
 
    useEffect(() => {
       if (!node) {

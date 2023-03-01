@@ -65,6 +65,11 @@ export default function Cells(
    });
 
    graph.current?.on("node:move", (args) => {
+      const isSelected = graph.current?.isSelected(args.cell);
+      if (!isSelected) {
+         graph.current?.cleanSelection();
+      }
+
       graph.current?.select(args.cell);
    });
 
