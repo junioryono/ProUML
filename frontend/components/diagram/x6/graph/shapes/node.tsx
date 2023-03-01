@@ -227,11 +227,11 @@ function ShapeNode({ node, graph }: { node?: X6Type.Node; graph: X6Type.Graph })
             <div
                style={{
                   position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  border: "2px dashed #05a8ff",
+                  top: -2.5,
+                  left: -2.5,
+                  width: node.size().width + 5,
+                  height: node.size().height + 5,
+                  border: "2px solid #05a8ff",
                   zIndex: 100,
                }}
             />
