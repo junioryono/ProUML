@@ -78,7 +78,7 @@ export default function DiagramLayout({ user, diagram }: { user: User; diagram: 
             <div className="flex h-full items-center">
                {/* <Image src={sharedUser.picture} width={35} height={35} className="rounded-full m-2" alt="avatar" /> */}
                <ShareButton user={user} diagram={diagram} />
-               <UserAccountNav user={user} className="mx-2 border-[#05a8ff] border border-double" />
+               <UserAccountNav user={user} className="mx-2 border-[#05a8ff] bg-[#05a8ff] border-2 border-double" />
                <ZoomButton graph={graph} zoom={zoom} />
             </div>
          </div>
