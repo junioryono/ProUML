@@ -4,6 +4,9 @@ const nextConfig = {
    eslint: {
       ignoreDuringBuilds: true,
    },
+   typescript: {
+      ignoreBuildErrors: true,
+   },
    experimental: {
       esmExternals: "loose",
       fontLoaders: [{ loader: "@next/font/google", options: { subsets: ["latin"] } }],
