@@ -38,33 +38,10 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    return (
       <>
          {/* ---------------------- EDGE SETTINGS SECTION ---------------------- */}
-         {selectedCells.length === 1 && <EdgeSettings edge={selectedCells[0] as X6Type.Edge} graph={graph} />}
 
-         {/* ---------------------- LINE COLOR SECTION ---------------------- */}
          <div className="flex flex-col pb-3">
             <div className="flex justify-between">
-               <div className="font-bold">Color</div>
-            </div>
-            <ColorPicker colorOptions={darkColorOptions} objColor={color} setObjColor={setColor} />
-         </div>
-         <hr className="border-slate-400" />
-
-         {/*---------------------- BORDER WIDTH SECTION ---------------------- */}
-         {/* line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
-
-         <div className="flex flex-col pt-1.5 pb-3">
-            <div className="flex justify-between">
-               <div className="font-bold mb-1">Width</div>
-            </div>
-
-            <LineWidth lineWidth={width} setLineWidth={setWidth} />
-         </div>
-         <hr className="border-slate-400" />
-
-         {/* ---------------------- BORDER STYLE SECTION ---------------------- */}
-         <div className="flex flex-col pt-1.5">
-            <div className="flex justify-between">
-               <div className="font-bold mb-1">Style</div>
+               <div className="font-bold mb-1">Edge Settings</div>
             </div>
             <div className="flex items-center gap-2 pl-1.5">
                {/* solid line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
@@ -130,6 +107,34 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </button>
             </div>
          </div>
+
+         <hr className="border-slate-400" />
+
+         {/* ---------------------- RELATED CLASSES SECTION ---------------------- */}
+
+         {/* TODO: show related classes??? */}
+         {/* {selectedCells.length === 1 && <EdgeSettings edge={selectedCells[0] as X6Type.Edge} graph={graph} />} */}
+
+         {/* ---------------------- LINE COLOR SECTION ---------------------- */}
+         <div className="flex flex-col pt-1.5 pb-3">
+            <div className="flex justify-between">
+               <div className="font-bold">Color</div>
+            </div>
+            <ColorPicker colorOptions={darkColorOptions} indicatorColor={"white"} objColor={color} setObjColor={setColor} />
+         </div>
+         <hr className="border-slate-400" />
+
+         {/*---------------------- BORDER WIDTH SECTION ---------------------- */}
+         {/* line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
+
+         <div className="flex flex-col pt-1.5 pb-3">
+            <div className="flex justify-between">
+               <div className="font-bold mb-1">Width</div>
+            </div>
+
+            <LineWidth lineWidth={width} setLineWidth={setWidth} />
+         </div>
+         <hr className="border-slate-400" />
       </>
    );
 }

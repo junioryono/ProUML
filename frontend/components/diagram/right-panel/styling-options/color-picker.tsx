@@ -1,9 +1,11 @@
 export default function ColorPicker({
    colorOptions,
+   indicatorColor,
    objColor,
    setObjColor,
 }: {
    colorOptions: string[];
+   indicatorColor: string;
    objColor: string;
    setObjColor: React.Dispatch<React.SetStateAction<string>>;
 }) {
@@ -30,7 +32,13 @@ export default function ColorPicker({
                      >
                         {/* checkmark svg source: https://www.svgrepo.com/svg/452247/checkmark */}
                         {color === objColor && (
-                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 25 25">
+                           <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="18"
+                              height="18"
+                              viewBox="0 0 25 25"
+                              fill={indicatorColor}
+                           >
                               <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
                            </svg>
                         )}

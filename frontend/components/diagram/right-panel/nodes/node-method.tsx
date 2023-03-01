@@ -1,6 +1,7 @@
 import type X6Type from "@antv/x6";
 import { useEffect, useState } from "react";
 import { ClassNode } from "types";
+import NodeSettingsParameter from "./node-parameter";
 
 export default function NodeSettingsMethod({
    node,
@@ -119,9 +120,10 @@ export default function NodeSettingsMethod({
                   // if the input is empty after clicking out of the input field, set the name to "Untitled"
                   onBlur={(e) => {}}
                />
+
                {/* method parameters dropdown button */}
                <div className="ml-0.5 flex items-center">
-                  (
+                  <div>(</div>
                   {/* <select
                       className="justify-between h-6.5 text-xs bg-transparent inline-flex bg-slate-200 border border-slate-300 rounded-md w-8 hover:border-slate-400 p-1 pl-2 pr-2"
                       onClick={() => setShowParameters(!showParameters)}
@@ -140,48 +142,7 @@ export default function NodeSettingsMethod({
                         ></select>
                      </div>
                   </div>
-                  ){/* the dropdown menu that will show all method parameters */}
-                  {showParameters && (
-                     <div
-                        className="absolute w-56 right-0 z-10 origin-top bg-slate-100 border border-slate-400 rounded-md shadow-xl"
-                        onBlur={() => setShowParameters(!showParameters)}
-                     >
-                        {/* show all parameters in a vertical list */}
-                        <div className="text-center">Parameters:</div>
-                        <hr className="border-slate-400" />
-                        <div className="py-1">
-                           {parameters.map((parameter, index) => {
-                              return <div className="flex">{parameter.name}</div>;
-                           })}
-                        </div>
-                        {/* add button to add a new parameter */}
-                        <div className="flex justify-center">
-                           New Parameter
-                           <button
-                              className="justify-between text-sm bg-transparent inline-flex bg-slate-200 border border-slate-300 rounded-md w-8 hover:border-slate-400 p-1 pl-2 pr-2"
-                              onClick={() => {
-                                 // update the node's parameters array
-                                 const newParameters = [...parameters];
-                                 newParameters.push({ type: "String", name: `param${newParameters.length}` });
-                                 setParameters(newParameters);
-                                 methods[index].parameters = newParameters;
-                                 node.trigger("change:methods", { methods });
-                              }}
-                           >
-                              <svg
-                                 xmlns="http://www.w3.org/2000/svg"
-                                 className="w-4 h-4"
-                                 fill="none"
-                                 viewBox="0 0 20 20"
-                                 stroke="currentColor"
-                                 strokeWidth={2}
-                              >
-                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                              </svg>
-                           </button>
-                        </div>
-                     </div>
-                  )}
+                  <div>)</div>
                </div>
 
                {/* delete button to delete the variable */}
@@ -217,6 +178,59 @@ export default function NodeSettingsMethod({
                         </svg>
                      </span>
                   </div>
+               </div>
+            </div>
+         </div>
+         {/* method parameters appearing section */}
+         <div
+            className={`bg-slate-300 mt-0.5 mb-1 py-1 justify-center rounded-md shadow-xl ${
+               showParameters ? "" : "hidden"
+            } items-center`}
+         >
+            {parameters.map((parameter, index) => {
+               return (
+                  <NodeSettingsParameter
+                     key={index}
+                     index={index}
+                     parameter={parameter}
+                     node={node}
+                     parameters={parameters}
+                     setParameters={setParameters}
+                  />
+               );
+            })}
+
+            {/* add button to add a new parameter */}
+            <div
+               className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer"
+               onClick={() => {
+                  // update the node's variables array
+                  const newParameters = [...parameters];
+                  newParameters.push({ type: "int", name: "Untitled" });
+
+                  node.trigger("change:parameters", { parameters: newParameters });
+               }}
+            >
+               <div className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center">
+                  <span
+                     role="button"
+                     className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                  >
+                     {/* plus svg */}
+                     <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                           <path
+                              d="M12 6V18M6 12H18"
+                              stroke="#000000"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                           ></path>
+                        </g>
+                     </svg>
+                  </span>
                </div>
             </div>
          </div>
