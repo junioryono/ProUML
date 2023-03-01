@@ -19,7 +19,7 @@ export default function NodeSettingsMethod({
    const [accessModifier, setAccessModifier] = useState(method.accessModifier);
    const [name, setName] = useState(method.name);
    const [type, setType] = useState(method.type);
-   const [parameters, setParameters] = useState(method.parameters);
+   const [parameters, setParameters] = useState(method.parameters || []);
    const [showParameters, setShowParameters] = useState(false);
 
    useEffect(() => {
@@ -39,7 +39,7 @@ export default function NodeSettingsMethod({
       setAccessModifier(method.accessModifier);
       setName(method.name);
       setType(method.type);
-      setParameters(method.parameters);
+      setParameters(method.parameters || []);
       setShowParameters(false);
    }, [method]);
 
@@ -229,7 +229,7 @@ export default function NodeSettingsMethod({
                   </div>
                </div>
             </div>
-            {parameters.map((parameter, index) => {
+            {parameters?.map((parameter, index) => {
                return (
                   <NodeSettingsParameter
                      key={index}
