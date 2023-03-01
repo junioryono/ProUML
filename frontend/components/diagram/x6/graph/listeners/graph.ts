@@ -9,6 +9,7 @@ import {
 import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
+import { hideAllPorts, hidePorts } from "../shapes/ports";
 
 export default function Graph(
    graph: MutableRefObject<X6Type.Graph>,
@@ -45,6 +46,15 @@ export default function Graph(
    };
    document.addEventListener("mouseleave", mouseLeaveFunction);
 
+   const visibilityChangeFunction = () => {
+      mouseLeaveFunction();
+
+      if (document.visibilityState === "hidden") {
+         hideAllPorts(graph.current);
+      }
+   };
+   document.addEventListener("visibilitychange", visibilityChangeFunction);
+
    graph.current?.on("scale", (args) => {
       console.log("scale", args);
       layoutProps.setZoom(args.sx);
@@ -73,10 +83,16 @@ export default function Graph(
       wsLocalAndDBUpdateGraphBackgroundColor(args.color, websocket, sessionId);
    });
 
+   graph.current?.on("graph:mouseleave", () => {
+      hideAllPorts(graph.current);
+   });
+
    return () => {
       document.removeEventListener("mouseleave", mouseLeaveFunction);
+      document.removeEventListener("visibilitychange", visibilityChangeFunction);
       graph.current?.off("scale");
       graph.current?.off("grid:changed");
       graph.current?.off("background:changed");
+      graph.current?.off("graph:mouseleave");
    };
 }

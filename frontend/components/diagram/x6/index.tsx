@@ -24,10 +24,8 @@ export type X6StateType = {
       Export: typeof X6PluginExportType;
    };
    Shape: {
-      Class: any;
-   };
-   Edge: {
-      Association: any;
+      Node: any;
+      Edge: any;
    };
 };
 
@@ -50,8 +48,8 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
             X6PluginClipboardInstance,
             X6PluginHistoryInstance,
             X6PluginExportInstance,
-            ShapeClass,
-            EdgeAssociation,
+            ShapeNode,
+            ShapeEdge,
          ] = await Promise.all([
             await import("@antv/x6"),
             await import("@antv/x6-plugin-scroller"),
@@ -61,8 +59,8 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
             await import("@antv/x6-plugin-clipboard"),
             await import("@antv/x6-plugin-history"),
             await import("@antv/x6-plugin-export"),
-            await import("./graph/shapes/class"),
-            await import("./graph/edges/association"),
+            await import("./graph/shapes/node"),
+            await import("./graph/shapes/edge"),
          ]);
 
          if (!isUnmounted) {
@@ -78,10 +76,8 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
                   Export: X6PluginExportInstance,
                },
                Shape: {
-                  Class: ShapeClass,
-               },
-               Edge: {
-                  Association: EdgeAssociation,
+                  Node: ShapeNode,
+                  Edge: ShapeEdge,
                },
             });
          }

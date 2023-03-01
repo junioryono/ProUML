@@ -66,6 +66,20 @@ function onWebSocketMessage(
          nodeInGraph.setSize(node["size"], { ws: true });
          nodeInGraph.setPosition(node["position"], { ws: true });
       });
+   } else if (events.includes("local_updateEdge")) {
+      const cell = message.cell;
+      if (!cell) {
+         return;
+      }
+
+      const edgeInGraph = graph.current?.getCellById(cell.id) as X6Type.Edge;
+      if (!edgeInGraph) {
+         return;
+      }
+
+      console.log("local_updateEdge", cell);
+      edgeInGraph.setSource(cell.source, { ws: true });
+      edgeInGraph.setTarget(cell.target, { ws: true });
    } else if (events.includes("local_removeCell")) {
       const cell = message.cell;
       if (!cell) {
@@ -213,6 +227,22 @@ export function wsLocalUpdateNode(
    } as any);
 }
 
+export function wsLocalUpdateEdge(
+   cell: X6Type.Cell,
+   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   sessionId: MutableRefObject<string>,
+) {
+   if (!sessionId.current) {
+      return;
+   }
+
+   websocket.sendJsonMessage({
+      sessionId: sessionId.current,
+      event: "broadcast/local_updateEdge",
+      cell,
+   } as any);
+}
+
 export function wsLocalAndDBUpdateNode(
    cell: X6Type.Cell,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
@@ -225,6 +255,22 @@ export function wsLocalAndDBUpdateNode(
    websocket.sendJsonMessage({
       sessionId: sessionId.current,
       event: "broadcast/local_updateNode/db_updateCell",
+      cell,
+   } as any);
+}
+
+export function wsLocalAndDBUpdateEdge(
+   cell: X6Type.Cell,
+   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   sessionId: MutableRefObject<string>,
+) {
+   if (!sessionId.current) {
+      return;
+   }
+
+   websocket.sendJsonMessage({
+      sessionId: sessionId.current,
+      event: "broadcast/local_updateEdge/db_updateCell",
       cell,
    } as any);
 }

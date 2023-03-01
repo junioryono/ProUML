@@ -268,7 +268,6 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
 
                      {edges.map((node) => {
                         const props = node.getProp();
-                        console.log("props edges", props);
                         const edgeId = props.id;
                         const isSelected = selectedCells.includes(node);
 

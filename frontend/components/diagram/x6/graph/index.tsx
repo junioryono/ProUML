@@ -8,6 +8,8 @@ import { ReadyState } from "react-use-websocket";
 
 import initializeListeners from "@/components/diagram/x6/graph/listeners";
 import useGraphWebSocket from "@/components/diagram/x6/graph/websocket";
+import { addPorts } from "./shapes/ports";
+import { StringExt } from "@antv/x6";
 
 export default function useGraph(
    X6: X6StateType,
@@ -114,12 +116,11 @@ export default function useGraph(
 
       graph.current.use(
          new X6.Plugin.Selection.Selection({
-            enabled: false,
+            enabled: true,
             multiple: true,
             rubberband: true,
             movable: true,
-            className: "selection",
-            showNodeSelectionBox: true,
+            showNodeSelectionBox: false,
             showEdgeSelectionBox: false,
          }),
       );
@@ -155,6 +156,10 @@ export default function useGraph(
 
       console.log("diagram.content", diagram.content);
       graph.current.fromJSON({ cells: diagram.content });
+
+      for (const node of graph.current.getNodes()) {
+         addPorts(node);
+      }
 
       const removeListeners = initializeListeners(graph, websocket, sessionId, layoutProps);
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
