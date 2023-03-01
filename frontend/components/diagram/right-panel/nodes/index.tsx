@@ -178,6 +178,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {/* all of the background color options */}
                <ColorPicker
                   colorOptions={lightColorOptions}
+                  indicatorColor={"black"}
                   objColor={backgroundColor}
                   setObjColor={setBackgroundColorFunction}
                />
@@ -191,7 +192,12 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
 
                {/* all of the border color options */}
-               <ColorPicker colorOptions={darkColorOptions} objColor={borderColor} setObjColor={setBorderColorFunction} />
+               <ColorPicker
+                  colorOptions={darkColorOptions}
+                  indicatorColor={"white"}
+                  objColor={borderColor}
+                  setObjColor={setBorderColorFunction}
+               />
             </div>
             <hr className="border-slate-400" />
 
