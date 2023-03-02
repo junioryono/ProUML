@@ -212,8 +212,11 @@ export default function NodeSettingsMethod({
                      onClick={() => {
                         // add the new parameter to the method's parameters array
                         const newMethods = [...methods];
-                        newMethods[index].parameters.push({ name: "Untitled", type: "int" });
-                        node.trigger("change:methods", { methods: newMethods });
+                        newMethods[index].parameters.push({ name: `param${parameters.length + 1}`, type: "int" });
+
+                        // update the width of the node if needed
+                        const newHeight = node.prop("size").height + (newMethods.length === 0 ? 36 : 20);
+                        node.trigger("change:methods", { methods: newMethods, newHeight: newHeight });
                      }}
                   >
                      <span

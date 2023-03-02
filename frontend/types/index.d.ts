@@ -161,7 +161,7 @@ export type ClassNode = {
       type: string;
       name: string;
       accessModifier: AccessModifier;
-      parameters: {
+      parameters?: {
          type: string;
          name: string;
       }[];
