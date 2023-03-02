@@ -15,13 +15,20 @@ import AddComment from "@/components/diagram/header/add-comment";
 import LeftPanel from "@/components/diagram/left-panel";
 import RightPanel from "@/components/diagram/right-panel";
 
+import Image from "next/image";
+
 export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
    setDiagramName: Dispatch<SetStateAction<string>>;
    setBackgroundColor: Dispatch<SetStateAction<string>>;
+   setConnectedUsers: Dispatch<SetStateAction<{ [key: string]: User }>>;
 };
 
 export default function DiagramLayout({ user, diagram }: { user: User; diagram: Diagram }) {
+   const [connectedUsers, setConnectedUsers] = useState<{
+      [key: string]: User; // The key is the user's color
+   }>({});
+
    // States
    const [zoom, setZoom] = useState(1);
    const [diagramName, setDiagramName] = useState(diagram.name);
@@ -34,6 +41,7 @@ export default function DiagramLayout({ user, diagram }: { user: User; diagram: 
       setZoom,
       setDiagramName,
       setBackgroundColor,
+      setConnectedUsers,
    });
 
    const refContainer = useCallback((containerParam: HTMLDivElement) => {
@@ -76,9 +84,26 @@ export default function DiagramLayout({ user, diagram }: { user: User; diagram: 
                </svg>
             </div>
             <div className="flex h-full items-center">
-               {/* <Image src={sharedUser.picture} width={35} height={35} className="rounded-full m-2" alt="avatar" /> */}
+               <div className="flex">
+                  {Object.keys(connectedUsers).map((color, index) => {
+                     return (
+                        <Image
+                           key={index}
+                           src={connectedUsers[color].picture}
+                           width={30}
+                           height={30}
+                           className={`rounded-full m-2 border-2 border-double -ml-4 only:ml-0`}
+                           style={{
+                              borderColor: color,
+                              backgroundColor: color,
+                           }}
+                           alt="avatar"
+                        />
+                     );
+                  })}
+               </div>
                <ShareButton user={user} diagram={diagram} />
-               <UserAccountNav user={user} className="mx-2 border-[#05a8ff] bg-[#05a8ff] border-2 border-double" />
+               <UserAccountNav user={user} className="mx-2 border-2 border-double border-[#05a8ff] bg-[#05a8ff]" />
                <ZoomButton graph={graph} zoom={zoom} />
             </div>
          </div>

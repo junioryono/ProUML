@@ -38,7 +38,23 @@ function onWebSocketMessage(
    console.log("onWebSocketMessage", message);
 
    const events = message.event.split("/");
-   if (events.includes("local_updateNode")) {
+   if (events.includes("connection")) {
+      console.log("connection", message);
+      const color = message.color;
+      const user = message.user;
+      layoutProps.setConnectedUsers((prev) => {
+         const newUsers = { ...prev };
+         newUsers[color] = user;
+         return newUsers;
+      });
+   } else if (events.includes("disconnection")) {
+      const color = message.color;
+      layoutProps.setConnectedUsers((prev) => {
+         const newUsers = { ...prev };
+         delete newUsers[color];
+         return newUsers;
+      });
+   } else if (events.includes("local_updateNode")) {
       const node = message.cell;
       if (!node) {
          return;

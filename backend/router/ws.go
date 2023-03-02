@@ -2,7 +2,6 @@ package router
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -44,8 +43,15 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			return
 		}
 
+		err2 := sdkP.Redis.GetUsers(diagramId, wc)
+		if err2 != nil {
+			return
+		}
+
+		// Send users to the client
+
 		// Listen for messages from Redis and send to client
-		sessionId := sdkP.Redis.Subscribe(diagramId, userModel, wc)
+		sessionId, color := sdkP.Redis.Subscribe(diagramId, userModel, wc)
 		if sessionId == "" {
 			return
 		}
@@ -54,27 +60,6 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		for {
 			msgType, msg, err := wc.ReadMessage()
 			if err != nil {
-				// If the connection is closed, catch the error
-				if !websocket.IsCloseError(err,
-					websocket.CloseNormalClosure,
-					websocket.CloseGoingAway,
-					websocket.CloseProtocolError,
-					websocket.CloseUnsupportedData,
-					websocket.CloseNoStatusReceived,
-					websocket.CloseAbnormalClosure,
-					websocket.CloseInvalidFramePayloadData,
-					websocket.ClosePolicyViolation,
-					websocket.CloseMessageTooBig,
-					websocket.CloseMandatoryExtension,
-					websocket.CloseInternalServerErr,
-					websocket.CloseServiceRestart,
-					websocket.CloseTryAgainLater,
-					websocket.CloseTLSHandshake,
-				) {
-					break
-				}
-
-				sdkP.Redis.Publish(diagramId, []byte(fmt.Sprintf(`{"sessionId": "%s", "event": "disconnected"}`, sessionId)))
 				break
 			}
 
@@ -112,7 +97,7 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Remove connection
-		sdkP.Redis.Unsubscribe(diagramId, sessionId)
+		go sdkP.Redis.Unsubscribe(diagramId, sessionId, color)
 	})
 }
 
