@@ -38,8 +38,6 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
    const toggleDropdown = () => setIsOpen(!isOpen);
    const [showMenu, setShowMenu] = useState(false);
    const handleMenuClick = () => setShowMenu(!showMenu);
-   const [dropDown, setDropDown] = useState(false);
-   const dropDownSet = () => setDropDown(!dropDown);
 
    async function onSubmit(data: FormData) {
       console.log("onSubmit", data);
