@@ -8,14 +8,14 @@ import (
 )
 
 type Projects_SDK struct {
-	Auth *auth.Auth_SDK
-	db   *gorm.DB
+	Auth  *auth.Auth_SDK
+	getDb func() *gorm.DB
 }
 
-func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Projects_SDK {
+func Init(getDb func() *gorm.DB, Auth *auth.Auth_SDK) *Projects_SDK {
 	return &Projects_SDK{
-		Auth: Auth,
-		db:   db,
+		Auth:  Auth,
+		getDb: getDb,
 	}
 }
 
@@ -26,7 +26,7 @@ func (p *Projects_SDK) GetAllWithAccessRole(idToken string, offset int) ([]model
 	}
 
 	var projects []models.ProjectModel
-	if err := p.db.
+	if err := p.getDb().
 		Offset(offset).
 		Model(&models.ProjectModel{}).
 		Select("id, created_at, updated_at, public, name").

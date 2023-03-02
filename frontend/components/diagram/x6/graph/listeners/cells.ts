@@ -113,14 +113,6 @@ export default function Cells(
       graph.current?.select(args.cell);
    });
 
-   graph.current?.on("node:moving", () => {
-      graph.current?.getSelectedCells().forEach((cell) => {
-         if (cell.isNode()) {
-            wsLocalUpdateNode(cell, websocket, sessionId);
-         }
-      });
-   });
-
    graph.current?.on("node:moved", (args) => {
       console.log("node:moved", args);
       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);

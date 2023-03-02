@@ -16,15 +16,15 @@ type Project_SDK struct {
 	Diagram *diagram.Diagram_SDK
 	Users   *users.Users_SDK
 	auth    *auth.Auth_SDK
-	db      *gorm.DB
+	getDb   func() *gorm.DB
 }
 
-func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Project_SDK {
+func Init(getDb func() *gorm.DB, Auth *auth.Auth_SDK) *Project_SDK {
 	return &Project_SDK{
-		Diagram: diagram.Init(db, Auth),
-		Users:   users.Init(Auth, db),
+		Diagram: diagram.Init(getDb, Auth),
+		Users:   users.Init(Auth, getDb),
 		auth:    Auth,
-		db:      db,
+		getDb:   getDb,
 	}
 }
 
@@ -53,7 +53,7 @@ func (p *Project_SDK) Create(idToken, name string) (string, *types.WrappedError)
 		Owner:     true,
 	}
 
-	tx := p.db.Begin()
+	tx := p.getDb().Begin()
 
 	// Save the project and the user project to the database
 	if err := tx.Create(&project).Error; err != nil {
@@ -85,7 +85,7 @@ func (p *Project_SDK) Delete(projectId, idToken string) *types.WrappedError {
 		return err
 	}
 
-	tx := p.db.Begin()
+	tx := p.getDb().Begin()
 
 	// Delete the project, diagram, and diagram user role models in the database if the current user is the owner
 	var userProject models.ProjectUserRoleModel
@@ -158,18 +158,18 @@ func (p *Project_SDK) Get(projectId, idToken string) (*models.ProjectModelWithDi
 	// Get the project user role model from the database
 	var userProject models.ProjectUserRoleModel
 
-	if err := p.db.Where("user_id = ? AND project_id = ?", userId, projectId).First(&userProject).Error; err != nil {
+	if err := p.getDb().Where("user_id = ? AND project_id = ?", userId, projectId).First(&userProject).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Get the project model from the database
 	var project models.ProjectModelWithDiagrams
-	if err := p.db.Model(&models.ProjectModel{}).Select("id, created_at, updated_at, name").Where("id = ?", projectId).First(&project).Error; err != nil {
+	if err := p.getDb().Model(&models.ProjectModel{}).Select("id, created_at, updated_at, name").Where("id = ?", projectId).First(&project).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Get the diagram models from the database
-	if err := p.db.Model(&models.DiagramModel{}).
+	if err := p.getDb().Model(&models.DiagramModel{}).
 		Select("id, created_at, updated_at, name").
 		Where("project_id = ?", projectId).
 		Order("diagram_models.updated_at DESC").
@@ -202,7 +202,7 @@ func (p *Project_SDK) UpdateName(projectId, idToken, name string) *types.Wrapped
 	// Update the project name in the database if the user is the owner
 	var userProject models.ProjectUserRoleModel
 
-	if err := p.db.Where("user_id = ? AND project_id = ?", userId, projectId).First(&userProject).Error; err != nil {
+	if err := p.getDb().Where("user_id = ? AND project_id = ?", userId, projectId).First(&userProject).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -210,7 +210,7 @@ func (p *Project_SDK) UpdateName(projectId, idToken, name string) *types.Wrapped
 		return types.Wrap(errors.New("user is not the owner of the project"), types.ErrInvalidRequest)
 	}
 
-	if err := p.db.Model(&models.ProjectModel{}).Where("id = ?", projectId).Update("name", name).Error; err != nil {
+	if err := p.getDb().Model(&models.ProjectModel{}).Where("id = ?", projectId).Update("name", name).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 

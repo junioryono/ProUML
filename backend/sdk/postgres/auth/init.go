@@ -17,23 +17,23 @@ type Auth_SDK struct {
 	jwk    *jwk.JWK_SDK
 }
 
-func Init(db *gorm.DB, jwk *jwk.JWK_SDK, ses *ses.SES_SDK) *Auth_SDK {
+func Init(getDb func() *gorm.DB, jwk *jwk.JWK_SDK, ses *ses.SES_SDK) *Auth_SDK {
 	authSDK := &Auth_SDK{
 		jwk: jwk,
 	}
 
 	authSDK.Admin = &admin_SDK{
-		auth: authSDK,
-		db:   db,
-		jwk:  jwk,
-		ses:  ses,
+		auth:  authSDK,
+		getDb: getDb,
+		jwk:   jwk,
+		ses:   ses,
 	}
 
 	authSDK.Client = &client_SDK{
-		auth: authSDK,
-		db:   db,
-		jwk:  jwk,
-		ses:  ses,
+		auth:  authSDK,
+		getDb: getDb,
+		jwk:   jwk,
+		ses:   ses,
 	}
 
 	return authSDK

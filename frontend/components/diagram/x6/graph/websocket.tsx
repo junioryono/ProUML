@@ -39,7 +39,6 @@ function onWebSocketMessage(
 
    const events = message.event.split("/");
    if (events.includes("connection")) {
-      console.log("connection", message);
       const color = message.color;
       const user = message.user;
       layoutProps.setConnectedUsers((prev) => {

@@ -8,14 +8,14 @@ import (
 )
 
 type Diagrams_SDK struct {
-	Auth *auth.Auth_SDK
-	db   *gorm.DB
+	Auth  *auth.Auth_SDK
+	getDb func() *gorm.DB
 }
 
-func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagrams_SDK {
+func Init(getDb func() *gorm.DB, Auth *auth.Auth_SDK) *Diagrams_SDK {
 	return &Diagrams_SDK{
-		Auth: Auth,
-		db:   db,
+		Auth:  Auth,
+		getDb: getDb,
 	}
 }
 
@@ -26,7 +26,7 @@ func (d *Diagrams_SDK) GetAllNotInProject(idToken string, offset int) ([]models.
 	}
 
 	var diagrams []models.DiagramModel
-	if err := d.db.
+	if err := d.getDb().
 		Offset(offset).
 		Model(&models.DiagramModel{}).
 		Joins("JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").

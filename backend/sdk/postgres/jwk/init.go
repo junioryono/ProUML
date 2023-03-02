@@ -11,14 +11,14 @@ import (
 type JWK_SDK struct {
 	JWT     *models.JWTModel
 	JWKs    jwk.Set
-	db      *gorm.DB
+	getDb   func() *gorm.DB
 	cluster *models.ClusterModel
 }
 
-func Init(db *gorm.DB, dsn string, cluster *models.ClusterModel) (*JWK_SDK, error) {
+func Init(getDb func() *gorm.DB, dsn string, cluster *models.ClusterModel) (*JWK_SDK, error) {
 	// Create a new JWT_SDK
 	j := &JWK_SDK{
-		db:      db,
+		getDb:   getDb,
 		cluster: cluster,
 	}
 

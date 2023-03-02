@@ -10,14 +10,14 @@ import (
 )
 
 type Diagram_SDK struct {
-	auth *auth.Auth_SDK
-	db   *gorm.DB
+	auth  *auth.Auth_SDK
+	getDb func() *gorm.DB
 }
 
-func Init(db *gorm.DB, Auth *auth.Auth_SDK) *Diagram_SDK {
+func Init(getDb func() *gorm.DB, Auth *auth.Auth_SDK) *Diagram_SDK {
 	return &Diagram_SDK{
-		auth: Auth,
-		db:   db,
+		auth:  Auth,
+		getDb: getDb,
 	}
 }
 
@@ -36,12 +36,12 @@ func (d *Diagram_SDK) Put(projectId, diagramId, idToken string) *types.WrappedEr
 	// Update the DiagramModel's ProjectID if the user is a member of the project
 	// Check if the user is a member of the project
 	var projectUserRole models.ProjectUserRoleModel
-	if err := d.db.Where("user_id = ? AND project_id = ?", userId, projectId).First(&projectUserRole).Error; err != nil {
+	if err := d.getDb().Where("user_id = ? AND project_id = ?", userId, projectId).First(&projectUserRole).Error; err != nil {
 		return types.Wrap(err, types.ErrInvalidRequest)
 	}
 
 	// Update the diagram's project id
-	if err := d.db.Model(&models.DiagramModel{}).Where("id = ?", diagramId).Update("project_id", projectId).Error; err != nil {
+	if err := d.getDb().Model(&models.DiagramModel{}).Where("id = ?", diagramId).Update("project_id", projectId).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -62,12 +62,12 @@ func (d *Diagram_SDK) Delete(projectId, diagramId, idToken string) *types.Wrappe
 
 	// Check if the user is a member of the project
 	var projectUserRole models.ProjectUserRoleModel
-	if err := d.db.Where("user_id = ? AND project_id = ?", userId, projectId).First(&projectUserRole).Error; err != nil {
+	if err := d.getDb().Where("user_id = ? AND project_id = ?", userId, projectId).First(&projectUserRole).Error; err != nil {
 		return types.Wrap(err, types.ErrInvalidRequest)
 	}
 
 	// Update the diagram's project id
-	if err := d.db.Model(&models.DiagramModel{}).Where("id = ?", diagramId).Update("project_id", "default").Error; err != nil {
+	if err := d.getDb().Model(&models.DiagramModel{}).Where("id = ?", diagramId).Update("project_id", "default").Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 

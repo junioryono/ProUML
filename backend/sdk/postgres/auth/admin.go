@@ -12,17 +12,17 @@ import (
 )
 
 type admin_SDK struct {
-	auth *Auth_SDK
-	db   *gorm.DB
-	jwk  *jwk.JWK_SDK
-	ses  *ses.SES_SDK
+	auth  *Auth_SDK
+	getDb func() *gorm.DB
+	jwk   *jwk.JWK_SDK
+	ses   *ses.SES_SDK
 }
 
 func (adminSDK *admin_SDK) GetUserFromIdentityProvider(userIPAddress, email, fullName string) (models.UserModel, string, string, *types.WrappedError) {
 	var userModel models.UserModel
 
 	// Get the user from the database using the email
-	if err := adminSDK.db.Where("email = ?", email).First(&userModel).Error; err != nil {
+	if err := adminSDK.getDb().Where("email = ?", email).First(&userModel).Error; err != nil {
 		// If the user does not exist, create a new user
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Create the user
@@ -38,7 +38,7 @@ func (adminSDK *admin_SDK) GetUserFromIdentityProvider(userIPAddress, email, ful
 			}
 
 			// Create the user in the database
-			if err := adminSDK.db.Create(&userModel).Error; err != nil {
+			if err := adminSDK.getDb().Create(&userModel).Error; err != nil {
 				return userModel, "", "", types.Wrap(err, types.ErrInternalServerError)
 			}
 		} else {

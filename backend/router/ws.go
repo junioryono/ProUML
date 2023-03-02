@@ -43,12 +43,11 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			return
 		}
 
-		err2 := sdkP.Redis.GetUsers(diagramId, wc)
+		// Send users to the client
+		err2 := sdkP.Redis.GetUsersAndPostToWS(diagramId, wc)
 		if err2 != nil {
 			return
 		}
-
-		// Send users to the client
 
 		// Listen for messages from Redis and send to client
 		sessionId, color := sdkP.Redis.Subscribe(diagramId, userModel, wc)

@@ -21,18 +21,19 @@ type channel struct {
 	ps            *redis.PubSub
 	client        *redis.Client
 	connections   []*connection
-	connectionsMu sync.Mutex
+	connectionsMu sync.RWMutex
 	context       context.Context
 }
 
 func (c *channel) addConnection(conn *connection) {
 	// If there are no current connections, initialize the channel listener
+
+	c.connectionsMu.Lock()
 	if len(c.connections) == 0 {
 		go c.listen()
 	}
 
 	// Add connection to channel
-	c.connectionsMu.Lock()
 	c.connections = append(c.connections, conn)
 	c.connectionsMu.Unlock()
 
@@ -66,16 +67,22 @@ func (c *channel) listen() {
 			payload.SessionId = ""
 
 			// Send message to all connections except the sender
-			for _, conn := range c.connections {
-				if conn.sessionId == fromSessionId {
-					continue
+			var sendToConnections []*connection
+			c.connectionsMu.RLock()
+			for _, v := range c.connections {
+				if v.sessionId != fromSessionId {
+					sendToConnections = append(sendToConnections, v)
 				}
+			}
+			c.connectionsMu.RUnlock()
 
-				go func(c *connection) {
-					c.mu.Lock()
-					c.ws.WriteJSON(payload)
-					c.mu.Unlock()
-				}(conn)
+			// Send message to all connections concurrently
+			for _, v := range sendToConnections {
+				go func(v *connection) {
+					v.mu.Lock()
+					defer v.mu.Unlock()
+					v.ws.WriteJSON(payload)
+				}(v)
 			}
 		}
 	}()
@@ -83,18 +90,22 @@ func (c *channel) listen() {
 
 // Returns true if there are no more connections in the channel
 func (c *channel) removeConnection(sessionId string) bool {
+	// Find the index of the connection to remove
+	c.connectionsMu.Lock()
 	for i, v := range c.connections {
 		if v.sessionId == sessionId {
-			c.connectionsMu.Lock()
 			c.connections = append(c.connections[:i], c.connections[i+1:]...)
-			c.connectionsMu.Unlock()
 			break
 		}
 	}
+	c.connectionsMu.Unlock()
 
 	// Need to remove this user from the key of the channel using LREM
 	c.client.LRem(c.context, c.Id, 1, sessionId)
 
+	// If there are no more connections, unsubscribe from the channel
+	c.connectionsMu.RLock()
+	defer c.connectionsMu.RUnlock()
 	if len(c.connections) == 0 {
 		c.unsubscribe()
 		return true
@@ -108,6 +119,8 @@ func (c *channel) publish(message interface{}) error {
 }
 
 func (c *channel) getConnectionsLength() int {
+	c.connectionsMu.RLock()
+	defer c.connectionsMu.RUnlock()
 	return len(c.connections)
 }
 

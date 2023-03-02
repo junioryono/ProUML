@@ -82,12 +82,8 @@ func (r *Redis_SDK) gracefulShutdown() {
 func (r *Redis_SDK) shutdown() {
 	for diagramId, channel := range r.channels {
 		for i := 0; i < len(channel.connections); i++ {
-			sessionId := channel.connections[i].sessionId
-
-			key := fmt.Sprintf("diagram:%s:users", diagramId)
 			// Remove the user
-			r.client.HDel(r.context, key, sessionId)
-
+			r.client.HDel(r.context, r.getDiagramUsersKey(diagramId), channel.connections[i].sessionId)
 		}
 	}
 }
@@ -126,7 +122,7 @@ func (r *Redis_SDK) Subscribe(channelId string, user *models.UserModel, ws *webs
 			Id:            channelId,
 			ps:            ps,
 			client:        r.client,
-			connectionsMu: sync.Mutex{},
+			connectionsMu: sync.RWMutex{},
 			context:       r.context,
 		}
 	}
@@ -146,11 +142,20 @@ func (r *Redis_SDK) Subscribe(channelId string, user *models.UserModel, ws *webs
 
 // Return the color of the user
 func (r *Redis_SDK) addUserColor(diagramId, sessionId string, user *models.UserModel) (string, error) {
-	// Generate a random color
-	var newColor string = fmt.Sprintf("#%06x", rand.Intn(0xFFFFFF))
+	// Get all users
+	users, err := r.getUsers(diagramId)
+	if err != nil {
+		return "", err
+	}
 
-	// Redis key
-	key := fmt.Sprintf("diagram:%s:users", diagramId)
+	// Existing colors
+	var existingColors []string
+	for _, user := range users {
+		existingColors = append(existingColors, user.Color)
+	}
+
+	// Generate a random color
+	var newColor string = r.generateRandomHexColor(existingColors)
 
 	userBody := types.WebSocketBody{
 		SessionId: sessionId,
@@ -170,7 +175,7 @@ func (r *Redis_SDK) addUserColor(diagramId, sessionId string, user *models.UserM
 	}
 
 	// Add the user
-	err = r.client.HSet(r.context, key, sessionId, b).Err()
+	err = r.client.HSet(r.context, r.getDiagramUsersKey(diagramId), sessionId, b).Err()
 	if err != nil {
 		return "", err
 	}
@@ -197,31 +202,38 @@ func (r *Redis_SDK) addUserColor(diagramId, sessionId string, user *models.UserM
 	r.channels[diagramId].publish(b)
 
 	return newColor, nil
+}
 
+func (r *Redis_SDK) generateRandomHexColor(existingColors []string) string {
+	var letters = []rune("0123456789ABCDEF")
+
+	s := make([]rune, 6)
+	for i := range s {
+		s[i] = letters[rand.Intn(len(letters))]
+	}
+
+	// Make sure the hex is not similar to an existing color
+	for _, color := range existingColors {
+		for i := 0; i < len(s); i++ {
+			if s[i] == rune(color[i]) {
+				s[i] = letters[rand.Intn(len(letters))]
+			}
+		}
+	}
+
+	return "#" + string(s)
 }
 
 // Get all users connected to the diagram and send them to the client
-func (r *Redis_SDK) GetUsers(diagramId string, ws *websocket.Conn) error {
-	// Redis key
-	key := fmt.Sprintf("diagram:%s:users", diagramId)
-
-	// Return all users that are connected to the diagram
-	wsBody, err := r.client.HGetAll(r.context, key).Result()
+func (r *Redis_SDK) GetUsersAndPostToWS(diagramId string, ws *websocket.Conn) error {
+	users, err := r.getUsers(diagramId)
 	if err != nil {
 		return err
 	}
 
-	// Convert to struct
-	for _, v := range wsBody {
-		var wsBody types.WebSocketBody
-
-		err = json.Unmarshal([]byte(v), &wsBody)
-		if err != nil {
-			return err
-		}
-
-		wsBody.Events = "connection"
-		if err := ws.WriteJSON(wsBody); err != nil {
+	for _, user := range users {
+		user.Events = "connection"
+		if err := ws.WriteJSON(user); err != nil {
 			return err
 		}
 	}
@@ -229,10 +241,37 @@ func (r *Redis_SDK) GetUsers(diagramId string, ws *websocket.Conn) error {
 	return nil
 }
 
+func (r *Redis_SDK) getUsers(diagramId string) ([]types.WebSocketBody, error) {
+	// // Delete all users
+	// r.client.Del(r.context, r.getDiagramUsersKey(diagramId))
+
+	// Return all users that are connected to the diagram
+	wsBody, err := r.client.HGetAll(r.context, r.getDiagramUsersKey(diagramId)).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	var users []types.WebSocketBody
+	for _, v := range wsBody {
+		var wsBody types.WebSocketBody
+
+		err = json.Unmarshal([]byte(v), &wsBody)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, wsBody)
+	}
+
+	return users, nil
+}
+
+func (r *Redis_SDK) getDiagramUsersKey(diagramId string) string {
+	return fmt.Sprintf("diagram:%s:users", diagramId)
+}
+
 // Unsubscribe from a channel
 func (r *Redis_SDK) Unsubscribe(channelId, sessionId, color string) {
-	key := fmt.Sprintf("diagram:%s:users", channelId)
-
 	newMessage := types.WebSocketBody{
 		Color:     color,
 		SessionId: sessionId,
@@ -249,7 +288,7 @@ func (r *Redis_SDK) Unsubscribe(channelId, sessionId, color string) {
 	r.channels[channelId].publish(msg)
 
 	// Remove the user
-	r.client.HDel(r.context, key, sessionId)
+	r.client.HDel(r.context, r.getDiagramUsersKey(channelId), sessionId)
 
 	// Check if channel exists
 	if _, ok := r.channels[channelId]; !ok {

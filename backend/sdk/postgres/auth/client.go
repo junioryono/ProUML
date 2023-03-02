@@ -16,10 +16,10 @@ import (
 )
 
 type client_SDK struct {
-	auth *Auth_SDK
-	db   *gorm.DB
-	jwk  *jwk.JWK_SDK
-	ses  *ses.SES_SDK
+	auth  *Auth_SDK
+	getDb func() *gorm.DB
+	jwk   *jwk.JWK_SDK
+	ses   *ses.SES_SDK
 }
 
 // Function that will authenticate the user
@@ -31,7 +31,7 @@ func (clientSDK *client_SDK) AuthenticateUser(userIPAddress, email, password str
 
 	// Get the user from the database
 	var user models.UserModel
-	if err := clientSDK.db.Where("email = ?", email).First(&user).Error; err != nil {
+	if err := clientSDK.getDb().Where("email = ?", email).First(&user).Error; err != nil {
 		// If error is record not found, return incorrect email or password
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return user, "", "", types.Wrap(err, types.ErrInvalidEmailOrPassword)
@@ -53,7 +53,7 @@ func (clientSDK *client_SDK) AuthenticateUser(userIPAddress, email, password str
 	// Update the user's last ip address
 	user.LastIP = userIPAddress
 
-	if err := clientSDK.db.Save(&user).Error; err != nil {
+	if err := clientSDK.getDb().Save(&user).Error; err != nil {
 		return user, "", "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -71,7 +71,7 @@ func (clientSDK *client_SDK) AuthenticateUser(userIPAddress, email, password str
 func (clientSDK *client_SDK) CreateUser(userIPAddress, email, password, fullName string) (models.UserModel, string, string, *types.WrappedError) {
 	// Check if the user already exists
 	var user models.UserModel
-	if err := clientSDK.db.Where("email = ?", email).First(&user).Error; err == nil {
+	if err := clientSDK.getDb().Where("email = ?", email).First(&user).Error; err == nil {
 		return user, "", "", types.Wrap(err, types.ErrUserAlreadyExists)
 	}
 
@@ -95,7 +95,7 @@ func (clientSDK *client_SDK) CreateUser(userIPAddress, email, password, fullName
 	}
 
 	// Create the user in the database
-	if err := clientSDK.db.Create(&user).Error; err != nil {
+	if err := clientSDK.getDb().Create(&user).Error; err != nil {
 		return user, "", "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -119,7 +119,7 @@ func (clientSDK *client_SDK) DeleteUser(idToken string) *types.WrappedError {
 		return types.Wrap(err, types.ErrNotAuthenticated)
 	}
 
-	tx := clientSDK.db.Begin()
+	tx := clientSDK.getDb().Begin()
 
 	// Use tx.Table and joins to select the diagram_user_role_models.diagram_id where diagram_user_role_models.user_id = userId and diagram_user_role_models.role = "owner" using joins
 	diagramUserRoleModels := []models.DiagramUserRoleModel{}
@@ -219,7 +219,7 @@ func (clientSDK *client_SDK) ResendEmailVerificationEmail(idToken string) *types
 
 	// Check if the user exists
 	var user models.UserModel
-	if err := clientSDK.db.Where("id = ?", userId).First(&user).Error; err != nil {
+	if err := clientSDK.getDb().Where("id = ?", userId).First(&user).Error; err != nil {
 		return types.Wrap(err, types.ErrNotAuthenticated)
 	}
 
@@ -238,7 +238,7 @@ func (clientSDK *client_SDK) ResendEmailVerificationEmail(idToken string) *types
 func (clientSDK *client_SDK) VerifyEmail(emailVerificationToken string) *types.WrappedError {
 	// Get the email verification token from the database
 	var emailVerificationTokenModel models.EmailVerificationTokenModel
-	if err := clientSDK.db.Where("token = ?", emailVerificationToken).First(&emailVerificationTokenModel).Error; err != nil {
+	if err := clientSDK.getDb().Where("token = ?", emailVerificationToken).First(&emailVerificationTokenModel).Error; err != nil {
 		return types.Wrap(err, types.ErrInvalidToken)
 	}
 
@@ -249,19 +249,19 @@ func (clientSDK *client_SDK) VerifyEmail(emailVerificationToken string) *types.W
 
 	// Get the user from the database
 	var user models.UserModel
-	if err := clientSDK.db.Where("id = ?", emailVerificationTokenModel.UserID).First(&user).Error; err != nil {
+	if err := clientSDK.getDb().Where("id = ?", emailVerificationTokenModel.UserID).First(&user).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Update the user's email verified status
 	user.EmailVerified = true
 
-	if err := clientSDK.db.Save(&user).Error; err != nil {
+	if err := clientSDK.getDb().Save(&user).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Delete the email verification token from the database
-	if err := clientSDK.db.Delete(&emailVerificationTokenModel).Error; err != nil {
+	if err := clientSDK.getDb().Delete(&emailVerificationTokenModel).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -286,7 +286,7 @@ func (clientSDK *client_SDK) GetUser(idToken string) (*models.UserModel, *types.
 	}
 
 	var user models.UserModel
-	if err := clientSDK.db.Where("id = ?", userId).First(&user).Error; err != nil {
+	if err := clientSDK.getDb().Where("id = ?", userId).First(&user).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -302,14 +302,14 @@ func (clientSDK *client_SDK) UpdateUser(idToken, email, fullName string) *types.
 	}
 
 	var user models.UserModel
-	if err := clientSDK.db.Where("id = ?", userId).First(&user).Error; err != nil {
+	if err := clientSDK.getDb().Where("id = ?", userId).First(&user).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	user.Email = email
 	user.FullName = fullName
 
-	if err := clientSDK.db.Save(&user).Error; err != nil {
+	if err := clientSDK.getDb().Save(&user).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -326,7 +326,7 @@ func (clientSDK *client_SDK) UpdateUserFullName(idToken, fullName string) *types
 
 	// Get the user's current profile picture using pluck
 	var profilePicture string
-	if err := clientSDK.db.Model(&models.UserModel{}).
+	if err := clientSDK.getDb().Model(&models.UserModel{}).
 		Where("id = ?", userId).
 		Pluck("picture", &profilePicture).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
@@ -334,14 +334,14 @@ func (clientSDK *client_SDK) UpdateUserFullName(idToken, fullName string) *types
 
 	// If the user's profile picture is the default profile picture, update it
 	if strings.HasPrefix(profilePicture, "https://cdn.auth0.com/avatars/") {
-		if err := clientSDK.db.Model(&models.UserModel{}).
+		if err := clientSDK.getDb().Model(&models.UserModel{}).
 			Where("id = ?", userId).
 			Update("picture", getUserPictureURL(fullName)).Error; err != nil {
 			return types.Wrap(err, types.ErrInternalServerError)
 		}
 	}
 
-	if err := clientSDK.db.Model(&models.UserModel{}).
+	if err := clientSDK.getDb().Model(&models.UserModel{}).
 		Where("id = ?", userId).
 		Update("full_name", fullName).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
@@ -380,11 +380,11 @@ func (clientSDK *client_SDK) CreateEmailVerificationToken(user models.UserModel)
 	emailVerificationToken := uuid.New().String()
 
 	// Create the email verification token in the database
-	if err := clientSDK.db.Where("user_id = ?", user.ID).Delete(&models.EmailVerificationTokenModel{}).Error; err != nil {
+	if err := clientSDK.getDb().Where("user_id = ?", user.ID).Delete(&models.EmailVerificationTokenModel{}).Error; err != nil {
 		return "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	if err := clientSDK.db.Create(&models.EmailVerificationTokenModel{
+	if err := clientSDK.getDb().Create(&models.EmailVerificationTokenModel{
 		Token:     emailVerificationToken,
 		UserID:    user.ID,
 		ExpiresAt: time.Now().Add(time.Hour * 24 * 7).Unix(),
@@ -422,7 +422,7 @@ func (clientSDK *client_SDK) RefreshIdToken(refreshToken string) (string, *types
 
 	// Get the user from the database
 	var user models.UserModel
-	if err := clientSDK.db.Where("id = ?", userId).First(&user).Error; err != nil {
+	if err := clientSDK.getDb().Where("id = ?", userId).First(&user).Error; err != nil {
 		return "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -463,11 +463,11 @@ func (clientSDK *client_SDK) CreatePasswordResetToken(idToken string) (string, *
 	passwordResetToken := uuid.New().String()
 
 	// Create the password reset token in the database
-	if err := clientSDK.db.Where("user_id = ?", userId).Delete(&models.PasswordResetTokenModel{}).Error; err != nil {
+	if err := clientSDK.getDb().Where("user_id = ?", userId).Delete(&models.PasswordResetTokenModel{}).Error; err != nil {
 		return "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	if err := clientSDK.db.Create(&models.PasswordResetTokenModel{
+	if err := clientSDK.getDb().Create(&models.PasswordResetTokenModel{
 		Token:     passwordResetToken,
 		UserID:    userId,
 		ExpiresAt: time.Now().Add(time.Hour * 24 * 7).Unix(),
@@ -486,7 +486,7 @@ func (clientSDK *client_SDK) ResetPassword(passwordResetToken, newPassword strin
 		return err
 	}
 
-	tx := clientSDK.db.Begin()
+	tx := clientSDK.getDb().Begin()
 
 	// Get the user from the database
 	var user models.UserModel
@@ -515,7 +515,7 @@ func (clientSDK *client_SDK) ResetPassword(passwordResetToken, newPassword strin
 	// 	return err
 	// }
 
-	if err := clientSDK.db.Where("user_id = ?", userId).Delete(&models.PasswordResetTokenModel{}).Error; err != nil {
+	if err := clientSDK.getDb().Where("user_id = ?", userId).Delete(&models.PasswordResetTokenModel{}).Error; err != nil {
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
 	}

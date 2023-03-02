@@ -31,6 +31,8 @@ type Postgres_SDK struct {
 	jwk      *jwk.JWK_SDK
 	ses      *ses.SES_SDK
 	cluster  *models.ClusterModel
+
+	dsn string
 }
 
 func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
@@ -106,6 +108,7 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		db:      db,
 		ses:     ses,
 		cluster: cluster,
+		dsn:     dsn,
 	}
 
 	go p.gracefulShutdown()
@@ -115,18 +118,47 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		return nil, err
 	}
 
-	if p.jwk, err = jwk.Init(db, dsn, cluster); err != nil {
+	if p.jwk, err = jwk.Init(p.getDb, dsn, cluster); err != nil {
 		p.shutdown()
 		return nil, err
 	}
 
-	p.Auth = auth.Init(db, p.jwk, ses)
-	p.Diagram = diagram.Init(db, p.Auth)
-	p.Diagrams = diagrams.Init(db, p.Auth)
-	p.Project = project.Init(db, p.Auth)
-	p.Projects = projects.Init(db, p.Auth)
+	p.Auth = auth.Init(p.getDb, p.jwk, ses)
+	p.Diagram = diagram.Init(p.getDb, p.Auth)
+	p.Diagrams = diagrams.Init(p.getDb, p.Auth)
+	p.Project = project.Init(p.getDb, p.Auth)
+	p.Projects = projects.Init(p.getDb, p.Auth)
 
 	return p, nil
+}
+
+func (p *Postgres_SDK) getDb() *gorm.DB {
+	// Make sure the database is still connected
+	db, err := p.db.DB()
+	if err != nil {
+		// Unable to get the database connection from gorm
+		return p.db
+	}
+
+	if err := db.Ping(); err != nil {
+		var connected bool
+
+		for !connected {
+			// Try to reconnect to the database
+			db2, err := gorm.Open(postgres.Open(p.dsn), &gorm.Config{})
+			if err != nil {
+				// Unable to reconnect to the database
+				continue
+			}
+
+			// Set the new db connection
+			p.db = db2
+
+			connected = true
+		}
+	}
+
+	return p.db
 }
 
 func getCluster(db *gorm.DB) (*models.ClusterModel, error) {

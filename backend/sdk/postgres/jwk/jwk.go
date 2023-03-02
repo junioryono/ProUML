@@ -19,7 +19,7 @@ import (
 func (jwkSDK *JWK_SDK) GetSet() (jwk.Set, *types.WrappedError) {
 	// Get the JWT models from the database
 	var jwt []models.JWTModel
-	err := jwkSDK.db.Find(&jwt).Error
+	err := jwkSDK.getDb().Find(&jwt).Error
 	if err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
@@ -70,7 +70,7 @@ func (jwkSDK *JWK_SDK) addJWTToSet(token models.JWTModel) error {
 func (jwkSDK *JWK_SDK) getActiveJWT() (*models.JWTModel, error) {
 	// Get the currently active JWT token from the database
 	var jwt models.JWTModel
-	err := jwkSDK.db.Where("active = true").First(&jwt).Error
+	err := jwkSDK.getDb().Where("active = true").First(&jwt).Error
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (jwkSDK *JWK_SDK) setNewJWT() error {
 	}
 
 	// Save the new JWT token to the database
-	result := jwkSDK.db.Transaction(func(tx *gorm.DB) error {
+	result := jwkSDK.getDb().Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&jwtModel).Error; err != nil {
 			return err
 		}
