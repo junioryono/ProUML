@@ -178,7 +178,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
    if (userRequest.success) {
       return {
          redirect: {
-            destination: "/dashboard/diagrams",
+            destination: (ctx.query.redirect as string) || "/dashboard/diagrams",
             permanent: false,
          },
       };
