@@ -237,6 +237,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
                fontSize: 12,
                display: "flex",
                flexDirection: "column",
+               justifyContent: "center",
                width: "100%",
                height: "100%",
                backgroundColor: `#${backgroundColor}`,
@@ -250,7 +251,10 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
                   flexDirection: "column",
                   alignItems: "center",
                   padding: "4px 0",
-                  borderBottom: variables || methods ? `${borderWidth}px ${borderStyle} #${borderColor}` : undefined,
+                  borderBottom:
+                     variables.length > 0 || methods.length > 0
+                        ? `${borderWidth}px ${borderStyle} #${borderColor}`
+                        : undefined,
                }}
             >
                {(type === "interface" || type === "enum") && (
