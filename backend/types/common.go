@@ -16,6 +16,7 @@ type WebSocketBody struct {
 	Image           string                            `json:"image,omitempty"`
 	Name            string                            `json:"name,omitempty"`
 	Cell            map[string]interface{}            `json:"cell,omitempty"`
+	Color           string                            `json:"color,omitempty"`
 	User            *models.DiagramUsersHiddenContent `json:"user,omitempty"`
 	BackgroundColor string                            `json:"backgroundColor,omitempty"`
 	ShowGrid        bool                              `json:"showGrid,omitempty"`

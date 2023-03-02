@@ -85,7 +85,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
    return (
       <>
          <button
-            className="ml-4 mr-2 self-center relative inline-flex h-8 items-center rounded-md border border-transparent bg-blue-500 px-4 text-xs flex-none font-medium text-white hover:bg-blue-600 focus:outline-none"
+            className="mx-2 self-center relative inline-flex h-8 items-center rounded-md border border-transparent bg-blue-500 px-4 text-xs flex-none font-medium text-white hover:bg-blue-600 focus:outline-none"
             onClick={() => setOpen(true)}
          >
             Share
