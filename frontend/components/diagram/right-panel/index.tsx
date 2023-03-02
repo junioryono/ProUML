@@ -45,7 +45,7 @@ export default function RightPanel({
 
    // Render the component with a width of 60 and a left border of 1
    return (
-      <div className="min-h-screen max-h-screen overflow-y-auto no-scrollbar overflow-x-hidden w-60 p-2 border-gray-400 border-l-1">
+      <div className="min-h-screen max-h-screen overflow-y-auto no-scrollbar overflow-x-hidden w-60 p-2 border-gray-400 border-l-1 pb-24">
          {/* Render different panels based on the current tab */}
          {tab === "graph" ? (
             <GraphPanel graph={graph} backgroundColor={backgroundColor} />

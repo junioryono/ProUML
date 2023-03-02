@@ -139,24 +139,28 @@ export default function NodeSettingsMethod({
                   </div>
                   <div>)</div>
                </button> */}
-
-               {/* access modifier dropdown input */}
-               <div className="flex items-center ml-0.5">
-                  <div>(</div>
+               {/* parameters dropdown button */}
+               <div className="flex items-center ml-0.5 relative">
+                  <div className="text-xs">(</div>
                   <div className="w-8">
                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none text-xs">...</div>
+                        {parameters.length !== 0 && (
+                           <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none text-xs">...</div>
+                        )}
                         <select
-                           value={accessModifier}
-                           className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
+                           className={`w-full text-center block rounded-md border focus:outline-none hover:border-slate-400 focus:border-slate-400 ${
+                              parameters.length === 0
+                                 ? "border-2 border-dotted bg-slate-100 border-slate-400 h-6.5 py-px pb-0.5 pl-1"
+                                 : "text-xs pl-6 bg-slate-200 border-slate-300 py-3 h-3"
+                           }`}
                            onClick={() => setShowParameters(!showParameters)}
                         />
                      </div>
                   </div>
-                  <div>)</div>
+                  <div className="text-xs">)</div>
                </div>
 
-               {/* delete button to delete the variable */}
+               {/* delete button to delete the method */}
                <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">
                   <div
                      className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
@@ -194,7 +198,7 @@ export default function NodeSettingsMethod({
          </div>
          {/* method parameters appearing section */}
          <div
-            className={`border border-slate-400 bg-slate-100 mt-0.5 mb-1 py-1 px-2 rounded-md ${
+            className={`border border-slate-400 bg-slate-100 mt-0.5 mb-1 py-1 px-2 rounded-md drop-shadow-md ${
                !showParameters && "hidden"
             } items-center`}
          >

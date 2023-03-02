@@ -37,19 +37,42 @@ export default function NodeSettingsParameter({
    return (
       <div>
          {/* list all of the different variables on different lines */}
-         <div className="flex gap-2">
-            <div className="flex mb-0.5">
-               {/* variable type text input */}
-               <div className="w-12 mr-1">
+         <div className="flex">
+            <div className="flex w-full mb-0.5 justify-between">
+               <div className="flex">
+                  {/* variable type text input */}
+                  <div className="w-12 mr-1">
+                     <input
+                        value={type}
+                        className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                        type="text"
+                        onChange={(e) => {
+                           // update the node's variables array
+                           setType(e.target.value);
+                           parameters[index].type = e.target.value;
+                           console.log(parameters[index].type);
+                           node.trigger("change:parameters", { parameters });
+                        }}
+                        // if the input is "Untitled" highlight the entire text
+                        onFocus={(e) => {
+                           if (e.target.value === "Untitled") {
+                              e.target.select();
+                           }
+                        }}
+                        // if the input is empty after clicking out of the input field, set the name to "Untitled"
+                        onBlur={(e) => {}}
+                     />
+                  </div>
+
+                  {/* variable name input */}
                   <input
-                     value={type}
-                     className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                     value={name}
+                     className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
                      type="text"
                      onChange={(e) => {
                         // update the node's variables array
-                        setType(e.target.value);
-                        parameters[index].type = e.target.value;
-                        console.log(parameters[index].type);
+                        setName(e.target.value);
+                        parameters[index].name = e.target.value;
                         node.trigger("change:parameters", { parameters });
                      }}
                      // if the input is "Untitled" highlight the entire text
@@ -62,27 +85,6 @@ export default function NodeSettingsParameter({
                      onBlur={(e) => {}}
                   />
                </div>
-
-               {/* variable name input */}
-               <input
-                  value={name}
-                  className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
-                  type="text"
-                  onChange={(e) => {
-                     // update the node's variables array
-                     setName(e.target.value);
-                     parameters[index].name = e.target.value;
-                     node.trigger("change:parameters", { parameters });
-                  }}
-                  // if the input is "Untitled" highlight the entire text
-                  onFocus={(e) => {
-                     if (e.target.value === "Untitled") {
-                        e.target.select();
-                     }
-                  }}
-                  // if the input is empty after clicking out of the input field, set the name to "Untitled"
-                  onBlur={(e) => {}}
-               />
 
                {/* delete button to delete the variable */}
                <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">
