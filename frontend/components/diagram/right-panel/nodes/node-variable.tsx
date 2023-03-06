@@ -140,8 +140,6 @@ export default function NodeSettingsVariable({
                         e.target.select();
                      }
                   }}
-                  // if the input is empty after clicking out of the input field, set the name to "Untitled"
-                  onBlur={(e) => {}}
                />
                {/* delete button to delete the variable */}
                <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">

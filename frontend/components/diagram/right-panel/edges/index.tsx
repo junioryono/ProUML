@@ -6,12 +6,18 @@ import LineWidth from "../styling-options/line-width";
 import EdgeSettings from "./edge-settings";
 
 export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
+   // for the left and right ends of the edge
+   const [leftEnd, setLeftEnd] = useState("none");
+   const [rightEnd, setRightEnd] = useState("none");
+
+   // for the line style of the selected cell
+   const [style, setStyle] = useState("solid"); // <- default should be initial border style
+
    // for current background & border colors of selected line
    const [color, setColor] = useState("000000"); // <- default should be initial border color
 
-   // for current line width & style of selected cell
+   // for current line width selected cell
    const [width, setWidth] = useState(1); // <- default should be initial border width
-   const [style, setStyle] = useState("solid"); // <- default should be initial border style
 
    // if selected cell currently has rounded corners or not
    const [roundedIntensity, setRoundedIntensity] = useState(0); // no roundness -> 0% intensity
@@ -43,7 +49,41 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="flex justify-between">
                <div className="font-bold mb-1">Edge Settings</div>
             </div>
-            <div className="flex items-center gap-2 pl-1.5">
+
+            <div className="w-full flex justify-center items-center gap-1 mb-2">
+               {/* left ending dropdown */}
+               <select
+                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-6 w-10"
+                  value={leftEnd}
+               >
+                  {/* {options1.map((option) => (
+                  <option value={option.value}>{option.label}</option>
+                ))} */}
+               </select>
+
+               <input
+                  className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md text-center focus:outline-none"
+                  type="text"
+                  autoCapitalize="none"
+                  autoComplete="both"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  disabled
+                  value="#84E1BC"
+               />
+
+               {/* right ending dropdown */}
+               <select
+                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-6 w-10"
+                  value={rightEnd}
+               >
+                  {/* {options2.map((option) => (
+                  <option value={option.value}>{option.label}</option>
+                ))} */}
+               </select>
+            </div>
+
+            <div className="w-full flex justify-center items-center gap-1.5">
                {/* solid line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
                <button
                   className={`border rounded-md transition duration-500 hover:scale-125

@@ -77,6 +77,7 @@ export default function NodeSettingsMethod({
                      </select>
                   </div>
                </div>
+
                {/* method type text input */}
                <div className="w-12 mr-1">
                   <input
@@ -122,24 +123,6 @@ export default function NodeSettingsMethod({
                />
 
                {/* method parameters dropdown button */}
-               {/* <button
-                  onClick={() => setShowParameters(!showParameters)}
-                  className="ml-0.5 flex items-center hover:border-slate-400"
-               >
-                  <div>(</div>
-                  <div className="w-8">
-                     <div className="relative">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-1.5 select-none text-xs">
-                           <span className="text-xs hover:border-slate-400">...</span>
-                        </div>
-                        <div className="hover:border-slate-400">
-                           <select className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none"></select>
-                        </div>
-                     </div>
-                  </div>
-                  <div>)</div>
-               </button> */}
-               {/* parameters dropdown button */}
                <div className="flex items-center ml-0.5 relative">
                   <div className="text-xs">(</div>
                   <div className="w-8">
@@ -196,6 +179,7 @@ export default function NodeSettingsMethod({
                </div>
             </div>
          </div>
+
          {/* method parameters appearing section */}
          <div
             className={`border border-slate-400 bg-slate-100 mt-0.5 mb-1 py-1 px-2 rounded-md drop-shadow-md ${
