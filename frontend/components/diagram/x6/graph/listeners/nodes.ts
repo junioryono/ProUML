@@ -13,21 +13,19 @@ import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 import { showPorts, hidePorts, addPorts, updatePorts, hideAllPorts, showAllPorts } from "../shapes/ports";
 
-export default function Cells(
+export default function Nodes(
    graph: MutableRefObject<X6Type.Graph>,
    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
 ) {
    graph.current?.on("node:mouseenter", (args) => {
-      console.log("node:mouseenter", args);
       if (!graph.current?.isSelected(args.node)) {
          showPorts(args.node);
       }
    });
 
    graph.current?.on("node:mouseleave", (args) => {
-      console.log("node:mouseleave", args);
       hideAllPorts(graph.current);
    });
 
@@ -40,36 +38,9 @@ export default function Cells(
       args.node.trigger("unselected", args);
    });
 
-   graph.current?.on("edge:connected", (args) => {
-      console.log("edge:connected", args.edge);
-      wsLocalAndDBUpdateEdge(args.edge, websocket, sessionId);
-   });
-
-   graph.current?.on("edge:change:source", (args) => {
-      if ((args.previous as any).ws) {
-         return;
-      }
-
-      wsLocalUpdateEdge(args.cell, websocket, sessionId);
-   });
-
-   graph.current?.on("edge:change:target", (args) => {
-      console.log("edge:change:target", args);
-      if ((args.previous as any).ws) {
-         return;
-      }
-
-      wsLocalUpdateEdge(args.cell, websocket, sessionId);
-   });
-
-   graph.current?.on("cell:removed", (args) => {
-      console.log("cell:removed", args);
+   graph.current?.on("node:removed", (args) => {
       if (args.options.ws) {
          return;
-      }
-
-      if (args.cell.isEdge()) {
-         hideAllPorts(graph.current);
       }
 
       wsLocalAndDBRemoveCell(args.cell, websocket, sessionId);
@@ -84,22 +55,6 @@ export default function Cells(
       wsLocalAndDBAddNode(args.cell, websocket, sessionId);
    });
 
-   graph.current?.on("edge:added", (args) => {
-      if (args.options.ws) {
-         return;
-      }
-
-      const edge = args.cell as X6Type.Edge;
-      wsLocalAndDBAddEdge(edge, websocket, sessionId);
-
-      const sourceCell = edge.getSourceCell();
-      const targetCell = edge.getTargetCell();
-      if (!sourceCell || !targetCell) {
-         graph.current?.cleanSelection();
-         showAllPorts(graph.current);
-      }
-   });
-
    graph.current?.on("node:change:data", (args) => {
       if (args.options.ws) {
          return;
@@ -108,22 +63,23 @@ export default function Cells(
       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    });
 
+   // When a node just starts to be moved. Triggers on mouse down and first move
    graph.current?.on("node:move", (args) => {
       graph.current?.cleanSelection();
       graph.current?.select(args.cell);
    });
 
+   // When a node has finished being moved. Triggers on mouse up
    graph.current?.on("node:moved", (args) => {
-      console.log("node:moved", args);
       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    });
 
+   // When a node's position has changed. Triggers on every mouse move
    graph.current?.on("node:change:position", (args) => {
       if (args.options.ws) {
          return;
       }
 
-      console.log("node:change:position", args);
       wsLocalUpdateNode(args.cell, websocket, sessionId);
    });
 
@@ -140,26 +96,21 @@ export default function Cells(
          return;
       }
 
-      console.log("node:change:angle", args);
       wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
    });
 
    return () => {
-      graph.current?.off("cell:change:*");
-      graph.current?.off("cell:removed");
-      graph.current?.off("cell:added");
-      graph.current?.off("node:moved");
-      graph.current?.off("node:resized");
-      graph.current?.off("node:change:angle");
-
-      // From other components
-      graph.current?.off("node:added");
-      graph.current?.off("node:removed");
-      graph.current?.off("edge:added");
-      graph.current?.off("edge:removed");
+      graph.current?.off("node:mouseenter");
+      graph.current?.off("node:mouseleave");
       graph.current?.off("node:selected");
       graph.current?.off("node:unselected");
-      graph.current?.off("cell:selected");
-      graph.current?.off("cell:unselected");
+      graph.current?.off("node:removed");
+      graph.current?.off("node:added");
+      graph.current?.off("node:change:data");
+      graph.current?.off("node:move");
+      graph.current?.off("node:moved");
+      graph.current?.off("node:change:position");
+      graph.current?.off("node:change:size");
+      graph.current?.off("node:change:angle");
    };
 }

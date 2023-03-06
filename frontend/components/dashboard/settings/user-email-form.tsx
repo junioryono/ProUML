@@ -135,7 +135,6 @@ export default function UserEmailForm({ user }: { user: User }) {
                   {/* Put input and verified next to each other */}
                   <div className="flex flex-col lg:flex-row">
                      <input
-                        id="email"
                         className="my-0 mb-2 block h-9 w-full max-w-[350px] rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                         size={32}
                         name="email"

@@ -70,10 +70,10 @@ export default function useGraph(
             // allowMulti: true,
             // allowPort: true,
             router: {
-               name: "manhattan",
+               name: "orth",
                args: {
                   startDirections: ["right", "left"],
-                  padding: 16,
+                  padding: 50,
                },
             },
             connectionPoint: "boundary",
@@ -188,10 +188,6 @@ export default function useGraph(
          setGraphReady(false);
       };
    }, [diagram, container, X6, websocket.readyState]);
-
-   useEffect(() => {
-      console.log("graphReady", graphReady);
-   }, [graphReady]);
 
    return { graph, sessionId, ready: graphReady && websocket.readyState === ReadyState.OPEN };
 }

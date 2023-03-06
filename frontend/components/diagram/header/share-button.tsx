@@ -30,7 +30,6 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
       handleSubmit,
       register,
       reset,
-      formState,
       formState: { errors },
    } = useForm<FormData>({
       resolver: zodResolver(userAddSchema),
@@ -226,7 +225,6 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                               <div className="bg-white pl-10 pr-10 mb-1">
                                  <div className="flex">
                                     <input
-                                       id="email"
                                        placeholder="Email address"
                                        className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-5 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                                        autoCapitalize="none"
@@ -235,8 +233,8 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                        spellCheck="false"
                                        name="email"
                                        {...register("email")}
-                                       onChange={(e) => {
-                                          const validEmail = validateEmail(e.target.value);
+                                       onKeyDown={(e) => {
+                                          const validEmail = validateEmail(e.currentTarget.value);
                                           setShowInviteButton(validEmail);
                                        }}
                                     />

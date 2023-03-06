@@ -103,7 +103,6 @@ export default function GraphPanel({
             <div className="flex mb-3 mt-3">
                <input
                   type="checkbox"
-                  id="grid-toggle"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                   onChange={() => {
                      graph.current?.trigger("grid:changed", { showGrid: !grid });
@@ -127,7 +126,6 @@ export default function GraphPanel({
             <div className="flex mb-3">
                <input
                   type="checkbox"
-                  id="background-toggle"
                   className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                   onChange={() => {
                      setBackground(!background);

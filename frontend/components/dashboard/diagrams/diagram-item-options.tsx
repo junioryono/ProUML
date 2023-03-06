@@ -331,7 +331,6 @@ function RenameTransition({
 
                            <div className="bg-white px-10 pt-2 pb-3 mb-2">
                               <input
-                                 id="name"
                                  placeholder="Diagram Name"
                                  defaultValue={diagramName}
                                  className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400"

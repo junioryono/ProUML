@@ -60,15 +60,9 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      width="40"
                      height="25"
                   >
-                     <g id="SVGRepo_bgCarrier" strokeWidth="0" />
-                     <g
-                        id="SVGRepo_tracerCarrier"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        stroke="#CCCCCC"
-                        strokeWidth="0.068"
-                     />
-                     <g id="SVGRepo_iconCarrier">
+                     <g strokeWidth="0" />
+                     <g strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.068" />
+                     <g>
                         <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                      </g>
                   </svg>

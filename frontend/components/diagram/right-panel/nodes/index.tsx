@@ -233,19 +233,13 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                         xmlns="http://www.w3.org/2000/svg"
                         fill="#000000"
                         stroke="#000000"
-                        stroke-width="0.00017"
+                        strokeWidth="0.00017"
                         width="40"
                         height="25"
                      >
-                        <g id="SVGRepo_bgCarrier" stroke-width="0" />
-                        <g
-                           id="SVGRepo_tracerCarrier"
-                           stroke-linecap="round"
-                           stroke-linejoin="round"
-                           stroke="#CCCCCC"
-                           stroke-width="0.068"
-                        />
-                        <g id="SVGRepo_iconCarrier">
+                        <g strokeWidth="0" />
+                        <g strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.068" />
+                        <g>
                            <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                         </g>
                      </svg>
@@ -265,9 +259,9 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                         width="40"
                         height="25"
                      >
-                        <g id="SVGRepo_bgCarrier" stroke-width="0" />
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
-                        <g id="SVGRepo_iconCarrier">
+                        <g strokeWidth="0" />
+                        <g strokeLinecap="round" strokeLinejoin="round" />
+                        <g>
                            <path d="M17 6v1h-17v-1h17zM0 10h17v-1h-17v1z" fill="#000000" />
                         </g>
                      </svg>

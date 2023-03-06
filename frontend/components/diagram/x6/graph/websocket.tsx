@@ -64,8 +64,6 @@ function onWebSocketMessage(
          return;
       }
 
-      console.log("local_updateNode", node);
-
       graph.current?.batchUpdate(() => {
          nodeInGraph.trigger("change:package", { package: node["package"], ws: true });
          nodeInGraph.trigger("change:className", { name: node["name"], ws: true });
@@ -94,7 +92,6 @@ function onWebSocketMessage(
          return;
       }
 
-      console.log("local_updateEdge", cell);
       edgeInGraph.setSource(cell.source, { ws: true });
       edgeInGraph.setTarget(cell.target, { ws: true });
    } else if (events.includes("local_removeCell")) {
@@ -126,10 +123,7 @@ function onWebSocketMessage(
       const edge = graph.current?.createEdge(cell);
       graph.current?.addEdge(edge, { ws: true });
    } else if (events.includes("connected")) {
-      console.log("connected");
-
       if (!message.sessionId || message.sessionId === "") {
-         console.log("could not connect");
          return;
       }
 
@@ -186,8 +180,6 @@ export function wsDBUpdateGraphImage(
    if (!sessionId.current) {
       return;
    }
-
-   console.log("wsDBUpdateGraphImage");
 
    websocket.sendJsonMessage({
       sessionId: sessionId.current,

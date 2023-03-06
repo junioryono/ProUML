@@ -82,7 +82,6 @@ export default function Index() {
                                  Full Name
                               </label>
                               <input
-                                 id="fullName"
                                  placeholder="Full Name"
                                  className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                                  type="fullName"
@@ -100,7 +99,6 @@ export default function Index() {
                                  Email
                               </label>
                               <input
-                                 id="email"
                                  placeholder="name@example.com"
                                  className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                                  type="email"
@@ -117,7 +115,6 @@ export default function Index() {
                               Password
                            </label>
                            <input
-                              id="password"
                               placeholder="Password"
                               className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                               type="password"

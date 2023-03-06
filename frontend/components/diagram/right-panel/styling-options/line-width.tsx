@@ -23,19 +23,13 @@ export default function LineWidth({
                xmlns="http://www.w3.org/2000/svg"
                fill="#000000"
                stroke="#000000"
-               stroke-width="0.00017"
+               strokeWidth="0.00017"
                width="35"
                height="25"
             >
-               <g id="SVGRepo_bgCarrier" stroke-width="0" />
-               <g
-                  id="SVGRepo_tracerCarrier"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke="#CCCCCC"
-                  stroke-width="0.068"
-               />
-               <g id="SVGRepo_iconCarrier">
+               <g strokeWidth="0" />
+               <g strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.068" />
+               <g>
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>
@@ -53,19 +47,13 @@ export default function LineWidth({
                xmlns="http://www.w3.org/2000/svg"
                fill="#000000"
                stroke="#000000"
-               stroke-width="0.425"
+               strokeWidth="0.425"
                width="35"
                height="25"
             >
-               <g id="SVGRepo_bgCarrier" stroke-width="0" />
-               <g
-                  id="SVGRepo_tracerCarrier"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke="#CCCCCC"
-                  stroke-width="0.068"
-               />
-               <g id="SVGRepo_iconCarrier">
+               <g strokeWidth="0" />
+               <g strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.068" />
+               <g>
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>
@@ -83,19 +71,13 @@ export default function LineWidth({
                xmlns="http://www.w3.org/2000/svg"
                fill="#000000"
                stroke="#000000"
-               stroke-width="0.85"
+               strokeWidth="0.85"
                width="35"
                height="25"
             >
-               <g id="SVGRepo_bgCarrier" stroke-width="0" />
-               <g
-                  id="SVGRepo_tracerCarrier"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke="#CCCCCC"
-                  stroke-width="0.068"
-               />
-               <g id="SVGRepo_iconCarrier">
+               <g strokeWidth="0" />
+               <g strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.068" />
+               <g>
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>
@@ -113,19 +95,13 @@ export default function LineWidth({
                xmlns="http://www.w3.org/2000/svg"
                fill="#000000"
                stroke="#000000"
-               stroke-width="1.292"
+               strokeWidth="1.292"
                width="35"
                height="25"
             >
-               <g id="SVGRepo_bgCarrier" stroke-width="0" />
-               <g
-                  id="SVGRepo_tracerCarrier"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke="#CCCCCC"
-                  stroke-width="0.068"
-               />
-               <g id="SVGRepo_iconCarrier">
+               <g strokeWidth="0" />
+               <g strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.068" />
+               <g>
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>
@@ -143,19 +119,13 @@ export default function LineWidth({
                xmlns="http://www.w3.org/2000/svg"
                fill="#000000"
                stroke="#000000"
-               stroke-width="1.7"
+               strokeWidth="1.7"
                width="35"
                height="25"
             >
-               <g id="SVGRepo_bgCarrier" stroke-width="0" />
-               <g
-                  id="SVGRepo_tracerCarrier"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke="#CCCCCC"
-                  stroke-width="0.068"
-               />
-               <g id="SVGRepo_iconCarrier">
+               <g strokeWidth="0" />
+               <g strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.068" />
+               <g>
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>

@@ -17,8 +17,8 @@ export default function NodeSettingsMethod({
    setMethods: React.Dispatch<React.SetStateAction<ClassNode["methods"]>>;
 }) {
    const [accessModifier, setAccessModifier] = useState(method.accessModifier);
-   const [name, setName] = useState(method.name);
-   const [type, setType] = useState(method.type);
+   const [name, setName] = useState(method.name || "");
+   const [type, setType] = useState(method.type || "");
    const [parameters, setParameters] = useState(method.parameters || []);
    const [showParameters, setShowParameters] = useState(false);
 
@@ -37,8 +37,8 @@ export default function NodeSettingsMethod({
 
    useEffect(() => {
       setAccessModifier(method.accessModifier);
-      setName(method.name);
-      setType(method.type);
+      setName(method.name || "");
+      setType(method.type || "");
       setParameters(method.parameters || []);
       setShowParameters(false);
    }, [method]);
@@ -179,15 +179,15 @@ export default function NodeSettingsMethod({
                      >
                         {/* trash can svg */}
                         <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                           <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                           <g id="SVGRepo_iconCarrier">
+                           <g strokeWidth="0"></g>
+                           <g strokeLinecap="round" strokeLinejoin="round"></g>
+                           <g>
                               <path
                                  d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
                                  stroke="#000000"
-                                 stroke-width="1.5"
-                                 stroke-linecap="round"
-                                 stroke-linejoin="round"
+                                 strokeWidth="1.5"
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
                               ></path>
                            </g>
                         </svg>

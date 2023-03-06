@@ -1,8 +1,6 @@
 import type X6Type from "@antv/x6";
 import {
-   wsLocalAndDBUpdateNode,
    wsDBUpdateGraphImage,
-   wsLocalUpdateNode,
    wsLocalAndDBUpdateGraphShowGrid,
    wsLocalAndDBUpdateGraphBackgroundColor,
 } from "@/components/diagram/x6/graph/websocket";
@@ -54,7 +52,6 @@ export default function Graph(
    document.addEventListener("visibilitychange", visibilityChangeFunction);
 
    graph.current?.on("scale", (args) => {
-      console.log("scale", args);
       layoutProps.setZoom(args.sx);
    });
 
