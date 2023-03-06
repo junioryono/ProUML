@@ -220,6 +220,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
       <>
          {selected && (
             <div
+               className="user-cell-selection"
                style={{
                   position: "absolute",
                   top: -2.5,

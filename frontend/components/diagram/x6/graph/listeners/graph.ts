@@ -35,6 +35,11 @@ export default function Graph(
          backgroundColor: "#ffffff",
          padding: 20,
          quality: 1,
+         stylesheet: `
+         .user-cell-selection {
+            display: none;
+         }
+         `,
       });
    };
    document.addEventListener("mouseleave", mouseLeaveFunction);
