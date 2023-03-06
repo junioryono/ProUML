@@ -171,7 +171,7 @@ function RenameTransition({
             console.error(err);
             return toast({
                title: "Something went wrong.",
-               message: "The project could not be renamed.",
+               message: err.message,
                type: "error",
             });
          })

@@ -139,6 +139,48 @@ export async function addDiagramUser(
       .catch(() => defaultError);
 }
 
+export async function updateDiagramUser(
+   diagramId: string,
+   userId: string,
+   role: string,
+   options?: RequestInit,
+): Promise<APIResponse<undefined>> {
+   return fetchAPI(
+      "/diagram/users?" +
+         new URLSearchParams({
+            diagram_id: diagramId,
+            user_id: userId,
+            role: role,
+         }),
+      {
+         ...options,
+         method: "PUT",
+      },
+   )
+      .then((res) => jsonResponse<undefined>(res))
+      .catch(() => defaultError);
+}
+
+export async function removeDiagramUser(
+   diagramId: string,
+   userId: string,
+   options?: RequestInit,
+): Promise<APIResponse<undefined>> {
+   return fetchAPI(
+      "/diagram/users?" +
+         new URLSearchParams({
+            diagram_id: diagramId,
+            user_id: userId,
+         }),
+      {
+         ...options,
+         method: "DELETE",
+      },
+   )
+      .then((res) => jsonResponse<undefined>(res))
+      .catch(() => defaultError);
+}
+
 export async function createDiagram(form: FormData, options?: RequestInit): Promise<APIResponse<string>> {
    return fetchAPI("/diagram", {
       ...options,

@@ -36,6 +36,22 @@ module.exports = {
          width: {
             "1/7": "14.285714285714285%",
          },
+         animation: {
+            "loading-bar": "",
+         },
+         keyframes: {
+            "loading-bar": {
+               "0%, 100%": {
+                  "margin-left": "0%",
+                  width: "50%",
+               },
+               "50%": {
+                  // Make the start move to the right
+                  "margin-left": "100%",
+                  width: "0%",
+               },
+            },
+         },
       },
    },
    plugins: [

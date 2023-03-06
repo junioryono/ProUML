@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"sort"
 
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
@@ -64,6 +65,33 @@ func (u *Users_SDK) Get(diagramId, idToken string) ([]models.DiagramUsersRolesHi
 			Picture:  userDiagram.User.Picture,
 		})
 	}
+
+	// Order the response by Role
+	// Add the owner first, then the editors, then the viewers
+	// If people have the same role, order by name
+	sort.Slice(response, func(i, j int) bool {
+		if response[i].Role == response[j].Role {
+			return response[i].FullName < response[j].FullName
+		}
+
+		if response[i].Role == "owner" {
+			return true
+		}
+
+		if response[j].Role == "owner" {
+			return false
+		}
+
+		if response[i].Role == "editor" {
+			return true
+		}
+
+		if response[j].Role == "editor" {
+			return false
+		}
+
+		return true
+	})
 
 	return response, nil
 }

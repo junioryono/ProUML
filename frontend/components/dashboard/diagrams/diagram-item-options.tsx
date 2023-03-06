@@ -271,7 +271,7 @@ function RenameTransition({
             console.error(err);
             return toast({
                title: "Something went wrong.",
-               message: "The diagram could not be renamed.",
+               message: err.message,
                type: "error",
             });
          })
@@ -421,7 +421,7 @@ function AssignProjectTransition({
             console.error(err);
             return toast({
                title: "Error assigning diagram to project.",
-               message: "There was an error assigning the diagram to the project.",
+               message: err.message,
                type: "error",
             });
          })

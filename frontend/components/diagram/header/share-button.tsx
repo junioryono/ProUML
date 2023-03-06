@@ -1,19 +1,31 @@
-import type X6Type from "@antv/x6";
-
-import { useState, useRef, Fragment, useEffect } from "react";
+import React, { useState, useRef, Fragment, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, Transition } from "@headlessui/react";
 import { toast } from "@/ui/toast";
-import { Icons } from "@/components/icons";
 import { Diagram, User } from "types";
-import { getDiagramUsers, addDiagramUser } from "@/lib/auth-fetch";
+import { getDiagramUsers, addDiagramUser, updateDiagramUser, removeDiagramUser, updateDiagram } from "@/lib/auth-fetch";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 const userAddSchema = z.object({
-   email: z.string().min(8),
-   role: z.string().min(1),
+   email: z
+      .string()
+      .min(8)
+      .refine(
+         (v) =>
+            v.includes("@") &&
+            v.includes(".") &&
+            v.indexOf("@") !== 0 && // not at the beginning
+            v.indexOf("@") !== v.length - 1 && // not at the end
+            v.indexOf(".") !== v.length - 1 && // not at the end
+            v.lastIndexOf(".") > v.lastIndexOf("@") && // dot after @
+            v.indexOf(" ") === -1 && {
+               // no spaces
+               message: "Invalid email.",
+            },
+      ),
 });
 
 type FormData = z.infer<typeof userAddSchema>;
@@ -28,34 +40,104 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
       resolver: zodResolver(userAddSchema),
       defaultValues: {
          email: "",
-         role: "editor",
       },
    });
    const [isLoading, setIsLoading] = useState<boolean>(false);
    const [open, setOpen] = useState(false);
    const [users, setUsers] = useState<User[]>(null);
-   const [isOpen, setIsOpen] = useState(false);
-   const toggleDropdown = () => setIsOpen(!isOpen);
-   const [showMenu, setShowMenu] = useState(false);
-   const handleMenuClick = () => setShowMenu(!showMenu);
 
-   async function onSubmit(data: FormData) {
-      console.log("onSubmit", data);
+   const [newUserDropdown, setNewUserDropdown] = useState(false);
+   const [newUserRole, setNewUserRole] = useState("editor");
+   const newUserDropdownRef = useRef<HTMLDivElement>(null);
+
+   const [generalAccessDropdown, setGeneralAccessDropdown] = useState(false);
+   const [generalAccess, setGeneralAccess] = useState(diagram.public);
+   const generalAccessDropdownRef = useRef<HTMLDivElement>(null);
+
+   useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+         if (newUserDropdownRef.current && !newUserDropdownRef.current.contains(event.target as Node)) {
+            setNewUserDropdown(false);
+         }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+         document.removeEventListener("mousedown", handleClickOutside);
+      };
+   }, [newUserDropdownRef]);
+
+   useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+         if (generalAccessDropdownRef.current && !generalAccessDropdownRef.current.contains(event.target as Node)) {
+            setGeneralAccessDropdown(false);
+         }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+         document.removeEventListener("mousedown", handleClickOutside);
+      };
+   }, [generalAccessDropdownRef]);
+
+   async function onNewUserSubmit(data: FormData) {
       setIsLoading(true);
-      const res = await addDiagramUser(diagram.id, data.email, data.role);
+      const res = await addDiagramUser(diagram.id, data.email, newUserRole);
       setIsLoading(false);
       if (res && res.success) {
          toast({
-            message: "User added.",
+            title: "User added.",
+            message: "User has been added to the diagram.",
             type: "success",
          });
          setOpen(false);
          reset();
       } else {
          toast({
-            message: "Failed to add user.",
+            title: "Failed to add user.",
+            message: res.reason,
             type: "error",
          });
+      }
+   }
+
+   async function updateGeneralAccess(publicAccess: boolean) {
+      if (publicAccess === generalAccess) {
+         return;
+      }
+
+      setIsLoading(true);
+      const res = await updateDiagram(diagram.id, { public: publicAccess });
+      setIsLoading(false);
+      if (res && res.success) {
+         setGeneralAccess(publicAccess);
+         if (publicAccess) {
+            toast({
+               title: "Diagram is now public.",
+               message: "Anyone with the link can view and edit this diagram.",
+               type: "success",
+            });
+         } else {
+            toast({
+               title: "Diagram is now private.",
+               message: "Only users you share this diagram with can view and edit it.",
+               type: "success",
+            });
+         }
+      } else {
+         if (publicAccess) {
+            toast({
+               title: "Failed to make diagram public.",
+               message: res.reason,
+               type: "error",
+            });
+         } else {
+            toast({
+               title: "Failed to make diagram private.",
+               message: res.reason,
+               type: "error",
+            });
+         }
       }
    }
 
@@ -75,7 +157,8 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
             setUsers(res.response);
          } else {
             toast({
-               message: "Failed to get users.",
+               title: "Failed to get users.",
+               message: res.reason,
                type: "error",
             });
          }
@@ -98,7 +181,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                   reset();
                }}
             >
-               <form onSubmit={handleSubmit(onSubmit)}>
+               <form onSubmit={handleSubmit(onNewUserSubmit)}>
                   <Transition.Child
                      as={Fragment}
                      enter="ease-out duration-300"
@@ -122,7 +205,16 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                         >
-                           <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                           <Dialog.Panel
+                              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+                              style={{
+                                 overflow: "inherit",
+                              }}
+                           >
+                              {/* Loading bar like google docs sharing. On top of the modal. use loading-bar animation from tailwind */}
+                              <div
+                                 className={cn("h-1", isLoading && "animate-[loading-bar_1s_linear_infinite] bg-blue-500")}
+                              />
                               <div className="bg-white px-4 pt-5 pb-4 ml-6">
                                  <div className="sm:flex sm:items-start">
                                     <div className="mt-3 text-center sm:mt-0 sm:text-left">
@@ -145,15 +237,14 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                        autoCorrect="off"
                                        spellCheck="false"
                                        name="email"
-                                       disabled={isLoading}
                                        {...register("email")}
                                     />
-                                    <div className="relative">
+                                    <div ref={newUserDropdownRef} className="relative select-none">
                                        <div
-                                          className="flex flex-row pl-2 ml-2 h-10 mr-4 border border-slate-300 hover:border-slate-400 rounded-xl cursor-pointer items-center"
-                                          onClick={toggleDropdown}
+                                          className="flex flex-row ml-2 h-10 border border-slate-300 hover:border-slate-400 rounded-xl cursor-pointer items-center w-[6rem] justify-end pr-2"
+                                          onClick={() => setNewUserDropdown(!newUserDropdown)}
                                        >
-                                          Editor
+                                          {capitalizeFirstLetter(newUserRole)}
                                           <svg
                                              width="24"
                                              height="24"
@@ -164,26 +255,58 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                              <path d="M7 10l5 5 5-5H7z"></path>
                                           </svg>
                                        </div>
-                                       {isOpen && (
-                                          <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2">
+                                       {newUserDropdown && (
+                                          <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2 w-40 left-2 top-8 py-2">
                                              <ul>
-                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t text-center">
-                                                   Viewer
-                                                </li>
-                                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                                   <svg
-                                                      width="16"
-                                                      height="16"
-                                                      viewBox="0 0 24 24"
-                                                      focusable="false"
-                                                      className="inline-block mr-2 text-black"
-                                                   >
-                                                      <path
-                                                         fill="currentColor"
-                                                         d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
-                                                      ></path>
-                                                   </svg>
+                                                <li
+                                                   className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
+                                                   onClick={() => {
+                                                      setNewUserDropdown(false);
+                                                      setNewUserRole("editor");
+                                                   }}
+                                                >
+                                                   <div className="w-10 flex justify-center">
+                                                      {newUserRole === "editor" && (
+                                                         <svg
+                                                            width="16"
+                                                            height="16"
+                                                            viewBox="0 0 24 24"
+                                                            focusable="false"
+                                                            className="inline-block mr-2 text-black"
+                                                         >
+                                                            <path
+                                                               fill="currentColor"
+                                                               d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
+                                                            />
+                                                         </svg>
+                                                      )}
+                                                   </div>
                                                    Editor
+                                                </li>
+                                                <li
+                                                   className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
+                                                   onClick={() => {
+                                                      setNewUserDropdown(false);
+                                                      setNewUserRole("viewer");
+                                                   }}
+                                                >
+                                                   <div className="w-10 flex justify-center">
+                                                      {newUserRole === "viewer" && (
+                                                         <svg
+                                                            width="16"
+                                                            height="16"
+                                                            viewBox="0 0 24 24"
+                                                            focusable="false"
+                                                            className="inline-block mr-2 text-black"
+                                                         >
+                                                            <path
+                                                               fill="currentColor"
+                                                               d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
+                                                            />
+                                                         </svg>
+                                                      )}
+                                                   </div>
+                                                   Viewer
                                                 </li>
                                              </ul>
                                           </div>
@@ -206,38 +329,14 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                               <div className="pb-4">
                                  {users &&
                                     users.map((sharedUser) => (
-                                       <div className="bg-white flex flex-row hover:bg-slate-100 rounded-l-3xl ml-3">
-                                          <Image
-                                             src={sharedUser.picture}
-                                             width={35}
-                                             height={35}
-                                             className="rounded-full m-2"
-                                             alt="avatar"
-                                          />
-                                          <div className="flex flex-col w-full">
-                                             <div className="flex flex-row pt-1 pl-1">
-                                                {sharedUser.full_name}
-                                                {sharedUser.user_id === user.user_id && (
-                                                   <span className="text-xs text-stone-500 pl-2 mb-1 mt-auto">(you)</span>
-                                                )}
-                                                <div className="flex flex-row text-gray-600 text-sm px-2 hover:bg-slate-200 mt-1 hover:text-black cursor-pointer pl-auto mr-10 rounded ml-auto">
-                                                   {capitalizeFirstLetter(sharedUser.role)}
-                                                   {sharedUser.role !== "owner" && (
-                                                      <svg
-                                                         width="20"
-                                                         height="20"
-                                                         viewBox="0 0 24 24"
-                                                         focusable="false"
-                                                         className="fill-slate-500"
-                                                      >
-                                                         <path d="M7 10l5 5 5-5H7z" />
-                                                      </svg>
-                                                   )}
-                                                </div>
-                                             </div>
-                                             <div className="text-xs text-stone-500 pb-1 pl-1">{sharedUser.email}</div>
-                                          </div>
-                                       </div>
+                                       <UserWithAccess
+                                          key={sharedUser.user_id}
+                                          diagramId={diagram.id}
+                                          user={sharedUser}
+                                          currentUserId={user.user_id}
+                                          setIsLoading={setIsLoading}
+                                          setUsers={setUsers}
+                                       />
                                     ))}
                               </div>
 
@@ -257,53 +356,90 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                     width="24"
                                     height="24"
                                     viewBox="0 0 24 24"
-                                    className="rounded-md mt-2 bg-slate-100 hover:bg-slate-50"
+                                    className="rounded-md self-center bg-slate-100 hover:bg-slate-50"
                                  >
                                     <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path>
                                  </svg>
-                                 <div className="relative">
+                                 <div className="relative ml-2" ref={generalAccessDropdownRef}>
                                     <div
-                                       className="flex flex-row text-sm cursor-pointer text-stone-900 hover:bg-slate-200 w-24 pl-2 mt-1 rounded-md"
-                                       onClick={handleMenuClick}
+                                       className={cn(
+                                          "flex flex-row text-sm cursor-pointer text-stone-900 hover:bg-slate-200 mt-1 mb-0.5 py-0.5 rounded-md w-fit pl-2 pr-1 select-none",
+                                          generalAccessDropdown && "text-black bg-slate-200",
+                                       )}
+                                       onClick={() => setGeneralAccessDropdown(!generalAccessDropdown)}
                                     >
-                                       Restricted
+                                       {generalAccess ? "Anyone with link" : "Restricted"}
                                        <svg width="20" height="20" viewBox="0 0 24 24" focusable="false" className="">
                                           <path d="M7 10l5 5 5-5H7z"></path>
                                        </svg>
                                     </div>
-                                    {showMenu && (
-                                       <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-1">
-                                          <div className="pr-10 pl-5 pb-2 pt-2 text-sm hover:bg-gray-100 cursor-pointer rounded-t-md">
-                                             <svg
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 24 24"
-                                                focusable="false"
-                                                className="inline-block mr-3 text-black"
-                                             >
-                                                <path
-                                                   fill="currentColor"
-                                                   d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
-                                                ></path>
-                                             </svg>
+                                    {generalAccessDropdown && (
+                                       <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2 w-60 left-0 top-5 py-2 select-none">
+                                          <div
+                                             className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
+                                             onClick={() => {
+                                                setGeneralAccessDropdown(false);
+                                                updateGeneralAccess(false);
+                                             }}
+                                          >
+                                             <div className="w-10 flex justify-center">
+                                                {!generalAccess && (
+                                                   <svg
+                                                      width="16"
+                                                      height="16"
+                                                      viewBox="0 0 24 24"
+                                                      focusable="false"
+                                                      className="inline-block mr-3 text-black"
+                                                   >
+                                                      <path
+                                                         fill="currentColor"
+                                                         d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
+                                                      />
+                                                   </svg>
+                                                )}
+                                             </div>
                                              Restricted
                                           </div>
-                                          <div className="pr-10 pl-5 pb-3 pt-2 text-sm hover:bg-gray-100 cursor-pointer">
+                                          <div
+                                             className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
+                                             onClick={() => {
+                                                setGeneralAccessDropdown(false);
+                                                updateGeneralAccess(true);
+                                             }}
+                                          >
+                                             <div className="w-10 flex justify-center">
+                                                {generalAccess && (
+                                                   <svg
+                                                      width="16"
+                                                      height="16"
+                                                      viewBox="0 0 24 24"
+                                                      focusable="false"
+                                                      className="inline-block mr-3 text-black"
+                                                   >
+                                                      <path
+                                                         fill="currentColor"
+                                                         d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
+                                                      />
+                                                   </svg>
+                                                )}
+                                             </div>
                                              Anyone with link
                                           </div>
                                        </div>
                                     )}
                                     <div className="text-xs text-stone-500 pl-2 mb-1">
-                                       Only people with access can open the link
+                                       {generalAccess
+                                          ? "Anyone with the link can view"
+                                          : "Only people with access can open the link"}
                                     </div>
                                  </div>
                               </div>
 
-                              <div className="bg-gray-50 px-4 py-3 flex flex-row sm:flex-row-reverse sm:px-6">
+                              <div className="bg-gray-50 px-4 py-3 flex flex-row sm:flex-row-reverse sm:px-6 select-none">
                                  <button
                                     type="button"
                                     className="w-fit ml-3 sm:ml-0 sm:mr-4 relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
-                                    onClick={handleSubmit(onSubmit)}
+                                    onClick={handleSubmit(onNewUserSubmit)}
                                  >
                                     Invite
                                  </button>
@@ -317,7 +453,15 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                  <button
                                     type="button"
                                     className="mr-auto w-fit ml-3 sm:ml-0 relative inline-flex h-9 items-center rounded-md border px-3 py-2 text-sm font-medium text-blue-500 hover:bg-blue-50 focus:outline-none"
-                                    //onClick={() => setOpen(false)}
+                                    onClick={() => {
+                                       // Copy link to clipboard
+                                       navigator.clipboard.writeText(`https://prouml.com/dashboard/diagrams/${diagram.id}`);
+                                       toast({
+                                          title: "Link copied to clipboard",
+                                          message: "You can now share this link with others",
+                                          type: "success",
+                                       });
+                                    }}
                                  >
                                     <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="pr-2">
                                        <path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8z"></path>
@@ -333,6 +477,191 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
             </Dialog>
          </Transition.Root>
       </>
+   );
+}
+
+function UserWithAccess({
+   diagramId,
+   user,
+   currentUserId,
+   setIsLoading,
+   setUsers,
+}: {
+   diagramId: string;
+   user: User;
+   currentUserId: string;
+   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
+}) {
+   const [roleDropdown, setRoleDropdown] = useState(false);
+   const roleDropdownRef = useRef<HTMLDivElement>(null);
+   const [role, setRole] = useState(user.role);
+
+   useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+         if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
+            setRoleDropdown(false);
+         }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+         document.removeEventListener("mousedown", handleClickOutside);
+      };
+   }, [roleDropdownRef]);
+
+   async function updateRole(role: string) {
+      if (role === user.role) {
+         return;
+      }
+
+      setIsLoading(true);
+      const res = await updateDiagramUser(diagramId, user.user_id, role);
+      if (res && res.success) {
+         setUsers((users) => users.map((u) => (u.user_id === user.user_id ? { ...u, role } : u)));
+         setRole(role);
+         toast({
+            title: "Role updated",
+            message: "The user's role has been updated",
+            type: "success",
+         });
+      } else {
+         toast({
+            title: "There was an error updating the user's role",
+            message: res.reason,
+            type: "error",
+         });
+      }
+      setIsLoading(false);
+   }
+
+   async function removeUser() {
+      setIsLoading(true);
+      const res = await removeDiagramUser(diagramId, user.user_id);
+      if (res && res.success) {
+         setUsers((users) => users.filter((u) => u.user_id !== user.user_id));
+         toast({
+            title: "User removed",
+            message: "The user has been removed from the diagram",
+            type: "success",
+         });
+      } else {
+         toast({
+            title: "There was an error removing the user from the diagram",
+            message: res.reason,
+            type: "error",
+         });
+      }
+      setIsLoading(false);
+   }
+
+   return (
+      <div className="bg-white flex flex-row hover:bg-slate-100 rounded-l-3xl ml-3">
+         <Image src={user.picture} width={35} height={35} className="rounded-full m-2 select-none" alt="avatar" />
+         <div className="flex flex-col w-full">
+            <div className="flex flex-row pt-1 pl-1">
+               <div className="flex flex-col">
+                  <span>
+                     {user.full_name}
+                     {user.user_id === currentUserId && (
+                        <span className="text-xs text-stone-500 pl-2 mb-1 mt-auto">(you)</span>
+                     )}
+                  </span>
+                  <span className="text-xs text-stone-500 pb-1">{user.email}</span>
+               </div>
+
+               <div className="relative ml-auto select-none" ref={roleDropdownRef}>
+                  <div
+                     className={cn(
+                        "flex flex-row text-gray-600 text-sm px-2 mt-1 pl-auto mr-10 rounded py-1 cursor-default",
+                        role !== "owner" && "hover:text-black hover:bg-slate-200 cursor-pointer",
+                        roleDropdown && "text-black bg-slate-200",
+                     )}
+                     onClick={() => {
+                        if (role !== "owner") {
+                           setRoleDropdown(!roleDropdown);
+                        }
+                     }}
+                  >
+                     {capitalizeFirstLetter(role)}
+                     {role !== "owner" && (
+                        <svg width="20" height="20" viewBox="0 0 24 24" focusable="false" className="fill-slate-500 ml-1">
+                           <path d="M7 10l5 5 5-5H7z" />
+                        </svg>
+                     )}
+                  </div>
+                  {roleDropdown && (
+                     <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2 w-40 left-0 top-6 py-2">
+                        <ul>
+                           <li
+                              className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
+                              onClick={() => {
+                                 setRoleDropdown(false);
+                                 updateRole("editor");
+                              }}
+                           >
+                              <div className="w-10 flex justify-center">
+                                 {role === "editor" && (
+                                    <svg
+                                       width="16"
+                                       height="16"
+                                       viewBox="0 0 24 24"
+                                       focusable="false"
+                                       className="inline-block mr-2 text-black"
+                                    >
+                                       <path
+                                          fill="currentColor"
+                                          d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
+                                       />
+                                    </svg>
+                                 )}
+                              </div>
+                              Editor
+                           </li>
+                           <li
+                              className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
+                              onClick={() => {
+                                 setRoleDropdown(false);
+                                 updateRole("viewer");
+                              }}
+                           >
+                              <div className="w-10 flex justify-center">
+                                 {role === "viewer" && (
+                                    <svg
+                                       width="16"
+                                       height="16"
+                                       viewBox="0 0 24 24"
+                                       focusable="false"
+                                       className="inline-block mr-2 text-black"
+                                    >
+                                       <path
+                                          fill="currentColor"
+                                          d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
+                                       />
+                                    </svg>
+                                 )}
+                              </div>
+                              Viewer
+                           </li>
+
+                           <hr className="border-slate-400 mx-2 my-2" />
+
+                           <li
+                              className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
+                              onClick={() => {
+                                 setRoleDropdown(false);
+                                 removeUser();
+                              }}
+                           >
+                              Remove Access
+                           </li>
+                        </ul>
+                     </div>
+                  )}
+               </div>
+            </div>
+         </div>
+      </div>
    );
 }
 
