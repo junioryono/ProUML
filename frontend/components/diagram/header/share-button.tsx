@@ -227,7 +227,7 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                  <div className="flex">
                                     <input
                                        id="email"
-                                       placeholder="Add people and groups"
+                                       placeholder="Email address"
                                        className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-5 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
                                        autoCapitalize="none"
                                        autoComplete="off"
