@@ -102,7 +102,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                      );
                   })}
                </div>
-               <ShareButton user={user} diagram={diagram} />
+               <ShareButton user={user} role={role} diagram={diagram} />
                <UserAccountNav user={user} className="mx-2 border-2 border-double border-[#05a8ff] bg-[#05a8ff]" />
                <ZoomButton graph={graph} zoom={zoom} />
             </div>

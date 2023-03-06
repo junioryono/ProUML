@@ -9,32 +9,28 @@ import { getDiagramUsers, addDiagramUser, updateDiagramUser, removeDiagramUser, 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
+function validateEmail(email: string) {
+   const re = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+   return re.test(email);
+}
+
 const userAddSchema = z.object({
    email: z
       .string()
       .min(8)
-      .refine(
-         (v) =>
-            v.includes("@") &&
-            v.includes(".") &&
-            v.indexOf("@") !== 0 && // not at the beginning
-            v.indexOf("@") !== v.length - 1 && // not at the end
-            v.indexOf(".") !== v.length - 1 && // not at the end
-            v.lastIndexOf(".") > v.lastIndexOf("@") && // dot after @
-            v.indexOf(" ") === -1 && {
-               // no spaces
-               message: "Invalid email.",
-            },
-      ),
+      .refine((v) => validateEmail(v), {
+         message: "Invalid email address",
+      }),
 });
 
 type FormData = z.infer<typeof userAddSchema>;
 
-export default function ShareButton({ user, diagram }: { user: User; diagram: Diagram }) {
+export default function ShareButton({ user, role, diagram }: { user: User; role: string; diagram: Diagram }) {
    const {
       handleSubmit,
       register,
       reset,
+      formState,
       formState: { errors },
    } = useForm<FormData>({
       resolver: zodResolver(userAddSchema),
@@ -49,6 +45,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
    const [newUserDropdown, setNewUserDropdown] = useState(false);
    const [newUserRole, setNewUserRole] = useState("editor");
    const newUserDropdownRef = useRef<HTMLDivElement>(null);
+   const [showInviteButton, setShowInviteButton] = useState(false);
 
    const [generalAccessDropdown, setGeneralAccessDropdown] = useState(false);
    const [generalAccess, setGeneralAccess] = useState(diagram.public);
@@ -91,6 +88,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
             type: "success",
          });
          setOpen(false);
+         setShowInviteButton(false);
          reset();
       } else {
          toast({
@@ -152,7 +150,6 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
       }
 
       getDiagramUsers(diagram.id).then((res) => {
-         console.log("res", res);
          if (res && res.response) {
             setUsers(res.response);
          } else {
@@ -178,6 +175,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                className="relative z-10"
                onClose={() => {
                   setOpen(false);
+                  setShowInviteButton(false);
                   reset();
                }}
             >
@@ -231,13 +229,16 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                        id="email"
                                        placeholder="Add people and groups"
                                        className="w-full my-0 mb-2 block h-9 rounded-md border border-slate-300 py-5 px-3 text-sm placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
-                                       type="email"
                                        autoCapitalize="none"
-                                       autoComplete="both"
+                                       autoComplete="off"
                                        autoCorrect="off"
                                        spellCheck="false"
                                        name="email"
                                        {...register("email")}
+                                       onChange={(e) => {
+                                          const validEmail = validateEmail(e.target.value);
+                                          setShowInviteButton(validEmail);
+                                       }}
                                     />
                                     <div ref={newUserDropdownRef} className="relative select-none">
                                        <div
@@ -334,6 +335,7 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                           diagramId={diagram.id}
                                           user={sharedUser}
                                           currentUserId={user.user_id}
+                                          currentUserRole={role}
                                           setIsLoading={setIsLoading}
                                           setUsers={setUsers}
                                        />
@@ -363,15 +365,22 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                                  <div className="relative ml-2" ref={generalAccessDropdownRef}>
                                     <div
                                        className={cn(
-                                          "flex flex-row text-sm cursor-pointer text-stone-900 hover:bg-slate-200 mt-1 mb-0.5 py-0.5 rounded-md w-fit pl-2 pr-1 select-none",
+                                          "flex flex-row text-sm text-stone-900 mt-1 mb-0.5 py-0.5 rounded-md w-fit pl-2 pr-1 cursor-default",
+                                          role === "owner" && "hover:bg-slate-200 cursor-pointer select-none",
                                           generalAccessDropdown && "text-black bg-slate-200",
                                        )}
-                                       onClick={() => setGeneralAccessDropdown(!generalAccessDropdown)}
+                                       onClick={() => {
+                                          if (role === "owner") {
+                                             setGeneralAccessDropdown(!generalAccessDropdown);
+                                          }
+                                       }}
                                     >
                                        {generalAccess ? "Anyone with link" : "Restricted"}
-                                       <svg width="20" height="20" viewBox="0 0 24 24" focusable="false" className="">
-                                          <path d="M7 10l5 5 5-5H7z"></path>
-                                       </svg>
+                                       {role === "owner" && (
+                                          <svg width="20" height="20" viewBox="0 0 24 24" focusable="false" className="">
+                                             <path d="M7 10l5 5 5-5H7z"></path>
+                                          </svg>
+                                       )}
                                     </div>
                                     {generalAccessDropdown && (
                                        <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2 w-60 left-0 top-5 py-2 select-none">
@@ -436,19 +445,21 @@ export default function ShareButton({ user, diagram }: { user: User; diagram: Di
                               </div>
 
                               <div className="bg-gray-50 px-4 py-3 flex flex-row sm:flex-row-reverse sm:px-6 select-none">
-                                 <button
-                                    type="button"
-                                    className="w-fit ml-3 sm:ml-0 sm:mr-4 relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
-                                    onClick={handleSubmit(onNewUserSubmit)}
-                                 >
-                                    Invite
-                                 </button>
+                                 {showInviteButton && (
+                                    <button
+                                       type="button"
+                                       className="w-fit ml-3 sm:ml-0 sm:mr-4 relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
+                                       onClick={handleSubmit(onNewUserSubmit)}
+                                    >
+                                       Invite
+                                    </button>
+                                 )}
                                  <button
                                     type="button"
                                     className="w-fit ml-3 sm:ml-0 sm:mr-4 relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
                                     onClick={() => setOpen(false)}
                                  >
-                                    Cancel
+                                    {showInviteButton ? "Cancel" : "Done"}
                                  </button>
                                  <button
                                     type="button"
@@ -484,12 +495,14 @@ function UserWithAccess({
    diagramId,
    user,
    currentUserId,
+   currentUserRole,
    setIsLoading,
    setUsers,
 }: {
    diagramId: string;
    user: User;
    currentUserId: string;
+   currentUserRole: string;
    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
    setUsers: React.Dispatch<React.SetStateAction<User[]>>;
 }) {
@@ -570,21 +583,23 @@ function UserWithAccess({
                   <span className="text-xs text-stone-500 pb-1">{user.email}</span>
                </div>
 
-               <div className="relative ml-auto select-none" ref={roleDropdownRef}>
+               <div className="relative ml-auto" ref={roleDropdownRef}>
                   <div
                      className={cn(
                         "flex flex-row text-gray-600 text-sm px-2 mt-1 pl-auto mr-10 rounded py-1 cursor-default",
-                        role !== "owner" && "hover:text-black hover:bg-slate-200 cursor-pointer",
+                        currentUserRole === "owner" &&
+                           role !== "owner" &&
+                           "hover:text-black hover:bg-slate-200 cursor-pointer select-none",
                         roleDropdown && "text-black bg-slate-200",
                      )}
                      onClick={() => {
-                        if (role !== "owner") {
+                        if (currentUserRole === "owner" && role !== "owner") {
                            setRoleDropdown(!roleDropdown);
                         }
                      }}
                   >
                      {capitalizeFirstLetter(role)}
-                     {role !== "owner" && (
+                     {currentUserRole === "owner" && role !== "owner" && (
                         <svg width="20" height="20" viewBox="0 0 24 24" focusable="false" className="fill-slate-500 ml-1">
                            <path d="M7 10l5 5 5-5H7z" />
                         </svg>
