@@ -131,7 +131,10 @@ export default function Index() {
                   <LoginProviders isLoading={isLoading} />
                </div>
                <p className="px-8 text-center text-sm text-slate-600">
-                  <Link href="/register" className="underline hover:text-brand">
+                  <Link
+                     href={searchParams.get("redirect") ? `/register?redirect=${searchParams.get("redirect")}` : "/register"}
+                     className="underline hover:text-brand"
+                  >
                      Don&apos;t have an account? Sign Up
                   </Link>
                </p>

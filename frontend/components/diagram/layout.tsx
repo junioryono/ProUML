@@ -24,7 +24,7 @@ export type LayoutProps = {
    setConnectedUsers: Dispatch<SetStateAction<{ [key: string]: User }>>;
 };
 
-export default function DiagramLayout({ user, diagram }: { user: User; diagram: Diagram }) {
+export default function DiagramLayout({ user, role, diagram }: { user: User; role: string; diagram: Diagram }) {
    const [connectedUsers, setConnectedUsers] = useState<{
       [key: string]: User; // The key is the user's color
    }>({});

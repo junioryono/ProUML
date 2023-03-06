@@ -2,6 +2,7 @@ package diagram
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
@@ -121,28 +122,34 @@ func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 	return nil
 }
 
-func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *types.WrappedError) {
+func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, string, *types.WrappedError) {
+	var diagram models.DiagramModel
+	var role string
+
 	// Get the user id from the id token
 	userId, err := d.auth.Client.GetUserId(idToken)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
-	var diagram models.DiagramModel
 	if err := d.getDb().Preload("Project").Preload("Project.Diagrams").Where("id = ?", diagramId).First(&diagram).Error; err != nil {
-		return nil, types.Wrap(err, types.ErrDiagramNotFound)
+		fmt.Printf("error getting diagram: %v\n", err)
+		return nil, "", types.Wrap(err, types.ErrDiagramNotFound)
 	}
 
-	if !diagram.Public {
-		var userDiagram models.DiagramUserRoleModel
-
-		if err := d.getDb().Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
-			return nil, types.Wrap(err, types.ErrDiagramNotFound)
+	if err := d.getDb().Model(&models.DiagramUserRoleModel{}).Where("user_id = ? AND diagram_id = ?", userId, diagramId).Select("role").First(&role).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, "", types.Wrap(err, types.ErrInternalServerError)
 		}
+	}
 
-		if userDiagram.Role != "owner" && userDiagram.Role != "editor" && userDiagram.Role != "viewer" {
-			return nil, types.Wrap(errors.New("user does not have access to diagram"), types.ErrInvalidRequest)
+	// Check public and roles. If the user is not the owner, editor, or viewer, check if the diagram is public. If it's public, set the role to viewer.
+	if role != "owner" && role != "editor" && role != "viewer" {
+		if diagram.Public {
+			role = "viewer"
+		} else {
+			return nil, "", types.Wrap(errors.New("user does not have access to the diagram"), types.ErrInvalidRequest)
 		}
 	}
 
@@ -150,7 +157,7 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, *typ
 		diagram.Project = nil
 	}
 
-	return &diagram, nil
+	return &diagram, role, nil
 }
 
 func (d *Diagram_SDK) UpdatePublic(diagramId, idToken string, public bool) *types.WrappedError {

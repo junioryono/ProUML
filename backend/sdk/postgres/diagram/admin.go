@@ -18,3 +18,12 @@ func (a *admin_SDK) GetUserRole(diagramId, userId string) (string, *types.Wrappe
 
 	return userDiagram.Role, nil
 }
+
+func (a *admin_SDK) IsDiagramPublic(diagramId string) (bool, *types.WrappedError) {
+	var public bool
+	if err := a.getDb().Model(&models.DiagramModel{}).Where("id = ?", diagramId).Pluck("public", &public).Error; err != nil {
+		return false, types.Wrap(err, types.ErrDiagramNotFound)
+	}
+
+	return public, nil
+}

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import DiagramLayout from "@/components/diagram/layout";
 
-export default function DiagramPage({ user, diagram }: { user: User; diagram: Diagram }) {
+export default function DiagramPage({ user, role, diagram }: { user: User; role: string; diagram: Diagram }) {
    if (!diagram) {
       return (
          <div>
@@ -17,7 +17,7 @@ export default function DiagramPage({ user, diagram }: { user: User; diagram: Di
       );
    }
 
-   return <DiagramLayout user={user} diagram={diagram} />;
+   return <DiagramLayout user={user} role={role} diagram={diagram} />;
 }
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -55,7 +55,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
    return {
       props: {
          user: userRequest.response || null,
-         diagram: diagramRequest.response || null,
+         role: diagramRequest.response?.role || null,
+         diagram: diagramRequest.response?.diagram || null,
       },
    };
 };

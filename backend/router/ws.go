@@ -35,11 +35,12 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		// Get the user's role in the diagram
 		userRole, err := sdkP.Postgres.Diagram.Admin.GetUserRole(diagramId, userModel.ID)
 		if err != nil {
-			return
-		}
-
-		// Check if user has access to diagram
-		if userRole != "owner" && userRole != "editor" && userRole != "viewer" {
+			// Check if diagram is public
+			if diagramIsPublic, err := sdkP.Postgres.Diagram.Admin.IsDiagramPublic(diagramId); err != nil || !diagramIsPublic {
+				return
+			}
+		} else if userRole != "owner" && userRole != "editor" && userRole != "viewer" {
+			// Check if user has access to diagram
 			return
 		}
 

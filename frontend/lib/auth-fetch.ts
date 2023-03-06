@@ -89,7 +89,15 @@ export async function getDiagrams(options?: RequestInit): Promise<
       .catch(() => defaultError);
 }
 
-export async function getDiagram(diagramId: string, options?: RequestInit): Promise<APIResponse<Diagram>> {
+export async function getDiagram(
+   diagramId: string,
+   options?: RequestInit,
+): Promise<
+   APIResponse<{
+      diagram: Diagram;
+      role: string;
+   }>
+> {
    return fetchAPI(
       "/diagram?" +
          new URLSearchParams({
@@ -99,7 +107,12 @@ export async function getDiagram(diagramId: string, options?: RequestInit): Prom
          ...options,
       },
    )
-      .then((res) => jsonResponse<Diagram>(res))
+      .then((res) =>
+         jsonResponse<{
+            diagram: Diagram;
+            role: string;
+         }>(res),
+      )
       .catch(() => defaultError);
 }
 

@@ -61,7 +61,7 @@ export default function Index() {
       <div className="min-h-screen">
          <div className="container grid h-screen w-screen flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
             <Link
-               href="/login"
+               href={searchParams.get("redirect") ? `/login?redirect=${searchParams.get("redirect")}` : "/login"}
                className="absolute top-4 right-4 inline-flex items-center justify-center rounded-lg border border-transparent bg-transparent py-2 px-3 text-center text-sm  font-medium text-slate-900 hover:border-slate-200 hover:bg-slate-100 focus:z-10 focus:outline-none md:top-8 md:right-8"
             >
                Login
