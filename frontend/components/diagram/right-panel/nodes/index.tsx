@@ -168,7 +168,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
    return (
       <>
-         <div className="w-56">
+         <div className="w-56 select-none cursor-default">
             {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
             {selectedNodes.length === 1 && <NodeSettings node={selectedNodes[0] as X6Type.Node} graph={graph} />}
 

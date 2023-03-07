@@ -9,12 +9,14 @@ export default function NodeSettingsMethod({
    method,
    index,
    setMethods,
+   setMethodsMaxHeight,
 }: {
    node: X6Type.Node;
    methods: ClassNode["methods"];
    method: ClassNode["methods"][0];
    index: number;
    setMethods: React.Dispatch<React.SetStateAction<ClassNode["methods"]>>;
+   setMethodsMaxHeight: React.Dispatch<React.SetStateAction<number>>;
 }) {
    const [accessModifier, setAccessModifier] = useState(method.accessModifier);
    const [name, setName] = useState(method.name || "");
@@ -40,8 +42,17 @@ export default function NodeSettingsMethod({
       setName(method.name || "");
       setType(method.type || "");
       setParameters(method.parameters || []);
-      setShowParameters(false);
    }, [method]);
+
+   useEffect(() => {
+      setMethodsMaxHeight(showParameters && parameters.length !== 0 ? parameters.length * 1.75 + 7 : 7);
+   }, [parameters, showParameters]);
+
+   useEffect(() => {
+      if (parameters.length === 0) {
+         setShowParameters(false);
+      }
+   }, [parameters]);
 
    return (
       <div>
@@ -125,19 +136,19 @@ export default function NodeSettingsMethod({
                {/* method parameters dropdown button */}
                <div className="flex items-center ml-0.5 relative">
                   <div className="text-xs">(</div>
-                  <div className="w-8">
+                  <div className="w-10">
                      <div className="relative">
-                        {parameters.length !== 0 && (
-                           <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none text-xs">...</div>
-                        )}
                         <select
-                           className={`w-full text-center block rounded-md border focus:outline-none hover:border-slate-400 focus:border-slate-400 ${
+                           className={`w-full text-xs cursor-pointer text-center block rounded-md border focus:outline-none hover:border-slate-400 focus:border-slate-400 ${
                               parameters.length === 0
-                                 ? "border-2 border-dotted bg-slate-100 border-slate-400 h-6.5 py-px pb-0.5 pl-1"
-                                 : "text-xs pl-6 bg-slate-200 border-slate-300 py-3 h-3"
+                                 ? "border-2 border-dotted bg-slate-100 border-slate-400 h-[1.625rem] pl-1"
+                                 : "bg-slate-200 border-slate-300 h-[1.625rem] pl-0.5"
                            }`}
                            onClick={() => setShowParameters(!showParameters)}
-                        />
+                           onMouseDown={(e) => e.preventDefault()} // Stop the dropdown from opening
+                        >
+                           <option>{parameters.length}</option>
+                        </select>
                      </div>
                   </div>
                   <div className="text-xs">)</div>
@@ -220,15 +231,18 @@ export default function NodeSettingsMethod({
                   </div>
                </div>
             </div>
-            {parameters?.map((parameter, index) => {
+            {parameters?.map((parameter, paramIndex) => {
                return (
                   <NodeSettingsParameter
-                     key={index}
-                     index={index}
+                     key={`${node.id}-${index}-${paramIndex}`}
+                     index={paramIndex}
                      parameter={parameter}
                      node={node}
                      parameters={parameters}
                      setParameters={setParameters}
+                     method={method}
+                     methodIndex={index}
+                     methods={methods}
                   />
                );
             })}

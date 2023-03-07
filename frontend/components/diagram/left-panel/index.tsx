@@ -46,7 +46,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
    }, [graph]);
 
    return (
-      <div className="w-60 p-2 flex flex-col border-gray-400 border-r-1">
+      <div className="w-60 p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
          {/* ---------------------- SEARCH BAR SECTION ---------------------- */}
 
          <div className="flex flex-col mt-2">

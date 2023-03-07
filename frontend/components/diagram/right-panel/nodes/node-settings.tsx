@@ -29,6 +29,8 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
    const [positionLocked, setPositionLocked] = useState<boolean>(false);
    // if the size of the node is locked or not
    const [sizeLocked, setSizeLocked] = useState<boolean>(false);
+   // for the max height of the methods section, in rem
+   const [methodsMaxHeight, setMethodsMaxHeight] = useState<number>(7);
 
    // when the node changes, update the state information of the node
    useEffect(() => {
@@ -273,7 +275,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
 
                      {/* map out all the variables in the selected cell */}
                      <div className="relative mb-1">
-                        <ScrollFade maxHeight={90}>
+                        <ScrollFade maxHeight={95}>
                            <div className="max-h-28">
                               {variables.map((variable, index) => (
                                  <NodeSettingsVariable
@@ -342,16 +344,21 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                      </div>
                      {/* map out all the variables in the selected cell */}
                      <div className="relative mb-1">
-                        <ScrollFade maxHeight={90}>
-                           <div className="max-h-28">
+                        <ScrollFade maxHeight={95}>
+                           <div
+                              style={{
+                                 maxHeight: `${methodsMaxHeight}rem`,
+                              }}
+                           >
                               {methods.map((method, index) => (
                                  <NodeSettingsMethod
-                                    key={index}
+                                    key={`${node.id}-${index}`}
                                     node={node}
                                     methods={methods}
                                     method={method}
                                     index={index}
                                     setMethods={setMethods}
+                                    setMethodsMaxHeight={setMethodsMaxHeight}
                                  />
                               ))}
                            </div>

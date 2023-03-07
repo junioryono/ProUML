@@ -8,12 +8,18 @@ export default function NodeSettingsParameter({
    parameter,
    index,
    setParameters,
+   method,
+   methodIndex,
+   methods,
 }: {
    node: X6Type.Node;
    parameters: ClassNode["methods"][0]["parameters"];
    parameter: ClassNode["methods"][0]["parameters"][0];
    index: number;
    setParameters: React.Dispatch<React.SetStateAction<ClassNode["methods"][0]["parameters"]>>;
+   method: ClassNode["methods"][0];
+   methodIndex: number;
+   methods: ClassNode["methods"];
 }) {
    const [name, setName] = useState(parameter.name || "");
    const [type, setType] = useState(parameter.type || "");
@@ -47,11 +53,9 @@ export default function NodeSettingsParameter({
                         className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
                         type="text"
                         onChange={(e) => {
-                           // update the node's variables array
                            setType(e.target.value);
-                           parameters[index].type = e.target.value;
-                           console.log(parameters[index].type);
-                           node.trigger("change:parameters", { parameters });
+                           methods[methodIndex].parameters[index].type = e.target.value;
+                           node.trigger("change:methods", { methods });
                         }}
                         // if the input is "Untitled" highlight the entire text
                         onFocus={(e) => {
@@ -70,10 +74,9 @@ export default function NodeSettingsParameter({
                      className="w-16 text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400"
                      type="text"
                      onChange={(e) => {
-                        // update the node's variables array
                         setName(e.target.value);
-                        parameters[index].name = e.target.value;
-                        node.trigger("change:parameters", { parameters });
+                        methods[methodIndex].parameters[index].name = e.target.value;
+                        node.trigger("change:methods", { methods });
                      }}
                      // if the input is "Untitled" highlight the entire text
                      onFocus={(e) => {
@@ -91,9 +94,11 @@ export default function NodeSettingsParameter({
                   <div
                      className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
                      onClick={() => {
-                        // update the node's variables array
                         const newParameters = [...parameters];
                         newParameters.splice(index, 1);
+                        setParameters(newParameters);
+                        methods[methodIndex].parameters.splice(index, 1);
+                        node.trigger("change:methods", { methods });
                      }}
                   >
                      <span

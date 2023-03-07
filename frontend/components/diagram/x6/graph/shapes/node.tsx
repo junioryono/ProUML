@@ -335,7 +335,19 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
                         {method.name}
                         &#40;
                         {method.parameters
-                           ?.map((parameter) => {
+                           ?.map((parameter, index) => {
+                              if (!parameter.type && !parameter.name) {
+                                 return `param${index + 1}`;
+                              }
+
+                              if (!parameter.type) {
+                                 return parameter.name;
+                              }
+
+                              if (!parameter.name) {
+                                 return parameter.type;
+                              }
+
                               return `${parameter.name}: ${parameter.type}`;
                            })
                            .join(", ")}
