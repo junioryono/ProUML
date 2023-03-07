@@ -170,7 +170,9 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       <>
          <div className="w-56 select-none cursor-default">
             {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
-            {selectedNodes.length === 1 && <NodeSettings node={selectedNodes[0] as X6Type.Node} graph={graph} />}
+            {selectedNodes.length === 1 && (
+               <NodeSettings key={selectedNodes[0].id} node={selectedNodes[0] as X6Type.Node} graph={graph} />
+            )}
 
             {/* ---------------------- BACKGROUND COLOR SECTION ---------------------- */}
             <div className="flex flex-col pb-3">

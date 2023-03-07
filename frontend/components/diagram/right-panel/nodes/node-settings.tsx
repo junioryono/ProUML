@@ -39,7 +39,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
       }
 
       // get the properties of the node
-      const props = node.prop();
+      const props = node.prop() as ClassNode;
 
       // update the state information of the node
       setNodeName(props.name || "");
