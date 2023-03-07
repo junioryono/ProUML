@@ -53,7 +53,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="w-full flex justify-center items-center gap-1 mb-2">
                {/* left ending dropdown */}
                <select
-                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-6 w-10"
+                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-8 w-12"
                   value={leftEnd}
                >
                   {/* {options1.map((option) => (
@@ -62,7 +62,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </select>
 
                <input
-                  className="w-1/2 my-0 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md text-center focus:outline-none"
+                  className="w-1/2 my-0 block h-8 rounded-md border bg-slate-200 border-slate-400 py-3 px-3 text-md text-center focus:outline-none"
                   type="text"
                   autoCapitalize="none"
                   autoComplete="both"
@@ -74,7 +74,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
                {/* right ending dropdown */}
                <select
-                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-6 w-10"
+                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-8 w-12"
                   value={rightEnd}
                >
                   {/* {options2.map((option) => (

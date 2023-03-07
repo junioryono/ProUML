@@ -121,13 +121,15 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         return (
                            <div
                               key={pDiagram.id}
-                              className="hover:bg-slate-200 rounded flex items-center gap-3 py-1 pl-4 cursor-pointer"
+                              className={`hover:bg-slate-200 rounded flex items-center gap-3 py-1 pl-4 cursor-pointer ${
+                                 pDiagram.id === diagram.id && "bg-slate-300 font-semibold"
+                              }`}
                               onClick={() => {
                                  router.push(`/dashboard/diagrams/${pDiagram.id}`);
                               }}
                            >
                               <div className="w-3">
-                                 {pDiagram.id === diagram.id && (
+                                 {/* {pDiagram.id === diagram.id && (
                                     <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                                        <path
                                           d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
@@ -136,7 +138,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                                           stroke="none"
                                        />
                                     </svg>
-                                 )}
+                                 )} */}
                               </div>
                               <div>{pDiagram.name}</div>
                            </div>
@@ -239,7 +241,9 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                   return (
                      <div
                         key={nodeId}
-                        className="flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4"
+                        className={`flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4 ${
+                           isSelected && "bg-slate-300 font-semibold"
+                        }`}
                         onClick={() => {
                            graph.current.centerCell(node);
                            graph.current.cleanSelection(node);
@@ -249,7 +253,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         <div className="w-3">
                            {/* if the node is selected show a checkmark svg next to it */}
 
-                           {isSelected && (
+                           {/* {isSelected && (
                               <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                                  <path
                                     d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
@@ -258,7 +262,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                                     stroke="none"
                                  />
                               </svg>
-                           )}
+                           )} */}
                         </div>
                         <div>{nodeName}</div>
                      </div>
@@ -289,7 +293,9 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         return (
                            <div
                               key={edgeId}
-                              className="flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4"
+                              className={`flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4 ${
+                                 isSelected && "bg-slate-300 font-semibold"
+                              }`}
                               onClick={() => {
                                  graph.current.centerCell(node);
                                  graph.current.cleanSelection(node);
@@ -299,7 +305,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                               <div className="w-3">
                                  {/* if the node is selected show a checkmark svg next to it */}
 
-                                 {isSelected && (
+                                 {/* {isSelected && (
                                     <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                                        <path
                                           d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
@@ -308,11 +314,11 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                                           stroke="none"
                                        />
                                     </svg>
-                                 )}
+                                 )} */}
                               </div>
                               <div>
                                  {sourceNodeName}
-                                 {" -> "}
+                                 {" --> "}
                                  {targetNodeName}
                               </div>
                            </div>

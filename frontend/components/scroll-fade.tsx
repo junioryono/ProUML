@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // props for the ScrollFade component
 interface ScrollFadeProps {
@@ -14,6 +14,8 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
    const [showBottomFade, setShowBottomFade] = useState(true);
    // for the height of the scrollable container
    const [containerHeight, setContainerHeight] = useState(0);
+   // useRef hook to store the current scroll position
+   const scrollPositionRef = useRef(0);
 
    // for the scrollable container
    const handleContainerRef = (ref) => {
@@ -29,11 +31,14 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
          setShowTopFade(false);
          setShowBottomFade(true);
       }
-   }, [children]);
+   }, [containerHeight, maxHeight]);
 
    // is called when the scroll bar is scrolled
    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
       const { scrollTop, clientHeight, scrollHeight } = e.target as HTMLDivElement;
+
+      // store the current scroll position in the ref
+      scrollPositionRef.current = scrollTop;
 
       // if the scroll bar is at the top of the list, show only the bottom fade effect
       if (scrollTop === 0) {
@@ -58,7 +63,7 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
          <div
             ref={handleContainerRef}
             className={`overflow-y-scroll no-scrollbar overflow-x-hidden list-container`}
-            style={{ maxHeight }}
+            // style={{ maxHeight }}
             onScroll={handleScroll}
          >
             {children}
@@ -66,6 +71,13 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
          {/* if the list is too long (needs a scroll), show the fade effect */}
          {containerHeight > maxHeight && (
             <>
+               {/* only show top fade if not at the top of list */}
+               {showTopFade && (
+                  <>
+                     {/* fade effect for top elements in the list */}
+                     <div className="absolute top-0 w-full h-6 pointer-events-none after:absolute after:top-0 after:w-full after:h-8 after:pointer-events-none after:content-'' after:bg-gradient-to-b from-white to-transparent"></div>
+                  </>
+               )}
                {/* only show top fade if not at the top of list */}
                {showTopFade && (
                   <>

@@ -14,7 +14,7 @@ export default function RightPanel({
    backgroundColor: string;
 }) {
    // State to keep track of the current tab, either "graph", "nodes", or "edges"
-   const [tab, setTab] = useState<"graph" | "nodes" | "edges" | "nodes&edges">("edges");
+   const [tab, setTab] = useState<"graph" | "nodes" | "edges" | "nodes&edges">("graph");
 
    // Use effect to listen to the events on the `graph` and set the tab accordingly
    useEffect(() => {
@@ -54,7 +54,7 @@ export default function RightPanel({
          ) : tab === "edges" ? (
             <EdgesPanel graph={graph} />
          ) : tab === "nodes&edges" ? (
-            <EdgesPanel graph={graph} />
+            <NodesPanel graph={graph} />
          ) : null}
       </div>
    );
