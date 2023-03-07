@@ -1,5 +1,5 @@
 import type X6Type from "@antv/x6";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ClassNode } from "types";
 import NodeSettingsParameter from "./node-parameter";
 
@@ -23,6 +23,7 @@ export default function NodeSettingsMethod({
    const [type, setType] = useState(method.type || "");
    const [parameters, setParameters] = useState(method.parameters || []);
    const [showParameters, setShowParameters] = useState(false);
+   const parametersRef = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
       // update the node's methods array
@@ -45,8 +46,21 @@ export default function NodeSettingsMethod({
    }, [method]);
 
    useEffect(() => {
+      // if (index === methods.length - 1) {
+      //    setMethodsMaxHeight(showParameters && parameters.length !== 0 ? parameters.length * 1.75 + 10 : 10);
+      // } else {
+      //    setMethodsMaxHeight(showParameters && parameters.length !== 0 ? parameters.length * 1.75 + 7 : 7);
+      // }
       setMethodsMaxHeight(showParameters && parameters.length !== 0 ? parameters.length * 1.75 + 7 : 7);
+      // index
    }, [parameters, showParameters]);
+
+   // scroll to parameters when showParameters is true
+   useEffect(() => {
+      if (showParameters && parametersRef.current) {
+         parametersRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+   }, [showParameters]);
 
    useEffect(() => {
       if (parameters.length === 0) {
@@ -192,61 +206,71 @@ export default function NodeSettingsMethod({
          </div>
 
          {/* method parameters appearing section */}
-         <div
-            className={`border border-slate-400 bg-slate-100 mt-0.5 mb-1 py-1 px-2 rounded-md drop-shadow-md ${
-               !showParameters && "hidden"
-            } items-center`}
-         >
-            <div className="flex justify-between mb-1">
-               <div className="font-bold">Parameters</div>
+         {showParameters && (
+            <div
+               ref={parametersRef}
+               className="border border-slate-400 bg-slate-100 mt-0.5 mb-1 py-1 px-2 rounded-md drop-shadow-md items-center"
+            >
+               <div className="flex justify-between mb-1">
+                  <div className="font-bold">Parameters</div>
 
-               {/* add button to add a new method to the selected node */}
-               <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
-                  <div
-                     className="p-2 transform transition duration-500 hover:scale-150 flex justify-center items-center"
-                     onClick={() => {
-                        // add the new parameter to the method's parameters array
-                        const newMethods = [...methods];
-                        newMethods[index].parameters.push({ name: `param${parameters.length + 1}`, type: "int" });
+                  {/* add button to add a new method to the selected node */}
+                  <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
+                     <div
+                        className="p-2 transform transition duration-500 hover:scale-150 flex justify-center items-center"
+                        onClick={() => {
+                           // add the new parameter to the method's parameters array
+                           const paramsTemp = [...parameters];
+                           const newMethods = [...methods];
+                           paramsTemp.push({ name: `param${parameters.length + 1}`, type: "int" });
+                           newMethods[index].parameters = paramsTemp;
+                           node.trigger("change:methods", { methods: newMethods });
+                           setParameters(newMethods[index].parameters);
 
-                        // update the width of the node if needed
-                        const newHeight = node.prop("size").height + (newMethods.length === 0 ? 36 : 20);
-                        node.trigger("change:methods", { methods: newMethods, newHeight: newHeight });
-                     }}
-                  >
-                     <span
-                        role="button"
-                        className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                           // Scroll to the bottom of the parameters list
+                           parametersRef.current.scrollTop = parametersRef.current.scrollHeight;
+                        }}
                      >
-                        <svg className="svg" width="10" height="10" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-                           <path
-                              d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
-                              fillRule="nonzero"
-                              fillOpacity="1"
-                              fill="#000"
-                              stroke="none"
-                           />
-                        </svg>
-                     </span>
+                        <span
+                           role="button"
+                           className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                        >
+                           <svg
+                              className="svg"
+                              width="10"
+                              height="10"
+                              viewBox="0 0 12 12"
+                              xmlns="http://www.w3.org/2000/svg"
+                           >
+                              <path
+                                 d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
+                                 fillRule="nonzero"
+                                 fillOpacity="1"
+                                 fill="#000"
+                                 stroke="none"
+                              />
+                           </svg>
+                        </span>
+                     </div>
                   </div>
                </div>
+               {parameters?.map((parameter, paramIndex) => {
+                  return (
+                     <NodeSettingsParameter
+                        key={`${node.id}-${index}-${paramIndex}`}
+                        index={paramIndex}
+                        parameter={parameter}
+                        node={node}
+                        parameters={parameters}
+                        setParameters={setParameters}
+                        method={method}
+                        methodIndex={index}
+                        methods={methods}
+                     />
+                  );
+               })}
             </div>
-            {parameters?.map((parameter, paramIndex) => {
-               return (
-                  <NodeSettingsParameter
-                     key={`${node.id}-${index}-${paramIndex}`}
-                     index={paramIndex}
-                     parameter={parameter}
-                     node={node}
-                     parameters={parameters}
-                     setParameters={setParameters}
-                     method={method}
-                     methodIndex={index}
-                     methods={methods}
-                  />
-               );
-            })}
-         </div>
+         )}
       </div>
    );
 }
