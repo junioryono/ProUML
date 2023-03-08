@@ -358,6 +358,30 @@ func (d *Diagram_SDK) UpdateShowGrid(diagramId, idToken string, showGrid bool) *
 	return nil
 }
 
+func (d *Diagram_SDK) UpdateAllowEditorPermissions(diagramId, idToken string, allowEditorPermissions bool) *types.WrappedError {
+	// Get the user id from the id token
+	userId, err := d.auth.Client.GetUserId(idToken)
+	if err != nil {
+		return err
+	}
+
+	// Update the diagram in the database if the user is the owner
+	var userDiagram models.DiagramUserRoleModel
+	if err := d.getDb().Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if userDiagram.Role != "owner" {
+		return types.Wrap(errors.New("user is not the owner of the diagram"), types.ErrInvalidRequest)
+	}
+
+	if err := d.getDb().Model(&models.DiagramModel{}).Where("id = ?", diagramId).Update("allow_editor_permissions", allowEditorPermissions).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	return nil
+}
+
 func sliceContains(slice []string, contains string) bool {
 	for _, value := range slice {
 		if value == contains {

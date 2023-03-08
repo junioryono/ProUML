@@ -7,8 +7,9 @@ import (
 )
 
 type body struct {
-	Public *bool  `json:"public"`
-	Name   string `json:"name"`
+	Public                 *bool  `json:"public"`
+	Name                   string `json:"name"`
+	AllowEditorPermissions *bool  `json:"allow_editor_permissions"`
 }
 
 func Put(sdkP *sdk.SDK) fiber.Handler {
@@ -39,6 +40,13 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 			}
 		} else if b.Name != "" {
 			if err := sdkP.Postgres.Diagram.UpdateName(diagramId, fbCtx.Locals("idToken").(string), b.Name); err != nil {
+				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+					Success: false,
+					Reason:  err.Error(),
+				})
+			}
+		} else if b.AllowEditorPermissions != nil {
+			if err := sdkP.Postgres.Diagram.UpdateAllowEditorPermissions(diagramId, fbCtx.Locals("idToken").(string), *b.AllowEditorPermissions); err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 					Success: false,
 					Reason:  err.Error(),

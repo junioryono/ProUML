@@ -22,7 +22,12 @@ func Init(Auth *auth.Auth_SDK, getDb func() *gorm.DB) *Users_SDK {
 	}
 }
 
-func (u *Users_SDK) Get(diagramId, idToken string) ([]models.DiagramUsersRolesHiddenContent, *types.WrappedError) {
+func (u *Users_SDK) Get(diagramId, idToken string) (*models.DiagramUserRolesResponse, *types.WrappedError) {
+	var response = &models.DiagramUserRolesResponse{
+		Users:                  []models.DiagramUsersRolesHiddenContent{},
+		AllowEditorPermissions: false,
+	}
+
 	// Get the user id from the id token
 	userId, err := u.Auth.Client.GetUserId(idToken)
 	if err != nil {
@@ -34,59 +39,66 @@ func (u *Users_SDK) Get(diagramId, idToken string) ([]models.DiagramUsersRolesHi
 		return nil, types.Wrap(err, types.ErrDiagramNotFound)
 	}
 
-	// Get all users with access to the diagram if public or userId is the owner, editor or viewer
-	var allUserDiagrams []models.DiagramUserRoleModel
-	if diagram.Public {
-		if err := u.getDb().Preload("User").Where("diagram_id = ?", diagramId).Find(&allUserDiagrams).Error; err != nil {
-			return nil, types.Wrap(err, types.ErrInternalServerError)
-		}
-	} else {
-		var loggedInUserDiagram models.DiagramUserRoleModel
-		if err := u.getDb().Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&loggedInUserDiagram).Error; err != nil {
-			return nil, types.Wrap(err, types.ErrInternalServerError)
-		}
+	// Get all users with access to the diagram
 
-		if loggedInUserDiagram.Role != "owner" && loggedInUserDiagram.Role != "editor" && loggedInUserDiagram.Role != "viewer" {
-			return nil, types.Wrap(errors.New("user does not have access to the diagram"), types.ErrUserNoAccess)
-		}
-
-		if err := u.getDb().Preload("User").Where("diagram_id = ?", diagramId).Find(&allUserDiagrams).Error; err != nil {
-			return nil, types.Wrap(err, types.ErrInternalServerError)
-		}
+	var diagramUsers []models.DiagramUserRoleModel
+	if err := u.getDb().Preload("User").Where("diagram_id = ?", diagramId).Find(&diagramUsers).Error; err != nil {
+		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	var response []models.DiagramUsersRolesHiddenContent
-	for _, userDiagram := range allUserDiagrams {
-		response = append(response, models.DiagramUsersRolesHiddenContent{
-			UserId:   userDiagram.User.ID,
-			Email:    userDiagram.User.Email,
-			Role:     userDiagram.Role,
-			FullName: userDiagram.User.FullName,
-			Picture:  userDiagram.User.Picture,
+	// If the user is not the owner, editor, or viewer, and the diagram is not public, return an error
+	// Set response.AllowEditorPermissions = diagram.AllowEditorPermissions if the logged in user is the owner,
+	// or if the logged in user is an editor and the diagram allows editor permissions
+	var userHasAccess = false
+	if diagram.Public {
+		userHasAccess = true
+	}
+
+	for _, diagramUser := range diagramUsers {
+		if diagramUser.UserID == userId {
+			if diagramUser.Role == "owner" || diagramUser.Role == "editor" || diagramUser.Role == "viewer" {
+				userHasAccess = true
+			}
+
+			if diagramUser.Role == "owner" || (diagram.AllowEditorPermissions && diagramUser.Role == "editor") {
+				response.AllowEditorPermissions = true
+			}
+		}
+
+		response.Users = append(response.Users, models.DiagramUsersRolesHiddenContent{
+			UserId:   diagramUser.UserID,
+			Email:    diagramUser.User.Email,
+			Role:     diagramUser.Role,
+			FullName: diagramUser.User.FullName,
+			Picture:  diagramUser.User.Picture,
 		})
 	}
 
-	// Order the response by Role
+	if !userHasAccess {
+		return nil, types.Wrap(errors.New("user does not have access to the diagram"), types.ErrUserNoAccess)
+	}
+
+	// Order the users by Role
 	// Add the owner first, then the editors, then the viewers
 	// If people have the same role, order by name
-	sort.Slice(response, func(i, j int) bool {
-		if response[i].Role == response[j].Role {
-			return response[i].FullName < response[j].FullName
+	sort.Slice(response.Users, func(i, j int) bool {
+		if response.Users[i].Role == response.Users[j].Role {
+			return response.Users[i].FullName < response.Users[j].FullName
 		}
 
-		if response[i].Role == "owner" {
+		if response.Users[i].Role == "owner" {
 			return true
 		}
 
-		if response[j].Role == "owner" {
+		if response.Users[j].Role == "owner" {
 			return false
 		}
 
-		if response[i].Role == "editor" {
+		if response.Users[i].Role == "editor" {
 			return true
 		}
 
-		if response[j].Role == "editor" {
+		if response.Users[j].Role == "editor" {
 			return false
 		}
 
@@ -168,13 +180,18 @@ func (u *Users_SDK) Update(diagramId, idToken, updateUserId, updateUserRole stri
 		return types.Wrap(errors.New("not owner or editor"), types.ErrNotOwnerOrEditor)
 	}
 
-	var updateUserDiagram models.DiagramUserRoleModel
-	if err := u.getDb().Where("user_id = ? AND diagram_id = ?", updateUserId, diagramId).First(&updateUserDiagram).Error; err != nil {
+	var allowEditorPermissions bool
+	if err := u.getDb().Model(&models.DiagramModel{}).Where("id = ?", diagramId).Pluck("allow_editor_permissions", &allowEditorPermissions).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	if loggedInUserDiagram.Role == "editor" && updateUserRole == "viewer" {
-		return types.Wrap(errors.New("cannot change as editor"), types.ErrCannotChangeAsEditor)
+	if !allowEditorPermissions && loggedInUserDiagram.Role == "editor" {
+		return types.Wrap(errors.New("cannot change to editor"), types.ErrCannotChangeAsEditor)
+	}
+
+	var updateUserDiagram models.DiagramUserRoleModel
+	if err := u.getDb().Where("user_id = ? AND diagram_id = ?", updateUserId, diagramId).First(&updateUserDiagram).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	if updateUserDiagram.Role == "owner" {

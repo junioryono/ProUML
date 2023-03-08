@@ -44,10 +44,6 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
       setConnectedUsers,
    });
 
-   const refContainer = useCallback((containerParam: HTMLDivElement) => {
-      container.current = containerParam;
-   }, []);
-
    return (
       <div className="flex-col h-screen overflow-hidden">
          <div className="flex justify-between items-center h-12 bg-diagram-menu text-white">
@@ -119,7 +115,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
             {ready && <LeftPanel diagram={diagram} graph={graph} />}
 
             <div className="flex-1">
-               <div ref={refContainer} />
+               <div ref={(rf) => (container.current = rf)} />
             </div>
 
             {ready && <RightPanel graph={graph} backgroundColor={backgroundColor} />}

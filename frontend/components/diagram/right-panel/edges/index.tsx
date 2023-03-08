@@ -45,11 +45,9 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       <>
          {/* ---------------------- EDGE SETTINGS SECTION ---------------------- */}
 
-         <div className="flex flex-col pb-3">
-            <div className="flex justify-between">
-               <div className="font-bold mb-1">Edge Settings</div>
-            </div>
+         <div className="font-bold mb-1">Edge Settings</div>
 
+         <div className="flex flex-col pb-3">
             <div className="w-full flex justify-center items-center gap-1 mb-2">
                {/* left ending dropdown */}
                <select
@@ -151,9 +149,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
          {/* ---------------------- LINE COLOR SECTION ---------------------- */}
          <div className="flex flex-col pt-1.5 pb-3">
-            <div className="flex justify-between">
-               <div className="font-bold">Color</div>
-            </div>
+            <div className="font-bold">Color</div>
             <ColorPicker colorOptions={darkColorOptions} indicatorColor={"white"} objColor={color} setObjColor={setColor} />
          </div>
          <hr className="border-slate-400" />
@@ -162,10 +158,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          {/* line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
 
          <div className="flex flex-col pt-1.5 pb-3">
-            <div className="flex justify-between">
-               <div className="font-bold mb-1">Width</div>
-            </div>
-
+            <div className="font-bold mb-1">Width</div>
             <LineWidth lineWidth={width} setLineWidth={setWidth} />
          </div>
          <hr className="border-slate-400" />

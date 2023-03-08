@@ -116,7 +116,15 @@ export async function getDiagram(
       .catch(() => defaultError);
 }
 
-export async function getDiagramUsers(diagramId: string, options?: RequestInit): Promise<APIResponse<User[]>> {
+export async function getDiagramUsers(
+   diagramId: string,
+   options?: RequestInit,
+): Promise<
+   APIResponse<{
+      users: User[];
+      allowedToEdit?: boolean;
+   }>
+> {
    return fetchAPI(
       "/diagram/users?" +
          new URLSearchParams({
@@ -126,7 +134,12 @@ export async function getDiagramUsers(diagramId: string, options?: RequestInit):
          ...options,
       },
    )
-      .then((res) => jsonResponse<User[]>(res))
+      .then((res) =>
+         jsonResponse<{
+            users: User[];
+            allowedToEdit?: boolean;
+         }>(res),
+      )
       .catch(() => defaultError);
 }
 

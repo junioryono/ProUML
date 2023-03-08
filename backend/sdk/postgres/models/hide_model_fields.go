@@ -12,6 +12,11 @@ type DiagramModelHiddenContent struct {
 	Project   *ProjectModel `gorm:"-" json:"project,omitempty"`
 }
 
+type DiagramUserRolesResponse struct {
+	Users                  []DiagramUsersRolesHiddenContent `json:"users"`
+	AllowEditorPermissions bool                             `json:"allowedToEdit,omitempty"`
+}
+
 type DiagramUsersRolesHiddenContent struct {
 	UserId   string `json:"user_id"`
 	Email    string `json:"email"`
