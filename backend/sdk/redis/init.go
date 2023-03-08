@@ -2,14 +2,10 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"math/rand"
 	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 
 	"github.com/go-redis/redis/v9"
 	"github.com/gofiber/websocket/v2"
@@ -21,7 +17,7 @@ import (
 type Redis_SDK struct {
 	client     *redis.Client
 	channels   map[string]*channel
-	channelsWg sync.Mutex
+	channelsWg sync.RWMutex
 	context    context.Context
 }
 
@@ -55,7 +51,7 @@ func Init() (*Redis_SDK, error) {
 	r := &Redis_SDK{
 		client:     redis.NewClient(t),
 		channels:   make(map[string]*channel),
-		channelsWg: sync.Mutex{},
+		channelsWg: sync.RWMutex{},
 		context:    context.Background(),
 	}
 
@@ -63,33 +59,21 @@ func Init() (*Redis_SDK, error) {
 		return nil, errors.New("could not initialize redis client")
 	}
 
-	// Graceful shutdown
-	go r.gracefulShutdown()
-
 	return r, nil
 }
 
-func (r *Redis_SDK) gracefulShutdown() {
-	cancelChan := make(chan os.Signal, 1)
-	signal.Notify(cancelChan, syscall.SIGTERM, syscall.SIGINT)
-	<-cancelChan
-
-	r.shutdown()
-
-	os.Exit(0)
-}
-
-func (r *Redis_SDK) shutdown() {
+// Unsubscribe from all channels
+func (r *Redis_SDK) Shutdown() {
+	r.channelsWg.Lock()
 	for diagramId, channel := range r.channels {
-		for i := 0; i < len(channel.connections); i++ {
-			// Remove the user
-			r.client.HDel(r.context, r.getDiagramUsersKey(diagramId), channel.connections[i].sessionId)
-		}
+		channel.close()
+		delete(r.channels, diagramId)
 	}
+	r.channelsWg.Unlock()
 }
 
 // Make a pub sub connection. Return session id
-func (r *Redis_SDK) Subscribe(channelId string, user *models.UserModel, ws *websocket.Conn) (string, string) {
+func (r *Redis_SDK) Subscribe(channelId string, user *models.UserModel, ws *websocket.Conn) string {
 	// Subscribe to channel
 	ps := r.client.Subscribe(r.context, channelId)
 
@@ -102,17 +86,7 @@ func (r *Redis_SDK) Subscribe(channelId string, user *models.UserModel, ws *webs
 			Events:    "connected",
 		})
 
-		return "", ""
-	}
-
-	// Generate session id
-	sessionId := uuid.New().String()
-
-	// Create new connection
-	conn := &connection{
-		sessionId: sessionId,
-		mu:        sync.Mutex{},
-		ws:        ws,
+		return ""
 	}
 
 	// Create a new channel if it doesn't exist
@@ -128,105 +102,32 @@ func (r *Redis_SDK) Subscribe(channelId string, user *models.UserModel, ws *webs
 	}
 	r.channelsWg.Unlock()
 
+	// Generate session id
+	sessionId := uuid.New().String()
+
+	// Create new connection
+	conn := &connection{
+		userId:    user.ID,
+		sessionId: sessionId,
+		mu:        sync.Mutex{},
+		ws:        ws,
+	}
+
 	// Add connection to channel
 	// This function will also send the user a sessionId
-	r.channels[channelId].addConnection(conn)
+	r.channelsWg.RLock()
+	r.channels[channelId].addConnection(conn, user)
+	r.channelsWg.RUnlock()
 
-	color, err := r.addUserColor(channelId, sessionId, user)
-	if err != nil {
-		return "", ""
-	}
-
-	return sessionId, color
-}
-
-// Return the color of the user
-func (r *Redis_SDK) addUserColor(diagramId, sessionId string, user *models.UserModel) (string, error) {
-	// Get all users
-	users, err := r.getUsers(diagramId)
-	if err != nil {
-		return "", err
-	}
-
-	// Existing colors
-	var existingColors []string
-	for _, user := range users {
-		existingColors = append(existingColors, user.Color)
-	}
-
-	// Generate a random color
-	var newColor string = r.generateRandomHexColor(existingColors)
-
-	userBody := types.WebSocketBody{
-		SessionId: sessionId,
-		Color:     newColor,
-		User: &models.DiagramUsersHiddenContent{
-			UserId:   user.ID,
-			FullName: user.FullName,
-			Email:    user.Email,
-			Picture:  user.Picture,
-		},
-	}
-
-	// Convert to []byte
-	b, err := json.Marshal(userBody)
-	if err != nil {
-		return "", err
-	}
-
-	// Add the user
-	err = r.client.HSet(r.context, r.getDiagramUsersKey(diagramId), sessionId, b).Err()
-	if err != nil {
-		return "", err
-	}
-
-	msg := types.WebSocketBody{
-		Color:     newColor,
-		SessionId: sessionId,
-		Events:    "connection",
-		User: &models.DiagramUsersHiddenContent{
-			UserId:   user.ID,
-			FullName: user.FullName,
-			Email:    user.Email,
-			Picture:  user.Picture,
-		},
-	}
-
-	// Convert to []byte
-	b, err = json.Marshal(msg)
-	if err != nil {
-		return "", err
-	}
-
-	// Publish the user to the channel
-	r.channels[diagramId].publish(b)
-
-	return newColor, nil
-}
-
-func (r *Redis_SDK) generateRandomHexColor(existingColors []string) string {
-	var letters = []rune("0123456789ABCDEF")
-
-	s := make([]rune, 6)
-	for i := range s {
-		s[i] = letters[rand.Intn(len(letters))]
-	}
-
-	// Make sure the hex is not similar to an existing color
-	for _, color := range existingColors {
-		for i := 0; i < len(s); i++ {
-			if s[i] == rune(color[i]) {
-				s[i] = letters[rand.Intn(len(letters))]
-			}
-		}
-	}
-
-	return "#" + string(s)
+	return sessionId
 }
 
 // Get all users connected to the diagram and send them to the client
-func (r *Redis_SDK) GetUsersAndPostToWS(diagramId string, ws *websocket.Conn) error {
-	users, err := r.getUsers(diagramId)
+func (r *Redis_SDK) PostCurrentUsersToWS(diagramId string, ws *websocket.Conn) error {
+	// Get all users connected to the diagram
+	r.channelsWg.RLock()
+	users, err := r.channels[diagramId].getCurrentRedisUsers()
+	r.channelsWg.RUnlock()
 	if err != nil {
 		return err
 	}
@@ -241,87 +142,34 @@ func (r *Redis_SDK) GetUsersAndPostToWS(diagramId string, ws *websocket.Conn) er
 	return nil
 }
 
-func (r *Redis_SDK) getUsers(diagramId string) ([]types.WebSocketBody, error) {
-	// // Delete all users
-	// r.client.Del(r.context, r.getDiagramUsersKey(diagramId))
-
-	// Return all users that are connected to the diagram
-	wsBody, err := r.client.HGetAll(r.context, r.getDiagramUsersKey(diagramId)).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	var users []types.WebSocketBody
-	for _, v := range wsBody {
-		var wsBody types.WebSocketBody
-
-		err = json.Unmarshal([]byte(v), &wsBody)
-		if err != nil {
-			return nil, err
-		}
-
-		users = append(users, wsBody)
-	}
-
-	return users, nil
-}
-
-func (r *Redis_SDK) getDiagramUsersKey(diagramId string) string {
-	return fmt.Sprintf("diagram:%s:users", diagramId)
-}
-
 // Unsubscribe from a channel
-func (r *Redis_SDK) Unsubscribe(channelId, sessionId, color string) {
-	newMessage := types.WebSocketBody{
-		Color:     color,
-		SessionId: sessionId,
-		Events:    "disconnection",
-	}
-
-	// Convert to []byte
-	msg, err := json.Marshal(newMessage)
-	if err != nil {
-		return
-	}
-
-	// Publish the user to the channel
-	r.channels[channelId].publish(msg)
-
-	// Remove the user
-	r.client.HDel(r.context, r.getDiagramUsersKey(channelId), sessionId)
-
+func (r *Redis_SDK) Unsubscribe(channelId, sessionId string) {
 	// Check if channel exists
-	if _, ok := r.channels[channelId]; !ok {
-		return
+	r.channelsWg.Lock()
+	defer r.channelsWg.Unlock()
+	if channel, ok := r.channels[channelId]; ok {
+		// Remove the connection from the channel
+		removeChannel := channel.removeConnection(sessionId)
+
+		// If there are no more connections to the channel, the channel will unsubscribe
+		// We also need to remove the channel from the channels map
+		if removeChannel {
+			channel.ps.Close()
+			delete(r.channels, channelId)
+			return
+		}
 	}
 
-	// Get the channel
-	channel := r.channels[channelId]
-
-	// Remove the connection from the channel
-	removeChannel := channel.removeConnection(sessionId)
-
-	// If there are no more connections to the channel, the channel will unsubscribe
-	// We also need to remove the channel from the channels map
-	if removeChannel {
-		delete(r.channels, channelId)
-	}
 }
 
 // Publish a message to a channel
 func (r *Redis_SDK) Publish(channelId string, message interface{}) error {
-	// Get the channel
-	channel := r.channels[channelId]
-
-	// Publish the message
-	return channel.publish(message)
-}
-
-// Get number of connections to a channel
-func (r *Redis_SDK) GetConnectionsLength(channelId string) int {
-	if _, ok := r.channels[channelId]; !ok {
-		return -1
+	// Check if channel exists
+	r.channelsWg.RLock()
+	defer r.channelsWg.RUnlock()
+	if channel, ok := r.channels[channelId]; !ok {
+		return errors.New("channel does not exist")
+	} else {
+		return channel.publish(message)
 	}
-
-	return r.channels[channelId].getConnectionsLength()
 }

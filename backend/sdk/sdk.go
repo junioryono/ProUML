@@ -1,6 +1,11 @@
 package sdk
 
 import (
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+
 	"github.com/junioryono/ProUML/backend/sdk/oauth"
 	"github.com/junioryono/ProUML/backend/sdk/postgres"
 	"github.com/junioryono/ProUML/backend/sdk/redis"
@@ -34,9 +39,36 @@ func Init() (*SDK, error) {
 		return nil, err
 	}
 
-	return &SDK{
+	sdk := &SDK{
 		OAuth:    OAuth,
 		Postgres: Postgres,
 		Redis:    Redis,
-	}, nil
+	}
+
+	go sdk.gracefulShutdown()
+
+	return sdk, nil
+}
+
+func (s *SDK) gracefulShutdown() {
+	cancelChan := make(chan os.Signal, 1)
+	signal.Notify(cancelChan, syscall.SIGTERM, syscall.SIGINT)
+	<-cancelChan
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		s.Postgres.Shutdown()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		s.Redis.Shutdown()
+	}()
+
+	wg.Wait()
+	os.Exit(0)
 }

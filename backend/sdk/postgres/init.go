@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -111,15 +109,13 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		dsn:     dsn,
 	}
 
-	go p.gracefulShutdown()
-
 	if err := p.createFuntionsAndTriggers(); err != nil {
-		p.shutdown()
+		p.Shutdown()
 		return nil, err
 	}
 
 	if p.jwk, err = jwk.Init(p.getDb, dsn, cluster); err != nil {
-		p.shutdown()
+		p.Shutdown()
 		return nil, err
 	}
 
@@ -197,17 +193,7 @@ func getCluster(db *gorm.DB) (*models.ClusterModel, error) {
 	return cluster, nil
 }
 
-func (p *Postgres_SDK) gracefulShutdown() {
-	cancelChan := make(chan os.Signal, 1)
-	signal.Notify(cancelChan, syscall.SIGTERM, syscall.SIGINT)
-	<-cancelChan
-
-	p.shutdown()
-
-	os.Exit(0)
-}
-
-func (p *Postgres_SDK) shutdown() {
+func (p *Postgres_SDK) Shutdown() {
 	// Remove this cluster from the database
 	if err := p.db.Delete(p.cluster).Error; err != nil {
 		fmt.Println(err)

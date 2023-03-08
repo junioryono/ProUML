@@ -44,14 +44,8 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			return
 		}
 
-		// Send users to the client
-		err2 := sdkP.Redis.GetUsersAndPostToWS(diagramId, wc)
-		if err2 != nil {
-			return
-		}
-
 		// Listen for messages from Redis and send to client
-		sessionId, color := sdkP.Redis.Subscribe(diagramId, userModel, wc)
+		sessionId := sdkP.Redis.Subscribe(diagramId, userModel, wc)
 		if sessionId == "" {
 			return
 		}
@@ -97,7 +91,7 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Remove connection
-		go sdkP.Redis.Unsubscribe(diagramId, sessionId, color)
+		go sdkP.Redis.Unsubscribe(diagramId, sessionId)
 	})
 }
 
