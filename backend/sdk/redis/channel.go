@@ -320,3 +320,7 @@ func (c *channel) close() {
 
 	c.unsubscribe()
 }
+
+// func (c *channel) removeAllRedisUsers() error {
+// 	return c.client.Del(c.context, c.getDiagramUsersKey()).Err()
+// }

@@ -3,6 +3,7 @@ package router
 import (
 	"encoding/json"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -52,10 +53,14 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 
 		// Listen for messages from client and send to Redis
 		for {
-			msgType, msg, err := wc.ReadMessage()
+			// 3 minutes timeout
+			wc.SetReadDeadline(time.Now().Add(3 * time.Minute))
+			var msgType, msg, err = wc.ReadMessage()
 			if err != nil {
 				break
 			}
+
+			wc.SetReadDeadline(time.Time{})
 
 			if msgType != websocket.TextMessage {
 				continue
@@ -87,6 +92,11 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 				go sdkP.Postgres.Diagram.UpdateBackgroundColor(diagramId, idToken, payload.BackgroundColor)
 			} else if sliceContains(events, "db_updateGraphShowGrid") {
 				go sdkP.Postgres.Diagram.UpdateShowGrid(diagramId, idToken, payload.ShowGrid)
+			} else if sliceContains(events, "ping") {
+				go wc.WriteJSON(types.WebSocketBody{
+					SessionId: sessionId,
+					Events:    "pong",
+				})
 			}
 		}
 

@@ -102,6 +102,11 @@ func (r *Redis_SDK) Subscribe(channelId string, user *models.UserModel, ws *webs
 	}
 	r.channelsWg.Unlock()
 
+	// // Remove all redis users from the channel
+	// r.channelsWg.RLock()
+	// r.channels[channelId].removeAllRedisUsers()
+	// r.channelsWg.RUnlock()
+
 	// Generate session id
 	sessionId := uuid.New().String()
 
