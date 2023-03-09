@@ -1,6 +1,6 @@
 import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useState } from "react";
-import { lightColorOptions } from "./styling-options/colors";
+import { lightColorOptions } from "../styling-options/colors";
 
 // TODO - add a way to change the background color of the graph
 export default function GraphPanel({

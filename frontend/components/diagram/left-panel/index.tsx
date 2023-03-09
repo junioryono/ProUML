@@ -2,6 +2,7 @@ import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Diagram } from "types";
+import { ScrollFade } from "@/components/scroll-fade";
 
 export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph: MutableRefObject<X6Type.Graph> }) {
    const router = useRouter();
@@ -46,10 +47,10 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
    }, [graph]);
 
    return (
-      <div className="w-60 p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
+      <div className="w-60 h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
          {/* ---------------------- SEARCH BAR SECTION ---------------------- */}
 
-         <div className="flex flex-col mt-2">
+         <div className="flex flex-col mt-2 mb-1">
             <div className="pr-2 flex items-center cursor-pointer content-center gap-1">
                <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -89,9 +90,9 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          {/* ---------------------- DIAGRAMS SECTION ---------------------- */}
          {diagram.project && (
             <>
-               <div>
+               <div className="pb-1">
                   <div className="mt-2 flex justify-between">
-                     <div className="font-bold pt-1 pb-1">Diagrams</div>
+                     <div className="font-bold pb-1">Diagrams</div>
                      <div className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center">
                         <span
                            role="button"
@@ -116,20 +117,19 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      </div>
                   </div>
 
-                  <div style={{ height: "155px", overflowY: "scroll" }}>
-                     {diagram.project.diagrams.map((pDiagram) => {
-                        return (
-                           <div
-                              key={pDiagram.id}
-                              className={`hover:bg-slate-200 rounded flex items-center gap-3 py-1 pl-4 cursor-pointer ${
-                                 pDiagram.id === diagram.id && "bg-slate-300 font-semibold"
-                              }`}
-                              onClick={() => {
-                                 router.push(`/dashboard/diagrams/${pDiagram.id}`);
-                              }}
-                           >
-                              <div className="w-3">
-                                 {/* {pDiagram.id === diagram.id && (
+                  {diagram.project.diagrams.map((pDiagram) => {
+                     return (
+                        <div
+                           key={pDiagram.id}
+                           className={`hover:bg-slate-200 rounded flex items-center gap-3 py-1 pl-4 cursor-pointer mb-0.5 ${
+                              pDiagram.id === diagram.id && "bg-slate-300 font-semibold"
+                           }`}
+                           onClick={() => {
+                              router.push(`/dashboard/diagrams/${pDiagram.id}`);
+                           }}
+                        >
+                           <div className="w-3">
+                              {/* {pDiagram.id === diagram.id && (
                                     <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                                        <path
                                           d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
@@ -139,22 +139,21 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                                        />
                                     </svg>
                                  )} */}
-                              </div>
-                              <div>{pDiagram.name}</div>
                            </div>
-                        );
-                     })}
-                  </div>
+                           <div>{pDiagram.name}</div>
+                        </div>
+                     );
+                  })}
                </div>
                <hr className="border-slate-400" />
             </>
          )}
 
          {/* ---------------------- NODES SECTION ---------------------- */}
-         <div className="pb-3">
+         <div className="pb-1">
             <div className="flex flex-col">
                <div className="flex justify-between mt-2">
-                  <div className="font-bold pt-1 mb-1">Nodes</div>
+                  <div className="font-bold mb-1">Nodes</div>
 
                   <div
                      className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
@@ -241,7 +240,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                   return (
                      <div
                         key={nodeId}
-                        className={`flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4 ${
+                        className={`flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5 ${
                            isSelected && "bg-slate-300 font-semibold"
                         }`}
                         onClick={() => {
@@ -251,8 +250,6 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         }}
                      >
                         <div className="w-3">
-                           {/* if the node is selected show a checkmark svg next to it */}
-
                            {/* {isSelected && (
                               <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                                  <path
@@ -276,10 +273,10 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                <hr className="border-slate-400" />
 
                {/* ---------------------- EDGES SECTION ---------------------- */}
-               <div className="pb-3">
+               <div className="pb-1">
                   <div className="flex flex-col">
                      <div className="flex justify-between mt-2">
-                        <div className="font-bold pt-1 mb-1">Edges</div>
+                        <div className="font-bold mb-1">Edges</div>
                      </div>
 
                      {edges.map((node) => {
@@ -293,7 +290,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         return (
                            <div
                               key={edgeId}
-                              className={`flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4 ${
+                              className={`flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5 ${
                                  isSelected && "bg-slate-300 font-semibold"
                               }`}
                               onClick={() => {
@@ -303,8 +300,6 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                               }}
                            >
                               <div className="w-3">
-                                 {/* if the node is selected show a checkmark svg next to it */}
-
                                  {/* {isSelected && (
                                     <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
                                        <path
@@ -316,10 +311,20 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                                     </svg>
                                  )} */}
                               </div>
-                              <div>
-                                 {sourceNodeName}
-                                 {" --> "}
-                                 {targetNodeName}
+                              <div className="flex">
+                                 <div
+                                    className="w-1/3 overflow-hidden whitespace-nowrap text-elipses"
+                                    style={{ maxWidth: "110px" }}
+                                 >
+                                    {sourceNodeName}
+                                 </div>
+                                 <div className="w-6">{" --> "}</div>
+                                 <div
+                                    className="w-1/3 overflow-hidden whitespace-nowrap text-elipses"
+                                    style={{ maxWidth: "110px" }}
+                                 >
+                                    {targetNodeName}
+                                 </div>
                               </div>
                            </div>
                         );
