@@ -263,6 +263,8 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                                  />
                               </svg>
                            )} */}
+
+                           {/* if the node is a regular class */}
                         </div>
                         <div>{nodeName}</div>
                      </div>
