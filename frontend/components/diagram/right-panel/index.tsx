@@ -4,6 +4,7 @@ import GraphPanel from "./graph/graph";
 import EdgesPanel from "./edges";
 import NodesPanel from "./nodes";
 import { Diagram } from "types";
+import NodesAndEdgesPanel from "./nodes-and-edges";
 
 // RightPanel component, receives a `graph` prop of type `MutableRefObject<X6Type.Graph>`
 export default function RightPanel({
@@ -54,7 +55,7 @@ export default function RightPanel({
          ) : tab === "edges" ? (
             <EdgesPanel graph={graph} />
          ) : tab === "nodes&edges" ? (
-            <NodesPanel graph={graph} />
+            <NodesAndEdgesPanel graph={graph} />
          ) : null}
       </div>
    );
