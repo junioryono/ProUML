@@ -45,6 +45,8 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			return
 		}
 
+		// HERE: Implement ping/pong to keep connection alive
+
 		// Listen for messages from Redis and send to client
 		sessionId := sdkP.Redis.Subscribe(diagramId, userModel, wc)
 		if sessionId == "" {
@@ -53,13 +55,19 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 
 		// Listen for messages from client and send to Redis
 		for {
-			// 3 minutes timeout
+			// Set timeout for 3 minutes
 			wc.SetReadDeadline(time.Now().Add(3 * time.Minute))
 			var msgType, msg, err = wc.ReadMessage()
 			if err != nil {
+				wc.WriteJSON(types.WebSocketBody{
+					SessionId: sessionId,
+					Events:    "disconnected",
+				})
+
 				break
 			}
 
+			// Reset timeout
 			wc.SetReadDeadline(time.Time{})
 
 			if msgType != websocket.TextMessage {
@@ -93,10 +101,13 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			} else if sliceContains(events, "db_updateGraphShowGrid") {
 				go sdkP.Postgres.Diagram.UpdateShowGrid(diagramId, idToken, payload.ShowGrid)
 			} else if sliceContains(events, "ping") {
-				go wc.WriteJSON(types.WebSocketBody{
-					SessionId: sessionId,
-					Events:    "pong",
-				})
+				go func() {
+					time.Sleep(10 * time.Second)
+					wc.WriteJSON(types.WebSocketBody{
+						SessionId: sessionId,
+						Events:    "pong",
+					})
+				}()
 			}
 		}
 
