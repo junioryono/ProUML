@@ -48,12 +48,11 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 		// Send the websocket a ping to keep the connection alive. Return once the connection is closed.
 		var closeChannel = make(chan int)
 		go func() {
-			// Send ping every 10 seconds
 			for {
 				select {
 				case <-closeChannel:
 					return
-				case <-time.After(10 * time.Second):
+				case <-time.After(30 * time.Second):
 					if wc == nil {
 						return
 					}
@@ -71,8 +70,8 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 
 		// Listen for messages from client and send to Redis
 		for {
-			// Set timeout for 3 minutes
-			wc.SetReadDeadline(time.Now().Add(3 * time.Minute))
+			// Set timeout for 15 minutes
+			wc.SetReadDeadline(time.Now().Add(15 * time.Minute))
 			var msgType, msg, err = wc.ReadMessage()
 			if err != nil {
 				// Send to channel to close the ping loop
