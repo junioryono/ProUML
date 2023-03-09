@@ -26,7 +26,7 @@ function onWebSocketMessage(
    sessionId: React.MutableRefObject<string | null>,
    layoutProps: LayoutProps,
 ) {
-   if (!event || !event.data) {
+   if (!event || !event.data || event.data === "ping") {
       return;
    }
 
