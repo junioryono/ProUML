@@ -96,6 +96,9 @@ export default function useGraph(
             global: true,
             modifiers: ["ctrl", "meta"],
          },
+         interacting(cellView) {
+            return !graph.current?.isPannable();
+         },
       });
 
       graph.current.use(

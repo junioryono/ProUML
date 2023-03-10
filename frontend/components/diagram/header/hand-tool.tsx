@@ -18,8 +18,6 @@ export default function HandTool({
             panning ? "bg-[#0d99ff]" : "hover:bg-diagram-menu-item-hovered",
          )}
          onClick={() => {
-            console.log("graph", graph.current);
-
             graph.current?.disableMultipleSelection();
             graph.current?.disableRubberband();
             graph.current?.disableSelection();

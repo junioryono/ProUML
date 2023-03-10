@@ -109,8 +109,6 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                      className="w-full ml-1 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-1 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400"
                      type="text"
                      onChange={(e) => {
-                        console.log(node.prop());
-
                         // set the name of the node
                         setNodeName(e.target.value);
 

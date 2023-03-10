@@ -56,7 +56,6 @@ export default function Graph(
    });
 
    graph.current?.on("grid:changed", (args) => {
-      console.log("grid:changed", args);
       if (args.ws) {
          return;
       }
@@ -66,7 +65,6 @@ export default function Graph(
 
    // Background color
    graph.current?.on("background:changed", (args) => {
-      console.log("background:changed", args);
       if (args.ws) {
          return;
       }

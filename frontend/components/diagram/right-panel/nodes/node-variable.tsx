@@ -84,7 +84,6 @@ export default function NodeSettingsVariable({
                         // update the node's variables array
                         setType(e.target.value);
                         variables[index].type = e.target.value;
-                        console.log(variables[index].type);
                         node.trigger("change:variables", { variables });
                      }}
                      // if the input is "Untitled" highlight the entire text

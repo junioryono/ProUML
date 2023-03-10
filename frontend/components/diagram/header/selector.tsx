@@ -18,9 +18,13 @@ export default function Selector({
             !panning ? "bg-[#0d99ff]" : "hover:bg-diagram-menu-item-hovered",
          )}
          onClick={() => {
-            console.log("graph", graph.current);
-            graph.current?.disablePanning();
+            graph.current?.enableMultipleSelection();
             graph.current?.enableRubberband();
+            graph.current?.enableSelection();
+            graph.current?.enableSelectionMovable();
+            graph.current?.enableStrictRubberband();
+            graph.current?.disablePanning();
+
             setPanning(false);
          }}
       >

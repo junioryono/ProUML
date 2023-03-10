@@ -20,7 +20,7 @@ export default function Nodes(
    layoutProps: LayoutProps,
 ) {
    graph.current?.on("node:mouseenter", (args) => {
-      if (!graph.current?.isSelected(args.node)) {
+      if (!graph.current?.isSelected(args.node) && !graph.current?.isPannable()) {
          showPorts(args.node);
       }
    });

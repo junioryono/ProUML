@@ -119,7 +119,6 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
 
       // if the background color is changed, update the node
       node?.on("change:backgroundColor", ({ backgroundColor, ws }: { backgroundColor: string; ws: boolean }) => {
-         console.log("Changing background color", backgroundColor);
          setBackgroundColor(backgroundColor);
          node
             .prop("backgroundColor", backgroundColor, { silent: true })

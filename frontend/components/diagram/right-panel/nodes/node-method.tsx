@@ -113,7 +113,6 @@ export default function NodeSettingsMethod({
                         // update the node's methods array
                         setType(e.target.value);
                         methods[index].type = e.target.value;
-                        console.log(methods[index].type);
                         node.trigger("change:methods", { methods });
                      }}
                      // if the input is "Untitled" highlight the entire text
