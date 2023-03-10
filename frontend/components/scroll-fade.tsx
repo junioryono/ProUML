@@ -15,13 +15,6 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
    // useRef hook to store the current scroll position
    const scrollPositionRef = useRef(0);
 
-   // for the scrollable container
-   const handleContainerRef = (ref) => {
-      if (ref) {
-         setContainerHeight(ref.offsetHeight); // Get the height of the container
-      }
-   };
-
    // if the children of the scrollable container change, reset the fade effects
    useEffect(() => {
       // if the list is too long (needs a scroll), show the fade effect
@@ -55,7 +48,7 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
       <div>
          {/* scrollable container */}
          <div
-            ref={handleContainerRef}
+            ref={(ref) => setContainerHeight(ref?.offsetHeight)}
             className={`overflow-y-scroll no-scrollbar overflow-x-hidden list-container`}
             // style={{ maxHeight }}
             onScroll={handleScroll}
