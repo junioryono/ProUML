@@ -48,7 +48,7 @@ export const ScrollFade = ({ children, maxHeight }: ScrollFadeProps) => {
       <div>
          {/* scrollable container */}
          <div
-            ref={(ref) => setContainerHeight(ref?.offsetHeight)}
+            ref={(ref) => setContainerHeight(ref?.offsetHeight || 0)}
             className={`overflow-y-scroll no-scrollbar overflow-x-hidden list-container`}
             // style={{ maxHeight }}
             onScroll={handleScroll}
