@@ -89,7 +89,7 @@ export default function DiagramItemOptions({
             show={showMenu}
          >
             <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none top-8 sm:top-12">
-               {!project && (
+               {!project && !diagram.has_project && (
                   <div className="py-1">
                      <Menu.Item>
                         {({ active }) => (

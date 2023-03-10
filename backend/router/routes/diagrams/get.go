@@ -36,7 +36,7 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Get the diagrams
-		diagrams, err := sdkP.Postgres.Diagrams.GetAllNotInProject(fbCtx.Locals("idToken").(string), offsetInt)
+		diagrams, err := sdkP.Postgres.Diagrams.GetDashboard(fbCtx.Locals("idToken").(string), offsetInt)
 		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
