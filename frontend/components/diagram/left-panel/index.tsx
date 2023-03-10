@@ -99,7 +99,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         <span
                            role="button"
                            className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
-                           onClick={async () => {
+                           onClick={() => {
                               const formData = new FormData();
 
                               formData.append("projectId", diagram.project.id);
