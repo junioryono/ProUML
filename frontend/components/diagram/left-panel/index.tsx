@@ -2,7 +2,8 @@ import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Diagram } from "types";
-import { ScrollFade } from "@/components/scroll-fade";
+import { toast } from "@/ui/toast";
+import { createDiagram } from "@/lib/auth-fetch";
 
 export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph: MutableRefObject<X6Type.Graph> }) {
    const router = useRouter();
@@ -98,6 +99,34 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         <span
                            role="button"
                            className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                           onClick={async () => {
+                              const formData = new FormData();
+
+                              formData.append("projectId", diagram.project.id);
+
+                              createDiagram(formData)
+                                 .then((res) => {
+                                    if (res.success === false) {
+                                       throw new Error(res.reason);
+                                    }
+
+                                    router.push(`/dashboard/diagrams/${res.response}`);
+
+                                    return toast({
+                                       title: "Success!",
+                                       message: "Your diagram has been created. You will be redirected to the new diagram.",
+                                       type: "success",
+                                    });
+                                 })
+                                 .catch((error) => {
+                                    console.error(error);
+                                    return toast({
+                                       title: "Something went wrong.",
+                                       message: error.message,
+                                       type: "error",
+                                    });
+                                 });
+                           }}
                         >
                            <svg
                               className="svg"
