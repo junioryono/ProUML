@@ -6,15 +6,13 @@ import { DashedLine, DottedLine, SolidLine } from "../styling-options/line-style
 import LineWidth from "../styling-options/line-width";
 
 export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
-   // for the left and right ends of the edge
+   // for the left end, middle, and right end of the edge
    const [leftEnd, setLeftEnd] = useState("none");
+   const [lineStyle, setLineStyle] = useState("solid");
    const [rightEnd, setRightEnd] = useState("none");
 
-   // for the line style of the selected cell
-   const [style, setStyle] = useState("solid"); // <- default should be initial border style
-
    // for the line style options
-   const styleOptions = [
+   const lineStyleOptions = [
       {
          value: "solid",
          icon: <SolidLine />,
@@ -26,6 +24,38 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       {
          value: "dotted",
          icon: <DottedLine />,
+      },
+   ];
+
+   // for the edge ending relationship options
+   const relationshipOptions = [
+      {
+         value: "none",
+         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
+      },
+      {
+         value: "association",
+         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
+      },
+      {
+         value: "generalization",
+         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
+      },
+      {
+         value: "aggregation",
+         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
+      },
+      {
+         value: "composition",
+         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
+      },
+      {
+         value: "dependency",
+         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
+      },
+      {
+         value: "realization",
+         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
       },
    ];
 
@@ -67,7 +97,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="w-full flex justify-center items-center gap-1 mb-2">
                {/* left ending dropdown */}
                <select
-                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-8 w-12"
+                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-8 w-14"
                   value={leftEnd}
                >
                   {/* {options1.map((option) => (
@@ -75,13 +105,13 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                 ))} */}
                </select>
 
-               <div className="w-1/2 my-0 block h-8 rounded-md border bg-slate-200 border-slate-400 py-3 px-3 text-md items-center focus:outline-none">
-                  <div className="w-16">{styleOptions.find((option) => option.value === style)?.icon}</div>
+               <div className="w-20 flex my-0 h-8 rounded-md border bg-slate-200 border-slate-400 py-3 px-3 text-md justify-center items-center focus:outline-none">
+                  {lineStyleOptions.find((option) => option.value === lineStyle)?.icon}
                </div>
 
                {/* right ending dropdown */}
                <select
-                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-8 w-12"
+                  className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-8 w-14"
                   value={rightEnd}
                >
                   {/* {options2.map((option) => (
@@ -93,12 +123,12 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             {/* line style options */}
             <div className="w-full flex justify-center items-center gap-1.5">
                {/* map out all of the line style option buttons */}
-               {styleOptions.map((option, index) => (
+               {lineStyleOptions.map((option, index) => (
                   <button
                      key={index}
                      className={`border rounded-md transition duration-500 hover:scale-125
-                     ${style !== option.value ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                     onClick={() => setStyle(option.value)}
+                     ${lineStyle !== option.value ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                     onClick={() => setLineStyle(option.value)}
                   >
                      {option.icon}
                   </button>

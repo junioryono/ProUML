@@ -11,6 +11,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
    const [edges, setEdges] = useState<X6Type.Edge[]>([]);
    const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
 
+   // when the graph changes, update the nodes, edges, and selected cells
    useEffect(() => {
       setNodes(graph.current?.getNodes());
       setEdges(graph.current?.getEdges());
@@ -140,7 +141,9 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                                     </svg>
                                  )} */}
                            </div>
-                           <div>{pDiagram.name}</div>
+                           <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "180px" }}>
+                              {pDiagram.name}
+                           </div>
                         </div>
                      );
                   })}
@@ -261,7 +264,9 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                               </svg>
                            )} */}
                         </div>
-                        <div>{nodeName}</div>
+                        <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "180px" }}>
+                           {nodeName}
+                        </div>
                      </div>
                   );
                })}
@@ -312,17 +317,11 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                                  )} */}
                               </div>
                               <div className="flex">
-                                 <div
-                                    className="w-1/3 overflow-hidden whitespace-nowrap text-elipses"
-                                    style={{ maxWidth: "110px" }}
-                                 >
+                                 <div className="text-ellipsis overflow-hidden whitespace-nowrap" style={{ width: "78px" }}>
                                     {sourceNodeName}
                                  </div>
-                                 <div className="w-6">{" --> "}</div>
-                                 <div
-                                    className="w-1/3 overflow-hidden whitespace-nowrap text-elipses"
-                                    style={{ maxWidth: "110px" }}
-                                 >
+                                 <div className="w-6 text-center">{" -> "}</div>
+                                 <div className="text-ellipsis overflow-hidden whitespace-nowrap" style={{ width: "78px" }}>
                                     {targetNodeName}
                                  </div>
                               </div>
