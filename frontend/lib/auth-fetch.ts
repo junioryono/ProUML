@@ -123,6 +123,7 @@ export async function getDiagramUsers(
    APIResponse<{
       users: User[];
       allowedToEdit?: boolean;
+      editorPermissionsEnabled?: boolean;
    }>
 > {
    return fetchAPI(
@@ -138,6 +139,7 @@ export async function getDiagramUsers(
          jsonResponse<{
             users: User[];
             allowedToEdit?: boolean;
+            editorPermissionsEnabled?: boolean;
          }>(res),
       )
       .catch(() => defaultError);

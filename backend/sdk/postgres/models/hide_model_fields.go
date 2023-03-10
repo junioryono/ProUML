@@ -13,8 +13,9 @@ type DiagramModelHiddenContent struct {
 }
 
 type DiagramUserRolesResponse struct {
-	Users                  []DiagramUsersRolesHiddenContent `json:"users"`
-	AllowEditorPermissions bool                             `json:"allowedToEdit,omitempty"`
+	Users                    []DiagramUsersRolesHiddenContent `json:"users"`
+	EditorPermissionsEnabled *bool                            `json:"editorPermissionsEnabled,omitempty"`
+	AllowEditorPermissions   bool                             `json:"allowedToEdit,omitempty"`
 }
 
 type DiagramUsersRolesHiddenContent struct {

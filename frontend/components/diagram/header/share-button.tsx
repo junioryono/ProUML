@@ -188,9 +188,13 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
 
       getDiagramUsers(diagram.id).then((res) => {
          if (res && res.response) {
+            console.log(res.response);
             setUsers(res.response.users || []);
             setAllowedToEdit(res.response.allowedToEdit || false);
-            setAllowedToEditButton(res.response.allowedToEdit || false);
+
+            if (res.response.editorPermissionsEnabled !== undefined) {
+               setAllowedToEditButton(res.response.editorPermissionsEnabled);
+            }
          } else {
             toast({
                title: "Failed to get users.",

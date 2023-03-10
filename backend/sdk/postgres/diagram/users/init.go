@@ -63,6 +63,10 @@ func (u *Users_SDK) Get(diagramId, idToken string) (*models.DiagramUserRolesResp
 			if diagramUser.Role == "owner" || (diagram.AllowEditorPermissions && diagramUser.Role == "editor") {
 				response.AllowEditorPermissions = true
 			}
+
+			if diagramUser.Role == "owner" {
+				response.EditorPermissionsEnabled = &diagram.AllowEditorPermissions
+			}
 		}
 
 		response.Users = append(response.Users, models.DiagramUsersRolesHiddenContent{
