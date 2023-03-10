@@ -9,18 +9,14 @@ import { getDiagramUsers, addDiagramUser, updateDiagramUser, removeDiagramUser, 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-function validateEmail(email: string) {
-   const re = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-   return re.test(email);
-}
-
 const userAddSchema = z.object({
-   email: z
+   // We are using "new-password" here because the browser will try to autofill the password field
+   "new-password": z
       .string()
       .min(8)
-      .refine((v) => validateEmail(v), {
-         message: "Invalid email address",
-      }),
+      .max(255)
+      .email("Invalid email address")
+      .transform((v) => v.toLowerCase()),
 });
 
 type FormData = z.infer<typeof userAddSchema>;
@@ -34,7 +30,7 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
    } = useForm<FormData>({
       resolver: zodResolver(userAddSchema),
       defaultValues: {
-         email: "",
+         "new-password": "",
       },
    });
    const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -80,7 +76,7 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
 
    async function onNewUserSubmit(data: FormData) {
       setIsLoading(true);
-      const res = await addDiagramUser(diagram.id, data.email, newUserRole);
+      const res = await addDiagramUser(diagram.id, data["new-password"], newUserRole);
       setIsLoading(false);
       if (res && res.success) {
          toast({
@@ -268,13 +264,12 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                              autoComplete="off"
                                              autoCorrect="off"
                                              spellCheck="false"
-                                             {...register("email")}
-                                             name="new-password"
-                                             onChange={(e) => {
-                                                const validEmail = validateEmail(e.currentTarget.value);
-                                                setShowInviteButton(validEmail);
-                                                return e;
-                                             }}
+                                             {...register("new-password")}
+                                             // onChange={(e) => {
+                                             //    const validEmail = validateEmail(e.currentTarget.value);
+                                             //    setShowInviteButton(validEmail);
+                                             //    return e;
+                                             // }}
                                           />
                                           <div ref={newUserDropdownRef} className="relative select-none">
                                              <div
@@ -353,8 +348,8 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                              )}
                                           </div>
                                        </div>
-                                       {errors?.email && (
-                                          <p className="text-sm mt-1 mb-1 text-red-600">{errors.email.message}</p>
+                                       {errors?.["new-password"] && (
+                                          <p className="text-sm mt-1 mb-1 text-red-600">{errors["new-password"].message}</p>
                                        )}
                                     </div>
                                  </>
