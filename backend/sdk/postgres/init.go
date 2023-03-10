@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -64,6 +65,14 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
+	}
+
+	if dbC, err := db.DB(); err != nil {
+		return nil, err
+	} else {
+		dbC.SetMaxIdleConns(22)
+		dbC.SetMaxOpenConns(22)
+		dbC.SetConnMaxLifetime(time.Hour)
 	}
 
 	// // Drop all tables
