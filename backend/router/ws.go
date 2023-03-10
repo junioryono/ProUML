@@ -76,13 +76,6 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 			if err != nil {
 				// Send to channel to close the ping loop
 				go close(closeChannel)
-
-				// Close connection
-				go wc.WriteJSON(types.WebSocketBody{
-					SessionId: sessionId,
-					Events:    "disconnected",
-				})
-
 				break
 			}
 

@@ -19,8 +19,14 @@ export default function HandTool({
          )}
          onClick={() => {
             console.log("graph", graph.current);
-            graph.current?.enablePanning();
+
+            graph.current?.disableMultipleSelection();
             graph.current?.disableRubberband();
+            graph.current?.disableSelection();
+            graph.current?.disableSelectionMovable();
+            graph.current?.disableStrictRubberband();
+            graph.current?.enablePanning();
+
             setPanning(true);
          }}
       >

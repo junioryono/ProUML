@@ -29,8 +29,10 @@ func (d *Diagrams_SDK) GetAllNotInProject(idToken string, offset int) ([]models.
 	if err := d.getDb().
 		Offset(offset).
 		Model(&models.DiagramModel{}).
-		Joins("JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").
-		Where("diagram_user_role_models.user_id = ? AND diagram_models.project_id = ?", userId, "default").
+		Preload("Project").
+		Select("diagram_models.id, diagram_models.created_at, diagram_models.updated_at, diagram_models.public, diagram_models.name, diagram_models.image").
+		Where("diagram_models.project_id = ?", "default").
+		Where("diagram_models.id IN (SELECT diagram_id FROM diagram_user_role_models WHERE user_id = ?)", userId).
 		Order("diagram_models.updated_at DESC").
 		Limit(15).
 		Find(&diagrams).Error; err != nil {
@@ -40,20 +42,14 @@ func (d *Diagrams_SDK) GetAllNotInProject(idToken string, offset int) ([]models.
 	// Go to diagrammodelshiddencontent
 	var response []models.DiagramModelHiddenContent
 	for _, diagram := range diagrams {
-		md := models.DiagramModelHiddenContent{
+		response = append(response, models.DiagramModelHiddenContent{
 			ID:        diagram.ID,
 			CreatedAt: diagram.CreatedAt,
 			UpdatedAt: diagram.UpdatedAt,
 			Public:    diagram.Public,
 			Name:      diagram.Name,
 			Image:     diagram.Image,
-		}
-
-		if diagram.Project != nil && diagram.Project.ID != "default" {
-			md.Project = diagram.Project
-		}
-
-		response = append(response, md)
+		})
 	}
 
 	return response, nil

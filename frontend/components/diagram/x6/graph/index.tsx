@@ -18,8 +18,12 @@ export default function useGraph(
    layoutProps: LayoutProps,
 ) {
    const graph = useRef<X6Type.Graph>();
-   const { websocket, sessionId } = useGraphWebSocket(graph, diagram.id, layoutProps);
+   const {
+      websocket: { readyState: wsReadyState, sendJsonMessage: wsSendJson },
+      sessionId,
+   } = useGraphWebSocket(graph, diagram.id, layoutProps);
    const [graphReady, setGraphReady] = useState(false);
+   const [wsTimedOut, setWSTimedOut] = useState(false);
 
    useEffect(() => {
       if (
@@ -34,7 +38,7 @@ export default function useGraph(
          !X6.Plugin.Clipboard ||
          !X6.Plugin.History ||
          !X6.Plugin.Export ||
-         websocket.readyState !== ReadyState.OPEN
+         wsReadyState !== ReadyState.OPEN
       ) {
          return;
       }
@@ -161,7 +165,7 @@ export default function useGraph(
          addPorts(node);
       }
 
-      const removeListeners = initializeListeners(graph, websocket, sessionId, layoutProps);
+      const removeListeners = initializeListeners(graph, wsSendJson, sessionId, layoutProps);
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
       window.addEventListener("resize", handleResize);
 
@@ -187,7 +191,15 @@ export default function useGraph(
          graph.current = null;
          setGraphReady(false);
       };
-   }, [diagram, container, X6, websocket.readyState]);
+   }, [diagram, container, X6, wsReadyState]);
 
-   return { graph, sessionId, ready: graphReady && websocket.readyState === ReadyState.OPEN };
+   useEffect(() => {
+      if (wsReadyState === ReadyState.CLOSED) {
+         setWSTimedOut(true);
+      } else {
+         setWSTimedOut(false);
+      }
+   }, [wsReadyState]);
+
+   return { graph, sessionId, ready: graphReady && wsReadyState === ReadyState.OPEN, wsTimedOut };
 }

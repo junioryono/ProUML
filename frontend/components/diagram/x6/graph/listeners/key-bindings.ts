@@ -1,11 +1,11 @@
+import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type X6Type from "@antv/x6";
-import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 
 export default function KeyBindings(
    graph: MutableRefObject<X6Type.Graph>,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
 ) {

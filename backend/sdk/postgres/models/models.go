@@ -30,12 +30,13 @@ type UserModel struct {
 }
 
 type ProjectModel struct {
-	ID        string         `gorm:"uniqueIndex" json:"id"`
-	CreatedAt time.Time      `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
-	Public    bool           `gorm:"default:false" json:"public"`
-	Name      string         `gorm:"default:'Untitled Project'" json:"name"`
-	Diagrams  []DiagramModel `gorm:"foreignKey:ProjectID;references:ID" json:"diagrams"`
+	ID        string                 `gorm:"uniqueIndex" json:"id"`
+	CreatedAt time.Time              `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time              `gorm:"autoUpdateTime" json:"updated_at"`
+	Public    bool                   `gorm:"default:false" json:"public"`
+	Name      string                 `gorm:"default:'Untitled Project'" json:"name"`
+	Diagrams  []DiagramModel         `gorm:"foreignKey:ProjectID;references:ID" json:"diagrams"`
+	UserRoles []ProjectUserRoleModel `gorm:"foreignKey:ProjectID;references:ID" json:"user_roles"`
 }
 
 type TeamModel struct {
@@ -62,18 +63,19 @@ type ProjectUserRoleModel struct {
 }
 
 type DiagramModel struct {
-	ID                     string        `gorm:"uniqueIndex" json:"id"`
-	CreatedAt              time.Time     `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt              time.Time     `gorm:"autoUpdateTime" json:"updated_at"`
-	Public                 bool          `gorm:"default:false" json:"public"`
-	Name                   string        `gorm:"default:'Untitled Diagram'" json:"name"`
-	Image                  string        `json:"image,omitempty"`
-	Content                []any         `gorm:"serializer:json" json:"content"`
-	ProjectID              string        `gorm:"default:'default'" json:"project_id"`
-	Project                *ProjectModel `gorm:"foreignKey:ProjectID;references:ID" json:"project,omitempty"`
-	BackgroundColor        string        `gorm:"default:FFFFFF" json:"background_color"`
-	ShowGrid               bool          `gorm:"default:true" json:"show_grid"`
-	AllowEditorPermissions bool          `gorm:"default:true" json:"-"`
+	ID                     string                 `gorm:"uniqueIndex" json:"id"`
+	CreatedAt              time.Time              `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt              time.Time              `gorm:"autoUpdateTime" json:"updated_at"`
+	Public                 bool                   `gorm:"default:false" json:"public"`
+	Name                   string                 `gorm:"default:'Untitled Diagram'" json:"name"`
+	Image                  string                 `json:"image,omitempty"`
+	Content                []any                  `gorm:"serializer:json" json:"content"`
+	ProjectID              string                 `gorm:"default:'default'" json:"project_id"`
+	Project                *ProjectModel          `gorm:"foreignKey:ProjectID;references:ID" json:"project,omitempty"`
+	BackgroundColor        string                 `gorm:"default:FFFFFF" json:"background_color"`
+	ShowGrid               bool                   `gorm:"default:true" json:"show_grid"`
+	AllowEditorPermissions bool                   `gorm:"default:true" json:"-"`
+	UserRoles              []DiagramUserRoleModel `gorm:"foreignKey:DiagramID;references:ID" json:"user_roles"`
 }
 
 type DiagramTeamModel struct {

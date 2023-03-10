@@ -71,7 +71,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
    if (!userRequest.success) {
       return {
          redirect: {
-            destination: "/login?redirect=/dashboard/diagrams/projects/" + id,
+            destination: "/login?redirect=/dashboard/diagrams/project/" + id,
             permanent: false,
          },
       };

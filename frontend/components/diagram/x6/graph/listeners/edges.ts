@@ -1,3 +1,4 @@
+import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type X6Type from "@antv/x6";
 import {
    wsLocalAndDBAddNode,
@@ -8,20 +9,19 @@ import {
    wsLocalUpdateNode,
    wsLocalUpdateEdge,
 } from "@/components/diagram/x6/graph/websocket";
-import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 import { showPorts, hidePorts, addPorts, updatePorts, hideAllPorts, showAllPorts } from "../shapes/ports";
 
 export default function Edges(
    graph: MutableRefObject<X6Type.Graph>,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
 ) {
    graph.current?.on("edge:connected", (args) => {
       console.log("edge:connected", args.edge);
-      wsLocalAndDBUpdateEdge(args.edge, websocket, sessionId);
+      wsLocalAndDBUpdateEdge(args.edge, wsSendJson, sessionId);
    });
 
    graph.current?.on("edge:change:source", (args) => {
@@ -29,7 +29,7 @@ export default function Edges(
          return;
       }
 
-      wsLocalUpdateEdge(args.cell, websocket, sessionId);
+      wsLocalUpdateEdge(args.cell, wsSendJson, sessionId);
    });
 
    graph.current?.on("edge:change:target", (args) => {
@@ -38,7 +38,7 @@ export default function Edges(
          return;
       }
 
-      wsLocalUpdateEdge(args.cell, websocket, sessionId);
+      wsLocalUpdateEdge(args.cell, wsSendJson, sessionId);
    });
 
    graph.current?.on("edge:removed", (args) => {
@@ -47,7 +47,7 @@ export default function Edges(
       }
 
       hideAllPorts(graph.current);
-      wsLocalAndDBRemoveCell(args.cell, websocket, sessionId);
+      wsLocalAndDBRemoveCell(args.cell, wsSendJson, sessionId);
    });
 
    graph.current?.on("edge:added", (args) => {
@@ -56,7 +56,7 @@ export default function Edges(
       }
 
       const edge = args.cell as X6Type.Edge;
-      wsLocalAndDBAddEdge(edge, websocket, sessionId);
+      wsLocalAndDBAddEdge(edge, wsSendJson, sessionId);
 
       const sourceCell = edge.getSourceCell();
       const targetCell = edge.getTargetCell();

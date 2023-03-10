@@ -151,24 +151,25 @@ func (c *channel) listen() {
 			fromSessionId := payload.SessionId
 			payload.SessionId = ""
 
-			// Send message to all connections except the sender
-			var sendToConnections []*connection
+			// Send message to all connections except the sender concurrently
+			var wg sync.WaitGroup
 			c.connectionsMu.RLock()
-			for _, v := range c.connections {
-				if v.sessionId != fromSessionId {
-					sendToConnections = append(sendToConnections, v)
-				}
-			}
-			c.connectionsMu.RUnlock()
 
-			// Send message to all connections concurrently
-			for _, v := range sendToConnections {
+			for _, v := range c.connections {
+				wg.Add(1)
 				go func(v *connection) {
-					v.mu.Lock()
-					defer v.mu.Unlock()
-					v.ws.WriteJSON(payload)
+					defer wg.Done()
+
+					if v.sessionId != fromSessionId {
+						v.mu.Lock()
+						defer v.mu.Unlock()
+						v.ws.WriteJSON(payload)
+					}
 				}(v)
 			}
+
+			wg.Wait()
+			c.connectionsMu.RUnlock()
 		}
 	}()
 }

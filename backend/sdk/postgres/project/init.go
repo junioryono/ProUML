@@ -155,29 +155,43 @@ func (p *Project_SDK) Get(projectId, idToken string) (*models.ProjectModelWithDi
 		return nil, err
 	}
 
-	// Get the project user role model from the database
-	var userProject models.ProjectUserRoleModel
-
-	if err := p.getDb().Where("user_id = ? AND project_id = ?", userId, projectId).First(&userProject).Error; err != nil {
-		return nil, types.Wrap(err, types.ErrInternalServerError)
-	}
-
 	// Get the project model from the database
-	var project models.ProjectModelWithDiagrams
-	if err := p.getDb().Model(&models.ProjectModel{}).Select("id, created_at, updated_at, name").Where("id = ?", projectId).First(&project).Error; err != nil {
-		return nil, types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	// Get the diagram models from the database
-	if err := p.getDb().Model(&models.DiagramModel{}).
+	var project models.ProjectModel
+	if err := p.getDb().
+		Model(&models.ProjectModel{}).
+		// Preload the diagrams
+		Preload("Diagrams", func(db *gorm.DB) *gorm.DB {
+			return db.
+				// Only select the id, created_at, updated_at, public, name, image, and project_id of the diagram
+				Select("id, created_at, updated_at, public, name, image, project_id").
+				// Order the diagrams by updated_at
+				Order("diagram_models.updated_at DESC")
+		}).
+		// Only select the id, created_at, updated_at, and name of the project
 		Select("id, created_at, updated_at, name").
-		Where("project_id = ?", projectId).
-		Order("diagram_models.updated_at DESC").
-		Find(&project.Diagrams).Error; err != nil {
+		// Make sure the user has a role in the project
+		Where("id = ? AND EXISTS (SELECT 1 FROM project_user_role_models WHERE project_user_role_models.project_id = ? AND project_user_role_models.user_id = ?)", projectId, projectId, userId).
+		First(&project).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	return &project, nil
+	var response models.ProjectModelWithDiagrams
+	response.ID = project.ID
+	response.CreatedAt = project.CreatedAt
+	response.UpdatedAt = project.UpdatedAt
+	response.Name = project.Name
+	for _, diagram := range project.Diagrams {
+		var responseDiagram models.DiagramModelHiddenContent
+		responseDiagram.ID = diagram.ID
+		responseDiagram.CreatedAt = diagram.CreatedAt
+		responseDiagram.UpdatedAt = diagram.UpdatedAt
+		responseDiagram.Public = diagram.Public
+		responseDiagram.Name = diagram.Name
+		responseDiagram.Image = diagram.Image
+		response.Diagrams = append(response.Diagrams, responseDiagram)
+	}
+
+	return &response, nil
 }
 
 func (p *Project_SDK) UpdateName(projectId, idToken, name string) *types.WrappedError {

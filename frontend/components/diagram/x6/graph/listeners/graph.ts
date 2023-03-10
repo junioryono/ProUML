@@ -1,17 +1,17 @@
+import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type X6Type from "@antv/x6";
 import {
    wsDBUpdateGraphImage,
    wsLocalAndDBUpdateGraphShowGrid,
    wsLocalAndDBUpdateGraphBackgroundColor,
 } from "@/components/diagram/x6/graph/websocket";
-import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 import { hideAllPorts, hidePorts } from "../shapes/ports";
 
 export default function Graph(
    graph: MutableRefObject<X6Type.Graph>,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
 ) {
@@ -25,7 +25,7 @@ export default function Graph(
 
       jsonString = newJSONString;
 
-      graph.current?.toJPEG((base64JPEG) => wsDBUpdateGraphImage(base64JPEG, websocket, sessionId), {
+      graph.current?.toJPEG((base64JPEG) => wsDBUpdateGraphImage(base64JPEG, wsSendJson, sessionId), {
          copyStyles: true,
          serializeImages: true,
          width: 518,
@@ -61,7 +61,7 @@ export default function Graph(
          return;
       }
 
-      wsLocalAndDBUpdateGraphShowGrid(args.showGrid, websocket, sessionId);
+      wsLocalAndDBUpdateGraphShowGrid(args.showGrid, wsSendJson, sessionId);
    });
 
    // Background color
@@ -75,7 +75,7 @@ export default function Graph(
       graph.current?.drawBackground({
          color: `#${args.color}`,
       });
-      wsLocalAndDBUpdateGraphBackgroundColor(args.color, websocket, sessionId);
+      wsLocalAndDBUpdateGraphBackgroundColor(args.color, wsSendJson, sessionId);
    });
 
    graph.current?.on("graph:mouseleave", () => {

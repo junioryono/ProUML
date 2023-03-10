@@ -1,3 +1,4 @@
+import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type X6Type from "@antv/x6";
 import {
    wsLocalAndDBAddNode,
@@ -8,14 +9,13 @@ import {
    wsLocalUpdateNode,
    wsLocalUpdateEdge,
 } from "@/components/diagram/x6/graph/websocket";
-import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 import { showPorts, hidePorts, addPorts, updatePorts, hideAllPorts, showAllPorts } from "../shapes/ports";
 
 export default function Nodes(
    graph: MutableRefObject<X6Type.Graph>,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
 ) {
@@ -43,7 +43,7 @@ export default function Nodes(
          return;
       }
 
-      wsLocalAndDBRemoveCell(args.cell, websocket, sessionId);
+      wsLocalAndDBRemoveCell(args.cell, wsSendJson, sessionId);
    });
 
    graph.current?.on("node:added", (args) => {
@@ -52,7 +52,7 @@ export default function Nodes(
       }
 
       addPorts(args.cell as X6Type.Node);
-      wsLocalAndDBAddNode(args.cell, websocket, sessionId);
+      wsLocalAndDBAddNode(args.cell, wsSendJson, sessionId);
    });
 
    graph.current?.on("node:change:data", (args) => {
@@ -60,7 +60,7 @@ export default function Nodes(
          return;
       }
 
-      wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
+      wsLocalAndDBUpdateNode(args.cell, wsSendJson, sessionId);
    });
 
    // When a node just starts to be moved. Triggers on mouse down and first move
@@ -71,7 +71,7 @@ export default function Nodes(
 
    // When a node has finished being moved. Triggers on mouse up
    graph.current?.on("node:moved", (args) => {
-      wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
+      wsLocalAndDBUpdateNode(args.cell, wsSendJson, sessionId);
    });
 
    // When a node's position has changed. Triggers on every mouse move
@@ -80,7 +80,7 @@ export default function Nodes(
          return;
       }
 
-      wsLocalUpdateNode(args.cell, websocket, sessionId);
+      wsLocalUpdateNode(args.cell, wsSendJson, sessionId);
    });
 
    graph.current?.on("node:change:size", (args) => {
@@ -88,7 +88,7 @@ export default function Nodes(
          return;
       }
 
-      wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
+      wsLocalAndDBUpdateNode(args.cell, wsSendJson, sessionId);
    });
 
    graph.current?.on("node:change:angle", (args) => {
@@ -96,7 +96,7 @@ export default function Nodes(
          return;
       }
 
-      wsLocalAndDBUpdateNode(args.cell, websocket, sessionId);
+      wsLocalAndDBUpdateNode(args.cell, wsSendJson, sessionId);
    });
 
    return () => {

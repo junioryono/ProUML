@@ -37,7 +37,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
 
    // Core
    const container = useRef<HTMLDivElement>();
-   const { graph, sessionId, ready } = useX6(container, diagram, {
+   const { graph, sessionId, ready, wsTimedOut } = useX6(container, diagram, {
       setZoom,
       setDiagramName,
       setBackgroundColor,

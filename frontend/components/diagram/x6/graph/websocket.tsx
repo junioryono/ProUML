@@ -1,5 +1,5 @@
+import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type X6Type from "@antv/x6";
-import { JsonValue, WebSocketHook } from "react-use-websocket/dist/lib/types";
 import { MutableRefObject, useRef } from "react";
 import useWebSocket from "react-use-websocket";
 import { getWSUrl } from "@/lib/utils";
@@ -140,48 +140,28 @@ function onWebSocketMessage(
    }
 }
 
-// export function wsDBUpdateGraph(
-//    cell: X6Type.Cell,
-//    websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
-//    sessionId: MutableRefObject<string>,
-// ) {
-//    if (!sessionId.current) {
-//       return;
-//    }
-
-//    websocket.sendJsonMessage({
-//       sessionId: sessionId.current,
-//       event: "broadcast/db_updateCell",
-//       cell,
-//    } as any);
-// }
-
 export function wsLocalAndDBUpdateGraphName(
    name: boolean,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
 ) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_updateGraphName/db_updateGraphName",
       name,
    } as any);
 }
 
-export function wsDBUpdateGraphImage(
-   base64JPEG: string,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
-   sessionId: MutableRefObject<string>,
-) {
+export function wsDBUpdateGraphImage(base64JPEG: string, wsSendJson: SendJsonMessage, sessionId: MutableRefObject<string>) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "db_updateGraphImage",
       image: base64JPEG,
@@ -190,14 +170,14 @@ export function wsDBUpdateGraphImage(
 
 export function wsLocalAndDBUpdateGraphShowGrid(
    showGrid: boolean,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
 ) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_updateGraphShowGrid/db_updateGraphShowGrid",
       showGrid,
@@ -206,126 +186,98 @@ export function wsLocalAndDBUpdateGraphShowGrid(
 
 export function wsLocalAndDBUpdateGraphBackgroundColor(
    backgroundColor: boolean,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
+   wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
 ) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_updateGraphBackgroundColor/db_updateGraphBackgroundColor",
       backgroundColor,
    } as any);
 }
 
-export function wsLocalUpdateNode(
-   cell: X6Type.Cell,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
-   sessionId: MutableRefObject<string>,
-) {
+export function wsLocalUpdateNode(cell: X6Type.Cell, wsSendJson: SendJsonMessage, sessionId: MutableRefObject<string>) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_updateNode",
       cell,
    } as any);
 }
 
-export function wsLocalUpdateEdge(
-   cell: X6Type.Cell,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
-   sessionId: MutableRefObject<string>,
-) {
+export function wsLocalUpdateEdge(cell: X6Type.Cell, wsSendJson: SendJsonMessage, sessionId: MutableRefObject<string>) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_updateEdge",
       cell,
    } as any);
 }
 
-export function wsLocalAndDBUpdateNode(
-   cell: X6Type.Cell,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
-   sessionId: MutableRefObject<string>,
-) {
+export function wsLocalAndDBUpdateNode(cell: X6Type.Cell, wsSendJson: SendJsonMessage, sessionId: MutableRefObject<string>) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_updateNode/db_updateCell",
       cell,
    } as any);
 }
 
-export function wsLocalAndDBUpdateEdge(
-   cell: X6Type.Cell,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
-   sessionId: MutableRefObject<string>,
-) {
+export function wsLocalAndDBUpdateEdge(cell: X6Type.Cell, wsSendJson: SendJsonMessage, sessionId: MutableRefObject<string>) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_updateEdge/db_updateCell",
       cell,
    } as any);
 }
 
-export function wsLocalAndDBRemoveCell(
-   cell: X6Type.Cell,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
-   sessionId: MutableRefObject<string>,
-) {
+export function wsLocalAndDBRemoveCell(cell: X6Type.Cell, wsSendJson: SendJsonMessage, sessionId: MutableRefObject<string>) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_removeCell/db_removeCell",
       cell,
    } as any);
 }
 
-export function wsLocalAndDBAddNode(
-   cell: X6Type.Cell,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
-   sessionId: MutableRefObject<string>,
-) {
+export function wsLocalAndDBAddNode(cell: X6Type.Cell, wsSendJson: SendJsonMessage, sessionId: MutableRefObject<string>) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_addNode/db_addCell",
       cell,
    } as any);
 }
 
-export function wsLocalAndDBAddEdge(
-   cell: X6Type.Cell,
-   websocket: WebSocketHook<JsonValue, MessageEvent<any>>,
-   sessionId: MutableRefObject<string>,
-) {
+export function wsLocalAndDBAddEdge(cell: X6Type.Cell, wsSendJson: SendJsonMessage, sessionId: MutableRefObject<string>) {
    if (!sessionId.current) {
       return;
    }
 
-   websocket.sendJsonMessage({
+   wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_addEdge/db_addCell",
       cell,
