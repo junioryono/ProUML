@@ -2,14 +2,63 @@ import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useState } from "react";
 import ColorPicker from "../styling-options/color-picker";
 import { darkColorOptions } from "../styling-options/colors";
-import { DashedLine, DottedLine, SolidLine } from "../styling-options/line-styles";
+import { DashedLine, SolidLine } from "../styling-options/line-styles";
 import LineWidth from "../styling-options/line-width";
+import { OpenArrow, OpenDiamond, SolidArrow, SolidDiamond } from "./edge-endings";
 
 export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for the left end, middle, and right end of the edge
    const [leftEnd, setLeftEnd] = useState("none");
+   const [showLeftEndOptions, setShowLeftEndOptions] = useState(false);
    const [lineStyle, setLineStyle] = useState("solid");
    const [rightEnd, setRightEnd] = useState("none");
+   const [showRightEndOptions, setShowRightEndOptions] = useState(false);
+
+   const leftEndingOptions = [
+      {
+         value: "none",
+         icon: "None",
+      },
+      {
+         value: "open arrow",
+         icon: <OpenArrow direction="left" />,
+      },
+      {
+         value: "solid arrow",
+         icon: <SolidArrow direction="left" />,
+      },
+      {
+         value: "open diamond",
+         icon: <OpenDiamond />,
+      },
+      {
+         value: "solid diamond",
+         icon: <SolidDiamond />,
+      },
+   ];
+
+   const rightEndingOptions = [
+      {
+         value: "none",
+         icon: "None",
+      },
+      {
+         value: "open arrow",
+         icon: <OpenArrow direction="right" />,
+      },
+      {
+         value: "solid arrow",
+         icon: <SolidArrow direction="right" />,
+      },
+      {
+         value: "open diamond",
+         icon: <OpenDiamond />,
+      },
+      {
+         value: "solid diamond",
+         icon: <SolidDiamond />,
+      },
+   ];
 
    // for the line style options
    const lineStyleOptions = [
@@ -20,42 +69,6 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       {
          value: "dashed",
          icon: <DashedLine />,
-      },
-      {
-         value: "dotted",
-         icon: <DottedLine />,
-      },
-   ];
-
-   // for the edge ending relationship options
-   const relationshipOptions = [
-      {
-         value: "none",
-         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
-      },
-      {
-         value: "association",
-         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
-      },
-      {
-         value: "generalization",
-         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
-      },
-      {
-         value: "aggregation",
-         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
-      },
-      {
-         value: "composition",
-         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
-      },
-      {
-         value: "dependency",
-         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
-      },
-      {
-         value: "realization",
-         icon: <div className="w-4 h-4 bg-slate-200 border border-slate-400 rounded-md" />,
       },
    ];
 
@@ -99,10 +112,11 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                <select
                   className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-8 w-14"
                   value={leftEnd}
+                  onClick={() => setShowLeftEndOptions(!showLeftEndOptions)}
                >
-                  {/* {options1.map((option) => (
-                  <option value={option.value}>{option.label}</option>
-                ))} */}
+                  {leftEndingOptions.map((option) => (
+                     <option value={option.value}>{option.icon}</option>
+                  ))}
                </select>
 
                <div className="w-20 flex my-0 h-8 rounded-md border bg-slate-200 border-slate-400 py-3 px-3 text-md justify-center items-center focus:outline-none">
@@ -113,10 +127,11 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                <select
                   className="border border-slate-400 rounded-md bg-slate-200 hover:border-slate-500 h-8 w-14"
                   value={rightEnd}
+                  onClick={() => setShowRightEndOptions(!showRightEndOptions)}
                >
-                  {/* {options2.map((option) => (
-                  <option value={option.value}>{option.label}</option>
-                ))} */}
+                  {rightEndingOptions.map((option) => (
+                     <option value={option.value}>{option.icon}</option>
+                  ))}
                </select>
             </div>
 
