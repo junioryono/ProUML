@@ -26,13 +26,15 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
       handleSubmit,
       register,
       reset,
-      formState: { errors },
+      formState: { errors, isValid },
+      watch,
    } = useForm<FormData>({
       resolver: zodResolver(userAddSchema),
       defaultValues: {
          "new-password": "",
       },
    });
+
    const [isLoading, setIsLoading] = useState<boolean>(false);
    const [open, setOpen] = useState(false);
    const [users, setUsers] = useState<User[]>(null);
@@ -188,7 +190,6 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
 
       getDiagramUsers(diagram.id).then((res) => {
          if (res && res.response) {
-            console.log(res.response);
             setUsers(res.response.users || []);
             setAllowedToEdit(res.response.allowedToEdit || false);
 
@@ -204,6 +205,10 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
          }
       });
    }, [open, diagram]);
+
+   useEffect(() => {
+      setShowInviteButton(isValid);
+   }, [isValid]);
 
    return (
       <>
@@ -269,11 +274,6 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                              autoCorrect="off"
                                              spellCheck="false"
                                              {...register("new-password")}
-                                             // onChange={(e) => {
-                                             //    const validEmail = validateEmail(e.currentTarget.value);
-                                             //    setShowInviteButton(validEmail);
-                                             //    return e;
-                                             // }}
                                           />
                                           <div ref={newUserDropdownRef} className="relative select-none">
                                              <div
