@@ -5,65 +5,48 @@ interface ArrowProps {
 // svg source: https://www.svgrepo.com/svg/500330/arrow-right
 export function OpenArrow({ direction }: ArrowProps) {
    return (
-      <>
-         {direction === "left" ? (
-            <svg fill="#000000" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" transform="matrix(-1, 0, 0, 1, 0, 0)">
-               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-               <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-               <g id="SVGRepo_iconCarrier">
-                  <path d="M14.85 6.69 7.14 1.55l-.7 1 7.12 4.75H.5v1.28h12.76l-6.83 4.86.72 1L14.85 9a1.42 1.42 0 0 0 .65-1.15 1.4 1.4 0 0 0-.65-1.16z"></path>
-               </g>
-            </svg>
-         ) : (
-            <svg fill="#000000" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-               <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-               <g id="SVGRepo_iconCarrier">
-                  <path d="M14.85 6.69 7.14 1.55l-.7 1 7.12 4.75H.5v1.28h12.76l-6.83 4.86.72 1L14.85 9a1.42 1.42 0 0 0 .65-1.15 1.4 1.4 0 0 0-.65-1.16z"></path>
-               </g>
-            </svg>
-         )}
-      </>
+      <svg
+         width="35"
+         height="20"
+         fill="#000000"
+         viewBox="0 0 16 16"
+         xmlns="http://www.w3.org/2000/svg"
+         // if the direction is left, flip the arrow
+         transform={direction === "left" && "matrix(-1, 0, 0, 1, 0, 0)"}
+      >
+         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+         <g id="SVGRepo_iconCarrier">
+            <path d="M14.85 6.69 7.14 1.55l-.7 1 7.12 4.75H.5v1.28h12.76l-6.83 4.86.72 1L14.85 9a1.42 1.42 0 0 0 .65-1.15 1.4 1.4 0 0 0-.65-1.16z"></path>
+         </g>
+      </svg>
    );
 }
 
 // svg source: https://www.svgrepo.com/svg/36997/triangular-arrow-facing-left
 export function SolidArrow({ direction }: ArrowProps) {
    return (
-      <>
-         {direction === "left" ? (
-            <svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 53.76 53.76">
-               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-               <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-               <g id="SVGRepo_iconCarrier">
-                  <g>
-                     <g>
-                        <path d="M44.574,53.76L9.186,26.88L44.574,0V53.76z M13.044,26.88l29.194,22.172V4.709L13.044,26.88z"></path>{" "}
-                     </g>
-                  </g>
+      <svg
+         width="35"
+         height="20"
+         fill="#000000"
+         version="1.1"
+         id="Capa_1"
+         xmlns="http://www.w3.org/2000/svg"
+         viewBox="0 0 53.76 53.76"
+         // if the direction is right, flip the arrow
+         transform={direction === "right" && "matrix(-1, 0, 0, 1, 0, 0)"}
+      >
+         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+         <g id="SVGRepo_iconCarrier">
+            <g>
+               <g>
+                  <path d="M44.574,53.76L9.186,26.88L44.574,0V53.76z M13.044,26.88l29.194,22.172V4.709L13.044,26.88z"></path>{" "}
                </g>
-            </svg>
-         ) : (
-            <svg
-               fill="#000000"
-               version="1.1"
-               id="Capa_1"
-               xmlns="http://www.w3.org/2000/svg"
-               viewBox="0 0 53.76 53.76"
-               transform="matrix(-1, 0, 0, 1, 0, 0)"
-            >
-               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-               <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-               <g id="SVGRepo_iconCarrier">
-                  <g>
-                     <g>
-                        <path d="M44.574,53.76L9.186,26.88L44.574,0V53.76z M13.044,26.88l29.194,22.172V4.709L13.044,26.88z"></path>{" "}
-                     </g>
-                  </g>
-               </g>
-            </svg>
-         )}
-      </>
+            </g>
+         </g>
+      </svg>
    );
 }
 
@@ -71,6 +54,8 @@ export function SolidArrow({ direction }: ArrowProps) {
 export function OpenDiamond() {
    return (
       <svg
+         width="35"
+         height="20"
          viewBox="0 0 20 20"
          version="1.1"
          xmlns="http://www.w3.org/2000/svg"
@@ -92,6 +77,8 @@ export function OpenDiamond() {
 export function SolidDiamond() {
    return (
       <svg
+         width="35"
+         height="20"
          viewBox="0 0 64 64"
          xmlns="http://www.w3.org/2000/svg"
          aria-hidden="true"
