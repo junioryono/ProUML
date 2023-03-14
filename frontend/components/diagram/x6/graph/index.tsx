@@ -204,5 +204,5 @@ export default function useGraph(
       }
    }, [wsReadyState]);
 
-   return { graph, sessionId, ready: graphReady, wsTimedOut };
+   return { graph, ready: graphReady, wsTimedOut };
 }

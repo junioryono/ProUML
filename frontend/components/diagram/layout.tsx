@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
+import { Dispatch, MutableRefObject, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import UserAccountNav from "@/components/dashboard/user-account-nav";
 import { ReadyState } from "react-use-websocket";
 import { Diagram, User } from "types";
@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
    setDiagramName: Dispatch<SetStateAction<string>>;
+   backgroundColor: MutableRefObject<string>;
    setBackgroundColor: Dispatch<SetStateAction<string>>;
    setConnectedUsers: Dispatch<SetStateAction<{ [key: string]: User }>>;
 };
@@ -34,13 +35,15 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
    const [zoom, setZoom] = useState(1);
    const [diagramName, setDiagramName] = useState(diagram.name);
    const [backgroundColor, setBackgroundColor] = useState(diagram.background_color);
+   const backgroundColorRef = useRef(backgroundColor);
    const [panning, setPanning] = useState(false);
 
    // Core
    const container = useRef<HTMLDivElement>();
-   const { graph, sessionId, ready, wsTimedOut } = useX6(container, diagram, {
+   const { graph, ready, wsTimedOut } = useX6(container, diagram, {
       setZoom,
       setDiagramName,
+      backgroundColor: backgroundColorRef,
       setBackgroundColor,
       setConnectedUsers,
    });
@@ -49,6 +52,10 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
       setDiagramName(diagram.name);
       setBackgroundColor(diagram.background_color);
    }, [diagram]);
+
+   useEffect(() => {
+      backgroundColorRef.current = backgroundColor;
+   }, [backgroundColor]);
 
    return (
       <div className="flex-col h-screen overflow-hidden">

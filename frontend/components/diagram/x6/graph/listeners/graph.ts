@@ -43,22 +43,25 @@ export default function Graph(
 ) {
    const originalJSON = graph.current?.toJSON();
    let jsonString = JSON.stringify(removePortsFromJSON(originalJSON));
+   let backgroundColor = layoutProps.backgroundColor.current || "ffffff";
 
    const mouseLeaveFunction = () => {
       const newJSON = graph.current?.toJSON();
       const newJSONString = JSON.stringify(removePortsFromJSON(newJSON));
-      if (jsonString === newJSONString) {
+      const newBackgroundColor = layoutProps.backgroundColor.current || "ffffff";
+      if (jsonString === newJSONString && backgroundColor === newBackgroundColor) {
          return;
       }
 
       jsonString = newJSONString;
+      backgroundColor = newBackgroundColor;
 
       graph.current?.toJPEG((base64JPEG) => wsDBUpdateGraphImage(base64JPEG, wsSendJson, sessionId), {
          copyStyles: true,
          serializeImages: true,
          width: 518,
          height: 384,
-         backgroundColor: "#ffffff",
+         backgroundColor: `#${backgroundColor}`,
          padding: 20,
          quality: 1,
          stylesheet: `
