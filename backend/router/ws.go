@@ -102,8 +102,12 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 				go sdkP.Redis.Publish(diagramId, msg)
 			}
 
-			if sliceContains(events, "db_updateCell") || sliceContains(events, "db_addCell") || sliceContains(events, "db_removeCell") {
-				go sdkP.Postgres.Diagram.UpdateContent(diagramId, idToken, payload.Cell, events)
+			if sliceContains(events, "db_addCell") {
+				go sdkP.Postgres.Diagram.UpdateContentAddCell(diagramId, idToken, payload.Cell)
+			} else if sliceContains(events, "db_updateCell") {
+				go sdkP.Postgres.Diagram.UpdateContentUpdateCell(diagramId, idToken, payload.Cell)
+			} else if sliceContains(events, "db_removeCell") {
+				go sdkP.Postgres.Diagram.UpdateContentRemoveCell(diagramId, idToken, payload.Cell)
 			} else if sliceContains(events, "db_updateGraphImage") {
 				go sdkP.Postgres.Diagram.UpdateImage(diagramId, idToken, payload.Image)
 			} else if sliceContains(events, "db_updateGraphName") {
@@ -112,14 +116,6 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 				go sdkP.Postgres.Diagram.UpdateBackgroundColor(diagramId, idToken, payload.BackgroundColor)
 			} else if sliceContains(events, "db_updateGraphShowGrid") {
 				go sdkP.Postgres.Diagram.UpdateShowGrid(diagramId, idToken, payload.ShowGrid)
-			} else if sliceContains(events, "ping") {
-				go func() {
-					time.Sleep(10 * time.Second)
-					wc.WriteJSON(types.WebSocketBody{
-						SessionId: sessionId,
-						Events:    "pong",
-					})
-				}()
 			}
 		}
 

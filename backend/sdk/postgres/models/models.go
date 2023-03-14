@@ -2,7 +2,14 @@ package models
 
 import (
 	"crypto/rsa"
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"time"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 type ClusterModel struct {
@@ -39,21 +46,6 @@ type ProjectModel struct {
 	UserRoles []ProjectUserRoleModel `gorm:"foreignKey:ProjectID;references:ID" json:"user_roles"`
 }
 
-type TeamModel struct {
-	ID        string    `gorm:"uniqueIndex" json:"id"`
-	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
-	Name      string    `gorm:"default:'Untitled Team'" json:"name"`
-}
-
-type TeamUserRoleModel struct {
-	UserID string    `gorm:"primaryKey" json:"-"`
-	TeamID string    `gorm:"primaryKey" json:"-"`
-	User   UserModel `gorm:"foreignKey:UserID;references:ID" json:"user"`
-	Team   TeamModel `gorm:"foreignKey:TeamID;references:ID" json:"team"`
-	Owner  bool      `gorm:"default:false" json:"owner"`
-}
-
 type ProjectUserRoleModel struct {
 	UserID    string       `gorm:"primaryKey" json:"-"`
 	ProjectID string       `gorm:"primaryKey" json:"-"`
@@ -69,7 +61,7 @@ type DiagramModel struct {
 	Public                 bool                   `gorm:"default:false" json:"public"`
 	Name                   string                 `gorm:"default:'Untitled Diagram'" json:"name"`
 	Image                  string                 `json:"image,omitempty"`
-	Content                []any                  `gorm:"serializer:json" json:"content"`
+	Content                DiagramContent         `gorm:"type:jsonb;default:'[]';not null" json:"content"`
 	ProjectID              string                 `gorm:"default:'default'" json:"project_id"`
 	Project                *ProjectModel          `gorm:"foreignKey:ProjectID;references:ID" json:"project,omitempty"`
 	BackgroundColor        string                 `gorm:"default:FFFFFF" json:"background_color"`
@@ -78,11 +70,40 @@ type DiagramModel struct {
 	UserRoles              []DiagramUserRoleModel `gorm:"foreignKey:DiagramID;references:ID" json:"user_roles"`
 }
 
-type DiagramTeamModel struct {
-	TeamID    string       `gorm:"primaryKey" json:"-"`
-	DiagramID string       `gorm:"primaryKey" json:"-"`
-	Team      TeamModel    `gorm:"foreignKey:TeamID;references:ID" json:"team"`
-	Diagram   DiagramModel `gorm:"foreignKey:DiagramID;references:ID" json:"diagram"`
+type DiagramContent json.RawMessage
+
+// Scan scan value into Jsonb, implements sql.Scanner interface
+func (d *DiagramContent) Scan(value interface{}) error {
+	bytes, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("failed to unmarshal JSONB value: %v", errors.New("type assertion .([]byte) failed"))
+	}
+
+	result := json.RawMessage{}
+	err := json.Unmarshal(bytes, &result)
+	*d = DiagramContent(result)
+	return err
+}
+
+// Value return json value, implement driver.Valuer interface
+func (d DiagramContent) Value() (driver.Value, error) {
+	if len(d) == 0 {
+		return nil, nil
+	}
+	fmt.Println("value", string(d))
+	return json.RawMessage(d).MarshalJSON()
+}
+
+func (d *DiagramContent) MarshalJSON() ([]byte, error) {
+	return json.Marshal((*json.RawMessage)(d))
+}
+
+func (d *DiagramContent) UnmarshalJSON(data []byte) error {
+	return json.Unmarshal(data, (*json.RawMessage)(d))
+}
+
+func (DiagramContent) GormDBDataType(db *gorm.DB, field *schema.Field) string {
+	return "jsonb"
 }
 
 type DiagramUserRoleModel struct {

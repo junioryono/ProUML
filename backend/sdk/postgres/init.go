@@ -87,6 +87,9 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	// 	return nil, err
 	// }
 
+	// // Change all models.DiagramModel.Content to []
+	// db.Exec("UPDATE diagram_models SET content = '[]'")
+
 	// Print all table names
 	var tables []string
 	db.Raw("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").Pluck("table_name", &tables)
@@ -232,6 +235,90 @@ func (p *Postgres_SDK) createFuntionsAndTriggers() error {
 	if !pg_notify_jwt_trigger_exists {
 		// Use db.raw to create a trigger for the jwt_models table if it doesn't exist
 		if err := p.db.Exec("CREATE TRIGGER pg_notify_jwt AFTER INSERT ON jwt_models FOR EACH ROW EXECUTE PROCEDURE pg_notify_jwt();").Error; err != nil {
+			return err
+		}
+	}
+
+	var add_cell_to_diagram_exists bool
+	if err := p.db.Raw("SELECT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'add_cell_to_diagram')").Scan(&add_cell_to_diagram_exists).Error; err != nil {
+		return err
+	}
+
+	if !add_cell_to_diagram_exists {
+		if err := p.db.Exec(`
+		CREATE OR REPLACE FUNCTION add_cell_to_diagram(diagram_id text, new_cell jsonb)
+		RETURNS void AS $$
+		BEGIN
+			UPDATE diagram_models
+			SET content = content || new_cell
+			WHERE id = diagram_id;
+		END;
+		$$ LANGUAGE plpgsql;`).Error; err != nil {
+			return err
+		}
+	}
+
+	// Check if the update_cell_in_diagram function exists
+	var update_cell_in_diagram_exists bool
+	if err := p.db.Raw("SELECT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'update_cell_in_diagram')").Scan(&update_cell_in_diagram_exists).Error; err != nil {
+		return err
+	}
+
+	if !update_cell_in_diagram_exists {
+		if err := p.db.Exec(`
+		CREATE OR REPLACE FUNCTION update_cell_in_diagram(diagram_id text, cell_id text, updated_cell jsonb)
+		RETURNS void AS $$
+		BEGIN
+			UPDATE diagram_models
+			SET content = (
+				SELECT jsonb_agg(obj)
+				FROM (
+					SELECT 
+						CASE 
+							WHEN obj->>'id' = cell_id THEN updated_cell
+							ELSE obj
+						END AS obj
+					FROM jsonb_array_elements(
+						(SELECT content FROM diagram_models WHERE id = diagram_id)
+					) AS obj
+				) AS obj
+			)
+			WHERE id = diagram_id;
+		END;
+		$$ LANGUAGE plpgsql;`).Error; err != nil {
+			return err
+		}
+	}
+
+	var remove_cell_from_diagram_exists bool
+	if err := p.db.Raw("SELECT EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'remove_cell_from_diagram')").Scan(&remove_cell_from_diagram_exists).Error; err != nil {
+		return err
+	}
+
+	if !remove_cell_from_diagram_exists {
+		if err := p.db.Exec(`
+		CREATE OR REPLACE FUNCTION remove_cell_from_diagram(diagram_id text, cell_id text)
+		RETURNS void AS $$
+		BEGIN
+			UPDATE diagram_models
+			SET content = (
+				CASE 
+					WHEN EXISTS (
+						SELECT 1 
+						FROM jsonb_array_elements(content) AS obj 
+						WHERE obj->>'id' <> cell_id
+					) 
+					THEN (
+						SELECT jsonb_agg(obj) 
+						FROM jsonb_array_elements(content) AS obj 
+						WHERE obj->>'id' <> cell_id
+					)
+					ELSE '[]'::jsonb
+				END
+			)
+			WHERE id = diagram_id;
+		END;
+		$$ LANGUAGE plpgsql;`).Error; err != nil {
 			return err
 		}
 	}

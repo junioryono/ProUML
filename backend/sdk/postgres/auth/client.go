@@ -168,15 +168,6 @@ func (clientSDK *client_SDK) DeleteUser(idToken string) *types.WrappedError {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	// Use Join to delete all team_user_role_models where team_user_role_models.user_id = userId
-	if err := tx.Table("team_user_role_models").
-		Joins("JOIN user_models ON user_models.id = team_user_role_models.user_id").
-		Where("team_user_role_models.user_id = ?", userId).
-		Delete(&models.TeamUserRoleModel{}).Error; err != nil {
-		tx.Rollback()
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
 	// Use Join to delete all email_verification_token_models where email_verification_token_models.user_id = userId
 	if err := tx.Table("email_verification_token_models").
 		Joins("JOIN user_models ON user_models.id = email_verification_token_models.user_id").
