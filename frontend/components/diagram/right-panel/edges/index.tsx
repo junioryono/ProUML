@@ -17,6 +17,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    const leftEndRef = useRef(null);
    const rightEndRef = useRef(null);
 
+   // if the user clicks outside of the left end options, close the options
    useEffect(() => {
       const handleClickOutside = (event) => {
          if (
@@ -141,20 +142,13 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      }}
                   >
                      {/* show the icon of the selected ending */}
-                     <div className="w-2/3">
+                     <div className="w-7">
                         {/* if the value is not none don't show any icon */}
                         {leftEnd !== "none" && leftEndingOptions.find((option) => option.value === leftEnd)?.icon}
                      </div>
                      <div className="w-1/3">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
-                           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                           <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                           <g id="SVGRepo_iconCarrier">
-                              <rect x="0" fill="none" width="24" height="24"></rect>
-                              <g>
-                                 <path d="M7 10l5 5 5-5"></path>
-                              </g>
-                           </g>
+                        <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="cursor-pointer">
+                           <path d="M7 10l5 5 5-5H7z"></path>
                         </svg>
                      </div>
                   </div>
@@ -207,20 +201,13 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      }}
                   >
                      {/* show the icon of the selected ending */}
-                     <div className="w-2/3">
+                     <div className="w-7">
                         {/* if the value is not none don't show any icon */}
                         {rightEnd !== "none" && rightEndingOptions.find((option) => option.value === rightEnd)?.icon}
                      </div>
                      <div className="w-1/3">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
-                           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                           <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                           <g id="SVGRepo_iconCarrier">
-                              <rect x="0" fill="none" width="24" height="24"></rect>
-                              <g>
-                                 <path d="M7 10l5 5 5-5"></path>
-                              </g>
-                           </g>
+                        <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="cursor-pointer">
+                           <path d="M7 10l5 5 5-5H7z"></path>
                         </svg>
                      </div>
                   </div>

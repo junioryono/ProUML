@@ -1,5 +1,5 @@
 import type X6Type from "@antv/x6";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ClassNode } from "types";
 
 export default function NodeSettingsVariable({
@@ -16,12 +16,19 @@ export default function NodeSettingsVariable({
    setVariables: React.Dispatch<React.SetStateAction<ClassNode["variables"]>>;
 }) {
    const [accessModifier, setAccessModifier] = useState(variable.accessModifier);
+   const [showAccessModifierDropdown, setShowAccessModifierDropdown] = useState(false);
+   const accessModifierRef = useRef(null);
+   const accessModifierOptions = [
+      { value: "private", label: "private (-)" },
+      { value: "protected", label: "protected (#)" },
+      { value: "public", label: "public (+)" },
+   ];
    const [name, setName] = useState(variable.name || "");
    const [type, setType] = useState(variable.type || "");
    const [value, setValue] = useState(variable.value || "");
 
+   // update the node's variables array
    useEffect(() => {
-      // update the node's variables array
       const newVariables = [...variables];
       newVariables[index] = {
          ...variable,
@@ -33,6 +40,7 @@ export default function NodeSettingsVariable({
       setVariables(newVariables);
    }, [accessModifier, name, type, value]);
 
+   // update the state when the variable prop changes
    useEffect(() => {
       setAccessModifier(variable.accessModifier);
       setName(variable.name || "");
@@ -40,15 +48,31 @@ export default function NodeSettingsVariable({
       setValue(variable.value || "");
    }, [variable]);
 
+   // if outside of the dropdown is clicked, close the dropdown
+   useEffect(() => {
+      function handleClickOutside(event) {
+         if (accessModifierRef.current && !accessModifierRef.current.contains(event.target)) {
+            setShowAccessModifierDropdown(false);
+         }
+      }
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+         document.removeEventListener("mousedown", handleClickOutside);
+      };
+   }, [accessModifierRef]);
+
    return (
       <div>
          {/* list all of the different variables on different lines */}
          <div className="flex gap-2">
             <div className="flex mb-0.5">
                {/* access modifier dropdown input */}
-               <div className="w-6 mr-1">
-                  <div className="relative">
-                     <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none text-xs">
+               <div ref={accessModifierRef}>
+                  <div
+                     className="justify-center items-center flex w-6 mr-1 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                     onClick={() => setShowAccessModifierDropdown(!showAccessModifierDropdown)}
+                  >
+                     <div className="text-xs w-3 pl-1.5">
                         {accessModifier === "private"
                            ? "-"
                            : accessModifier === "public"
@@ -57,23 +81,42 @@ export default function NodeSettingsVariable({
                            ? "#"
                            : "-"}
                      </div>
-                     <select
-                        value={accessModifier}
-                        className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-md focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
-                        onChange={(e) => {
-                           // update the node's variables array
-                           // @ts-ignore
-                           variables[index].accessModifier = e.target.value;
-                           node.trigger("change:variables", { variables });
-                           setAccessModifier(variables[index].accessModifier);
-                        }}
-                     >
-                        <option value="private">private (-)</option>
-                        <option value="public">public (+)</option>
-                        <option value="protected">protected (#)</option>
-                     </select>
+                     <div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" focusable="false" className="cursor-pointer">
+                           <path d="M7 10l5 5 5-5H7z"></path>
+                        </svg>
+                     </div>
                   </div>
+                  {showAccessModifierDropdown && (
+                     <div className="absolute mt-0.5 right-30 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
+                        {/* map out all of the left ending options */}
+                        {accessModifierOptions.map((option, modifierIndex) => (
+                           <button
+                              key={modifierIndex}
+                              className="transform hover:bg-slate-300 transition duration-500 w-full h-7 flex items-center rounded-md text-xs pr-1"
+                              onClick={() => {
+                                 // update the node's variables array
+                                 // @ts-ignore
+                                 variables[index].accessModifier = option.value;
+                                 node.trigger("change:variables", { variables });
+                                 setAccessModifier(variables[index].accessModifier);
+                              }}
+                           >
+                              {/* if this option is currently selected put a checkmark next to it */}
+                              <div className="w-6 pl-1">
+                                 {accessModifier === option.value && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 25 25">
+                                       <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                                    </svg>
+                                 )}
+                              </div>
+                              <div className="justify-left">{option.label}</div>
+                           </button>
+                        ))}
+                     </div>
+                  )}
                </div>
+
                {/* variable type text input */}
                <div className="w-12 mr-1">
                   <input
