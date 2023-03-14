@@ -9,16 +9,44 @@ import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 import { hideAllPorts, hidePorts } from "../shapes/ports";
 
+function removePortsFromJSON(json: { cells: any }): any {
+   if (json === null) {
+      return null;
+   }
+
+   const newJSON = JSON.parse(JSON.stringify(json));
+
+   // Order the properties of the cells alphabetically
+   for (const cell of newJSON.cells) {
+      if (cell.ports) {
+         delete cell.ports;
+      }
+
+      const orderedCell = {};
+      Object.keys(cell)
+         .sort()
+         .forEach((key) => {
+            orderedCell[key] = cell[key];
+         });
+
+      newJSON.cells[newJSON.cells.indexOf(cell)] = orderedCell;
+   }
+
+   return newJSON;
+}
+
 export default function Graph(
    graph: MutableRefObject<X6Type.Graph>,
    wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
 ) {
-   let jsonString: string = JSON.stringify(graph.current?.toJSON());
+   const originalJSON = graph.current?.toJSON();
+   let jsonString = JSON.stringify(removePortsFromJSON(originalJSON));
+
    const mouseLeaveFunction = () => {
       const newJSON = graph.current?.toJSON();
-      const newJSONString = JSON.stringify(newJSON);
+      const newJSONString = JSON.stringify(removePortsFromJSON(newJSON));
       if (jsonString === newJSONString) {
          return;
       }
@@ -35,6 +63,9 @@ export default function Graph(
          quality: 1,
          stylesheet: `
          .user-cell-selection {
+            display: none;
+         }
+         .x6-port {
             display: none;
          }
          `,

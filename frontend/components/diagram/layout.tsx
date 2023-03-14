@@ -45,6 +45,11 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
       setConnectedUsers,
    });
 
+   useEffect(() => {
+      setDiagramName(diagram.name);
+      setBackgroundColor(diagram.background_color);
+   }, [diagram]);
+
    return (
       <div className="flex-col h-screen overflow-hidden">
          <div className="flex justify-between items-center h-12 bg-diagram-menu text-white">

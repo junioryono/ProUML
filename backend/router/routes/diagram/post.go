@@ -118,9 +118,9 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 		}
 
 		// Check if user wants to use a template
-		if fbCtx.FormValue("template") != "" {
+		if templateName := fbCtx.FormValue("template"); templateName != "" {
 			// Get the template
-			template, err := templates.GetTemplate(fbCtx.FormValue("template"))
+			template, err := templates.GetTemplate(templateName)
 			if err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,
@@ -130,6 +130,22 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 
 			// Create a new diagram
 			diagramId, err := sdkP.Postgres.Diagram.Create(fbCtx.Locals("idToken").(string), projectId, template)
+			if err != nil {
+				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
+					Success: false,
+					Reason:  err.Error(),
+				})
+			}
+
+			return fbCtx.Status(fiber.StatusOK).JSON(httpTypes.Status{
+				Success:  true,
+				Response: diagramId,
+			})
+		}
+
+		if duplicateDiagramId := fbCtx.FormValue("duplicateDiagramId"); duplicateDiagramId != "" {
+			// Duplicate the diagram
+			diagramId, err := sdkP.Postgres.Diagram.Duplicate(fbCtx.Locals("idToken").(string), projectId, duplicateDiagramId)
 			if err != nil {
 				return fbCtx.Status(fiber.StatusBadRequest).JSON(httpTypes.Status{
 					Success: false,

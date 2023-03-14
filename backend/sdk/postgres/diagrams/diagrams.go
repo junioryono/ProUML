@@ -27,8 +27,11 @@ func (d *Diagrams_SDK) GetDashboard(idToken string, offset int) ([]models.Diagra
 
 	var diagrams []models.DiagramModel
 	if err := d.getDb().
-		Offset(offset).
+		//Offset(offset).
 		Model(&models.DiagramModel{}).
+		Preload("UserRoles", func(db *gorm.DB) *gorm.DB {
+			return db.Where("user_id = ?", userId)
+		}).
 		// Select only the needed fields
 		Select("diagram_models.id, diagram_models.created_at, diagram_models.updated_at, diagram_models.public, diagram_models.name, diagram_models.image, diagram_models.project_id").
 		// Project id is default
@@ -43,7 +46,7 @@ func (d *Diagrams_SDK) GetDashboard(idToken string, offset int) ([]models.Diagra
 		Where("diagram_models.id IN (SELECT diagram_id FROM diagram_user_role_models WHERE user_id = ?)", userId).
 		// Order by updated_at
 		Order("diagram_models.updated_at DESC").
-		Limit(15).
+		//Limit(15).
 		Find(&diagrams).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
@@ -61,7 +64,17 @@ func (d *Diagrams_SDK) GetDashboard(idToken string, offset int) ([]models.Diagra
 		})
 
 		if diagram.ProjectID != "default" {
-			response[len(response)-1].HasProject = true
+			response[len(response)-1].InUnsharedProject = true
+
+			for _, userRole := range diagram.UserRoles {
+				if userRole.UserID == userId {
+					if userRole.Role == "owner" || (diagram.AllowEditorPermissions && userRole.Role == "editor") {
+						response[len(response)-1].UnsharedProjectEditPermission = true
+					}
+
+					break
+				}
+			}
 		}
 	}
 

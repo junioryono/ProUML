@@ -5,7 +5,14 @@ import { Diagram, Project } from "types";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { addDiagramToProject, deleteDiagram, removeDiagramFromProject, updateDiagram, getProjects } from "@/lib/auth-fetch";
+import {
+   addDiagramToProject,
+   deleteDiagram,
+   removeDiagramFromProject,
+   updateDiagram,
+   createDiagram,
+   getProjects,
+} from "@/lib/auth-fetch";
 import { toast } from "@/ui/toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -89,7 +96,7 @@ export default function DiagramItemOptions({
             show={showMenu}
          >
             <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none top-8 sm:top-12">
-               {!project && !diagram.has_project && (
+               {!project && !diagram.in_unshared_project && (
                   <div className="py-1">
                      <Menu.Item>
                         {({ active }) => (
@@ -107,18 +114,25 @@ export default function DiagramItemOptions({
                   </div>
                )}
 
-               <div className="py-1">
-                  <Menu.Item>
-                     {({ active }) => (
-                        <div
-                           className={cn(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")}
-                           onClick={() => setRenameOpen(true)}
-                        >
-                           Rename
-                        </div>
-                     )}
-                  </Menu.Item>
-               </div>
+               {(!diagram.in_unshared_project ||
+                  (diagram.in_unshared_project && diagram.unshared_project_edit_permission)) && (
+                  <div className="py-1">
+                     <Menu.Item>
+                        {({ active }) => (
+                           <div
+                              className={cn(
+                                 active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                                 "block px-4 py-2 text-sm",
+                              )}
+                              onClick={() => setRenameOpen(true)}
+                           >
+                              Rename
+                           </div>
+                        )}
+                     </Menu.Item>
+                  </div>
+               )}
+
                <div className="py-1">
                   {project && (
                      <Menu.Item>
@@ -154,13 +168,55 @@ export default function DiagramItemOptions({
                      </Menu.Item>
                   )}
 
+                  {!diagram.in_unshared_project && (
+                     <Menu.Item>
+                        {({ active }) => (
+                           <div
+                              className={cn(
+                                 active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                                 "block px-4 py-2 text-sm",
+                              )}
+                              onClick={() => {
+                                 setShowMenu(false);
+                                 deleteDiagram(diagram.id).then((res) => {
+                                    if (res.success === false) {
+                                       return toast({
+                                          title: "Something went wrong.",
+                                          message: res.reason,
+                                          type: "error",
+                                       });
+                                    }
+
+                                    router.refresh();
+                                    return toast({
+                                       title: "Diagram deleted",
+                                       message: "The diagram has been deleted.",
+                                       type: "success",
+                                    });
+                                 });
+                              }}
+                           >
+                              Delete
+                           </div>
+                        )}
+                     </Menu.Item>
+                  )}
+
                   <Menu.Item>
                      {({ active }) => (
                         <div
                            className={cn(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")}
                            onClick={() => {
                               setShowMenu(false);
-                              deleteDiagram(diagram.id).then((res) => {
+
+                              const formData = new FormData();
+                              formData.append("duplicateDiagramId", diagram.id);
+
+                              if (project) {
+                                 formData.append("projectId", project.id);
+                              }
+
+                              createDiagram(formData).then((res) => {
                                  if (res.success === false) {
                                     return toast({
                                        title: "Something went wrong.",
@@ -171,21 +227,12 @@ export default function DiagramItemOptions({
 
                                  router.refresh();
                                  return toast({
-                                    title: "Diagram deleted",
-                                    message: "The diagram has been deleted.",
+                                    title: "Diagram duplicated",
+                                    message: `${diagram.name} has been duplicated.`,
                                     type: "success",
                                  });
                               });
                            }}
-                        >
-                           Delete
-                        </div>
-                     )}
-                  </Menu.Item>
-                  <Menu.Item>
-                     {({ active }) => (
-                        <div
-                           className={cn(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")}
                         >
                            Duplicate
                         </div>

@@ -76,6 +76,55 @@ func (d *Diagram_SDK) Create(idToken, projectId string, diagramContent *[]any) (
 	return diagram.ID, nil
 }
 
+func (d *Diagram_SDK) Duplicate(idToken, projectId, duplicateDiagramId string) (string, *types.WrappedError) {
+	// Get the user id from the id token
+	userId, err := d.auth.Client.GetUserId(idToken)
+	if err != nil {
+		return "", err
+	}
+
+	if projectId != "" {
+		// Check if the user is a member of the project
+		var projectUserRole models.ProjectUserRoleModel
+		if err := d.getDb().Where("user_id = ? AND project_id = ?", userId, projectId).First(&projectUserRole).Error; err != nil {
+			return "", types.Wrap(err, types.ErrInvalidRequest)
+		}
+	}
+
+	// Get the diagram to duplicate
+	var duplicateDiagram models.DiagramModel
+	if err := d.getDb().Where("id = ?", duplicateDiagramId).First(&duplicateDiagram).Error; err != nil {
+		return "", types.Wrap(err, types.ErrDiagramNotFound)
+	}
+
+	diagramId := uuid.New().String()
+
+	// Create the diagram
+	diagram := models.DiagramModel{
+		ID:              uuid.New().String(),
+		Name:            duplicateDiagram.Name + " (copy)",
+		Image:           duplicateDiagram.Image,
+		Content:         duplicateDiagram.Content,
+		BackgroundColor: duplicateDiagram.BackgroundColor,
+		ShowGrid:        duplicateDiagram.ShowGrid,
+		ProjectID:       projectId,
+		UserRoles: []models.DiagramUserRoleModel{
+			{
+				UserID:    userId,
+				DiagramID: diagramId,
+				Role:      "owner",
+			},
+		},
+	}
+
+	// Save the diagram and the user diagram to the database
+	if err := d.getDb().Create(&diagram).Error; err != nil {
+		return "", types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	return diagram.ID, nil
+}
+
 func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 	// Get the user id from the id token
 	userId, err := d.auth.Client.GetUserId(idToken)

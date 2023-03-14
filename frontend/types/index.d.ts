@@ -95,7 +95,8 @@ export type Diagram = {
    content: Cell.Properties[];
    image?: string;
    project?: Project;
-   has_project?: boolean;
+   in_unshared_project?: boolean;
+   unshared_project_edit_permission?: boolean;
    background_color: string;
    show_grid: boolean;
 };
