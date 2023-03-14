@@ -7,12 +7,12 @@ function addPorts(node: X6Type.Node) {
    const existingPorts = node.getPorts();
    const existingPortIds = existingPorts.map((port) => port.id);
    const newPortPropsToAdd = newPortProps.filter((portProp) => !existingPortIds.includes(portProp.id));
-   node.addPorts(newPortPropsToAdd);
+   node.addPorts(newPortPropsToAdd, { ignoreHistory: true });
 }
 
 function showPorts(node: X6Type.Node) {
    for (const port of node.getPorts()) {
-      node.portProp(port.id, "attrs/circle/style/visibility", "visible");
+      node.portProp(port.id, "attrs/circle/style/visibility", "visible", { ignoreHistory: true });
    }
 }
 
@@ -27,7 +27,7 @@ function showAllPorts(graph: X6Type.Graph) {
 
 function hidePorts(node: X6Type.Node) {
    for (const port of node.getPorts()) {
-      node.portProp(port.id, "attrs/circle/style/visibility", "hidden");
+      node.portProp(port.id, "attrs/circle/style/visibility", "hidden", { ignoreHistory: true });
    }
 }
 
@@ -44,7 +44,7 @@ function updatePorts(node: X6Type.Node) {
    const newPortProps = getNewPortProps(node);
 
    for (const portProp of newPortProps) {
-      node.portProp(portProp.id, portProp);
+      node.portProp(portProp.id, portProp, { ignoreHistory: true });
    }
 }
 

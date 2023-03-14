@@ -2,12 +2,9 @@ import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type X6Type from "@antv/x6";
 import {
    wsLocalAndDBAddNode,
-   wsLocalAndDBAddEdge,
    wsLocalAndDBRemoveCell,
    wsLocalAndDBUpdateNode,
-   wsLocalAndDBUpdateEdge,
    wsLocalUpdateNode,
-   wsLocalUpdateEdge,
 } from "@/components/diagram/x6/graph/websocket";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
@@ -84,6 +81,8 @@ export default function Nodes(
    });
 
    graph.current?.on("node:change:size", (args) => {
+      updatePorts(args.node);
+
       if (args.options.ws) {
          return;
       }

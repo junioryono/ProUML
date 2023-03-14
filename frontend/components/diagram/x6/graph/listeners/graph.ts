@@ -7,33 +7,7 @@ import {
 } from "@/components/diagram/x6/graph/websocket";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
-import { hideAllPorts, hidePorts } from "../shapes/ports";
-
-function removePortsFromJSON(json: { cells: any }): any {
-   if (json === null) {
-      return null;
-   }
-
-   const newJSON = JSON.parse(JSON.stringify(json));
-
-   // Order the properties of the cells alphabetically
-   for (const cell of newJSON.cells) {
-      if (cell.ports) {
-         delete cell.ports;
-      }
-
-      const orderedCell = {};
-      Object.keys(cell)
-         .sort()
-         .forEach((key) => {
-            orderedCell[key] = cell[key];
-         });
-
-      newJSON.cells[newJSON.cells.indexOf(cell)] = orderedCell;
-   }
-
-   return newJSON;
-}
+import { hideAllPorts } from "../shapes/ports";
 
 export default function Graph(
    graph: MutableRefObject<X6Type.Graph>,
@@ -122,4 +96,30 @@ export default function Graph(
       graph.current?.off("background:changed");
       graph.current?.off("graph:mouseleave");
    };
+}
+
+function removePortsFromJSON(json: { cells: any }): any {
+   if (json === null) {
+      return null;
+   }
+
+   const newJSON = JSON.parse(JSON.stringify(json));
+
+   // Order the properties of the cells alphabetically
+   for (const cell of newJSON.cells) {
+      if (cell.ports) {
+         delete cell.ports;
+      }
+
+      const orderedCell = {};
+      Object.keys(cell)
+         .sort()
+         .forEach((key) => {
+            orderedCell[key] = cell[key];
+         });
+
+      newJSON.cells[newJSON.cells.indexOf(cell)] = orderedCell;
+   }
+
+   return newJSON;
 }

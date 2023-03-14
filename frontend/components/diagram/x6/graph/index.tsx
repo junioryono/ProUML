@@ -1,7 +1,7 @@
 import type X6Type from "@antv/x6";
 import type { X6StateType } from "..";
 
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { LayoutProps } from "@/components/diagram/layout";
 import { Diagram } from "types";
 import { ReadyState } from "react-use-websocket";
@@ -9,7 +9,6 @@ import { ReadyState } from "react-use-websocket";
 import initializeListeners from "@/components/diagram/x6/graph/listeners";
 import useGraphWebSocket from "@/components/diagram/x6/graph/websocket";
 import { addPorts } from "./shapes/ports";
-import { StringExt } from "@antv/x6";
 
 export default function useGraph(
    X6: X6StateType,
@@ -149,10 +148,12 @@ export default function useGraph(
       graph.current.use(
          new X6.Plugin.History.History({
             enabled: true,
-            beforeAddCommand(_, args) {
-               // if ((args as any)?.options?.ws === true) {
-               //    return false;
-               // }
+            beforeAddCommand(_, args: any) {
+               if (args?.options?.ws === true || args?.options?.ignoreHistory === true) {
+                  return false;
+               }
+
+               console.log("beforeAddCommand", args);
 
                return true;
             },
@@ -162,7 +163,7 @@ export default function useGraph(
       graph.current.use(new X6.Plugin.Export.Export());
 
       console.log("diagram.content", diagram.content);
-      graph.current.fromJSON({ cells: diagram.content });
+      graph.current.fromJSON({ cells: diagram.content }, { ignoreHistory: true });
 
       for (const node of graph.current.getNodes()) {
          addPorts(node);
