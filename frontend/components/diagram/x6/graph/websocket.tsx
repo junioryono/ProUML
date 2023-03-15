@@ -65,17 +65,17 @@ function onWebSocketMessage(
       }
 
       graph.current?.batchUpdate(() => {
-         nodeInGraph.trigger("change:package", { package: node["package"], ws: true });
-         nodeInGraph.trigger("change:className", { name: node["name"], ws: true });
-         nodeInGraph.trigger("change:classType", { type: node["type"], ws: true });
-         nodeInGraph.trigger("change:variables", { variables: node["variables"] || [], ws: true });
-         nodeInGraph.trigger("change:methods", { methods: node["methods"] || [], ws: true });
-         nodeInGraph.trigger("change:backgroundColor", { backgroundColor: node["backgroundColor"], ws: true });
-         nodeInGraph.trigger("change:borderColor", { borderColor: node["borderColor"], ws: true });
-         nodeInGraph.trigger("change:borderWidth", { borderWidth: node["borderWidth"], ws: true });
-         nodeInGraph.trigger("change:borderStyle", { borderStyle: node["borderStyle"], ws: true });
-         nodeInGraph.trigger("change:lockPosition", { lockPosition: node["lockPosition"], ws: true });
-         nodeInGraph.trigger("change:lockSize", { lockSize: node["lockSize"], ws: true });
+         nodeInGraph.trigger("change:package", { current: node["package"], ws: true });
+         nodeInGraph.trigger("change:name", { current: node["name"], ws: true });
+         nodeInGraph.trigger("change:type", { current: node["type"], ws: true });
+         nodeInGraph.trigger("change:variables", { current: node["variables"] || [], ws: true });
+         nodeInGraph.trigger("change:methods", { current: node["methods"] || [], ws: true });
+         nodeInGraph.trigger("change:backgroundColor", { current: node["backgroundColor"], ws: true });
+         nodeInGraph.trigger("change:borderColor", { current: node["borderColor"], ws: true });
+         nodeInGraph.trigger("change:borderWidth", { current: node["borderWidth"], ws: true });
+         nodeInGraph.trigger("change:borderStyle", { current: node["borderStyle"], ws: true });
+         nodeInGraph.trigger("change:lockPosition", { current: node["lockPosition"], ws: true });
+         nodeInGraph.trigger("change:lockSize", { current: node["lockSize"], ws: true });
 
          nodeInGraph.angle(node["angle"] || 0, { ws: true });
          nodeInGraph.setSize(node["size"], { ws: true });
@@ -129,12 +129,9 @@ function onWebSocketMessage(
 
       sessionId.current = message.sessionId;
    } else if (events.includes("local_updateGraphShowGrid")) {
-      graph.current.setGridSize(message.showGrid ? 16 : 1);
+      graph.current.trigger("grid:changed", { current: message.showGrid, ws: true });
    } else if (events.includes("local_updateGraphBackgroundColor")) {
-      layoutProps.setBackgroundColor(message.backgroundColor);
-      graph.current?.drawBackground({
-         color: `#${message.backgroundColor}`,
-      });
+      graph.current.trigger("background:changed", { current: message.backgroundColor, ws: true });
    } else if (events.includes("local_updateGraphName")) {
       layoutProps.setDiagramName(message.name);
    }

@@ -101,7 +101,7 @@ export default function useGraph(
       });
 
       graph.current.use(
-         new X6.Plugin.Scroller.Scroller({
+         new X6.Plugin.Scroller({
             enabled: true,
             graph: graph.current,
             className: "no-scrollbar",
@@ -121,7 +121,7 @@ export default function useGraph(
       // );
 
       graph.current.use(
-         new X6.Plugin.Selection.Selection({
+         new X6.Plugin.Selection({
             enabled: true,
             multiple: true,
             rubberband: true,
@@ -132,35 +132,34 @@ export default function useGraph(
       );
 
       graph.current.use(
-         new X6.Plugin.Keyboard.Keyboard({
+         new X6.Plugin.Keyboard({
             enabled: true,
             global: true,
          }),
       );
 
       graph.current.use(
-         new X6.Plugin.Clipboard.Clipboard({
+         new X6.Plugin.Clipboard({
             enabled: true,
             useLocalStorage: true,
          }),
       );
 
       graph.current.use(
-         new X6.Plugin.History.History({
+         new X6.Plugin.History({
             enabled: true,
             beforeAddCommand(_, args: any) {
                if (args?.options?.ws === true || args?.options?.ignoreHistory === true) {
                   return false;
                }
 
-               console.log("beforeAddCommand", args);
-
                return true;
             },
+            // eventNames: [],
          }),
       );
 
-      graph.current.use(new X6.Plugin.Export.Export());
+      graph.current.use(new X6.Plugin.Export());
 
       console.log("diagram.content", diagram.content);
       graph.current.fromJSON({ cells: diagram.content }, { ignoreHistory: true });

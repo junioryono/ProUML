@@ -55,8 +55,8 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
       setSizeLocked(props.lockSize || false);
 
       // re-render when the selected node changes
-      node.on("change:className", (args) => {
-         setNodeName(args.name);
+      node.on("change:name", (args) => {
+         setNodeName(args.current);
       });
 
       // re-render when the node size changes
@@ -73,25 +73,25 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
       });
 
       node.on("change:variables", (args) => {
-         setVariables(args.variables);
+         setVariables(args.current);
          if (args.newHeight) {
             setHeight(args.newHeight);
          }
       });
 
       node.on("change:methods", (args) => {
-         setMethods(args.methods);
+         setMethods(args.current);
          if (args.newHeight) {
             setHeight(args.newHeight);
          }
       });
 
       node.on("change:lockPosition", (args) => {
-         setPositionLocked(!!args.lockPosition);
+         setPositionLocked(!!args.current);
       });
 
       node.on("change:lockSize", (args) => {
-         setSizeLocked(!!args.lockSize);
+         setSizeLocked(!!args.current);
       });
    }, [node]);
 
@@ -113,7 +113,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                         setNodeName(e.target.value);
 
                         // set the name of the node in the graph
-                        node.trigger("change:className", { name: e.target.value });
+                        node.trigger("change:name", { current: e.target.value });
                      }}
                      // if the input is "Untitled" highlight the entire text
                      onFocus={(e) => {
@@ -182,10 +182,10 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                            setIsAbstract(false);
 
                            const newHeight = node.prop("size").height + 17;
-                           node.trigger("change:classType", { type: "interface", newHeight: newHeight });
+                           node.trigger("change:type", { current: "interface", newHeight: newHeight });
                         } else {
                            const newHeight = node.prop("size").height - 17;
-                           node.trigger("change:classType", { type: "class", newHeight: newHeight });
+                           node.trigger("change:type", { current: "class", newHeight: newHeight });
                         }
                      }}
                   />
@@ -203,12 +203,12 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                            if (isInterface) {
                               setIsInterface(false);
                               const newHeight = node.prop("size").height - 17;
-                              node.trigger("change:classType", { type: "abstract", newHeight: newHeight });
+                              node.trigger("change:type", { current: "abstract", newHeight: newHeight });
                            } else {
-                              node.trigger("change:classType", { type: "abstract" });
+                              node.trigger("change:type", { current: "abstract" });
                            }
                         } else {
-                           node.trigger("change:classType", { type: "class" });
+                           node.trigger("change:type", { current: "class" });
                         }
                      }}
                   />
@@ -238,7 +238,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               });
 
                               const newHeight = height + (variablesTemp.length > 1 ? 20 : 36);
-                              node.trigger("change:variables", { variables: variablesTemp, newHeight: newHeight });
+                              node.trigger("change:variables", { current: variablesTemp, newHeight: newHeight });
                            }}
                         >
                            <span
@@ -308,7 +308,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               });
 
                               const newHeight = height + (methodsTemp.length > 1 ? 20 : 36);
-                              node.trigger("change:methods", { methods: methodsTemp, newHeight: newHeight });
+                              node.trigger("change:methods", { current: methodsTemp, newHeight: newHeight });
                            }}
                         >
                            <span
@@ -414,7 +414,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                         <input
                            type="checkbox"
                            className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                           onChange={() => node.trigger("change:lockPosition", { lockPosition: !positionLocked })}
+                           onChange={() => node.trigger("change:lockPosition", { current: !positionLocked })}
                            checked={positionLocked}
                         />
                         <label htmlFor="position-lock">Lock pos</label>
@@ -467,7 +467,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                            <input
                               type="checkbox"
                               className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
-                              onChange={() => node.trigger("change:lockSize", { lockSize: !sizeLocked })}
+                              onChange={() => node.trigger("change:lockSize", { current: !sizeLocked })}
                               checked={sizeLocked}
                            />
                            <label htmlFor="size-lock">Lock size</label>

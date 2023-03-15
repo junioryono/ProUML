@@ -76,28 +76,28 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
       // Check if all selected cells have the same background color
       if (selectedBgColors.every((color) => color === selectedBgColors[0])) {
-         setBackgroundColor(selectedBgColors[0]);
+         setBackgroundColor(selectedBgColors[0] || "FFFFFF");
       } else {
          setBackgroundColor("Multiple");
       }
 
       // Check if all selected cells have the same border color
       if (selectedBdColors.every((color) => color === selectedBdColors[0])) {
-         setBorderColor(selectedBdColors[0]);
+         setBorderColor(selectedBdColors[0] || "000000");
       } else {
          setBorderColor("Multiple");
       }
 
       // Check if all selected cells have the same border width
       if (selectedBdWidths.every((width) => width === selectedBdWidths[0])) {
-         setBorderWidth(selectedBdWidths[0]);
+         setBorderWidth(selectedBdWidths[0] || 1);
       } else {
          setBorderWidth(-1);
       }
 
       // Check if all selected cells have the same border style
       if (selectedBdStyles.every((style) => style === selectedBdStyles[0])) {
-         setBorderStyle(selectedBdStyles[0]);
+         setBorderStyle(selectedBdStyles[0] || "solid");
       } else {
          setBorderStyle("Multiple");
       }
@@ -124,7 +124,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          setBackgroundColor(color);
          for (const node of selectedNodes) {
             node.trigger("change:backgroundColor", {
-               backgroundColor: color,
+               current: color,
             });
          }
       },
@@ -137,7 +137,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          setBorderColor(color);
          for (const node of selectedNodes) {
             node.trigger("change:borderColor", {
-               borderColor: color,
+               current: color,
             });
          }
       },
@@ -152,7 +152,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             const currentBorderWidth = node.getProp("borderWidth") || 1;
             const newHeight = node.size().height + (width - currentBorderWidth) * 4;
             node.trigger("change:borderWidth", {
-               borderWidth: width,
+               current: width,
                newHeight: newHeight,
             });
          }
@@ -166,7 +166,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          setBorderStyle(style);
          for (const node of selectedNodes) {
             node.trigger("change:borderStyle", {
-               borderStyle: style,
+               current: style,
             });
          }
       },
@@ -177,16 +177,16 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    useEffect(() => {
       for (const node of selectedNodes) {
          node.on("change:backgroundColor", (args) => {
-            setBackgroundColor(args.backgroundColor);
+            setBackgroundColor(args.current);
          });
          node.on("change:borderColor", (args) => {
-            setBorderColor(args.borderColor);
+            setBorderColor(args.current);
          });
          node.on("change:borderWidth", (args) => {
-            setBorderWidth(args.borderWidth);
+            setBorderWidth(args.current);
          });
          node.on("change:borderStyle", (args) => {
-            setBorderStyle(args.borderStyle);
+            setBorderStyle(args.current);
          });
       }
    }, [selectedNodes]);

@@ -38,6 +38,12 @@ export default function GraphPanel({
       graph.current?.zoomTo(zoom / 100);
    }, [zoom]);
 
+   useEffect(() => {
+      graph.current?.on("grid:changed", (args) => {
+         setGrid(!!args.current);
+      });
+   }, []);
+
    return (
       <>
          {/* ---------------------- GRAPH SETTINGS SECTION ---------------------- */}
@@ -104,17 +110,8 @@ export default function GraphPanel({
                type="checkbox"
                className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                onChange={() => {
-                  graph.current?.trigger("grid:changed", { showGrid: !grid });
-                  setGrid(!grid);
-
-                  // if the user wants to show the grid, set the grid size to 10
-                  if (!grid) {
-                     graph.current.setGridSize(16);
-                  }
-                  // if the user wants to hide the grid, set the grid size to 1
-                  else {
-                     graph.current.setGridSize(1);
-                  }
+                  graph.current?.trigger("grid:changed", { current: !grid });
+                  graph.current?.model.trigger("grid:changed", { current: !grid });
                }}
                checked={grid}
             />
@@ -128,7 +125,11 @@ export default function GraphPanel({
                className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
                onChange={() => {
                   setBackground(!background);
-                  graph.current?.trigger("background:changed", { color: background ? "FFFFFF" : backgroundColor });
+                  graph.current?.trigger("background:changed", { current: background ? "FFFFFF" : backgroundColor });
+                  graph.current?.model.trigger("background:changed", {
+                     prev: background ? backgroundColor : "FFFFFF",
+                     next: background ? "FFFFFF" : backgroundColor,
+                  });
                }}
                checked={background}
             />
@@ -152,7 +153,11 @@ export default function GraphPanel({
                               }
                               onClick={() => {
                                  if (color !== backgroundColor) {
-                                    graph.current?.trigger("background:changed", { color: color });
+                                    graph.current?.trigger("background:changed", { current: color });
+                                    graph.current?.model.trigger("background:changed", {
+                                       prev: backgroundColor,
+                                       next: color,
+                                    });
                                  }
                               }}
                            >

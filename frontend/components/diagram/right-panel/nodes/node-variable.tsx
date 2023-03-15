@@ -98,7 +98,7 @@ export default function NodeSettingsVariable({
                                  // update the node's variables array
                                  // @ts-ignore
                                  variables[index].accessModifier = option.value;
-                                 node.trigger("change:variables", { variables });
+                                 node.trigger("change:variables", { current: variables });
                                  setAccessModifier(variables[index].accessModifier);
                               }}
                            >
@@ -127,7 +127,7 @@ export default function NodeSettingsVariable({
                         // update the node's variables array
                         setType(e.target.value);
                         variables[index].type = e.target.value;
-                        node.trigger("change:variables", { variables });
+                        node.trigger("change:variables", { current: variables });
                      }}
                      // if the input is "Untitled" highlight the entire text
                      onFocus={(e) => {
@@ -148,7 +148,7 @@ export default function NodeSettingsVariable({
                      // update the node's variables array
                      setName(e.target.value);
                      variables[index].name = e.target.value;
-                     node.trigger("change:variables", { variables });
+                     node.trigger("change:variables", { current: variables });
                   }}
                   // if the input is "Untitled" highlight the entire text
                   onFocus={(e) => {
@@ -174,7 +174,7 @@ export default function NodeSettingsVariable({
                      // update the node's variables array
                      setValue(e.target.value);
                      variables[index].value = e.target.value;
-                     node.trigger("change:variables", { variables });
+                     node.trigger("change:variables", { current: variables });
                   }}
                   // if the input is "Untitled" highlight the entire text
                   onFocus={(e) => {
@@ -193,7 +193,7 @@ export default function NodeSettingsVariable({
                         newVariables.splice(index, 1);
 
                         const newHeight = node.prop("size").height - (newVariables.length === 0 ? 36 : 20);
-                        node.trigger("change:variables", { variables: newVariables, newHeight: newHeight });
+                        node.trigger("change:variables", { current: newVariables, newHeight: newHeight });
                      }}
                   >
                      <span

@@ -37,11 +37,11 @@ func (c *channel) addConnection(conn *connection, user *models.UserModel) {
 	if len(c.connections) == 0 {
 		go c.listen()
 	}
-	c.connectionsMu.Unlock()
 
 	// Get the current users in the channel
 	users, err := c.getCurrentRedisUsers()
 	if err != nil {
+		c.connectionsMu.Unlock()
 		return
 	}
 
@@ -77,9 +77,11 @@ func (c *channel) addConnection(conn *connection, user *models.UserModel) {
 	// Save the user to the diagram users hash
 	if b, err := json.Marshal(userBody); err == nil {
 		if err := c.client.HSet(c.context, c.getDiagramUsersKey(), conn.sessionId, b).Err(); err != nil {
+			c.connectionsMu.Unlock()
 			return
 		}
 	} else {
+		c.connectionsMu.Unlock()
 		return
 	}
 
@@ -92,7 +94,6 @@ func (c *channel) addConnection(conn *connection, user *models.UserModel) {
 	}
 
 	// Add connection to channel
-	c.connectionsMu.Lock()
 	c.connections = append(c.connections, conn)
 	c.connectionsMu.Unlock()
 

@@ -43,7 +43,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
       });
 
       // Need to change node names in the left panel when the node name is changed in the graph
-      graph.current?.on("node:change:className", () => {
+      graph.current?.on("node:change:name", () => {
          setNodes(graph.current?.getNodes());
       });
    }, [graph]);

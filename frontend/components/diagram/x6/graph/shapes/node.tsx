@@ -16,12 +16,6 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
    const [borderWidth, setBorderWidth] = useState(1);
    const [borderStyle, setBorderStyle] = useState("solid");
 
-   const borderWidthRef = useRef(1);
-
-   useEffect(() => {
-      borderWidthRef.current = borderWidth;
-   }, [borderWidth]);
-
    useEffect(() => {
       if (!node) {
          return;
@@ -59,116 +53,150 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
          setSelected(false);
       });
 
-      node?.on("change:package", ({ package: packageName, ws }: { package: ClassNode["package"]; ws: boolean }) => {
-         if (packageName === "") {
-            packageName = "default";
+      node?.on("change:package", ({ current, ws }: { current: ClassNode["package"]; ws: boolean }) => {
+         if (current === "") {
+            current = "default";
          }
 
-         setPackageName(packageName);
-         node
-            .prop("package", packageName, { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         setPackageName(current);
+         node.prop("package", current, { silent: true }).model.graph.trigger("node:change:data", {
+            key: "package",
+            cell: node,
+            options: { ws },
+         });
       });
 
       // if the class name is changed, update the node
-      node?.on("change:className", ({ name, ws }: { name: ClassNode["name"]; ws: boolean }) => {
-         if (name === "") {
-            name = "ClassName";
+      node?.on("change:name", ({ current, ws }: { current: ClassNode["name"]; ws: boolean }) => {
+         if (current === "") {
+            current = "ClassName";
          }
 
-         setClassName(name);
-         node.prop("name", name, { silent: true }).model.graph.trigger("node:change:data", { cell: node, options: { ws } });
-         node?.model.graph.trigger("node:change:className"); // This is for updating the left panel
+         setClassName(current);
+         node.prop("name", current, { silent: true }).model.graph.trigger("node:change:data", {
+            key: "name",
+            cell: node,
+            options: { ws },
+         });
+
+         node?.model.graph.trigger("node:change:name"); // This is for updating the left panel
       });
 
       // if the class type is changed, update the node
       node?.on(
-         "change:classType",
-         ({ type, newHeight, ws }: { type: ClassNode["type"]; newHeight: number; ws: boolean }) => {
-            setType(type);
-            node
-               .prop("type", type, { silent: true })
-               .resize(node.size().width, newHeight || node.size().height)
-               .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         "change:type",
+         ({ current, newHeight, ws }: { current: ClassNode["type"]; newHeight: number; ws: boolean }) => {
+            setType(current);
+            node.batchUpdate("update", () => {
+               node.resize(node.size().width, newHeight || node.size().height);
+               node.prop("type", current, { silent: true });
+               node.model.graph.model.graph.trigger("node:change:data", {
+                  key: "type",
+                  cell: node,
+                  options: { ws },
+               });
+            });
          },
       );
 
       // if the variables are changed, update the node
       node?.on(
          "change:variables",
-         ({ variables, newHeight, ws }: { variables: ClassNode["variables"]; newHeight: number; ws: boolean }) => {
-            setVariables(variables);
-            node
-               .prop("variables", [...variables], { silent: true })
-               .resize(node.size().width, newHeight || node.size().height)
-               .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         ({ current, newHeight, ws }: { current: ClassNode["variables"]; newHeight: number; ws: boolean }) => {
+            setVariables(current);
+            node.batchUpdate("update", () => {
+               node.resize(node.size().width, newHeight || node.size().height);
+               node.prop("variables", [...current], { silent: true });
+               node.model.graph.model.graph.trigger("node:change:data", {
+                  key: "variables",
+                  cell: node,
+                  options: { ws },
+               });
+            });
          },
       );
 
       // if the methods are changed, update the node
       node?.on(
          "change:methods",
-         ({ methods, newHeight, ws }: { methods: ClassNode["methods"]; newHeight: number; ws: boolean }) => {
-            setMethods(methods);
-            node
-               .prop("methods", [...methods], { silent: true })
-               .resize(node.size().width, newHeight || node.size().height)
-               .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+         ({ current, newHeight, ws }: { current: ClassNode["methods"]; newHeight: number; ws: boolean }) => {
+            setMethods(current);
+            node.batchUpdate("update", () => {
+               node.resize(node.size().width, newHeight || node.size().height);
+               node.prop("methods", [...current], { silent: true });
+               node.model.graph.model.graph.trigger("node:change:data", {
+                  key: "methods",
+                  cell: node,
+                  options: { ws },
+               });
+            });
          },
       );
 
       // if the background color is changed, update the node
-      node?.on("change:backgroundColor", ({ backgroundColor, ws }: { backgroundColor: string; ws: boolean }) => {
-         setBackgroundColor(backgroundColor);
-         node
-            .prop("backgroundColor", backgroundColor, { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      node?.on("change:backgroundColor", ({ current, ws }: { current: string; ws: boolean }) => {
+         setBackgroundColor(current);
+         node.prop("backgroundColor", current, { silent: true }).model.graph.trigger("node:change:data", {
+            key: "backgroundColor",
+            cell: node,
+            options: { ws },
+         });
       });
 
       // if the border color is changed, update the node
-      node?.on("change:borderColor", ({ borderColor, ws }: { borderColor: string; ws: boolean }) => {
-         setBorderColor(borderColor);
-         node
-            .prop("borderColor", borderColor, { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      node?.on("change:borderColor", ({ current, ws }: { current: string; ws: boolean }) => {
+         setBorderColor(current);
+         node.prop("borderColor", current, { silent: true }).model.graph.trigger("node:change:data", {
+            key: "borderColor",
+            cell: node,
+            options: { ws },
+         });
       });
 
       // if the border width is changed, update the node
-      node?.on(
-         "change:borderWidth",
-         ({ borderWidth, newHeight, ws }: { borderWidth: number; newHeight: number; ws: boolean }) => {
-            setBorderWidth(borderWidth);
-            node
-               .prop("borderWidth", borderWidth, { silent: true })
-               .resize(node.size().width, newHeight || node.size().height)
-               .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
-         },
-      );
+      node?.on("change:borderWidth", ({ current, newHeight, ws }: { current: number; newHeight: number; ws: boolean }) => {
+         setBorderWidth(current);
+         node.batchUpdate("update", () => {
+            node.resize(node.size().width, newHeight || node.size().height);
+            node.prop("borderWidth", current, { silent: true });
+            node.model.graph.model.graph.trigger("node:change:data", {
+               key: "borderWidth",
+               cell: node,
+               options: { ws },
+            });
+         });
+      });
 
       // if the border style is changed, update the node
-      node?.on("change:borderStyle", ({ borderStyle, ws }: { borderStyle: string; ws: boolean }) => {
-         setBorderStyle(borderStyle);
-         node
-            .prop("borderStyle", borderStyle, { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      node?.on("change:borderStyle", ({ current, ws }: { current: string; ws: boolean }) => {
+         setBorderStyle(current);
+         node.prop("borderStyle", current, { silent: true }).model.graph.trigger("node:change:data", {
+            key: "borderStyle",
+            cell: node,
+            options: { ws },
+         });
       });
 
-      node?.on("change:lockPosition", ({ lockPosition, ws }: { lockPosition: boolean; ws: boolean }) => {
-         node
-            .prop("lockPosition", lockPosition, { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      node?.on("change:lockPosition", ({ current, ws }: { current: boolean; ws: boolean }) => {
+         node.prop("lockPosition", current, { silent: true }).model.graph.trigger("node:change:data", {
+            key: "lockPosition",
+            cell: node,
+            options: { ws },
+         });
       });
 
-      node?.on("change:lockSize", ({ lockSize, ws }: { lockSize: boolean; ws: boolean }) => {
-         node
-            .prop("lockSize", lockSize, { silent: true })
-            .model.graph.trigger("node:change:data", { cell: node, options: { ws } });
+      node?.on("change:lockSize", ({ current, ws }: { current: boolean; ws: boolean }) => {
+         node.prop("lockSize", current, { silent: true }).model.graph.trigger("node:change:data", {
+            key: "lockSize",
+            cell: node,
+            options: { ws },
+         });
       });
 
       // turn off the event listeners when the component unmounts
       return () => {
-         node?.off("change:className");
-         node?.off("change:classType");
+         node?.off("change:name");
+         node?.off("change:type");
          node?.off("change:variables");
          node?.off("change:methods");
          node?.off("change:position");
@@ -181,39 +209,6 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
          node?.off("change:lockSize");
       };
    }, [node]);
-
-   // All the useEffects below are to trigger the graph to update the node
-   useEffect(() => {
-      node.prop("name", className, { silent: true }); // This is for updating the node on the graph
-   }, [className]);
-
-   useEffect(() => {
-      node.prop("type", type, { silent: true });
-   }, [type]);
-
-   useEffect(() => {
-      node.prop("variables", [...variables], { silent: true });
-   }, [variables]);
-
-   useEffect(() => {
-      node.prop("methods", [...methods], { silent: true });
-   }, [methods]);
-
-   useEffect(() => {
-      node.prop("backgroundColor", backgroundColor, { silent: true });
-   }, [backgroundColor]);
-
-   useEffect(() => {
-      node.prop("borderColor", borderColor, { silent: true });
-   }, [borderColor]);
-
-   useEffect(() => {
-      node.prop("borderWidth", borderWidth, { silent: true });
-   }, [borderWidth]);
-
-   useEffect(() => {
-      node.prop("borderStyle", borderStyle, { silent: true });
-   }, [borderStyle]);
 
    return (
       <>

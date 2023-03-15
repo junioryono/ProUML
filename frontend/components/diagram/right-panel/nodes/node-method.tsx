@@ -92,7 +92,7 @@ export default function NodeSettingsMethod({
                            // update the node's method array
                            // @ts-ignore
                            methods[index].accessModifier = e.target.value;
-                           node.trigger("change:methods", { methods });
+                           node.trigger("change:methods", { current: methods });
                            setAccessModifier(methods[index].accessModifier);
                         }}
                      >
@@ -113,7 +113,7 @@ export default function NodeSettingsMethod({
                         // update the node's methods array
                         setType(e.target.value);
                         methods[index].type = e.target.value;
-                        node.trigger("change:methods", { methods });
+                        node.trigger("change:methods", { current: methods });
                      }}
                      // if the input is "Untitled" highlight the entire text
                      onFocus={(e) => {
@@ -134,7 +134,7 @@ export default function NodeSettingsMethod({
                      // update the node's variables array
                      setName(e.target.value);
                      methods[index].name = e.target.value;
-                     node.trigger("change:methods", { methods });
+                     node.trigger("change:methods", { current: methods });
                   }}
                   // if the input is "Untitled" highlight the entire text
                   onFocus={(e) => {
@@ -177,7 +177,7 @@ export default function NodeSettingsMethod({
                         newMethods.splice(index, 1);
 
                         const newHeight = node.prop("size").height - (newMethods.length === 0 ? 36 : 20);
-                        node.trigger("change:methods", { methods: newMethods, newHeight: newHeight });
+                        node.trigger("change:methods", { current: newMethods, newHeight: newHeight });
                      }}
                   >
                      <span
@@ -223,7 +223,7 @@ export default function NodeSettingsMethod({
                            const newMethods = [...methods];
                            paramsTemp.push({ name: `param${parameters.length + 1}`, type: "int" });
                            newMethods[index].parameters = paramsTemp;
-                           node.trigger("change:methods", { methods: newMethods });
+                           node.trigger("change:methods", { current: newMethods });
                            setParameters(newMethods[index].parameters);
 
                            // Scroll to the bottom of the parameters list

@@ -52,9 +52,16 @@ export default function Nodes(
       wsLocalAndDBAddNode(args.cell, wsSendJson, sessionId);
    });
 
-   graph.current?.on("node:change:data", (args) => {
+   graph.current?.on("node:change:data", (args: any) => {
       if (args.options.ws) {
          return;
+      }
+
+      if (args.key) {
+         graph.current?.model.trigger("cell:change:*", {
+            key: args.key,
+            cell: args.cell,
+         });
       }
 
       wsLocalAndDBUpdateNode(args.cell, wsSendJson, sessionId);

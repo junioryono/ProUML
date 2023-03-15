@@ -17,12 +17,12 @@ export default function Graph(
 ) {
    const originalJSON = graph.current?.toJSON();
    let jsonString = JSON.stringify(removePortsFromJSON(originalJSON));
-   let backgroundColor = layoutProps.backgroundColor.current || "ffffff";
+   let backgroundColor = layoutProps.backgroundColor.current || "FFFFFF";
 
    const mouseLeaveFunction = () => {
       const newJSON = graph.current?.toJSON();
       const newJSONString = JSON.stringify(removePortsFromJSON(newJSON));
-      const newBackgroundColor = layoutProps.backgroundColor.current || "ffffff";
+      const newBackgroundColor = layoutProps.backgroundColor.current || "FFFFFF";
       if (jsonString === newJSONString && backgroundColor === newBackgroundColor) {
          return;
       }
@@ -64,24 +64,31 @@ export default function Graph(
    });
 
    graph.current?.on("grid:changed", (args) => {
+      if (args.current) {
+         graph.current.setGridSize(16);
+      } else {
+         graph.current.setGridSize(1);
+      }
+
       if (args.ws) {
          return;
       }
 
-      wsLocalAndDBUpdateGraphShowGrid(args.showGrid, wsSendJson, sessionId);
+      wsLocalAndDBUpdateGraphShowGrid(args.current, wsSendJson, sessionId);
    });
 
    // Background color
    graph.current?.on("background:changed", (args) => {
+      layoutProps.setBackgroundColor(args.current || "FFFFFF");
+      graph.current?.drawBackground({
+         color: `#${args.current || "FFFFFF"}`,
+      });
+
       if (args.ws) {
          return;
       }
 
-      layoutProps.setBackgroundColor(args.color);
-      graph.current?.drawBackground({
-         color: `#${args.color}`,
-      });
-      wsLocalAndDBUpdateGraphBackgroundColor(args.color, wsSendJson, sessionId);
+      wsLocalAndDBUpdateGraphBackgroundColor(args.current, wsSendJson, sessionId);
    });
 
    graph.current?.on("graph:mouseleave", () => {

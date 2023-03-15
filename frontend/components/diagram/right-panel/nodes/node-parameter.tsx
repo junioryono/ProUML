@@ -55,7 +55,7 @@ export default function NodeSettingsParameter({
                         onChange={(e) => {
                            setType(e.target.value);
                            methods[methodIndex].parameters[index].type = e.target.value;
-                           node.trigger("change:methods", { methods });
+                           node.trigger("change:methods", { current: methods });
                         }}
                         // if the input is "Untitled" highlight the entire text
                         onFocus={(e) => {
@@ -76,7 +76,7 @@ export default function NodeSettingsParameter({
                      onChange={(e) => {
                         setName(e.target.value);
                         methods[methodIndex].parameters[index].name = e.target.value;
-                        node.trigger("change:methods", { methods });
+                        node.trigger("change:methods", { current: methods });
                      }}
                      // if the input is "Untitled" highlight the entire text
                      onFocus={(e) => {
@@ -98,7 +98,7 @@ export default function NodeSettingsParameter({
                         newParameters.splice(index, 1);
                         setParameters(newParameters);
                         methods[methodIndex].parameters.splice(index, 1);
-                        node.trigger("change:methods", { methods });
+                        node.trigger("change:methods", { current: methods });
                      }}
                   >
                      <span
