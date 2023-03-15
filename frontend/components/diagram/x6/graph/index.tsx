@@ -155,7 +155,6 @@ export default function useGraph(
 
                return true;
             },
-            // eventNames: [],
          }),
       );
 

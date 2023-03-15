@@ -8,7 +8,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
 
    const [type, setType] = useState<ClassNode["type"]>("class");
    const [packageName, setPackageName] = useState<ClassNode["package"]>();
-   const [className, setClassName] = useState<ClassNode["name"]>();
+   const [name, setName] = useState<ClassNode["name"]>();
    const [variables, setVariables] = useState<ClassNode["variables"]>([]);
    const [methods, setMethods] = useState<ClassNode["methods"]>([]);
    const [backgroundColor, setBackgroundColor] = useState("FFFFFF");
@@ -24,7 +24,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
       const {
          type,
          package: packageName,
-         name: className,
+         name,
          variables,
          methods,
          backgroundColor,
@@ -35,7 +35,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
 
       setType(type);
       setPackageName(packageName);
-      setClassName(className);
+      setName(name);
       setVariables(variables || []);
       setMethods(methods || []);
       setBackgroundColor(backgroundColor || "FFFFFF");
@@ -72,7 +72,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
             current = "ClassName";
          }
 
-         setClassName(current);
+         setName(current);
          node.prop("name", current, { silent: true }).model.graph.trigger("node:change:data", {
             key: "name",
             cell: node,
@@ -210,6 +210,43 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
       };
    }, [node]);
 
+   // All the useEffects below are to trigger the graph to update the node
+   useEffect(() => {
+      node.prop("type", type, { silent: true });
+   }, [type]);
+
+   useEffect(() => {
+      node.prop("packageName", packageName, { silent: true });
+   }, [packageName]);
+
+   useEffect(() => {
+      node.prop("name", name, { silent: true });
+   }, [name]);
+
+   useEffect(() => {
+      node.prop("variables", [...variables], { silent: true });
+   }, [variables]);
+
+   useEffect(() => {
+      node.prop("methods", [...methods], { silent: true });
+   }, [methods]);
+
+   useEffect(() => {
+      node.prop("backgroundColor", backgroundColor, { silent: true });
+   }, [backgroundColor]);
+
+   useEffect(() => {
+      node.prop("borderColor", borderColor, { silent: true });
+   }, [borderColor]);
+
+   useEffect(() => {
+      node.prop("borderWidth", borderWidth, { silent: true });
+   }, [borderWidth]);
+
+   useEffect(() => {
+      node.prop("borderStyle", borderStyle, { silent: true });
+   }, [borderStyle]);
+
    return (
       <>
          {selected && (
@@ -265,13 +302,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
                   }}
                >
                   {/* if the class is abstract, it's classname should be italicized */}
-                  {type === "abstract" ? (
-                     <i>{!className ? "ClassName" : className}</i>
-                  ) : !className ? (
-                     "ClassName"
-                  ) : (
-                     className
-                  )}
+                  {type === "abstract" ? <i>{!name ? "ClassName" : name}</i> : !name ? "ClassName" : name}
                </div>
             </div>
 

@@ -133,6 +133,9 @@ func (c *channel) addConnection(conn *connection, user *models.UserModel) {
 func (c *channel) listen() {
 	// Listen for messages
 	go func() {
+		// Catch panics
+		defer recover()
+
 		for {
 			msg, err := c.ps.ReceiveMessage(c.context)
 			if err != nil {
@@ -159,6 +162,8 @@ func (c *channel) listen() {
 			for _, v := range c.connections {
 				wg.Add(1)
 				go func(v *connection) {
+					// Catch panics
+					defer recover()
 					defer wg.Done()
 
 					if v.sessionId != fromSessionId {
@@ -166,6 +171,7 @@ func (c *channel) listen() {
 						defer v.mu.Unlock()
 						v.ws.WriteJSON(payload)
 					}
+
 				}(v)
 			}
 
@@ -248,6 +254,8 @@ func (c *channel) unsubscribe() error {
 }
 
 func (c *channel) getColorFromSessionId(sessionId string) (string, error) {
+	c.connectionsMu.RLock()
+	defer c.connectionsMu.RUnlock()
 	for _, v := range c.connections {
 		if v.sessionId == sessionId {
 			return v.color, nil
@@ -316,6 +324,8 @@ func (c *channel) generateRandomHexColor(existingColors []string) string {
 }
 
 func (c *channel) close() {
+	c.connectionsMu.Lock()
+	defer c.connectionsMu.Unlock()
 	for _, v := range c.connections {
 		c.removeConnection(v.sessionId)
 	}

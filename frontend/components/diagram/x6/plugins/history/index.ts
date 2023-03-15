@@ -223,12 +223,9 @@ export class History extends Basecoat<History.EventArgs> implements IDisablable 
       const model = this.model;
       const event = cmd.event;
 
-      // @ts-ignore
-      if (cmd.event === "grid:changed") {
+      if (Util.isGridChangedEvent(event)) {
          model.graph.trigger("grid:changed", { current: revert ? !cmd.options.current : cmd.options.current });
-      }
-      // @ts-ignore
-      else if (cmd.event === "background:changed") {
+      } else if (Util.isBackgroundChangedEvent(event)) {
          model.graph.trigger("background:changed", {
             current: revert ? cmd.options.prev : cmd.options.next,
          });
@@ -285,7 +282,7 @@ export class History extends Basecoat<History.EventArgs> implements IDisablable 
       }
 
       // @ts-ignore
-      if (event === "grid:changed" || event === "background:changed") {
+      if (Util.isGridChangedEvent(event) || Util.isBackgroundChangedEvent(event)) {
          const cmd = this.createCommand({ batch: false });
          cmd.event = event;
          cmd.options = {
@@ -784,6 +781,14 @@ namespace Util {
 
    export function isChangeEvent(event?: History.ModelEvents) {
       return event != null && event.startsWith("cell:change:");
+   }
+
+   export function isGridChangedEvent(event?: any) {
+      return event === "grid:changed";
+   }
+
+   export function isBackgroundChangedEvent(event?: any) {
+      return event === "background:changed";
    }
 
    export function getOptions(options: History.Options): History.CommonOptions {

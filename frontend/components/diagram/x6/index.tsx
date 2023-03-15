@@ -1,4 +1,4 @@
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useState } from "react";
+import { MutableRefObject, useEffect, useState } from "react";
 
 import type X6Type from "@antv/x6";
 import type { Scroller as X6PluginScrollerType } from "@antv/x6-plugin-scroller";
