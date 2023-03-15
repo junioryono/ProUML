@@ -387,7 +387,7 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                  General access
                               </Dialog.Title>
                               <div className="group">
-                                 <div className="bg-white pl-2 ml-4 mb-4 mt-1 flex flex-row group-hover:bg-slate-100 rounded-l-full rounded-md">
+                                 <div className="bg-white pl-6 mb-4 mt-1 flex flex-row group-hover:bg-slate-100">
                                     <svg
                                        focusable="false"
                                        width="38"
