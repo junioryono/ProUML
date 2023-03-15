@@ -412,7 +412,13 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                        >
                                           {generalAccess ? "Anyone with link" : "Restricted"}
                                           {allowedToEdit && (
-                                             <svg width="20" height="20" viewBox="0 0 24 24" focusable="false" className="">
+                                             <svg
+                                                width="20"
+                                                height="20"
+                                                viewBox="0 0 24 24"
+                                                focusable="false"
+                                                className="ml-1"
+                                             >
                                                 <path d="M7 10l5 5 5-5H7z"></path>
                                              </svg>
                                           )}
@@ -515,7 +521,7 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                  <button
                                     type="button"
                                     className={cn(
-                                       "w-fit ml-0 relative inline-flex h-10 items-center rounded-md border border-transparent bg-brand-500 px-6 py-3 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none",
+                                       "w-fit ml-0 relative inline-flex h-10 items-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-sm font-medium text-white hover:drop-shadow-md hover:bg-blue-800 focus:outline-none",
                                        showInviteButton && "mr-4",
                                     )}
                                     onClick={() => setOpen(false)}
@@ -524,7 +530,7 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                  </button>
                                  <button
                                     type="button"
-                                    className="mr-auto w-fit ml-0 relative inline-flex h-10 items-center rounded-md border px-3 py-3 text-sm font-medium text-blue-500 hover:bg-blue-50 focus:outline-none"
+                                    className="mr-auto w-fit relative inline-flex h-10 items-center rounded-full border border-black px-3 py-3 text-sm font-medium text-blue-700 hover:bg-blue-50 focus:outline-none"
                                     onClick={() => {
                                        // Copy link to clipboard
                                        navigator.clipboard.writeText(`https://prouml.com/dashboard/diagrams/${diagram.id}`);
@@ -540,7 +546,7 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                        height="24"
                                        viewBox="0 0 24 24"
                                        focusable="false"
-                                       className="pr-2 fill-blue-500"
+                                       className="pr-2 fill-blue-700"
                                     >
                                        <path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8z"></path>
                                     </svg>
@@ -647,9 +653,7 @@ function UserWithAccess({
                <div className="flex flex-col">
                   <span>
                      {user.full_name}
-                     {user.user_id === currentUserId && (
-                        <span className="text-xs text-stone-500 pl-2 mb-1 mt-auto">(you)</span>
-                     )}
+                     {user.user_id === currentUserId && <span className="pl-1 mb-1 mt-auto">(you)</span>}
                   </span>
                   <span className="text-xs text-stone-500 pb-1">{user.email}</span>
                </div>
