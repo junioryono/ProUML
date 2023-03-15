@@ -640,7 +640,7 @@ function UserWithAccess({
    const allowedToEditUser = (currentUserRole === "owner" && role !== "owner") || (allowedToEdit && role !== "owner");
 
    return (
-      <div className="bg-white flex flex-row hover:bg-slate-100 rounded-l-3xl ml-3">
+      <div className="bg-white flex flex-row hover:bg-slate-100 pl-3">
          <Image src={user.picture} width={35} height={35} className="rounded-full m-2 select-none" alt="avatar" />
          <div className="flex flex-col w-full">
             <div className="flex flex-row pt-1 pl-1">
