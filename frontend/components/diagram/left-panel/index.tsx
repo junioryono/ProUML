@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Diagram } from "types";
 import { toast } from "@/ui/toast";
 import { createDiagram } from "@/lib/auth-fetch";
+import { cn } from "@/lib/utils";
 
 export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph: MutableRefObject<X6Type.Graph> }) {
    const router = useRouter();
@@ -151,25 +152,18 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      return (
                         <div
                            key={pDiagram.id}
-                           className={`hover:bg-slate-200 rounded flex items-center gap-3 py-1 pl-4 cursor-pointer mb-0.5 ${
-                              pDiagram.id === diagram.id && "bg-slate-300 font-semibold"
-                           }`}
+                           className={cn(
+                              "rounded flex items-center gap-3 py-1 pl-4 mb-0.5",
+                              pDiagram.id === diagram.id && "bg-slate-300 font-semibold",
+                              pDiagram.id !== diagram.id && "hover:bg-slate-200 cursor-pointer",
+                           )}
                            onClick={() => {
-                              router.push(`/dashboard/diagrams/${pDiagram.id}`);
+                              if (pDiagram.id !== diagram.id) {
+                                 router.push(`/dashboard/diagrams/${pDiagram.id}`);
+                              }
                            }}
                         >
-                           <div className="w-3">
-                              {/* {pDiagram.id === diagram.id && (
-                                    <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                                       <path
-                                          d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                                          fillRule="evenodd"
-                                          fillOpacity="1"
-                                          stroke="none"
-                                       />
-                                    </svg>
-                                 )} */}
-                           </div>
+                           <div className="w-3"></div>
                            <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "180px" }}>
                               {pDiagram.name}
                            </div>
