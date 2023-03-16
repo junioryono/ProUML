@@ -5,6 +5,7 @@ import { Project } from "types";
 import ProjectItemOptions from "./project-item-options";
 import { LongPressDetectEvents, useLongPress } from "use-long-press";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Icons } from "@/components/icons";
 
 export default function ProjectItem({ project }: { project: Project }) {
    const [showMenu, setShowMenu] = useState(false);
@@ -56,7 +57,7 @@ export default function ProjectItem({ project }: { project: Project }) {
       // Add padding between each item
       <div className="w-1/2 sm:w-1/2 md:w-1/3 xl:w-1/4 mb-2">
          {/* Add a link to the project item and open it in a new tab */}
-         <div className="m-2 h-[267px] border-gray-200 border rounded">
+         <div className="m-2 border-gray-200 border rounded">
             <Link
                ref={linkRef}
                href="/dashboard/diagrams/project/[id]"
@@ -68,7 +69,14 @@ export default function ProjectItem({ project }: { project: Project }) {
                   return false;
                }}
             >
-               <div className="pl-4 pr-2 border-gray-200 flex h-full">
+               <div className="relative block h-48 overflow-hidden">
+                  <Icons.folder
+                     size={170}
+                     strokeWidth={0.4}
+                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                  />
+               </div>
+               <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex">
                   <div className="flex-grow overflow-hidden whitespace-nowrap">
                      <h2 className="title-font text-sm sm:text-lg font-medium text-gray-900 overflow-ellipsis overflow-hidden">
                         {project.name}

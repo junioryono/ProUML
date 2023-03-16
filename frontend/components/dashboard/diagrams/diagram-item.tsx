@@ -5,6 +5,7 @@ import { Diagram, Project } from "types";
 import DiagramItemOptions from "./diagram-item-options";
 import { LongPressDetectEvents, useLongPress } from "use-long-press";
 import { useEffect, useRef, useState } from "react";
+import { Icons } from "@/components/icons";
 
 export default function DiagramItem({ diagram, project }: { diagram: Diagram; project?: Project }) {
    const [showMenu, setShowMenu] = useState(false);
@@ -84,7 +85,8 @@ export default function DiagramItem({ diagram, project }: { diagram: Diagram; pr
                      </h2>
                      <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p>
                   </div>
-                  <div className="h-fit ml-auto md:mt-auto">
+                  <div className="h-fit ml-auto md:mt-auto flex gap-1 items-center">
+                     <Icons.users size={22} />
                      <DiagramItemOptions diagram={diagram} project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
                   </div>
                </div>

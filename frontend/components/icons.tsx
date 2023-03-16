@@ -25,6 +25,7 @@ import {
    X,
    Bug,
    FileImage,
+   Folder,
 } from "lucide-react";
 import type { Icon as LucideIcon } from "lucide-react";
 
@@ -57,4 +58,5 @@ export const Icons = {
    fileJSON: FileJson,
    bug: Bug,
    fileImage: FileImage,
+   folder: Folder,
 };

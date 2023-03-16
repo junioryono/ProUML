@@ -93,7 +93,7 @@ export default function NodeSettingsVariable({
                         {accessModifierOptions.map((option, modifierIndex) => (
                            <button
                               key={modifierIndex}
-                              className="transform hover:bg-slate-300 transition duration-500 w-full h-7 flex items-center rounded-md text-xs pr-1"
+                              className="transform hover:bg-slate-200 transition duration-500 w-full h-7 flex items-center rounded-md text-xs pr-1"
                               onClick={() => {
                                  // update the node's variables array
                                  // @ts-ignore
