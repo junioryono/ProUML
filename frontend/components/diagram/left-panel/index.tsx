@@ -266,9 +266,11 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                   return (
                      <div
                         key={nodeId}
-                        className={`flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5 ${
-                           isSelected && "bg-slate-300 font-semibold"
-                        }`}
+                        className={cn(
+                           "flex items-center rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5",
+                           isSelected && "bg-slate-300 font-semibold",
+                           !isSelected && "hover:bg-slate-200",
+                        )}
                         onClick={() => {
                            graph.current.centerCell(node);
                            graph.current.cleanSelection(node);
@@ -318,9 +320,11 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         return (
                            <div
                               key={edgeId}
-                              className={`flex items-center hover:bg-slate-200 rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5 ${
-                                 isSelected && "bg-slate-300 font-semibold"
-                              }`}
+                              className={cn(
+                                 "flex items-center rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5",
+                                 isSelected && "bg-slate-300 font-semibold",
+                                 !isSelected && "hover:bg-slate-200",
+                              )}
                               onClick={() => {
                                  graph.current.centerCell(node);
                                  graph.current.cleanSelection(node);

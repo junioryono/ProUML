@@ -86,7 +86,7 @@ export default function DiagramItem({ diagram, project }: { diagram: Diagram; pr
                      <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p>
                   </div>
                   <div className="h-fit ml-auto md:mt-auto flex gap-1 items-center">
-                     {!diagram.in_unshared_project && <Icons.users size={22} />}
+                     {!diagram.shared && <Icons.users size={22} />}
                      <DiagramItemOptions diagram={diagram} project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
                   </div>
                </div>

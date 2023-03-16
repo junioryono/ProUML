@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 export default function LineWidth({
    lineWidth,
    setLineWidth,
@@ -5,18 +7,12 @@ export default function LineWidth({
    lineWidth: number;
    setLineWidth: React.Dispatch<React.SetStateAction<number>>;
 }) {
-   return (
-      <div className="flex items-center gap-1.5 pl-2">
-         {/* 0% thickness */}
-         <button
-            className={`border rounded-md transition duration-500 hover:scale-125 
-            ${lineWidth !== 1 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-            onClick={() => {
-               setLineWidth(1);
-
-               // change the border width of the selected cell(s)
-            }}
-         >
+   // list with line width options and their icons
+   const lineWidthOptions = [
+      {
+         // 0% thickness
+         width: 1,
+         icon: (
             <svg
                viewBox="0 0 17 17"
                version="1.1"
@@ -33,14 +29,12 @@ export default function LineWidth({
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>
-         </button>
-
-         {/* 25% thickness */}
-         <button
-            className={`border rounded-md transition duration-500 hover:scale-125
-            ${lineWidth !== 2 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-            onClick={() => setLineWidth(2)}
-         >
+         ),
+      },
+      {
+         // 25% thickness
+         width: 2,
+         icon: (
             <svg
                viewBox="0 0 17 17"
                version="1.1"
@@ -57,14 +51,12 @@ export default function LineWidth({
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>
-         </button>
-
-         {/* 50% thickness */}
-         <button
-            className={`border rounded-md transition duration-500 hover:scale-125
-            ${lineWidth !== 3 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-            onClick={() => setLineWidth(3)}
-         >
+         ),
+      },
+      {
+         // 50% thickness
+         width: 3,
+         icon: (
             <svg
                viewBox="0 0 17 17"
                version="1.1"
@@ -81,14 +73,12 @@ export default function LineWidth({
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>
-         </button>
-
-         {/* 75% thickness */}
-         <button
-            className={`border rounded-md transition duration-500 hover:scale-125
-            ${lineWidth !== 4 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-            onClick={() => setLineWidth(4)}
-         >
+         ),
+      },
+      {
+         // 75% thickness
+         width: 4,
+         icon: (
             <svg
                viewBox="0 0 17 17"
                version="1.1"
@@ -105,14 +95,12 @@ export default function LineWidth({
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>
-         </button>
-
-         {/* 100% thickness */}
-         <button
-            className={`border rounded-md transition duration-500 hover:scale-125 
-            ${lineWidth !== 5 ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-            onClick={() => setLineWidth(5)}
-         >
+         ),
+      },
+      {
+         // 100% thickness
+         width: 5,
+         icon: (
             <svg
                viewBox="0 0 17 17"
                version="1.1"
@@ -129,7 +117,25 @@ export default function LineWidth({
                   <path d="M17 8v1h-17v-1h17z" fill="#000000" />
                </g>
             </svg>
-         </button>
+         ),
+      },
+   ];
+
+   return (
+      <div className="flex items-center gap-1.5 pl-2">
+         {/* map out all of the width options */}
+         {lineWidthOptions.map((option) => (
+            <button
+               key={option.width}
+               className={cn(
+                  "border rounded-md transition duration-500 hover:scale-125",
+                  lineWidth !== option.width ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400",
+               )}
+               onClick={() => setLineWidth(option.width)}
+            >
+               {option.icon}
+            </button>
+         ))}
       </div>
    );
 }
