@@ -38,6 +38,47 @@ export default function Graph(
          backgroundColor: `#${backgroundColor}`,
          padding: 20,
          quality: 1,
+         beforeSerialize(svg) {
+            console.log("before", svg);
+
+            // Remove class with "x6-graph-svg-primer"
+            const primer = svg.querySelectorAll(".x6-graph-svg-primer");
+            for (let i = 0; i < primer.length; i++) {
+               primer[i].remove();
+            }
+
+            // Remove class with "x6-graph-svg-decorator"
+            const decorator = svg.querySelectorAll(".x6-graph-svg-decorator");
+            for (let i = 0; i < decorator.length; i++) {
+               decorator[i].remove();
+            }
+
+            // Remove class with "x6-graph-svg-overlay"
+            const overlay = svg.querySelectorAll(".x6-graph-svg-overlay");
+            for (let i = 0; i < overlay.length; i++) {
+               overlay[i].remove();
+            }
+
+            // Remove class with "x6-port"
+            const port = svg.querySelectorAll(".x6-port");
+            for (let i = 0; i < port.length; i++) {
+               port[i].remove();
+            }
+
+            // Remove class with "user-cell-selection"
+            const userCellSelection = svg.querySelectorAll(".user-cell-selection");
+            for (let i = 0; i < userCellSelection.length; i++) {
+               userCellSelection[i].remove();
+            }
+
+            // If a node has a class with "x6-node-selected", remove the class from the node
+            const selected = svg.querySelectorAll(".x6-node-selected");
+            for (let i = 0; i < selected.length; i++) {
+               selected[i].classList.remove("x6-node-selected");
+            }
+
+            console.log("after", svg);
+         },
          stylesheet: `
          .user-cell-selection {
             display: none;
