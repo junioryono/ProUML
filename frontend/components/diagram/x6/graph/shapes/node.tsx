@@ -248,7 +248,17 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
    }, [borderStyle]);
 
    return (
-      <>
+      <div
+         style={{
+            width: "100%",
+            height: "100%",
+            boxSizing: "border-box",
+            borderWidth: 0,
+            borderStyle: "solid",
+            borderColor: "#e5e7eb",
+            lineHeight: "1.25rem",
+         }}
+      >
          {selected && (
             <div
                className="user-cell-selection"
@@ -283,6 +293,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
                   flexDirection: "column",
                   alignItems: "center",
                   padding: "4px 0",
+                  width: "100%",
                   borderBottom:
                      variables.length > 0 || methods.length > 0
                         ? `${borderWidth}px ${borderStyle} #${borderColor}`
@@ -313,6 +324,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
                      display: "flex",
                      flexDirection: "column",
                      padding: "8px",
+                     width: "100%",
                      borderBottom: methods.length > 0 ? `${borderWidth}px ${borderStyle} #${borderColor}` : undefined,
                   }}
                >
@@ -382,7 +394,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
                </div>
             )}
          </div>
-      </>
+      </div>
    );
 }
 

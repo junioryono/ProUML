@@ -69,8 +69,11 @@ export default function Nodes(
 
    // When a node just starts to be moved. Triggers on mouse down and first move
    graph.current?.on("node:move", (args) => {
-      graph.current?.cleanSelection();
-      graph.current?.select(args.cell);
+      // If the node is not selected, clear the selection and select the node
+      if (!graph.current?.isSelected(args.cell)) {
+         graph.current?.cleanSelection();
+         graph.current?.select(args.cell);
+      }
    });
 
    // When a node has finished being moved. Triggers on mouse up

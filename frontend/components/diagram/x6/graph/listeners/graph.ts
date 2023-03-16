@@ -31,7 +31,7 @@ export default function Graph(
       backgroundColor = newBackgroundColor;
 
       graph.current?.toJPEG((base64JPEG) => wsDBUpdateGraphImage(base64JPEG, wsSendJson, sessionId), {
-         copyStyles: true,
+         copyStyles: false,
          serializeImages: true,
          width: 518,
          height: 384,
@@ -44,6 +44,285 @@ export default function Graph(
          }
          .x6-port {
             display: none;
+         }
+         .x6-widget-selection {
+            position: absolute;
+            display: none;
+            width: 0;
+            height: 0;
+            touch-action: none;
+          }
+         .x6-widget-selection-rubberband {
+            display: block;
+            overflow: visible;
+            opacity: 0.3;
+         }
+         .x6-widget-selection-selected {
+            display: block;
+         }
+         .x6-widget-selection-box {
+            cursor: move;
+         }
+         .x6-widget-selection-inner[data-selection-length='0'],
+         .x6-widget-selection-inner[data-selection-length='1'] {
+            display: none;
+         }
+         .x6-widget-selection-content {
+            position: absolute;
+            top: 100%;
+            right: -20px;
+            left: -20px;
+            margin-top: 30px;
+            padding: 6px;
+            line-height: 14px;
+            text-align: center;
+            border-radius: 6px;
+         }
+         .x6-widget-selection-content:empty {
+            display: none;
+         }
+         .x6-widget-selection-rubberband {
+            background-color: #3498db;
+            border: 2px solid #2980b9;
+         }
+         .x6-widget-selection-box {
+            box-sizing: content-box !important;
+            margin-top: -4px;
+            margin-left: -4px;
+            padding-right: 4px;
+            padding-bottom: 4px;
+            border: 2px dashed #feb663;
+            box-shadow: 2px 2px 5px #d3d3d3;
+         }
+         .x6-widget-selection-inner {
+            box-sizing: content-box !important;
+            margin-top: -8px;
+            margin-left: -8px;
+            padding-right: 12px;
+            padding-bottom: 12px;
+            border: 2px solid #feb663;
+            box-shadow: 2px 2px 5px #d3d3d3;
+         }
+         .x6-widget-selection-content {
+            color: #fff;
+            font-size: 10px;
+            background-color: #6a6b8a;
+         }
+         .x6-graph-scroller {
+            position: relative;
+            box-sizing: border-box;
+            overflow: scroll;
+            outline: none;
+         }
+         .x6-graph-scroller-content {
+            position: relative;
+         }
+         .x6-graph-scroller-background {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+         }
+         .x6-graph-scroller .x6-graph {
+            position: absolute;
+            display: inline-block;
+            margin: 0;
+            box-shadow: none;
+         }
+         .x6-graph-scroller .x6-graph > svg {
+            display: block;
+         }
+         .x6-graph-scroller.x6-graph-scroller-paged .x6-graph {
+            box-shadow: 0 0 4px 0 #eee;
+         }
+         .x6-graph-scroller.x6-graph-scroller-pannable[data-panning='false'] {
+            cursor: grab;
+         }
+         .x6-graph-scroller.x6-graph-scroller-pannable[data-panning='true'] {
+            cursor: grabbing;
+            user-select: none;
+         }
+         .x6-graph-pagebreak {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+         }
+         .x6-graph-pagebreak-vertical {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            box-sizing: border-box;
+            width: 1px;
+            border-left: 1px dashed #bdbdbd;
+         }
+         .x6-graph-pagebreak-horizontal {
+            position: absolute;
+            right: 0;
+            left: 0;
+            box-sizing: border-box;
+            height: 1px;
+            border-top: 1px dashed #bdbdbd;
+         }
+         .x6-graph {
+            position: relative;
+            outline: none;
+            touch-action: none;
+          }
+         .x6-graph-background,
+         .x6-graph-grid,
+         .x6-graph-svg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+         }
+         .x6-graph-background-stage,
+         .x6-graph-grid-stage,
+         .x6-graph-svg-stage {
+            user-select: none;
+         }
+         .x6-graph.x6-graph-pannable {
+            cursor: grab;
+            cursor: -moz-grab;
+            cursor: -webkit-grab;
+         }
+         .x6-graph.x6-graph-panning {
+            cursor: grabbing;
+            cursor: -moz-grabbing;
+            cursor: -webkit-grabbing;
+            user-select: none;
+         }
+         .x6-node {
+            cursor: move;
+            /* stylelint-disable-next-line */
+         }
+         .x6-node.x6-node-immovable {
+            cursor: default;
+         }
+         .x6-node * {
+            -webkit-user-drag: none;
+         }
+         .x6-node .scalable * {
+            vector-effect: non-scaling-stroke;
+         }
+         .x6-node [magnet='true'] {
+            cursor: crosshair;
+            transition: opacity 0.3s;
+         }
+         .x6-node [magnet='true']:hover {
+            opacity: 0.7;
+         }
+         .x6-node foreignObject {
+            display: block;
+            overflow: visible;
+            background-color: transparent;
+         }
+         .x6-node foreignObject > body {
+            position: static;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+            background-color: transparent;
+         }
+         .x6-edge .source-marker,
+         .x6-edge .target-marker {
+            vector-effect: non-scaling-stroke;
+         }
+         .x6-edge .connection {
+            stroke-linejoin: round;
+            fill: none;
+         }
+         .x6-edge .connection-wrap {
+            cursor: move;
+            opacity: 0;
+            fill: none;
+            stroke: #000;
+            stroke-width: 15;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+         }
+         .x6-edge .connection-wrap:hover {
+            opacity: 0.4;
+            stroke-opacity: 0.4;
+         }
+         .x6-edge .vertices {
+            cursor: move;
+            opacity: 0;
+         }
+         .x6-edge .vertices .vertex {
+            fill: #1abc9c;
+         }
+         .x6-edge .vertices .vertex :hover {
+            fill: #34495e;
+            stroke: none;
+         }
+         .x6-edge .vertices .vertex-remove {
+            cursor: pointer;
+            fill: #fff;
+         }
+         .x6-edge .vertices .vertex-remove-area {
+            cursor: pointer;
+            opacity: 0.1;
+         }
+         .x6-edge .vertices .vertex-group:hover .vertex-remove-area {
+            opacity: 1;
+         }
+         .x6-edge .arrowheads {
+            cursor: move;
+            opacity: 0;
+         }
+         .x6-edge .arrowheads .arrowhead {
+            fill: #1abc9c;
+         }
+         .x6-edge .arrowheads .arrowhead :hover {
+            fill: #f39c12;
+            stroke: none;
+         }
+         .x6-edge .tools {
+            cursor: pointer;
+            opacity: 0;
+         }
+         .x6-edge .tools .tool-options {
+            display: none;
+         }
+         .x6-edge .tools .tool-remove circle {
+            fill: #f00;
+         }
+         .x6-edge .tools .tool-remove path {
+            fill: #fff;
+         }
+         .x6-edge:hover .vertices,
+         .x6-edge:hover .arrowheads,
+         .x6-edge:hover .tools {
+            opacity: 1;
+         }
+         .x6-highlight-opacity {
+            opacity: 0.3;
+         }
+         .x6-cell-tool-editor {
+            position: relative;
+            display: inline-block;
+            min-height: 1em;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+            white-space: normal;
+            text-align: center;
+            vertical-align: top;
+            overflow-wrap: normal;
+            outline: none;
+            transform-origin: 0 0;
+            -webkit-user-drag: none;
+         }
+         .x6-edge-tool-editor {
+            border: 1px solid #275fc5;
+            border-radius: 2px;
          }
          `,
       });
