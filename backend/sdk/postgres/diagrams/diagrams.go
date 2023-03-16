@@ -54,28 +54,42 @@ func (d *Diagrams_SDK) GetDashboard(idToken string, offset int) ([]models.Diagra
 	// Go to diagrammodelshiddencontent
 	var response []models.DiagramModelHiddenContent
 	for _, diagram := range diagrams {
-		response = append(response, models.DiagramModelHiddenContent{
-			ID:        diagram.ID,
-			CreatedAt: diagram.CreatedAt,
-			UpdatedAt: diagram.UpdatedAt,
-			Public:    diagram.Public,
-			Name:      diagram.Name,
-			Image:     diagram.Image,
-		})
+		var IsSharedWithCurrentUser bool = false
+		for _, userRole := range diagram.UserRoles {
+			if userRole.UserID == userId {
+				IsSharedWithCurrentUser = true
+				break
+			}
+		}
 
+		var InUnsharedProject bool = false
+		var UnsharedProjectEditPermission bool = false
 		if diagram.ProjectID != "default" {
-			response[len(response)-1].InUnsharedProject = true
+			InUnsharedProject = true
 
 			for _, userRole := range diagram.UserRoles {
 				if userRole.UserID == userId {
 					if userRole.Role == "owner" || (diagram.AllowEditorPermissions && userRole.Role == "editor") {
-						response[len(response)-1].UnsharedProjectEditPermission = true
+						UnsharedProjectEditPermission = true
 					}
 
 					break
 				}
 			}
 		}
+
+		response = append(response, models.DiagramModelHiddenContent{
+			ID:                            diagram.ID,
+			CreatedAt:                     diagram.CreatedAt,
+			UpdatedAt:                     diagram.UpdatedAt,
+			Public:                        diagram.Public,
+			Name:                          diagram.Name,
+			Image:                         diagram.Image,
+			IsSharedWithCurrentUser:       IsSharedWithCurrentUser,
+			InUnsharedProject:             InUnsharedProject,
+			UnsharedProjectEditPermission: UnsharedProjectEditPermission,
+		})
+
 	}
 
 	return response, nil

@@ -9,6 +9,7 @@ type DiagramModelHiddenContent struct {
 	Public                        bool      `json:"public"`
 	Name                          string    `json:"name"`
 	Image                         string    `json:"image,omitempty"`
+	IsSharedWithCurrentUser       bool      `json:"is_shared_with_current_user,omitempty"`
 	InUnsharedProject             bool      `json:"in_unshared_project,omitempty"`
 	UnsharedProjectEditPermission bool      `json:"unshared_project_edit_permission,omitempty"`
 }

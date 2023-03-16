@@ -96,6 +96,7 @@ export type Diagram = {
    image?: string;
    shared?: boolean;
    project?: Project;
+   is_shared_with_current_user?: boolean;
    in_unshared_project?: boolean;
    unshared_project_edit_permission?: boolean;
    background_color: string;
