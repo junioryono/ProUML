@@ -131,6 +131,9 @@ func (c *channel) addConnection(conn *connection, user *models.UserModel) {
 }
 
 func (c *channel) listen() {
+	// Catch panics
+	defer recover()
+
 	// Listen for messages
 	go func() {
 		// Catch panics
