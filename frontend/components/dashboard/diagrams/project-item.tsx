@@ -57,7 +57,7 @@ export default function ProjectItem({ project }: { project: Project }) {
       // Add padding between each item
       <div className="w-1/2 sm:w-1/2 md:w-1/3 xl:w-1/4 mb-2">
          {/* Add a link to the project item and open it in a new tab */}
-         <div className="m-2 border-gray-200 border rounded">
+         <div className="m-2 border-gray-200 border rounded-md hover:border-blue-500">
             <Link
                ref={linkRef}
                href="/dashboard/diagrams/project/[id]"

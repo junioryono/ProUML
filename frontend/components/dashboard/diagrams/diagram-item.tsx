@@ -57,7 +57,7 @@ export default function DiagramItem({ diagram, project, userId }: { diagram: Dia
       // Add padding between each item
       <div className="w-1/2 sm:w-1/2 md:w-1/3 xl:w-1/4 mb-2">
          {/* Add a link to the diagram item and open it in a new tab */}
-         <div className="m-2 border-gray-200 border rounded">
+         <div className="m-2 border-gray-200 border rounded-md hover:border-blue-500">
             <Link
                ref={linkRef}
                href="/dashboard/diagrams/[id]"
@@ -72,7 +72,7 @@ export default function DiagramItem({ diagram, project, userId }: { diagram: Dia
                <div className="relative block h-48 overflow-hidden">
                   {diagram.image && (
                      <img
-                        className="block h-full w-full object-cover object-center"
+                        className="block h-full w-full object-cover object-center rounded-t-md"
                         src={diagram.image}
                         alt={diagram.name}
                      />
