@@ -39,8 +39,6 @@ export default function Graph(
          padding: 20,
          quality: 1,
          beforeSerialize(svg) {
-            console.log("before", svg);
-
             // Remove class with "x6-graph-svg-primer"
             const primer = svg.querySelectorAll(".x6-graph-svg-primer");
             for (let i = 0; i < primer.length; i++) {
@@ -76,8 +74,6 @@ export default function Graph(
             for (let i = 0; i < selected.length; i++) {
                selected[i].classList.remove("x6-node-selected");
             }
-
-            console.log("after", svg);
          },
          stylesheet: `
          .user-cell-selection {

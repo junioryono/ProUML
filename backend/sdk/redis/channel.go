@@ -321,11 +321,20 @@ func (c *channel) generateRandomHexColor(existingColors []string) string {
 }
 
 func (c *channel) close() {
+	var wg sync.WaitGroup
 	c.connectionsMu.Lock()
-	defer c.connectionsMu.Unlock()
 	for _, v := range c.connections {
-		c.removeConnection(v.sessionId)
+		wg.Add(1)
+		go func(v *connection) {
+			// Catch panics
+			defer recover()
+			defer wg.Done()
+
+			c.removeConnection(v.sessionId)
+		}(v)
 	}
+	wg.Wait()
+	c.connectionsMu.Unlock()
 
 	c.unsubscribe()
 }
