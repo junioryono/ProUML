@@ -3,15 +3,15 @@ package models
 import "time"
 
 type DiagramModelHiddenContent struct {
-	ID                            string    `json:"id"`
-	CreatedAt                     time.Time `json:"created_at"`
-	UpdatedAt                     time.Time `json:"updated_at"`
-	Public                        bool      `json:"public"`
-	Name                          string    `json:"name"`
-	Image                         string    `json:"image,omitempty"`
-	IsSharedWithCurrentUser       bool      `json:"is_shared_with_current_user,omitempty"`
-	InUnsharedProject             bool      `json:"in_unshared_project,omitempty"`
-	UnsharedProjectEditPermission bool      `json:"unshared_project_edit_permission,omitempty"`
+	ID                           string    `json:"id"`
+	CreatedAt                    time.Time `json:"created_at"`
+	UpdatedAt                    time.Time `json:"updated_at"`
+	Public                       bool      `json:"public"`
+	Name                         string    `json:"name"`
+	Image                        string    `json:"image,omitempty"`
+	IsSharedWithCurrentUser      bool      `json:"is_shared_with_current_user"`
+	IsFromUnsharedProject        bool      `json:"is_from_unshared_project"`
+	CurrentUserHasEditPermission bool      `json:"current_user_has_edit_permission"`
 }
 
 type DiagramUserRolesResponse struct {

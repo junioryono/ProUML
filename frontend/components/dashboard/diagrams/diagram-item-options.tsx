@@ -12,6 +12,7 @@ import {
    updateDiagram,
    createDiagram,
    getProjects,
+   removeDiagramUser,
 } from "@/lib/auth-fetch";
 import { toast } from "@/ui/toast";
 import { useForm } from "react-hook-form";
@@ -21,11 +22,13 @@ import * as z from "zod";
 export default function DiagramItemOptions({
    diagram,
    project,
+   userId,
    showMenu,
    setShowMenu,
 }: {
    diagram: Diagram;
    project?: Project;
+   userId?: string;
    showMenu: boolean;
    setShowMenu: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }) {
@@ -35,6 +38,8 @@ export default function DiagramItemOptions({
 
    const [renameOpen, setRenameOpen] = useState(false);
    const [assignProjectOpen, setAssignProjectOpen] = useState(false);
+
+   //console.log("diagram", diagram);
 
    useEffect(() => {
       if (renameOpen) {
@@ -96,7 +101,7 @@ export default function DiagramItemOptions({
             show={showMenu}
          >
             <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none top-8 sm:top-12">
-               {!project && !diagram.in_unshared_project && (
+               {!project && !diagram.is_from_unshared_project && !diagram.is_shared_with_current_user && (
                   <div className="py-1">
                      <Menu.Item>
                         {({ active }) => (
@@ -114,8 +119,8 @@ export default function DiagramItemOptions({
                   </div>
                )}
 
-               {(!diagram.in_unshared_project ||
-                  (diagram.in_unshared_project && diagram.unshared_project_edit_permission)) && (
+               {(!diagram.is_from_unshared_project ||
+                  (diagram.is_from_unshared_project && diagram.current_user_has_edit_permission)) && (
                   <div className="py-1">
                      <Menu.Item>
                         {({ active }) => (
@@ -168,7 +173,7 @@ export default function DiagramItemOptions({
                      </Menu.Item>
                   )}
 
-                  {!diagram.in_unshared_project && (
+                  {!diagram.is_from_unshared_project && !diagram.is_shared_with_current_user ? (
                      <Menu.Item>
                         {({ active }) => (
                            <div
@@ -197,6 +202,38 @@ export default function DiagramItemOptions({
                               }}
                            >
                               Delete
+                           </div>
+                        )}
+                     </Menu.Item>
+                  ) : (
+                     <Menu.Item>
+                        {({ active }) => (
+                           <div
+                              className={cn(
+                                 active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                                 "block px-4 py-2 text-sm",
+                              )}
+                              onClick={() => {
+                                 setShowMenu(false);
+                                 removeDiagramUser(diagram.id, userId).then((res) => {
+                                    if (res.success === false) {
+                                       return toast({
+                                          title: "Something went wrong.",
+                                          message: res.reason,
+                                          type: "error",
+                                       });
+                                    }
+
+                                    router.refresh();
+                                    return toast({
+                                       title: "Diagram removed",
+                                       message: "The diagram has been removed from your account.",
+                                       type: "success",
+                                    });
+                                 });
+                              }}
+                           >
+                              Remove
                            </div>
                         )}
                      </Menu.Item>

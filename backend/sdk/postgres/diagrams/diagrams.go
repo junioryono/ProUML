@@ -33,7 +33,7 @@ func (d *Diagrams_SDK) GetDashboard(idToken string, offset int) ([]models.Diagra
 			return db.Where("user_id = ?", userId)
 		}).
 		// Select only the needed fields
-		Select("diagram_models.id, diagram_models.created_at, diagram_models.updated_at, diagram_models.public, diagram_models.name, diagram_models.image, diagram_models.project_id").
+		Select("diagram_models.id, diagram_models.created_at, diagram_models.updated_at, diagram_models.public, diagram_models.name, diagram_models.image, diagram_models.project_id, diagram_models.allow_editor_permissions").
 		// Project id is default
 		Where("diagram_models.project_id = ?", "default").
 		// User has access to the diagram
@@ -57,37 +57,39 @@ func (d *Diagrams_SDK) GetDashboard(idToken string, offset int) ([]models.Diagra
 		var IsSharedWithCurrentUser bool = false
 		for _, userRole := range diagram.UserRoles {
 			if userRole.UserID == userId {
-				IsSharedWithCurrentUser = true
+				if userRole.Role != "owner" {
+					IsSharedWithCurrentUser = true
+				}
+
 				break
 			}
 		}
 
-		var InUnsharedProject bool = false
-		var UnsharedProjectEditPermission bool = false
+		var IsFromUnsharedProject bool = false
 		if diagram.ProjectID != "default" {
-			InUnsharedProject = true
-
-			for _, userRole := range diagram.UserRoles {
-				if userRole.UserID == userId {
-					if userRole.Role == "owner" || (diagram.AllowEditorPermissions && userRole.Role == "editor") {
-						UnsharedProjectEditPermission = true
-					}
-
-					break
-				}
-			}
+			IsFromUnsharedProject = true
 		}
 
+		var CurrentUserHasEditPermission bool = false
+		for _, userRole := range diagram.UserRoles {
+			if userRole.UserID == userId {
+				if userRole.Role == "owner" || (userRole.Role == "editor" && diagram.AllowEditorPermissions) {
+					CurrentUserHasEditPermission = true
+				}
+
+				break
+			}
+		}
 		response = append(response, models.DiagramModelHiddenContent{
-			ID:                            diagram.ID,
-			CreatedAt:                     diagram.CreatedAt,
-			UpdatedAt:                     diagram.UpdatedAt,
-			Public:                        diagram.Public,
-			Name:                          diagram.Name,
-			Image:                         diagram.Image,
-			IsSharedWithCurrentUser:       IsSharedWithCurrentUser,
-			InUnsharedProject:             InUnsharedProject,
-			UnsharedProjectEditPermission: UnsharedProjectEditPermission,
+			ID:                           diagram.ID,
+			CreatedAt:                    diagram.CreatedAt,
+			UpdatedAt:                    diagram.UpdatedAt,
+			Public:                       diagram.Public,
+			Name:                         diagram.Name,
+			Image:                        diagram.Image,
+			IsSharedWithCurrentUser:      IsSharedWithCurrentUser,
+			IsFromUnsharedProject:        IsFromUnsharedProject,
+			CurrentUserHasEditPermission: CurrentUserHasEditPermission,
 		})
 
 	}

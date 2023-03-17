@@ -49,7 +49,7 @@ export default function DashboardDiagramsPage({
                         <ProjectItem key={project.id} project={project} />
                      ))}
                      {diagramsRequest.response.diagrams.map((diagram) => (
-                        <DiagramItem key={diagram.id} diagram={diagram} />
+                        <DiagramItem key={diagram.id} diagram={diagram} userId={user.user_id} />
                      ))}
                   </div>
                )}

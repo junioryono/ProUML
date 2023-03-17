@@ -7,7 +7,7 @@ import { LongPressDetectEvents, useLongPress } from "use-long-press";
 import { useEffect, useRef, useState } from "react";
 import { Icons } from "@/components/icons";
 
-export default function DiagramItem({ diagram, project }: { diagram: Diagram; project?: Project }) {
+export default function DiagramItem({ diagram, project, userId }: { diagram: Diagram; project?: Project; userId?: string }) {
    const [showMenu, setShowMenu] = useState(false);
    const linkRef = useRef<HTMLAnchorElement>(null);
    // Store diagram.updated_at as a Date object
@@ -86,8 +86,14 @@ export default function DiagramItem({ diagram, project }: { diagram: Diagram; pr
                      <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p>
                   </div>
                   <div className="h-fit ml-auto md:mt-auto flex gap-1 items-center">
-                     {!diagram.shared && <Icons.users size={22} />}
-                     <DiagramItemOptions diagram={diagram} project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
+                     {diagram.is_shared_with_current_user && <Icons.users size={22} />}
+                     <DiagramItemOptions
+                        diagram={diagram}
+                        project={project}
+                        userId={userId}
+                        showMenu={showMenu}
+                        setShowMenu={setShowMenu}
+                     />
                   </div>
                </div>
             </Link>

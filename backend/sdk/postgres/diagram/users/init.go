@@ -258,13 +258,17 @@ func (u *Users_SDK) Remove(diagramId, idToken, removerUserId string) *types.Wrap
 
 	// Check if the user has access to the diagram and if they have the correct permissions
 	var userHasCorrectPermissions = false
-	for _, diagramUser := range diagram.UserRoles {
-		if diagramUser.UserID == userId {
-			if diagramUser.Role == "owner" || (diagram.AllowEditorPermissions && diagramUser.Role == "editor") {
-				userHasCorrectPermissions = true
-			}
+	if userId == removerUserId {
+		userHasCorrectPermissions = true
+	} else {
+		for _, diagramUser := range diagram.UserRoles {
+			if diagramUser.UserID == userId {
+				if diagramUser.Role == "owner" || (diagram.AllowEditorPermissions && diagramUser.Role == "editor") {
+					userHasCorrectPermissions = true
+				}
 
-			break
+				break
+			}
 		}
 	}
 
@@ -286,7 +290,7 @@ func (u *Users_SDK) Remove(diagramId, idToken, removerUserId string) *types.Wrap
 	}
 
 	// Check if the user to remove is an editor and if the diagram allows editor permissions
-	if !diagram.AllowEditorPermissions && userToRemove.Role == "editor" {
+	if userId != removerUserId && !diagram.AllowEditorPermissions && userToRemove.Role == "editor" {
 		return types.Wrap(errors.New("cannot remove the editor"), types.ErrCannotChangeAsEditor)
 	}
 

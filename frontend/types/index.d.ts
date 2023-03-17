@@ -94,11 +94,10 @@ export type Diagram = {
    name: string;
    content: Cell.Properties[];
    image?: string;
-   shared?: boolean;
    project?: Project;
    is_shared_with_current_user?: boolean;
-   in_unshared_project?: boolean;
-   unshared_project_edit_permission?: boolean;
+   is_from_unshared_project?: boolean;
+   current_user_has_edit_permission?: boolean;
    background_color: string;
    show_grid: boolean;
 };

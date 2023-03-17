@@ -194,7 +194,6 @@ func (c *channel) removeConnection(sessionId string) bool {
 
 	var userId string
 	// Remove the connection from the channel
-	c.connectionsMu.Lock()
 	for i, v := range c.connections {
 		if v.sessionId == sessionId {
 			userId = v.userId
@@ -202,7 +201,6 @@ func (c *channel) removeConnection(sessionId string) bool {
 			break
 		}
 	}
-	c.connectionsMu.Unlock()
 
 	// Remove the user from the diagram users hash
 	c.client.HDel(c.context, c.getDiagramUsersKey(), sessionId)
@@ -234,8 +232,6 @@ func (c *channel) removeConnection(sessionId string) bool {
 	}
 
 	// If there are no more connections, unsubscribe from the channel
-	c.connectionsMu.RLock()
-	defer c.connectionsMu.RUnlock()
 	if len(c.connections) == 0 {
 		c.unsubscribe()
 		return true
