@@ -9,7 +9,7 @@ import { toast } from "@/ui/toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { updateProject } from "@/lib/auth-fetch";
+import { deleteProject, updateProject } from "@/lib/auth-fetch";
 
 export default function ProjectItemOptions({
    project,
@@ -82,7 +82,22 @@ export default function ProjectItemOptions({
                         <div
                            className={cn(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")}
                            onClick={() => {
-                              setShowMenu(false);
+                              deleteProject(project.id).then((res) => {
+                                 if (res.success === false) {
+                                    return toast({
+                                       title: "Something went wrong.",
+                                       message: res.reason,
+                                       type: "error",
+                                    });
+                                 }
+
+                                 router.refresh();
+                                 return toast({
+                                    title: "Project deleted",
+                                    message: "The project has been deleted.",
+                                    type: "success",
+                                 });
+                              });
                            }}
                         >
                            Delete

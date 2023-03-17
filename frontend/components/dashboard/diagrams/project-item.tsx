@@ -76,10 +76,10 @@ export default function ProjectItem({ project }: { project: Project }) {
                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                   />
                </div> */}
-               <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex">
+               <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex group">
                   <div className="flex overflow-hidden whitespace-nowrap">
                      <div className="pr-5 pt-0.5">
-                        <Icons.folder size={25} strokeWidth={0.4} className="" />
+                        <Icons.folder size={25} strokeWidth={0.4} className="group-hover:fill-amber-200" />
                      </div>
                      <h2 className="title-font text-sm sm:text-lg font-medium pr-4 text-gray-900 overflow-ellipsis overflow-hidden">
                         {project.name}
