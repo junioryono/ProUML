@@ -253,8 +253,6 @@ func (c *channel) unsubscribe() error {
 }
 
 func (c *channel) getColorFromSessionId(sessionId string) (string, error) {
-	c.connectionsMu.RLock()
-	defer c.connectionsMu.RUnlock()
 	for _, v := range c.connections {
 		if v.sessionId == sessionId {
 			return v.color, nil
