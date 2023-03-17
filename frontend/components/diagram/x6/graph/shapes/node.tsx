@@ -279,7 +279,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
                fontSize: 12,
                display: "flex",
                flexDirection: "column",
-               justifyContent: "center",
+               justifyContent: "flex-start",
                width: "100%",
                height: "100%",
                backgroundColor: `#${backgroundColor}`,
