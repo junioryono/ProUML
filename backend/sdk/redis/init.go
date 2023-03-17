@@ -59,6 +59,9 @@ func Init() (*Redis_SDK, error) {
 		return nil, errors.New("could not initialize redis client")
 	}
 
+	// // Delete all keys
+	// r.client.FlushAll(r.context)
+
 	return r, nil
 }
 
