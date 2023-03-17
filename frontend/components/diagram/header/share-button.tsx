@@ -512,7 +512,7 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                                  {showInviteButton && (
                                     <button
                                        type="button"
-                                       className="w-fit ml-0 relative inline-flex h-10 items-center rounded-md border border-transparent bg-brand-500 px-6 py-3 text-sm font-medium text-white hover:bg-brand-400 focus:outline-none"
+                                       className="w-fit ml-0 relative inline-flex h-10 items-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-sm font-medium text-white hover:drop-shadow-md hover:bg-blue-800 focus:outline-none"
                                        onClick={handleSubmit(onNewUserSubmit)}
                                     >
                                        Invite
