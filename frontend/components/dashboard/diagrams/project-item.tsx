@@ -69,23 +69,36 @@ export default function ProjectItem({ project }: { project: Project }) {
                   return false;
                }}
             >
-               <div className="relative block h-48 overflow-hidden">
+               {/* <div className="relative block h-32 overflow-hidden">
                   <Icons.folder
-                     size={170}
+                     size={100}
                      strokeWidth={0.4}
                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                   />
-               </div>
+               </div> */}
                <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex">
-                  <div className="flex-grow overflow-hidden whitespace-nowrap">
-                     <h2 className="title-font text-sm sm:text-lg font-medium text-gray-900 overflow-ellipsis overflow-hidden">
+                  <div className="flex overflow-hidden whitespace-nowrap">
+                     <div className="pr-5 pt-0.5">
+                        <Icons.folder size={25} strokeWidth={0.4} className="" />
+                     </div>
+                     <h2 className="title-font text-sm sm:text-lg font-medium pr-4 text-gray-900 overflow-ellipsis overflow-hidden">
                         {project.name}
                      </h2>
-                     <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p>
+                     {/* <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p> */}
                   </div>
                   <div className="h-fit ml-auto md:mt-auto">
                      <ProjectItemOptions project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
                   </div>
+                  {/* <div className="h-fit ml-auto md:mt-auto flex gap-1 items-center">
+                     {project.is_shared_with_current_user && <Icons.users size={22} />}
+                     <ProjectItemOptions
+                        diagram={diagram}
+                        project={project}
+                        userId={userId}
+                        showMenu={showMenu}
+                        setShowMenu={setShowMenu}
+                     />
+                  </div> */}
                </div>
             </Link>
          </div>

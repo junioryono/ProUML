@@ -48,9 +48,11 @@ export default function DashboardDiagramsPage({
                      {diagramsRequest.response.projects.map((project) => (
                         <ProjectItem key={project.id} project={project} />
                      ))}
-                     {diagramsRequest.response.diagrams.map((diagram) => (
-                        <DiagramItem key={diagram.id} diagram={diagram} userId={user.user_id} />
-                     ))}
+                     <div className="flex flex-wrap select-none">
+                        {diagramsRequest.response.diagrams.map((diagram) => (
+                           <DiagramItem key={diagram.id} diagram={diagram} userId={user.user_id} />
+                        ))}
+                     </div>
                   </div>
                )}
             </div>
