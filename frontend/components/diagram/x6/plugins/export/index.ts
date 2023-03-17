@@ -176,6 +176,30 @@ export class Export extends Basecoat<Export.EventArgs> {
             }
          }
 
+         // Remove the `xmlns` attribute from the root SVG element
+         clonedSVG.removeAttribute("xmlns:xlink");
+
+         // Remove svg > defs
+         const defs = clonedSVG.querySelector("defs");
+         if (defs) {
+            defs.parentNode!.removeChild(defs);
+         }
+
+         // Remove all commented code
+         clonedSVG.innerHTML = clonedSVG.innerHTML.replace(/<!--[\s\S]*?-->/g, "");
+
+         // Remove attribute data-cell-id
+         const cells = clonedSVG.querySelectorAll("[data-cell-id]");
+         cells.forEach((cell) => {
+            cell.removeAttribute("data-cell-id");
+         });
+
+         // Remove attribute data-shape
+         const shapes = clonedSVG.querySelectorAll("[data-shape]");
+         shapes.forEach((shape) => {
+            shape.removeAttribute("data-shape");
+         });
+
          const dataUri = new XMLSerializer().serializeToString(clonedSVG).replace(/&nbsp;/g, "\u00a0");
 
          this.notify("after:export", options);
