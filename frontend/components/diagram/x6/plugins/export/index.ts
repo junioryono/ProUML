@@ -144,8 +144,14 @@ export class Export extends Basecoat<Export.EventArgs> {
          });
       }
 
-      const stylesheet = options.stylesheet;
-      if (typeof stylesheet === "string") {
+      if (typeof options.stylesheet === "string") {
+         // Minify the stylesheet.
+         const stylesheet = options.stylesheet
+            .replace(/\/\*[\s\S]*?\*\//g, "")
+            .replace(/\s+/g, " ")
+            .replace(/ ?([,:;{}]) ?/g, "$1")
+            .trim();
+
          const cDATASection = rawSVG
             .ownerDocument!.implementation.createDocument(null, "xml", null)
             .createCDATASection(stylesheet);
