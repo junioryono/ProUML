@@ -78,12 +78,12 @@ export default function DiagramItem({ diagram, project, userId }: { diagram: Dia
                      />
                   )}
                </div>
-               <div className="pt-3 pb-2 pl-4 pr-2 border-t border-gray-200 flex">
+               <div className="pt-2 pb-2 pl-4 pr-2 border-t border-gray-200 flex">
                   <div className="flex-grow overflow-hidden whitespace-nowrap">
-                     <h2 className="title-font text-sm sm:text-lg font-medium text-gray-900 overflow-ellipsis overflow-hidden">
+                     <h2 className="title-font text-sm sm:text-base font-medium text-gray-900 overflow-ellipsis overflow-hidden">
                         {diagram.name}
                      </h2>
-                     <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p>
+                     <p className="mt-1 text-xs sm:text-xs text-gray-500 overflow-ellipsis overflow-hidden">{updatedAt}</p>
                   </div>
                   <div className="h-fit ml-auto md:mt-auto flex gap-1 items-center">
                      {diagram.is_shared_with_current_user && <Icons.users size={22} />}
