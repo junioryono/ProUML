@@ -20,7 +20,7 @@ export default function DiagramsHeader({
          <div className="flex justify-between px-2">
             <div className="grid gap-1">
                <div className="flex">
-                  <h1 className="text-2xl font-bold tracking-wide text-slate-900">Diagrams</h1>
+                  <h1 className="text-2xl font-bold tracking-wide text-slate-900 cursor-default">Diagrams</h1>
                   {project && (
                      <>
                         <h1 className="text-2xl px-2 tracking-wide text-slate-900 opacity-70">/</h1>
@@ -28,7 +28,7 @@ export default function DiagramsHeader({
                      </>
                   )}
                </div>
-               <p className="text-neutral-500">Create and manage diagrams.</p>
+               <p className="text-neutral-500 cursor-default">Create and manage diagrams.</p>
             </div>
             {!!diagramsLength && !open && (
                <CreateButton title="New diagram" onClick={() => setOpen((current) => !current)} />

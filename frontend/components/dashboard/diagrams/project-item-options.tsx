@@ -70,7 +70,7 @@ export default function ProjectItemOptions({
                         <div
                            className={cn(
                               active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                              "px-4 py-2 text-sm flex flex-row pb-1",
+                              "px-4 py-2 text-sm flex flex-row",
                            )}
                            onClick={() => setRenameOpen(true)}
                         >

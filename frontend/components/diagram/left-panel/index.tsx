@@ -51,52 +51,13 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
 
    return (
       <div className="w-60 h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
-         {/* ---------------------- SEARCH BAR SECTION ---------------------- */}
-
-         <div className="flex flex-col mt-2 mb-1">
-            <div className="pr-2 flex items-center cursor-pointer content-center gap-1">
-               <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                     d="M9.04 9.81c-.739.576-1.668.917-2.676.917C3.953 10.727 2 8.775 2 6.364 2 3.953 3.953 2 6.364 2c2.41 0 4.363 1.953 4.363 4.364 0 1.008-.342 1.937-.916 2.676l3.484 3.483-.772.771L9.04 9.811zm.596-3.446c0 1.807-1.465 3.272-3.272 3.272-1.808 0-3.273-1.465-3.273-3.272 0-1.808 1.465-3.273 3.273-3.273 1.807 0 3.272 1.465 3.272 3.273z"
-                     fillRule="evenodd"
-                     fillOpacity="1"
-                     fill="#000"
-                     stroke="none"
-                  />
-               </svg>
-               <div className="bg-white">
-                  <input
-                     placeholder="Search.."
-                     className="w-full my-0 block h-3 rounded-md border border-slate-300 py-3 px-3 text-xs placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
-                     type="text"
-                     autoCapitalize="none"
-                     autoComplete="both"
-                     autoCorrect="off"
-                     spellCheck="false"
-                     onChange={(event) => {
-                        const searchText = event.target.value.toLowerCase();
-                        const elements = document.querySelectorAll(".searchable");
-                        elements.forEach((element) => {
-                           const text = element.textContent.toLowerCase();
-                           if (text.includes(searchText)) {
-                              //element.style.display = "block";
-                           } else {
-                              //element.style.display = "none";
-                           }
-                        });
-                     }}
-                  />
-               </div>
-            </div>
-         </div>
-
          {/* ---------------------- DIAGRAMS SECTION ---------------------- */}
          {diagram.project && (
             <>
                <div className="pb-1">
-                  <div className="mt-2 flex justify-between">
+                  <div className="flex justify-between">
                      <div className="font-bold pb-1">Diagrams</div>
-                     <div className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center">
+                     <div className="mb-1 duration-500 hover:scale-125 flex justify-center items-center">
                         <span
                            role="button"
                            className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
@@ -182,7 +143,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                   <div className="font-bold mb-1">Nodes</div>
 
                   <div
-                     className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
+                     className="mb-1 duration-500 hover:scale-125 flex justify-center items-center"
                      onClick={() => {
                         graph.current?.addNode({
                            shape: "custom-class",

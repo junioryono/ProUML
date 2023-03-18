@@ -8,7 +8,7 @@ export function Avatar({ className, ...props }: AvatarProps) {
    return (
       <AvatarPrimitive.Root
          className={cn(
-            "flex h-[32px] w-[32px] items-center justify-center overflow-hidden rounded-full bg-slate-100",
+            "duration-500 hover:scale-110 flex h-[32px] w-[32px] items-center justify-center overflow-hidden rounded-full bg-slate-100 m-1",
             className,
          )}
          {...props}
