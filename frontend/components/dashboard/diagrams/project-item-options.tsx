@@ -68,9 +68,27 @@ export default function ProjectItemOptions({
                   <Menu.Item>
                      {({ active }) => (
                         <div
-                           className={cn(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")}
+                           className={cn(
+                              active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                              "px-4 py-2 text-sm flex flex-row pb-1",
+                           )}
                            onClick={() => setRenameOpen(true)}
                         >
+                           <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              className="w-5 h-5 mr-5"
+                           >
+                              <path
+                                 fill-rule="evenodd"
+                                 clip-rule="evenodd"
+                                 d="M13 9H10V17H8V9H5V7H13V9ZM18 13H16V17H14V13H12V11H18V13Z"
+                                 fill="#000000"
+                              />
+                           </svg>
                            Rename
                         </div>
                      )}
@@ -80,7 +98,10 @@ export default function ProjectItemOptions({
                   <Menu.Item>
                      {({ active }) => (
                         <div
-                           className={cn(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")}
+                           className={cn(
+                              active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                              "px-4 py-2 text-sm flex flex-row",
+                           )}
                            onClick={() => {
                               deleteProject(project.id).then((res) => {
                                  if (res.success === false) {
@@ -100,11 +121,31 @@ export default function ProjectItemOptions({
                               });
                            }}
                         >
+                           <svg
+                              width="20px"
+                              height="20px"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="mr-5"
+                           >
+                              <g strokeWidth="0"></g>
+                              <g strokeLinecap="round" strokeLinejoin="round"></g>
+                              <g>
+                                 <path
+                                    d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
+                                    stroke="#000000"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                 ></path>
+                              </g>
+                           </svg>
                            Delete
                         </div>
                      )}
                   </Menu.Item>
-                  <Menu.Item>
+                  {/* <Menu.Item>
                      {({ active }) => (
                         <div
                            className={cn(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")}
@@ -112,15 +153,55 @@ export default function ProjectItemOptions({
                            Duplicate
                         </div>
                      )}
-                  </Menu.Item>
+                  </Menu.Item> */}
                </div>
                <div className="py-1">
                   <Menu.Item>
                      {({ active }) => (
                         <div
-                           className={cn(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")}
+                           className={cn(
+                              active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                              "px-4 py-2 text-sm flex flex-row",
+                           )}
                            onClick={() => window.open(`/project/${project.id}`, "_blank")}
                         >
+                           <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="800px"
+                              height="800px"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              className="w-5 h-5 mr-5"
+                           >
+                              <path
+                                 d="M8 21H20.4C20.7314 21 21 20.7314 21 20.4V3.6C21 3.26863 20.7314 3 20.4 3H3.6C3.26863 3 3 3.26863 3 3.6V16"
+                                 stroke="#000000"
+                                 stroke-width="1.5"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                              />
+                              <path
+                                 d="M10 6L18 6"
+                                 stroke="#000000"
+                                 stroke-width="1.5"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                              />
+                              <path
+                                 d="M6 6H7"
+                                 stroke="#000000"
+                                 stroke-width="1.5"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                              />
+                              <path
+                                 d="M3.5 20.5L12 12M12 12V16M12 12H8"
+                                 stroke="#000000"
+                                 stroke-width="1.5"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                              />
+                           </svg>
                            Open in new tab
                         </div>
                      )}
