@@ -3,7 +3,7 @@ import { MutableRefObject, useEffect, useState, useRef } from "react";
 import ColorPicker from "../styling-options/color-picker";
 import { darkColorOptions } from "../styling-options/colors";
 import { DashedLine, SolidLine } from "../styling-options/line-styles";
-import LineWidth from "../styling-options/line-width";
+import LineWidth from "../styling-options/line-widths";
 import { OpenArrow, OpenDiamond, SolidArrow, SolidDiamond } from "./edge-endings";
 
 export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {

@@ -3,7 +3,7 @@ import { MutableRefObject, useCallback, useEffect, useRef, useState } from "reac
 import { ClassNode } from "types";
 import { lightColorOptions, darkColorOptions } from "../styling-options/colors";
 import ColorPicker from "../styling-options/color-picker";
-import LineWidth from "../styling-options/line-width";
+import LineWidth from "../styling-options/line-widths";
 import NodeSettings from "./node-settings";
 import { SolidLine, DashedLine, DottedLine, DoubleLine } from "../styling-options/line-styles";
 
