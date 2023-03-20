@@ -17,6 +17,7 @@ import RightPanel from "@/components/diagram/right-panel";
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import DiagramSettings from "./header/diagram-settings";
 
 export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
@@ -90,7 +91,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                   </>
                )}
             </div>
-            <div className="basis-2/4 flex justify-center items-center gap-2 text-sm select-none">
+            <div className="h-full basis-2/4 flex justify-center items-center gap-2 text-sm select-none">
                {diagram.project && (
                   <>
                      <Link
@@ -103,7 +104,20 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                      <div className="opacity-30 text-xl font-light">/</div>
                   </>
                )}
-               <div>{diagramName}</div>
+
+               {!wsTimedOut ? (
+                  // users can access diagram settings if not timed out
+                  <>
+                     <DiagramSettings diagram={diagram} />
+                  </>
+               ) : (
+                  // if timed out, the diagram name is clickable to refresh the page
+                  <>
+                     <div>{diagramName}</div>
+                  </>
+               )}
+
+               {/* <div>{diagramName}</div>
                {!wsTimedOut && (
                   <svg className="svg" width="8" height="7" viewBox="0 0 8 7" xmlns="http://www.w3.org/2000/svg">
                      <path
@@ -115,7 +129,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                         className="fill-white"
                      />
                   </svg>
-               )}
+               )} */}
             </div>
             <div className="flex h-full items-center">
                {!wsTimedOut && (
