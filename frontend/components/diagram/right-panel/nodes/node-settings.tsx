@@ -72,6 +72,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
          setY(cell.current.y);
       });
 
+      // re-render when a node variable changes
       node.on("change:variables", (args) => {
          setVariables(args.current);
          if (args.newHeight) {
@@ -79,6 +80,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
          }
       });
 
+      // re-render when a node method changes
       node.on("change:methods", (args) => {
          setMethods(args.current);
          if (args.newHeight) {
@@ -86,10 +88,12 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
          }
       });
 
+      // re-render when the node pos lock changes
       node.on("change:lockPosition", (args) => {
          setPositionLocked(!!args.current);
       });
 
+      // re-render when the node size lock changes
       node.on("change:lockSize", (args) => {
          setSizeLocked(!!args.current);
       });
@@ -223,7 +227,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                      {/* add button to add a new variable to the selected node */}
                      <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
                         <div
-                           className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
+                           className="p-2 transform transition duration-500 hover:scale-[1.6] flex justify-center items-center"
                            onClick={() => {
                               // get the selected cell and its variables
                               const variablesTemp = [...variables];
@@ -292,7 +296,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                      {/* add button to add a new method to the selected node */}
                      <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
                         <div
-                           className="p-2 transform hover:bg-slate-300 transition duration-500 hover:scale-125 flex justify-center items-center"
+                           className="p-2 transform transition duration-500 hover:scale-[1.6] flex justify-center items-center"
                            onClick={() => {
                               // get the selected cell and its variables
                               const methodsTemp = [...methods];

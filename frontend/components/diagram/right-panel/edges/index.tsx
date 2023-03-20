@@ -156,9 +156,9 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   {showLeftEndOptions && (
                      <div className="absolute top-28 mt-0.5 right-36 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
                         {/* map out all of the left ending options */}
-                        {leftEndingOptions.map((option, index) => (
+                        {leftEndingOptions.map((option) => (
                            <button
-                              key={index}
+                              key={option.value}
                               className="transform hover:bg-slate-300 transition duration-500 w-20 h-8 flex justify-center items-center rounded-md"
                               onClick={() => {
                                  // if the leftEnd is not the same as the option value, set the left end to the option value
@@ -215,9 +215,9 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   {showRightEndOptions && (
                      <div className="absolute top-28 mt-0.5 right-1 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
                         {/* map out all of the left ending options */}
-                        {rightEndingOptions.map((option, index) => (
+                        {rightEndingOptions.map((option) => (
                            <button
-                              key={index}
+                              key={option.value}
                               className="transform hover:bg-slate-300 transition duration-500 w-20 h-8 flex justify-center items-center rounded-md"
                               onClick={() => {
                                  // if the rightEnd is not the same as the option value, set the right end to the option value
@@ -250,9 +250,9 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             {/* line style options */}
             <div className="w-full flex justify-center items-center gap-1.5">
                {/* map out all of the line style option buttons */}
-               {lineStyleOptions.map((option, index) => (
+               {lineStyleOptions.map((option) => (
                   <button
-                     key={index}
+                     key={option.value}
                      className={`border rounded-md transition duration-500 hover:scale-125
                      ${lineStyle !== option.value ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
                      onClick={() => setLineStyle(option.value)}
@@ -277,14 +277,13 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          </div>
          <hr className="border-slate-400" />
 
-         {/*---------------------- BORDER WIDTH SECTION ---------------------- */}
+         {/*---------------------- LINE WIDTH SECTION ---------------------- */}
          {/* line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
 
          <div className="flex flex-col pt-1.5 pb-3">
             <div className="font-bold mb-1">Width</div>
             <LineWidth lineWidth={width} setLineWidth={setWidth} />
          </div>
-         <hr className="border-slate-400" />
       </>
    );
 }

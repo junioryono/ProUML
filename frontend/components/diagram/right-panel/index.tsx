@@ -1,6 +1,6 @@
 import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useState } from "react";
-import GraphPanel from "./graph/graph";
+import GraphPanel from "./graph";
 import EdgesPanel from "./edges";
 import NodesPanel from "./nodes";
 import { Diagram } from "types";

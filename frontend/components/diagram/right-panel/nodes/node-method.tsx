@@ -31,7 +31,7 @@ export default function NodeSettingsMethod({
    const [type, setType] = useState(method.type || "");
    const [parameters, setParameters] = useState(method.parameters || []);
    const [showParameters, setShowParameters] = useState(false);
-   const parametersDropdownRef = useRef<HTMLDivElement>(null);
+   const parametersRef = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
       // update the node's methods array
@@ -65,11 +65,9 @@ export default function NodeSettingsMethod({
 
    // scroll to parameters with offset when showParameters is true
    useEffect(() => {
-      if (showParameters && parametersDropdownRef.current) {
-         parametersDropdownRef.current.scrollIntoView({
+      if (showParameters && parametersRef.current) {
+         parametersRef.current.scrollIntoView({
             behavior: "smooth",
-            block: "start",
-            inline: "nearest",
          });
       }
    }, [showParameters]);
@@ -123,9 +121,9 @@ export default function NodeSettingsMethod({
                   {showAccessModifierDropdown && (
                      <div className="absolute mt-0.5 right-30 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
                         {/* map out all of the left ending options */}
-                        {accessModifierOptions.map((option, modifierIndex) => (
+                        {accessModifierOptions.map((option) => (
                            <button
-                              key={modifierIndex}
+                              key={option.value}
                               className="transform hover:bg-slate-200 transition duration-500 w-full h-7 flex items-center rounded-md text-xs pr-1"
                               onClick={() => {
                                  // update the node's methods array
@@ -218,26 +216,6 @@ export default function NodeSettingsMethod({
                   <div className="text-xs">)</div>
                </div>
 
-               {/* <div className="flex items-center ml-0.5 relative">
-                  <div className="text-xs">(</div>
-                  <div className="w-10">
-                     <div className="relative">
-                        <select
-                           className={`w-full text-xs cursor-pointer text-center block rounded-md border focus:outline-none hover:border-slate-400 focus:border-slate-400 ${
-                              parameters.length === 0
-                                 ? "border-2 border-dotted bg-slate-100 border-slate-400 h-[1.625rem] pl-1"
-                                 : "bg-slate-200 border-slate-300 h-[1.625rem] pl-0.5"
-                           }`}
-                           onClick={() => setShowParameters(!showParameters)}
-                           onMouseDown={(e) => e.preventDefault()} // Stop the dropdown from opening
-                        >
-                           <option>{parameters.length}</option>
-                        </select>
-                     </div>
-                  </div>
-                  <div className="text-xs">)</div>
-               </div> */}
-
                {/* delete button to delete the method */}
                <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">
                   <div
@@ -278,7 +256,7 @@ export default function NodeSettingsMethod({
          {/* method parameters appearing section */}
          {showParameters && (
             <div
-               ref={parametersDropdownRef}
+               ref={parametersRef}
                className="border border-slate-400 bg-slate-100 mt-0.5 mb-1 py-1 px-2 rounded-md drop-shadow-md items-center"
             >
                <div className="flex justify-between mb-1">
@@ -287,7 +265,7 @@ export default function NodeSettingsMethod({
                   {/* add button to add a new method to the selected node */}
                   <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
                      <div
-                        className="p-2 transform transition duration-500 hover:scale-150 flex justify-center items-center"
+                        className="p-2 transform transition duration-500 hover:scale-[1.6] flex justify-center items-center"
                         onClick={() => {
                            // add the new parameter to the method's parameters array
                            const paramsTemp = [...parameters];
@@ -298,7 +276,7 @@ export default function NodeSettingsMethod({
                            setParameters(newMethods[index].parameters);
 
                            // Scroll to the bottom of the parameters list
-                           parametersDropdownRef.current.scrollTop = parametersDropdownRef.current.scrollHeight;
+                           parametersRef.current.scrollTop = parametersRef.current.scrollHeight;
                         }}
                      >
                         <span

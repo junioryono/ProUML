@@ -57,7 +57,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                <div className="pb-1">
                   <div className="flex justify-between">
                      <div className="font-bold pb-1">Diagrams</div>
-                     <div className="mb-1 duration-500 hover:scale-125 flex justify-center items-center">
+                     <div className="mb-1 duration-500 hover:scale-[1.6] flex justify-center items-center">
                         <span
                            role="button"
                            className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
@@ -143,7 +143,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                   <div className="font-bold mb-1">Nodes</div>
 
                   <div
-                     className="mb-1 duration-500 hover:scale-125 flex justify-center items-center"
+                     className="mb-1 duration-500 hover:scale-[1.6] flex justify-center items-center"
                      onClick={() => {
                         graph.current?.addNode({
                            shape: "custom-class",
