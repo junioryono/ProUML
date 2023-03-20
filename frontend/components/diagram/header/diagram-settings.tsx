@@ -34,50 +34,59 @@ export default function DiagramSettings({ diagram }: { diagram: Diagram }) {
       };
    }, [editDiagramRef]);
 
+   // when the editDiagramName input is opened, select all text inside of it
+   useEffect(() => {
+      if (editDiagramRef.current || editDiagramName) {
+         editDiagramRef.current.querySelector("input")?.select();
+      }
+   }, [editDiagramRef, editDiagramName]);
+
    return (
       <DropdownMenu onOpenChange={setOpen}>
          <div className="flex justify-center items-center gap-1 h-full">
-            <div ref={editDiagramRef}>
-               <input
-                  type={"text"}
-                  className={cn("bg-transparent text-md py-0.5 focus-outline-none focus:outline-none focus:ring-0")}
-                  onClick={(e) => {
-                     // if the user clicks on the input when it is not in edit mode already, select all the text
-                     if (!editDiagramName) {
-                        e.currentTarget.select();
-                     }
-
+            {!editDiagramName ? (
+               <div
+                  onClick={() => {
                      setEditDiagramName(true);
                   }}
-                  onChange={(e) => setDiagramName(e.currentTarget.value)}
-                  value={diagram.name}
-               />
-            </div>
-            {/* {diagram.name}
-            </div> */}
-            <DropdownMenu.Trigger
-               className="h-full cursor-default px-1.5 w-5 hover:bg-diagram-menu-item-hovered focus-visible:outline-none"
-               onMouseEnter={() => setHovered(true)}
-               onMouseLeave={() => setHovered(false)}
-               onContextMenu={(e) => e.preventDefault()}
-            >
-               <svg
-                  className={cn("transition-all duration-100", openArrow ? "mt-[6px]" : "mt-0")}
-                  width="8"
-                  height="7"
-                  viewBox="0 0 8 7"
-                  xmlns="http://www.w3.org/2000/svg"
                >
-                  <path
-                     className="fill-white"
-                     d="M3.646 5.354l-3-3 .708-.708L4 4.293l2.646-2.647.708.708-3 3L4 5.707l-.354-.353z"
-                     fillRule="evenodd"
-                     fillOpacity="1"
-                     fill="#000"
-                     stroke="none"
+                  {diagram.name}
+               </div>
+            ) : (
+               <div ref={editDiagramRef}>
+                  <input
+                     className={cn("bg-transparent text-md text-center py-0.5 focus:outline-none focus:ring-0")}
+                     onChange={(e) => setDiagramName(e.currentTarget.value)}
+                     value={diagram.name}
                   />
-               </svg>
-            </DropdownMenu.Trigger>
+               </div>
+            )}
+
+            {!editDiagramName && (
+               <DropdownMenu.Trigger
+                  className="h-full cursor-default px-1.5 w-5 hover:bg-diagram-menu-item-hovered focus-visible:outline-none"
+                  onMouseEnter={() => setHovered(true)}
+                  onMouseLeave={() => setHovered(false)}
+                  onContextMenu={(e) => e.preventDefault()}
+               >
+                  <svg
+                     className={cn("transition-all duration-100", openArrow ? "mt-[6px]" : "mt-0")}
+                     width="8"
+                     height="7"
+                     viewBox="0 0 8 7"
+                     xmlns="http://www.w3.org/2000/svg"
+                  >
+                     <path
+                        className="fill-white"
+                        d="M3.646 5.354l-3-3 .708-.708L4 4.293l2.646-2.647.708.708-3 3L4 5.707l-.354-.353z"
+                        fillRule="evenodd"
+                        fillOpacity="1"
+                        fill="#000"
+                        stroke="none"
+                     />
+                  </svg>
+               </DropdownMenu.Trigger>
+            )}
          </div>
 
          <DropdownMenu.Portal>
@@ -107,8 +116,8 @@ export default function DiagramSettings({ diagram }: { diagram: Diagram }) {
                {/* Rename diagram */}
                <DropdownMenu.Item
                   className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
-                  onSelect={() => {
-                     // rename diagram
+                  onClick={() => {
+                     setEditDiagramName(true);
                   }}
                >
                   <div>Rename</div>
