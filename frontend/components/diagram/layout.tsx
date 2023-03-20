@@ -17,7 +17,7 @@ import RightPanel from "@/components/diagram/right-panel";
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import DiagramSettings from "./header/diagram-settings";
+import DiagramLabel from "./header/diagram-label";
 
 export type LayoutProps = {
    setZoom: Dispatch<SetStateAction<number>>;
@@ -91,46 +91,33 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                   </>
                )}
             </div>
-            <div className="h-full basis-2/4 flex justify-center items-center gap-2 text-sm select-none">
-               {diagram.project && (
-                  <>
-                     <Link
-                        href={"/dashboard/diagrams/project/[id]"}
-                        as={`/dashboard/diagrams/project/${diagram.project.id}`}
-                        className="opacity-70 hover:opacity-100 cursor-pointer"
-                     >
-                        {diagram.project.name}
-                     </Link>
-                     <div className="opacity-30 text-xl font-light">/</div>
-                  </>
-               )}
 
-               {!wsTimedOut ? (
-                  // users can access diagram settings if not timed out
-                  <>
-                     <DiagramSettings diagram={diagram} />
-                  </>
-               ) : (
-                  // if timed out, the diagram name is clickable to refresh the page
-                  <>
-                     <div>{diagramName}</div>
-                  </>
-               )}
+            {!wsTimedOut ? (
+               // users can access diagram settings if not timed out
 
-               {/* <div>{diagramName}</div>
-               {!wsTimedOut && (
-                  <svg className="svg" width="8" height="7" viewBox="0 0 8 7" xmlns="http://www.w3.org/2000/svg">
-                     <path
-                        d="M3.646 5.354l-3-3 .708-.708L4 4.293l2.646-2.647.708.708-3 3L4 5.707l-.354-.353z"
-                        fillRule="evenodd"
-                        fillOpacity="1"
-                        fill="#000"
-                        stroke="none"
-                        className="fill-white"
-                     />
-                  </svg>
-               )} */}
-            </div>
+               <DiagramLabel diagram={diagram} />
+            ) : (
+               // if timed out, the diagram name is clickable to refresh the page
+
+               <div className="h-full basis-2/4 flex justify-center items-center gap-2 text-sm select-none">
+                  {diagram.project && (
+                     <>
+                        <Link
+                           href={"/dashboard/diagrams/project/[id]"}
+                           as={`/dashboard/diagrams/project/${diagram.project.id}`}
+                           className="opacity-70 hover:opacity-100 cursor-pointer"
+                        >
+                           {diagram.project.name}
+                        </Link>
+                        <div className="opacity-30 text-xl font-light">/</div>
+                     </>
+                  )}
+                  <Link href={`/dashboard/diagrams/${diagram.id}`} className="flex">
+                     {diagramName}
+                  </Link>
+               </div>
+            )}
+
             <div className="flex h-full items-center">
                {!wsTimedOut && (
                   <div className="flex">
