@@ -94,7 +94,6 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
 
             {!wsTimedOut ? (
                // users can access diagram settings if not timed out
-
                <DiagramLabel diagram={diagram} />
             ) : (
                // if timed out, the diagram name is clickable to refresh the page

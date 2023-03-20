@@ -46,10 +46,12 @@ export default function DiagramLabel({ diagram }: { diagram: Diagram }) {
 
    // when the editDiagramName input is opened, select all text inside of it
    useEffect(() => {
-      if (editDiagramRef.current || editDiagramName) {
-         editDiagramRef.current.querySelector("input")?.select();
+      if (editDiagramName) {
+         setTimeout(() => {
+            editDiagramRef.current.querySelector("input")?.select();
+         }, 0);
       }
-   }, [editDiagramRef, editDiagramName]);
+   }, [editDiagramName]);
 
    return (
       <div className="h-full basis-2/4 flex justify-center items-center gap-2 text-sm select-none">
