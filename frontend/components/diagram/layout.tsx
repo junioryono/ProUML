@@ -95,8 +95,8 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                {diagram.project && (
                   <>
                      <Link
-                        href={"/dashboard/projects/[id]"}
-                        as={`/dashboard/projects/${diagram.project.id}`}
+                        href={"/dashboard/diagrams/project/[id]"}
+                        as={`/dashboard/diagrams/project/${diagram.project.id}`}
                         className="opacity-70 hover:opacity-100 cursor-pointer"
                      >
                         {diagram.project.name}

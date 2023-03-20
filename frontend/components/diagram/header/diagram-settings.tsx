@@ -21,7 +21,7 @@ export default function DiagramSettings({ diagram }: { diagram: Diagram }) {
       }
    }, [open, hovered]);
 
-   // stop editing the diagram name when the user clicks outside of the input
+   // close diagram name text editing input when user clicks outside the input
    useEffect(() => {
       const handleClickOutside = (e: MouseEvent) => {
          if (editDiagramRef.current && !editDiagramRef.current.contains(e.target as Node)) {
