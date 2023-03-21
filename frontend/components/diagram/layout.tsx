@@ -2,6 +2,7 @@ import { Dispatch, MutableRefObject, SetStateAction, useCallback, useEffect, use
 import UserAccountNav from "@/components/dashboard/user-account-nav";
 import { ReadyState } from "react-use-websocket";
 import { Diagram, User } from "types";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import useX6 from "@/components/diagram/x6";
@@ -38,6 +39,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
    const [backgroundColor, setBackgroundColor] = useState(diagram.background_color);
    const backgroundColorRef = useRef(backgroundColor);
    const [panning, setPanning] = useState(false);
+   const router = useRouter();
 
    // Core
    const container = useRef<HTMLDivElement>();
@@ -130,26 +132,52 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                <div className="flex flex-col items-center gap-2">
                   <div className="text-gray-500">Connection timed out</div>
                   <div className="text-gray-500">Please refresh the page</div>
+                  <div
+                     onClick={() => router.refresh()}
+                     className="cursor-pointer mt-1.5 transition duration-500 hover:scale-125"
+                  >
+                     <svg width="25" height="25" fill="#666666" viewBox="0 0 1920 1920" xmlns="http://www.w3.org/2000/svg">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                           <path
+                              d="M960 0v112.941c467.125 0 847.059 379.934 847.059 847.059 0 467.125-379.934 847.059-847.059 847.059-467.125 0-847.059-379.934-847.059-847.059 0-267.106 126.607-515.915 338.824-675.727v393.374h112.94V112.941H0v112.941h342.89C127.058 407.38 0 674.711 0 960c0 529.355 430.645 960 960 960s960-430.645 960-960S1489.355 0 960 0"
+                              fill-rule="evenodd"
+                           ></path>
+                        </g>
+                     </svg>
+                  </div>
                </div>
             </div>
          ) : (
-            <div className="flex text-sm">
+            <>
                {!ready && (
-                  <div className="flex justify-center items-center w-full h-full">
-                     <div className="flex flex-col items-center gap-2">
-                        <div className="text-gray-500">Loading...</div>
+                  <div className="flex justify-center items-center w-full h-full pb-36">
+                     <div className="flex flex-col justify-center items-center gap-2">
+                        <div className="flex items-center justify-center">
+                           <div
+                              className="inline-block h-24 w-24 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                              role="status"
+                           >
+                              <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                                 Loading...
+                              </span>
+                           </div>
+                        </div>
                      </div>
                   </div>
                )}
 
-               {ready && <LeftPanel diagram={diagram} graph={graph} />}
+               <div className="flex text-sm">
+                  {ready && <LeftPanel diagram={diagram} graph={graph} />}
 
-               <div className="flex-1">
-                  <div ref={(rf) => (container.current = rf)} />
+                  <div className="flex-1">
+                     <div ref={(rf) => (container.current = rf)} />
+                  </div>
+
+                  {ready && <RightPanel graph={graph} backgroundColor={backgroundColor} />}
                </div>
-
-               {ready && <RightPanel graph={graph} backgroundColor={backgroundColor} />}
-            </div>
+            </>
          )}
       </div>
    );
