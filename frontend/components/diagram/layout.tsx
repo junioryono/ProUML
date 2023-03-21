@@ -92,30 +92,8 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                )}
             </div>
 
-            {!wsTimedOut ? (
-               // users can access diagram settings if not timed out
-               <DiagramLabel diagram={diagram} />
-            ) : (
-               // if timed out, the diagram name is clickable to refresh the page
-
-               <div className="h-full basis-2/4 flex justify-center items-center gap-2 text-sm select-none">
-                  {diagram.project && (
-                     <>
-                        <Link
-                           href={"/dashboard/diagrams/project/[id]"}
-                           as={`/dashboard/diagrams/project/${diagram.project.id}`}
-                           className="opacity-70 hover:opacity-100 cursor-pointer"
-                        >
-                           {diagram.project.name}
-                        </Link>
-                        <div className="opacity-30 text-xl font-light">/</div>
-                     </>
-                  )}
-                  <Link href={`/dashboard/diagrams/${diagram.id}`} className="flex">
-                     {diagramName}
-                  </Link>
-               </div>
-            )}
+            {/* diagram label w proj (if has one), diagram name, and diagram settings dropdown */}
+            <DiagramLabel diagram={diagram} role={role} wsTimedOut={wsTimedOut} />
 
             <div className="flex h-full items-center">
                {!wsTimedOut && (
