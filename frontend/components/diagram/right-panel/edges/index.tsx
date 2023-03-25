@@ -5,28 +5,34 @@ import { darkColorOptions } from "../styling-options/colors";
 import { DashedLine, SolidLine } from "../styling-options/line-styles";
 import LineWidth from "../styling-options/line-widths";
 import { OpenArrow, OpenDiamond, SolidArrow, SolidDiamond } from "./edge-endings";
+import { cn } from "@/lib/utils";
 
 export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for the left end, middle, and right end of the edge
    const [leftEnd, setLeftEnd] = useState("none");
    const [showLeftEndOptions, setShowLeftEndOptions] = useState(false);
    const [lineStyle, setLineStyle] = useState("solid");
+   const [showLineStyleOptions, setShowLineStyleOptions] = useState(false);
    const [rightEnd, setRightEnd] = useState("none");
    const [showRightEndOptions, setShowRightEndOptions] = useState(false);
 
    const leftEndRef = useRef(null);
+   const lineStyleRef = useRef(null);
    const rightEndRef = useRef(null);
 
-   // if the user clicks outside of the left end options, close the options
+   // if the user clicks outside of the left or right end options, close the options
    useEffect(() => {
       const handleClickOutside = (event) => {
          if (
             leftEndRef.current &&
             !leftEndRef.current.contains(event.target) &&
+            lineStyleRef.current &&
+            !lineStyleRef.current.contains(event.target) &&
             rightEndRef.current &&
             !rightEndRef.current.contains(event.target)
          ) {
             setShowLeftEndOptions(false);
+            setShowLineStyleOptions(false);
             setShowRightEndOptions(false);
          }
       };
@@ -36,7 +42,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       return () => {
          document.removeEventListener("mousedown", handleClickOutside);
       };
-   }, [leftEndRef, rightEndRef]);
+   }, [leftEndRef, lineStyleRef, rightEndRef]);
 
    const leftEndingOptions = [
       {
@@ -108,6 +114,13 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    // the selected cells
    const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
 
+   // for the edge labels
+   const [upperLeftLabel, setUpperLeftLabel] = useState("");
+   const [lowerLeftLabel, setLowerLeftLabel] = useState("");
+   const [centerLabel, setCenterLabel] = useState("");
+   const [upperRightLabel, setUpperRightLabel] = useState("");
+   const [lowerRightLabel, setLowerRightLabel] = useState("");
+
    // when selecting cells, update the selected cells
    useEffect(() => {
       // set the selected cells to the current selected cells
@@ -131,7 +144,54 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          <div className="font-bold mb-1">Edge Settings</div>
 
          <div className="flex flex-col pb-3">
-            <div className="w-full flex justify-center items-center gap-1 mb-2">
+            <div className="w-full flex justify-between px-2 mb-1">
+               {/* left upper label input */}
+               <div className="justify-start">
+                  <input
+                     type="text"
+                     className={cn(
+                        "h-6 w-11 text-center block rounded-md border text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400",
+                        upperLeftLabel === ""
+                           ? "border-2 border-dotted bg-slate-100 border-slate-400"
+                           : "bg-slate-200 border-slate-300",
+                     )}
+                     value={upperLeftLabel}
+                     onChange={(e) => setUpperLeftLabel(e.target.value)}
+                  />
+               </div>
+
+               {/* center label input */}
+               <div className="justify-center">
+                  <input
+                     type="text"
+                     className={cn(
+                        "h-6 w-16 text-center block rounded-md border text-xs font-bold focus:outline-none hover:border-slate-400 focus:border-slate-400",
+                        centerLabel === ""
+                           ? "border-2 border-dotted bg-slate-100 border-slate-400"
+                           : "bg-slate-200 border-slate-300",
+                     )}
+                     value={centerLabel}
+                     onChange={(e) => setCenterLabel(e.target.value)}
+                  />
+               </div>
+
+               {/* right upper label input */}
+               <div className="justify-end">
+                  <input
+                     type="text"
+                     className={cn(
+                        "h-6 w-11 text-center block rounded-md border text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400",
+                        upperRightLabel === ""
+                           ? "border-2 border-dotted bg-slate-100 border-slate-400"
+                           : "bg-slate-200 border-slate-300",
+                     )}
+                     value={upperRightLabel}
+                     onChange={(e) => setUpperRightLabel(e.target.value)}
+                  />
+               </div>
+            </div>
+
+            <div className="w-full flex justify-center items-center gap-2 mb-1">
                {/* left ending dropdown */}
                <div ref={leftEndRef}>
                   <div
@@ -139,6 +199,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      onClick={() => {
                         setShowLeftEndOptions(!showLeftEndOptions);
                         setShowRightEndOptions(false);
+                        setShowLineStyleOptions(false);
                      }}
                   >
                      {/* show the icon of the selected ending */}
@@ -154,7 +215,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </div>
 
                   {showLeftEndOptions && (
-                     <div className="absolute top-28 mt-0.5 right-36 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
+                     <div className="absolute top-34 mt-0.5 right-36 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
                         {/* map out all of the left ending options */}
                         {leftEndingOptions.map((option) => (
                            <button
@@ -187,8 +248,52 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
 
                {/* line style indicator */}
-               <div className="w-20 flex my-0 h-8 rounded-md border bg-slate-200 border-slate-400 py-3 px-3 text-md justify-center items-center focus:outline-none">
-                  {lineStyleOptions.find((option) => option.value === lineStyle)?.icon}
+               <div ref={lineStyleRef}>
+                  <div
+                     className="w-22 flex my-0 h-8 rounded-md border bg-slate-200 border-slate-400 py-3 px-3 text-md items-center justify-center focus:outline-none hover:border-slate-500"
+                     onClick={() => {
+                        setShowLineStyleOptions(!showLineStyleOptions);
+                        setShowLeftEndOptions(false);
+                        setShowRightEndOptions(false);
+                     }}
+                  >
+                     <div className="flex items-center justify-center w-5/6">
+                        {lineStyleOptions.find((option) => option.value === lineStyle)?.icon}
+                     </div>
+                     <div className="w-1/6">
+                        <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="cursor-pointer">
+                           <path d="M7 10l5 5 5-5H7z"></path>
+                        </svg>
+                     </div>
+                  </div>
+
+                  {showLineStyleOptions && (
+                     <div className="absolute top-34 mt-0.5 right-18 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
+                        {/* map out all of the left ending options */}
+                        {lineStyleOptions.map((option) => (
+                           <button
+                              key={option.value}
+                              className="transform hover:bg-slate-300 transition duration-500 w-20 h-8 flex justify-center items-center rounded-md"
+                              onClick={() => {
+                                 // if the leftEnd is not the same as the option value, set the left end to the option value
+                                 if (lineStyle !== option.value) {
+                                    setLineStyle(option.value);
+                                 }
+                              }}
+                           >
+                              {/* if this option is currently selected put a checkmark next to it */}
+                              <div className="w-6">
+                                 {lineStyle === option.value && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 25 25">
+                                       <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                                    </svg>
+                                 )}
+                              </div>
+                              {option.icon}
+                           </button>
+                        ))}
+                     </div>
+                  )}
                </div>
 
                {/* right ending dropdown */}
@@ -198,6 +303,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      onClick={() => {
                         setShowRightEndOptions(!showRightEndOptions);
                         setShowLeftEndOptions(false);
+                        setShowLineStyleOptions(false);
                      }}
                   >
                      {/* show the icon of the selected ending */}
@@ -213,7 +319,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   </div>
 
                   {showRightEndOptions && (
-                     <div className="absolute top-28 mt-0.5 right-1 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
+                     <div className="absolute top-34 mt-0.5 right-1 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
                         {/* map out all of the left ending options */}
                         {rightEndingOptions.map((option) => (
                            <button
@@ -248,18 +354,50 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             </div>
 
             {/* line style options */}
-            <div className="w-full flex justify-center items-center gap-1.5">
-               {/* map out all of the line style option buttons */}
-               {lineStyleOptions.map((option) => (
-                  <button
-                     key={option.value}
-                     className={`border rounded-md transition duration-500 hover:scale-125
+            <div className="w-full flex justify-between px-2">
+               {/* left upper label input */}
+               <div className="justify-start">
+                  <input
+                     type="text"
+                     className={cn(
+                        "h-6 w-11 text-center block rounded-md border text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400",
+                        lowerLeftLabel === ""
+                           ? "border-2 border-dotted bg-slate-100 border-slate-400"
+                           : "bg-slate-200 border-slate-300",
+                     )}
+                     value={lowerLeftLabel}
+                     onChange={(e) => setLowerLeftLabel(e.target.value)}
+                  />
+               </div>
+
+               <div className="flex justify-center gap-1">
+                  {/* map out all of the line style option buttons */}
+                  {lineStyleOptions.map((option) => (
+                     <button
+                        key={option.value}
+                        className={`border rounded-md transition duration-500 hover:scale-125
                      ${lineStyle !== option.value ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                     onClick={() => setLineStyle(option.value)}
-                  >
-                     {option.icon}
-                  </button>
-               ))}
+                        onClick={() => setLineStyle(option.value)}
+                     >
+                        {option.icon}
+                     </button>
+                  ))}
+               </div>
+
+               {/* right upper label input */}
+               <div className="justify-end">
+                  <input
+                     type="text"
+                     className={cn(
+                        "h-6 w-11 text-center block rounded-md border text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400",
+                        lowerRightLabel === ""
+                           ? "border-2 border-dotted bg-slate-100 border-slate-400"
+                           : "bg-slate-200 border-slate-300",
+                     )}
+                     value={lowerRightLabel}
+                     onChange={(e) => setLowerRightLabel(e.target.value)}
+                  />
+               </div>
             </div>
          </div>
 

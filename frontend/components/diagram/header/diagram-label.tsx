@@ -302,24 +302,6 @@ export default function DiagramLabel({
                   // if timed out, let the user click the diagram name to refresh
                   <div onClick={() => router.refresh()} className="cursor-pointer flex gap-1.5 items-center">
                      {diagramName}
-                     {/* svg src: https://www.svgrepo.com/svg/501696/refresh */}
-                     <svg
-                        width="15"
-                        height="15"
-                        fill="#ffffff"
-                        viewBox="0 0 1920 1920"
-                        xmlns="http://www.w3.org/2000/svg"
-                        stroke="#ffffff"
-                     >
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                        <g id="SVGRepo_iconCarrier">
-                           <path
-                              d="M960 0v112.941c467.125 0 847.059 379.934 847.059 847.059 0 467.125-379.934 847.059-847.059 847.059-467.125 0-847.059-379.934-847.059-847.059 0-267.106 126.607-515.915 338.824-675.727v393.374h112.94V112.941H0v112.941h342.89C127.058 407.38 0 674.711 0 960c0 529.355 430.645 960 960 960s960-430.645 960-960S1489.355 0 960 0"
-                              fill-rule="evenodd"
-                           ></path>
-                        </g>
-                     </svg>
                   </div>
                ) : (
                   // just show the diagram name if not timed out and not an owner
