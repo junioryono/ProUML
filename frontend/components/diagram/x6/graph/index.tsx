@@ -8,7 +8,7 @@ import { ReadyState } from "react-use-websocket";
 
 import initializeListeners from "@/components/diagram/x6/graph/listeners";
 import useGraphWebSocket from "@/components/diagram/x6/graph/websocket";
-import { addPorts } from "./shapes/ports";
+import { addAllPorts, addPorts } from "./shapes/ports";
 
 export default function useGraph(
    X6: X6StateType,
@@ -163,9 +163,7 @@ export default function useGraph(
       console.log("diagram.content", diagram.content);
       graph.current.fromJSON({ cells: diagram.content }, { ignoreHistory: true });
 
-      for (const node of graph.current.getNodes()) {
-         addPorts(node);
-      }
+      addAllPorts(graph.current);
 
       const removeListeners = initializeListeners(graph, wsSendJson, sessionId, layoutProps);
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
