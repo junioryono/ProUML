@@ -1,5 +1,5 @@
 import type X6Type from "@antv/x6";
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { DropdownMenu, SubDropdownMenu } from "@/ui/dropdown";
 import { Diagram } from "types";
 import { cn } from "@/lib/utils";
@@ -43,56 +43,70 @@ export default function DiagramLabel({
       }
    }, [open, hovered]);
 
-   // close diagram name text editing input when user clicks outside the input or presses enter
-   useEffect(() => {
-      const handleClickOutsideOrEnter = (e: MouseEvent | KeyboardEvent) => {
-         // if the user presses enter or clicks outside the input, close the input
-         if (
-            (e instanceof KeyboardEvent && e.key === "Enter") ||
-            (editDiagramRef.current && !editDiagramRef.current.contains(e.target as Node))
-         ) {
-            setEditDiagramName(false);
+   // close the dropdown menu when the user clicks outside of it
+   function updateDiagramName() {
+      setEditDiagramName(false);
 
-            // if the diagram name is empty, set it to "Untitled Diagram"
-            if (diagramName === "") {
-               setDiagramName("Untitled Diagram");
-            }
-            // if diagram name isn't empty and is different from current name, update diagram name in db
-            if (diagramName !== diagram.name) {
-               const diagramRenameSchema = z.object({
-                  name: z.string().min(1),
+      // if the diagram name is empty, set it to "Untitled Diagram"
+      if (diagramName === "") {
+         setDiagramName("Untitled Diagram");
+      }
+      // if diagram name isn't empty and is different from current name, update diagram name in db
+      if (diagramName !== diagram.name) {
+         console.log("updating diagram name");
+         const diagramRenameSchema = z.object({
+            name: z.string().min(1),
+         });
+         type RenameFormData = z.infer<typeof diagramRenameSchema>;
+
+         // update the diagram name in the db
+         updateDiagram(diagram.id, { name: diagramName } as RenameFormData)
+            .then((res) => {
+               if (res.success === false) {
+                  throw new Error(res.reason);
+               }
+
+               return toast({
+                  message: "Diagram renamed.",
+                  type: "success",
                });
-               type RenameFormData = z.infer<typeof diagramRenameSchema>;
+            })
+            .catch((err) => {
+               console.error(err);
+               return toast({
+                  title: "Something went wrong.",
+                  message: err.message,
+                  type: "error",
+               });
+            });
+      }
+   }
 
-               updateDiagram(diagram.id, { name: diagramName } as RenameFormData)
-                  .then((res) => {
-                     if (res.success === false) {
-                        throw new Error(res.reason);
-                     }
+   // close diagram name text editing input when user clicks outside the input
+   function handleClickOutside(e: MouseEvent) {
+      if (editDiagramRef.current && !editDiagramRef.current.contains(e.target as Node)) {
+         updateDiagramName();
+      }
+   }
 
-                     return toast({
-                        message: "Diagram renamed.",
-                        type: "success",
-                     });
-                  })
-                  .catch((err) => {
-                     console.error(err);
-                     return toast({
-                        title: "Something went wrong.",
-                        message: err.message,
-                        type: "error",
-                     });
-                  });
-            }
-         }
-      };
-      document.addEventListener("mousedown", handleClickOutsideOrEnter);
-      document.addEventListener("keydown", handleClickOutsideOrEnter);
-      return () => {
-         document.removeEventListener("mousedown", handleClickOutsideOrEnter);
-         document.removeEventListener("keydown", handleClickOutsideOrEnter);
-      };
-   }, [setEditDiagramName, editDiagramRef]);
+   // close diagram name text editing input when user presses enter
+   function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Enter") {
+         updateDiagramName();
+      }
+   }
+
+   // add event listeners when editDiagramName is true and the diagram name changes
+   useEffect(() => {
+      if (editDiagramName) {
+         document.addEventListener("mousedown", handleClickOutside);
+         document.addEventListener("keydown", handleKeyDown);
+         return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleKeyDown);
+         };
+      }
+   }, [editDiagramName, diagramName]);
 
    // when the editDiagramName input is opened, select all text inside of it
    useEffect(() => {
@@ -124,13 +138,7 @@ export default function DiagramLabel({
             <DropdownMenu onOpenChange={setOpen}>
                <div className="flex justify-center items-center gap-1 h-full">
                   {!editDiagramName ? (
-                     <div
-                        onClick={() => {
-                           setEditDiagramName(true);
-                        }}
-                     >
-                        {diagramName}
-                     </div>
+                     <div onClick={() => setEditDiagramName(true)}>{diagramName}</div>
                   ) : (
                      <div ref={editDiagramRef}>
                         <input
