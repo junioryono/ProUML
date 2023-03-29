@@ -132,14 +132,14 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      );
                   })}
                </div>
-               <hr className="border-slate-400" />
+               <hr className="border-slate-400 mb-2" />
             </>
          )}
 
          {/* ---------------------- NODES SECTION ---------------------- */}
          <div className="pb-1">
             <div className="flex flex-col">
-               <div className="flex justify-between mt-2">
+               <div className="flex justify-between">
                   <div className="font-bold mb-1">Nodes</div>
 
                   <div

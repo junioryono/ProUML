@@ -108,10 +108,25 @@ export default function DiagramItemOptions({
                            <div
                               className={cn(
                                  active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                                 "block px-4 py-2 text-sm",
+                                 "px-4 py-2 text-sm flex flex-row",
                               )}
                               onClick={() => setAssignProjectOpen(true)}
                            >
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 width="20px"
+                                 height="20px"
+                                 viewBox="0 0 64 64"
+                                 stroke-width="4"
+                                 stroke="#000000"
+                                 fill="none"
+                                 className="w-5 h-5 mr-5"
+                              >
+                                 <path d="M41.64,50.37h-32a2,2,0,0,1-2-2V15.63a2,2,0,0,1,2-2H23.32L28.75,20H54.39a2,2,0,0,1,2,2V37.33" />
+                                 <circle cx="50.24" cy="45.23" r="10.01" stroke-linecap="round" />
+                                 <line x1="50.24" y1="39.76" x2="50.24" y2="50.71" />
+                                 <line x1="44.76" y1="45.23" x2="55.72" y2="45.23" />
+                              </svg>
                               Assign to project
                            </div>
                         )}

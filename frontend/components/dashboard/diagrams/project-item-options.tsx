@@ -38,6 +38,15 @@ export default function ProjectItemOptions({
          setShowMenu(false);
       }
    }, [assignProjectOpen]);
+   // when a menu shows up, scroll down to it
+   useEffect(() => {
+      if (showMenu) {
+         const menu = document.getElementById("");
+         if (menu) {
+            menu.scrollIntoView({ behavior: "smooth" });
+         }
+      }
+   }, [showMenu]);
 
    return (
       <Menu
