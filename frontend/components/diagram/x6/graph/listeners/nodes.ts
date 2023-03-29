@@ -83,6 +83,12 @@ export default function Nodes(
 
    // When a node's position has changed. Triggers on every mouse move
    graph.current?.on("node:change:position", (args) => {
+      const edges = graph.current?.getEdges();
+      for (const edge of edges) {
+         const edgeView = edge.findView(graph.current);
+         edgeView.render();
+      }
+
       if (args.options.ws) {
          return;
       }

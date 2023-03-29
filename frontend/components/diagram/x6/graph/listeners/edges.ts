@@ -19,6 +19,33 @@ export default function Edges(
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
 ) {
+   graph.current?.on("edge:selected", (args) => {
+      // Get all vertices of the edge
+      const props = args.cell.getProp();
+      console.log("edge:selected", props);
+      args.cell.addTools(
+         [
+            "vertices",
+            "source-arrowhead-circle",
+            "target-arrowhead-circle",
+            {
+               name: "button-remove",
+               args: {
+                  distance: -30,
+               },
+            },
+         ],
+         { ignoreHistory: true },
+      );
+   });
+
+   graph.current?.on("edge:unselected", (args) => {
+      args.cell.removeTool("vertices", { ignoreHistory: true });
+      args.cell.removeTool("source-arrowhead-circle", { ignoreHistory: true });
+      args.cell.removeTool("target-arrowhead-circle", { ignoreHistory: true });
+      args.cell.removeTool("button-remove", { ignoreHistory: true });
+   });
+
    graph.current?.on("edge:connected", (args) => {
       console.log("edge:connected", args.edge);
       wsLocalAndDBUpdateEdge(args.edge, wsSendJson, sessionId);
@@ -63,6 +90,22 @@ export default function Edges(
       if (!sourceCell || !targetCell) {
          graph.current?.cleanSelection();
          showAllPorts(graph.current);
+      }
+   });
+
+   graph.current?.on("edge:batch:start", (args) => {
+      if (args.name === "move-arrowhead") {
+         showAllPorts(graph.current);
+      }
+   });
+
+   graph.current?.on("edge:batch:stop", (args) => {
+      if (args.name === "move-arrowhead") {
+         hideAllPorts(graph.current);
+      } else if (args.name === "add-vertex") {
+         wsLocalAndDBUpdateEdge(args.cell, wsSendJson, sessionId);
+      } else if (args.name === "move-vertex") {
+         wsLocalAndDBUpdateEdge(args.cell, wsSendJson, sessionId);
       }
    });
 

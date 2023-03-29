@@ -139,14 +139,10 @@ func (c *channel) listen() {
 		// Catch panics
 		defer recover()
 
-		for {
-			msg, err := c.ps.ReceiveMessage(c.context)
-			if err != nil {
-				// An error occurs if the subscription is closed
-				// Therefore, the go routine will eventually return
-				return
-			}
+		// The channel will be closed when the subscription is closed
+		channel := c.ps.Channel()
 
+		for msg := range channel {
 			// Unmarshal message.Payload
 			payload := types.WebSocketBody{}
 			if err := json.Unmarshal([]byte(msg.Payload), &payload); err != nil {

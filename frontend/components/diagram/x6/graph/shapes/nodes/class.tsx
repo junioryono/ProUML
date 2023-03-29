@@ -1,9 +1,9 @@
 import type X6Type from "@antv/x6";
 import { register } from "@antv/x6-react-shape";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ClassNode } from "types";
 
-function ShapeNode({ node }: { node?: X6Type.Node }) {
+function ShapeNodeClass({ node }: { node?: X6Type.Node }) {
    const [selected, setSelected] = useState<boolean>(false);
 
    const [type, setType] = useState<ClassNode["type"]>("class");
@@ -400,7 +400,7 @@ function ShapeNode({ node }: { node?: X6Type.Node }) {
 
 register({
    shape: "custom-class",
-   component: ShapeNode,
+   component: ShapeNodeClass,
    zIndex: 10,
    ports: {
       groups: {
@@ -417,6 +417,7 @@ register({
                   },
                },
             },
+            zIndex: 1,
             position: {
                name: "absolute",
             },

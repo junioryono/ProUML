@@ -37,6 +37,8 @@ export default function useGraph(
          !X6.Plugin.Clipboard ||
          !X6.Plugin.History ||
          !X6.Plugin.Export ||
+         !X6.Shape ||
+         !X6.Shape.Edge ||
          wsReadyState !== ReadyState.OPEN
       ) {
          return;
@@ -72,16 +74,12 @@ export default function useGraph(
             // allowEdge: false,
             // allowMulti: true,
             // allowPort: true,
-            router: {
-               name: "orth",
-               args: {
-                  startDirections: ["right", "left"],
-                  padding: 50,
-               },
-            },
-            connectionPoint: "boundary",
-            validateConnection({ sourceView, targetView }) {
-               if (sourceView === targetView) {
+            highlight: true,
+            router: "normal",
+            anchor: "center",
+            connectionPoint: "anchor",
+            validateConnection(connection) {
+               if (connection.sourcePort === connection.targetPort) {
                   return false;
                }
                return true;
@@ -110,6 +108,12 @@ export default function useGraph(
       );
 
       // graph.current.use(
+      //    new X6.Plugin.Snapline({
+      //       enabled: true,
+      //    }),
+      // );
+
+      // graph.current.use(
       //    new X6.Plugin.Transform.Transform({
       //       resizing: {
       //          enabled: true,
@@ -128,6 +132,12 @@ export default function useGraph(
             movable: true,
             showNodeSelectionBox: false,
             showEdgeSelectionBox: false,
+            // filter(cell) {
+            //    if (cell.isEdge()) {
+            //       return false;
+            //    }
+            //    return true;
+            // },
          }),
       );
 
@@ -161,9 +171,26 @@ export default function useGraph(
       graph.current.use(new X6.Plugin.Export());
 
       console.log("diagram.content", diagram.content);
-      graph.current.fromJSON({ cells: diagram.content }, { ignoreHistory: true });
+      const nodes: X6Type.Node.Properties[] = [];
+      const edges: X6Type.Edge.Properties[] = [];
+      for (const cell of diagram.content) {
+         if (!cell) {
+            continue;
+         }
 
+         if (X6.Shape.Edge.isEdge(cell)) {
+            edges.push(cell);
+         } else {
+            nodes.push(cell);
+         }
+      }
+
+      // // Delete all nodes and edges
+      // graph.current.removeCells(edges as any, { ignoreHistory: true });
+
+      graph.current.addNodes(nodes, { ignoreHistory: true });
       addAllPorts(graph.current);
+      graph.current.addEdges(edges, { ignoreHistory: true });
 
       const removeListeners = initializeListeners(graph, wsSendJson, sessionId, layoutProps);
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
@@ -174,11 +201,11 @@ export default function useGraph(
          color: `#${diagram.background_color}`,
       });
 
-      // const nodes = graph.current.getNodes();
+      // const nodesT = graph.current.getNodes();
       // graph.current.addEdge({
-      //    shape: "association",
-      //    source: nodes[0],
-      //    target: nodes[1],
+      //    shape: "extend",
+      //    source: nodesT[0],
+      //    target: nodesT[1],
       // });
 
       setGraphReady(true);

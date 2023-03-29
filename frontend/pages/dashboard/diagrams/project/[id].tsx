@@ -16,13 +16,13 @@ export default function DashboardDiagramsProjectsPage({
    user: User;
    projectRequest: Awaited<ReturnType<typeof getProject>>;
 }) {
-   const showEmptyPlaceholder = !projectRequest.success || !projectRequest.response.diagrams.length;
+   const showEmptyPlaceholder = !projectRequest.success || !projectRequest.response.diagrams?.length;
 
    return (
       <DashboardLayout user={user}>
          <DashboardShell>
             <DiagramsHeader
-               diagramsLength={!projectRequest.success ? 0 : projectRequest.response.diagrams.length}
+               diagramsLength={!projectRequest.success ? 0 : projectRequest.response.diagrams?.length}
                showEmptyPlaceholder={showEmptyPlaceholder}
                project={projectRequest.response}
             />
@@ -40,7 +40,7 @@ export default function DashboardDiagramsProjectsPage({
                   </>
                ) : (
                   <div className="flex flex-wrap select-none">
-                     {projectRequest.response.diagrams.map((diagram) => (
+                     {projectRequest.response.diagrams?.map((diagram) => (
                         <DiagramItem key={diagram.id} diagram={diagram} project={projectRequest.response} />
                      ))}
                   </div>

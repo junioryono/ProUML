@@ -217,7 +217,7 @@ export function wsLocalUpdateEdge(cell: X6Type.Cell, wsSendJson: SendJsonMessage
    wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_updateEdge",
-      cell,
+      cell: removeExtraEdgeProps(cell),
    } as any);
 }
 
@@ -241,7 +241,7 @@ export function wsLocalAndDBUpdateEdge(cell: X6Type.Cell, wsSendJson: SendJsonMe
    wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_updateEdge/db_updateCell",
-      cell,
+      cell: removeExtraEdgeProps(cell),
    } as any);
 }
 
@@ -253,7 +253,9 @@ export function wsLocalAndDBRemoveCell(cell: X6Type.Cell, wsSendJson: SendJsonMe
    wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_removeCell/db_removeCell",
-      cell,
+      cell: {
+         id: cell.id,
+      },
    } as any);
 }
 
@@ -277,6 +279,13 @@ export function wsLocalAndDBAddEdge(cell: X6Type.Cell, wsSendJson: SendJsonMessa
    wsSendJson({
       sessionId: sessionId.current,
       event: "broadcast/local_addEdge/db_addCell",
-      cell,
+      cell: removeExtraEdgeProps(cell),
    } as any);
+}
+
+function removeExtraEdgeProps(cell: X6Type.Cell): X6Type.Cell.Properties {
+   const cellClone = { ...cell.getProp() };
+   delete cellClone.tools;
+
+   return cellClone;
 }

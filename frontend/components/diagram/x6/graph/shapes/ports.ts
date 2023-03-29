@@ -72,6 +72,14 @@ function getNewPortProps(node: X6Type.Node) {
          },
       },
       {
+         id: "top-middle-left",
+         group: "group1",
+         args: {
+            x: nodeWidth / 4,
+            y: 0,
+         },
+      },
+      {
          id: "top-left",
          group: "group1",
          args: {
