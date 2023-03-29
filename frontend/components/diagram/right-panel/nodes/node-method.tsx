@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type X6Type from "@antv/x6";
 import { useEffect, useState, useRef } from "react";
 import { ClassNode } from "types";
@@ -19,6 +20,13 @@ export default function NodeSettingsMethod({
    setMethodsMaxHeight: React.Dispatch<React.SetStateAction<number>>;
 }) {
    const [accessModifier, setAccessModifier] = useState(method.accessModifier);
+   const accessModifierOptions = [
+      { value: "public", label: "public (+)", symbol: "+" },
+      { value: "protected", label: "protected (#)", symbol: "#" },
+      { value: "private", label: "private (-)", symbol: "-" },
+   ];
+   const [showAccessModifierDropdown, setShowAccessModifierDropdown] = useState(false);
+   const accessModifierDropdownRef = useRef<HTMLDivElement>(null);
    const [name, setName] = useState(method.name || "");
    const [type, setType] = useState(method.type || "");
    const [parameters, setParameters] = useState(method.parameters || []);
@@ -55,10 +63,12 @@ export default function NodeSettingsMethod({
       // index
    }, [parameters, showParameters]);
 
-   // scroll to parameters when showParameters is true
+   // scroll to parameters with offset when showParameters is true
    useEffect(() => {
       if (showParameters && parametersRef.current) {
-         parametersRef.current.scrollIntoView({ behavior: "smooth" });
+         parametersRef.current.scrollIntoView({
+            behavior: "smooth",
+         });
       }
    }, [showParameters]);
 
@@ -68,39 +78,74 @@ export default function NodeSettingsMethod({
       }
    }, [parameters]);
 
+   // if outside of the access modifier dropdown is clicked or if the user scrolls, close the dropdown
+   useEffect(() => {
+      function handleClickOrScrollOutside(event) {
+         if (accessModifierDropdownRef.current && !accessModifierDropdownRef.current.contains(event.target)) {
+            setShowAccessModifierDropdown(false);
+         }
+      }
+
+      document.addEventListener("mousedown", handleClickOrScrollOutside);
+      document.addEventListener("scroll", handleClickOrScrollOutside, true);
+
+      return () => {
+         document.removeEventListener("mousedown", handleClickOrScrollOutside);
+         document.removeEventListener("scroll", handleClickOrScrollOutside, true);
+      };
+   }, [accessModifierDropdownRef]);
+
    return (
       <div>
          {/* list all of the different methods on different lines */}
          <div className="flex gap-2">
             <div className="flex mb-0.5">
                {/* access modifier dropdown input */}
-               <div className="w-6 mr-1">
-                  <div className="relative">
-                     <div className="absolute inset-y-0 left-0 flex items-center pl-1 select-none text-xs">
-                        {accessModifier === "private"
-                           ? "-"
-                           : accessModifier === "public"
-                           ? "+"
-                           : accessModifier === "protected"
-                           ? "#"
-                           : "+"}
+               <div ref={accessModifierDropdownRef}>
+                  <div
+                     className="justify-center items-center flex w-6 mr-1 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 focus:outline-none hover:border-slate-400 focus:border-slate-400"
+                     onClick={() => setShowAccessModifierDropdown(!showAccessModifierDropdown)}
+                  >
+                     <div className="text-xs w-3 pl-1.5">
+                        {
+                           // get the access modifier symbol from the accessModifierOptions array
+                           accessModifierOptions.find((option) => option.value === accessModifier).symbol
+                        }
                      </div>
-                     <select
-                        value={accessModifier}
-                        className="w-full text-center block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400 pl-6"
-                        onChange={(e) => {
-                           // update the node's method array
-                           // @ts-ignore
-                           methods[index].accessModifier = e.target.value;
-                           node.trigger("change:methods", { current: methods });
-                           setAccessModifier(methods[index].accessModifier);
-                        }}
-                     >
-                        <option value="private">private (-)</option>
-                        <option value="public">public (+)</option>
-                        <option value="protected">protected (#)</option>
-                     </select>
+                     <div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" focusable="false" className="cursor-pointer">
+                           <path d="M7 10l5 5 5-5H7z"></path>
+                        </svg>
+                     </div>
                   </div>
+                  {showAccessModifierDropdown && (
+                     <div className="absolute mt-0.5 right-30 z-10 bg-slate-100 border border-slate-400 rounded-md p-1 shadow-2xl">
+                        {/* map out all of the left ending options */}
+                        {accessModifierOptions.map((option) => (
+                           <button
+                              key={option.value}
+                              className="transform hover:bg-slate-200 transition duration-500 w-full h-7 flex items-center rounded-md text-xs pr-1"
+                              onClick={() => {
+                                 // update the node's methods array
+                                 // @ts-ignore
+                                 methods[index].accessModifier = option.value;
+                                 node.trigger("change:methods", { current: methods });
+                                 setAccessModifier(methods[index].accessModifier);
+                              }}
+                           >
+                              {/* if this option is currently selected put a checkmark next to it */}
+                              <div className="w-6 pl-1">
+                                 {accessModifier === option.value && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 25 25">
+                                       <path d="M9 22l-10-10.598 2.798-2.859 7.149 7.473 13.144-14.016 2.909 2.806z" />
+                                    </svg>
+                                 )}
+                              </div>
+                              <div className="justify-left">{option.label}</div>
+                           </button>
+                        ))}
+                     </div>
+                  )}
                </div>
 
                {/* method type text input */}
@@ -147,21 +192,25 @@ export default function NodeSettingsMethod({
                />
 
                {/* method parameters dropdown button */}
-               <div className="flex items-center ml-0.5 relative">
+               <div className="flex items-center ml-1  relative">
                   <div className="text-xs">(</div>
-                  <div className="w-10">
-                     <div className="relative">
-                        <select
-                           className={`w-full text-xs cursor-pointer text-center block rounded-md border focus:outline-none hover:border-slate-400 focus:border-slate-400 ${
-                              parameters.length === 0
-                                 ? "border-2 border-dotted bg-slate-100 border-slate-400 h-[1.625rem] pl-1"
-                                 : "bg-slate-200 border-slate-300 h-[1.625rem] pl-0.5"
-                           }`}
-                           onClick={() => setShowParameters(!showParameters)}
-                           onMouseDown={(e) => e.preventDefault()} // Stop the dropdown from opening
-                        >
-                           <option>{parameters.length}</option>
-                        </select>
+                  <div
+                     className={cn(
+                        "justify-center items-center flex w-10 h-3 rounded-md border  focus:outline-none hover:border-slate-400 focus:border-slate-400",
+                        parameters.length === 0
+                           ? "border-2 border-dotted bg-slate-100 border-slate-400 h-[1.625rem] pl-1"
+                           : "bg-slate-200 border-slate-300 h-[1.625rem] pl-0.5",
+                     )}
+                     onClick={() => setShowParameters(!showParameters)}
+                  >
+                     <div className="text-xs w-3 pl-1.5">
+                        {/* show the amount of parameters */}
+                        {parameters.length}
+                     </div>
+                     <div className="pl-1">
+                        <svg width="16" height="16" viewBox="0 0 24 24" focusable="false" className="cursor-pointer">
+                           <path d="M7 10l5 5 5-5H7z"></path>
+                        </svg>
                      </div>
                   </div>
                   <div className="text-xs">)</div>
@@ -216,7 +265,7 @@ export default function NodeSettingsMethod({
                   {/* add button to add a new method to the selected node */}
                   <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
                      <div
-                        className="p-2 transform transition duration-500 hover:scale-150 flex justify-center items-center"
+                        className="p-2 transform transition duration-500 hover:scale-[1.6] flex justify-center items-center"
                         onClick={() => {
                            // add the new parameter to the method's parameters array
                            const paramsTemp = [...parameters];
@@ -253,6 +302,7 @@ export default function NodeSettingsMethod({
                      </div>
                   </div>
                </div>
+
                {parameters?.map((parameter, paramIndex) => {
                   return (
                      <NodeSettingsParameter

@@ -16,13 +16,13 @@ export default function NodeSettingsVariable({
    setVariables: React.Dispatch<React.SetStateAction<ClassNode["variables"]>>;
 }) {
    const [accessModifier, setAccessModifier] = useState(variable.accessModifier);
-   const [showAccessModifierDropdown, setShowAccessModifierDropdown] = useState(false);
-   const accessModifierRef = useRef(null);
    const accessModifierOptions = [
-      { value: "private", label: "private (-)" },
-      { value: "protected", label: "protected (#)" },
-      { value: "public", label: "public (+)" },
+      { value: "private", label: "private (-)", symbol: "-" },
+      { value: "protected", label: "protected (#)", symbol: "#" },
+      { value: "public", label: "public (+)", symbol: "+" },
    ];
+   const [showAccessModifierDropdown, setShowAccessModifierDropdown] = useState(false);
+   const accessModifierDropdownRef = useRef(null);
    const [name, setName] = useState(variable.name || "");
    const [type, setType] = useState(variable.type || "");
    const [value, setValue] = useState(variable.value || "");
@@ -48,18 +48,22 @@ export default function NodeSettingsVariable({
       setValue(variable.value || "");
    }, [variable]);
 
-   // if outside of the dropdown is clicked, close the dropdown
+   // if outside of the dropdown is clicked or if the user scrolls, close the dropdown
    useEffect(() => {
-      function handleClickOutside(event) {
-         if (accessModifierRef.current && !accessModifierRef.current.contains(event.target)) {
+      function handleClickOrScrollOutside(event) {
+         if (accessModifierDropdownRef.current && !accessModifierDropdownRef.current.contains(event.target)) {
             setShowAccessModifierDropdown(false);
          }
       }
-      document.addEventListener("mousedown", handleClickOutside);
+
+      document.addEventListener("mousedown", handleClickOrScrollOutside);
+      document.addEventListener("scroll", handleClickOrScrollOutside, true);
+
       return () => {
-         document.removeEventListener("mousedown", handleClickOutside);
+         document.removeEventListener("mousedown", handleClickOrScrollOutside);
+         document.removeEventListener("scroll", handleClickOrScrollOutside, true);
       };
-   }, [accessModifierRef]);
+   }, [accessModifierDropdownRef]);
 
    return (
       <div>
@@ -67,19 +71,16 @@ export default function NodeSettingsVariable({
          <div className="flex gap-2">
             <div className="flex mb-0.5">
                {/* access modifier dropdown input */}
-               <div ref={accessModifierRef}>
+               <div ref={accessModifierDropdownRef}>
                   <div
                      className="justify-center items-center flex w-6 mr-1 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 focus:outline-none hover:border-slate-400 focus:border-slate-400"
                      onClick={() => setShowAccessModifierDropdown(!showAccessModifierDropdown)}
                   >
                      <div className="text-xs w-3 pl-1.5">
-                        {accessModifier === "private"
-                           ? "-"
-                           : accessModifier === "public"
-                           ? "+"
-                           : accessModifier === "protected"
-                           ? "#"
-                           : "-"}
+                        {
+                           // get the access modifier symbol from the accessModifierOptions array
+                           accessModifierOptions.find((option) => option.value === accessModifier).symbol
+                        }
                      </div>
                      <div>
                         <svg width="16" height="16" viewBox="0 0 24 24" focusable="false" className="cursor-pointer">
@@ -92,7 +93,7 @@ export default function NodeSettingsVariable({
                         {/* map out all of the left ending options */}
                         {accessModifierOptions.map((option, modifierIndex) => (
                            <button
-                              key={modifierIndex}
+                              key={option.value}
                               className="transform hover:bg-slate-200 transition duration-500 w-full h-7 flex items-center rounded-md text-xs pr-1"
                               onClick={() => {
                                  // update the node's variables array
