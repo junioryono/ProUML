@@ -34,7 +34,6 @@ type JavaMethod struct {
 	Abstract       bool                  `json:"abstract"` // If abstract is true, Static and Final must be false
 	Static         bool                  `json:"static"`
 	Final          bool                  `json:"final"`
-	Functionality  []byte                `json:"-"`
 }
 
 type JavaAbstract struct {
@@ -42,7 +41,7 @@ type JavaAbstract struct {
 	Package       CustomByteSlice   `json:"package"`
 	Name          CustomByteSlice   `json:"name"`
 	Implements    []CustomByteSlice `json:"-"`
-	Extends       []CustomByteSlice `json:"-"`
+	Extends       CustomByteSlice   `json:"-"`
 	Variables     []JavaVariable    `json:"variables,omitempty"`
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
@@ -55,7 +54,7 @@ type JavaClass struct {
 	Package       CustomByteSlice   `json:"package"`
 	Name          CustomByteSlice   `json:"name"`
 	Implements    []CustomByteSlice `json:"-"`
-	Extends       []CustomByteSlice `json:"-"`
+	Extends       CustomByteSlice   `json:"-"`
 	Variables     []JavaVariable    `json:"variables,omitempty"`
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`
@@ -67,7 +66,7 @@ type JavaInterface struct {
 	DefinedWithin CustomByteSlice   `json:"-"`
 	Package       CustomByteSlice   `json:"package"`
 	Name          CustomByteSlice   `json:"name"`
-	Extends       []CustomByteSlice `json:"-"`
+	Extends       CustomByteSlice   `json:"-"`
 	Variables     []JavaVariable    `json:"variables,omitempty"`
 	Methods       []JavaMethod      `json:"methods,omitempty"`
 	Associations  []CustomByteSlice `json:"-"`

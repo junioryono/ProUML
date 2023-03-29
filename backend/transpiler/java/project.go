@@ -170,234 +170,234 @@ func getValidExternalTypesOfClass(allClassExports []types.JavaClassExports, impo
 // Returns associations and dependencies
 func getClassAssociationsAndDependencies(importedTypeNames map[string]struct{}, variables []types.JavaVariable, methods []types.JavaMethod) ([]types.CustomByteSlice, []types.CustomByteSlice) {
 	var (
-		associationsMap = make(map[string]struct{})
-		associations    []types.CustomByteSlice
-		dependenciesMap = make(map[string]struct{})
-		dependencies    []types.CustomByteSlice
+		//associationsMap = make(map[string]struct{})
+		associations []types.CustomByteSlice
+		//dependenciesMap = make(map[string]struct{})
+		dependencies []types.CustomByteSlice
 	)
 
-	// Use map to prevent duplicates
-	addToResponseMap := func(t []byte, relationMap map[string]struct{}) {
-		relationMap[string(t)] = struct{}{}
-	}
+	// // Use map to prevent duplicates
+	// addToResponseMap := func(t []byte, relationMap map[string]struct{}) {
+	// 	relationMap[string(t)] = struct{}{}
+	// }
 
-	getTypesFromType := func(text []byte, relationMap map[string]struct{}) {
-		if len(text) > 0 && text[len(text)-1] != RightArrow {
-			if len(text) > 2 && text[len(text)-2] == OpenBracket && text[len(text)-1] == ClosedBracket {
-				addToResponseMap(text[:len(text)-2], relationMap)
-				return
-			}
+	// getTypesFromType := func(text []byte, relationMap map[string]struct{}) {
+	// 	if len(text) > 0 && text[len(text)-1] != RightArrow {
+	// 		if len(text) > 2 && text[len(text)-2] == OpenBracket && text[len(text)-1] == ClosedBracket {
+	// 			addToResponseMap(text[:len(text)-2], relationMap)
+	// 			return
+	// 		}
 
-			addToResponseMap(text, relationMap)
-			return
-		}
+	// 		addToResponseMap(text, relationMap)
+	// 		return
+	// 	}
 
-		var (
-			newTypeStartIndex int = 0
-		)
+	// 	var (
+	// 		newTypeStartIndex int = 0
+	// 	)
 
-		for i := 0; i < len(text); i++ {
-			if text[i] == LeftArrow || text[i] == RightArrow || text[i] == Comma {
-				wantToPush := text[newTypeStartIndex:i]
-				newTypeStartIndex = i + 1
+	// 	for i := 0; i < len(text); i++ {
+	// 		if text[i] == LeftArrow || text[i] == RightArrow || text[i] == Comma {
+	// 			wantToPush := text[newTypeStartIndex:i]
+	// 			newTypeStartIndex = i + 1
 
-				if len(wantToPush) == 0 || bytes.ContainsAny(wantToPush, "<>,") {
-					continue
-				}
+	// 			if len(wantToPush) == 0 || bytes.ContainsAny(wantToPush, "<>,") {
+	// 				continue
+	// 			}
 
-				addToResponseMap(wantToPush, relationMap)
-			}
-		}
-	}
+	// 			addToResponseMap(wantToPush, relationMap)
+	// 		}
+	// 	}
+	// }
 
-	getTypesFromValue := func(text []byte, relationMap map[string]struct{}) {
-		var (
-			currentValueStyle  byte = NoQuote
-			newClassStartIndex int  = -1
-		)
+	// getTypesFromValue := func(text []byte, relationMap map[string]struct{}) {
+	// 	var (
+	// 		currentValueStyle  byte = NoQuote
+	// 		newClassStartIndex int  = -1
+	// 	)
 
-		for i := 0; i < len(text); i++ {
-			if (currentValueStyle == SingleQuote && text[i] == SingleQuote ||
-				currentValueStyle == DoubleQuote && text[i] == DoubleQuote ||
-				currentValueStyle == TickerQuote && text[i] == TickerQuote) &&
-				(i == 0 || text[i-1] != Backslash) {
-				currentValueStyle = NoQuote
-			} else if currentValueStyle == NoQuote {
-				if newClassStartIndex != -1 && (text[i] == OpenParenthesis || text[i] == OpenBracket) {
-					addToResponseMap(text[newClassStartIndex:i], relationMap)
-					newClassStartIndex = -1
-				} else if newClassStartIndex == -1 && i+4 < len(text) &&
-					text[i] == 'n' && text[i+1] == 'e' && text[i+2] == 'w' && text[i+3] == Space &&
-					(i == 0 || text[i-1] == OpenParenthesis || text[i-1] == Comma) {
-					newClassStartIndex = i + 4
-				}
-			}
-		}
-	}
+	// 	for i := 0; i < len(text); i++ {
+	// 		if (currentValueStyle == SingleQuote && text[i] == SingleQuote ||
+	// 			currentValueStyle == DoubleQuote && text[i] == DoubleQuote ||
+	// 			currentValueStyle == TickerQuote && text[i] == TickerQuote) &&
+	// 			(i == 0 || text[i-1] != Backslash) {
+	// 			currentValueStyle = NoQuote
+	// 		} else if currentValueStyle == NoQuote {
+	// 			if newClassStartIndex != -1 && (text[i] == OpenParenthesis || text[i] == OpenBracket) {
+	// 				addToResponseMap(text[newClassStartIndex:i], relationMap)
+	// 				newClassStartIndex = -1
+	// 			} else if newClassStartIndex == -1 && i+4 < len(text) &&
+	// 				text[i] == 'n' && text[i+1] == 'e' && text[i+2] == 'w' && text[i+3] == Space &&
+	// 				(i == 0 || text[i-1] == OpenParenthesis || text[i-1] == Comma) {
+	// 				newClassStartIndex = i + 4
+	// 			}
+	// 		}
+	// 	}
+	// }
 
-	currentlyDeclaredVariableNames := make(map[string]int) // string is variable name, int is scope of variable
+	// currentlyDeclaredVariableNames := make(map[string]int) // string is variable name, int is scope of variable
 
-	addVariableAtScope := func(name []byte, scope int) {
-		// Only add the variable here if it's not already declared.
-		// This is to prevent a higher numbered scope from overwriting a lower numbered scope
-		if _, ok := currentlyDeclaredVariableNames[string(name)]; !ok {
-			currentlyDeclaredVariableNames[string(name)] = scope
-		}
-	}
+	// addVariableAtScope := func(name []byte, scope int) {
+	// 	// Only add the variable here if it's not already declared.
+	// 	// This is to prevent a higher numbered scope from overwriting a lower numbered scope
+	// 	if _, ok := currentlyDeclaredVariableNames[string(name)]; !ok {
+	// 		currentlyDeclaredVariableNames[string(name)] = scope
+	// 	}
+	// }
 
-	removeVariablesAtAndAboveScope := func(scope int) {
-		for vName, vScope := range currentlyDeclaredVariableNames {
-			if vScope >= scope {
-				delete(currentlyDeclaredVariableNames, vName)
-			}
-		}
-	}
+	// removeVariablesAtAndAboveScope := func(scope int) {
+	// 	for vName, vScope := range currentlyDeclaredVariableNames {
+	// 		if vScope >= scope {
+	// 			delete(currentlyDeclaredVariableNames, vName)
+	// 		}
+	// 	}
+	// }
 
-	for _, variable := range variables {
-		addVariableAtScope(variable.Name, 0)
+	// for _, variable := range variables {
+	// 	addVariableAtScope(variable.Name, 0)
 
-		getTypesFromType(variable.Type, associationsMap)
-		getTypesFromValue(variable.Value, associationsMap)
-	}
+	// 	getTypesFromType(variable.Type, associationsMap)
+	// 	getTypesFromValue(variable.Value, associationsMap)
+	// }
 
-	checkIfTypeNameIsInFunctionality := func(functionality []byte, typeName []byte, currentScope int) bool {
-		ok := bytes.HasPrefix(functionality, typeName)
-		if !ok {
-			return false
-		}
+	// checkIfTypeNameIsInFunctionality := func(functionality []byte, typeName []byte, currentScope int) bool {
+	// 	ok := bytes.HasPrefix(functionality, typeName)
+	// 	if !ok {
+	// 		return false
+	// 	}
 
-		if len(functionality) == len(typeName) {
-			return true
-		}
+	// 	if len(functionality) == len(typeName) {
+	// 		return true
+	// 	}
 
-		nextByte := functionality[len(typeName)]
+	// 	nextByte := functionality[len(typeName)]
 
-		// Check if it is being set as a variable name
-		if nextByte == EqualSign {
-			currentlyDeclaredVariableNames[string(typeName)] = currentScope
-			return false
-		}
+	// 	// Check if it is being set as a variable name
+	// 	if nextByte == EqualSign {
+	// 		currentlyDeclaredVariableNames[string(typeName)] = currentScope
+	// 		return false
+	// 	}
 
-		// Check if it is being used as a type
-		if nextByte == Period ||
-			nextByte == OpenCurly ||
-			nextByte == ClosedCurly ||
-			nextByte == OpenParenthesis ||
-			nextByte == ClosedParenthesis ||
-			nextByte == OpenBracket ||
-			nextByte == ClosedBracket ||
-			nextByte == LeftArrow ||
-			nextByte == RightArrow ||
-			nextByte == Colon ||
-			nextByte == SemiColon ||
-			nextByte == Slash ||
-			nextByte == Backslash ||
-			nextByte == Asterisk ||
-			nextByte == Comma ||
-			nextByte == AndCondition ||
-			nextByte == OrCondition ||
-			nextByte == ExclamationMark ||
-			nextByte == QuestionMark ||
-			nextByte == PlusSign ||
-			nextByte == Hyphen_MinusSign ||
-			nextByte == Tilde ||
-			nextByte == Percent ||
-			nextByte == Caret ||
-			nextByte == Space {
-			// It is being used as a type
-			return true
-		}
+	// 	// Check if it is being used as a type
+	// 	if nextByte == Period ||
+	// 		nextByte == OpenCurly ||
+	// 		nextByte == ClosedCurly ||
+	// 		nextByte == OpenParenthesis ||
+	// 		nextByte == ClosedParenthesis ||
+	// 		nextByte == OpenBracket ||
+	// 		nextByte == ClosedBracket ||
+	// 		nextByte == LeftArrow ||
+	// 		nextByte == RightArrow ||
+	// 		nextByte == Colon ||
+	// 		nextByte == SemiColon ||
+	// 		nextByte == Slash ||
+	// 		nextByte == Backslash ||
+	// 		nextByte == Asterisk ||
+	// 		nextByte == Comma ||
+	// 		nextByte == AndCondition ||
+	// 		nextByte == OrCondition ||
+	// 		nextByte == ExclamationMark ||
+	// 		nextByte == QuestionMark ||
+	// 		nextByte == PlusSign ||
+	// 		nextByte == Hyphen_MinusSign ||
+	// 		nextByte == Tilde ||
+	// 		nextByte == Percent ||
+	// 		nextByte == Caret ||
+	// 		nextByte == Space {
+	// 		// It is being used as a type
+	// 		return true
+	// 	}
 
-		// It is part of another word.
-		// For example, if the typeName is "hello1", and the functionality contains "hello12", then it is not being used as a type
-		return false
-	}
+	// 	// It is part of another word.
+	// 	// For example, if the typeName is "hello1", and the functionality contains "hello12", then it is not being used as a type
+	// 	return false
+	// }
 
-	for _, method := range methods {
-		// getTypesFromType(method.Type, dependenciesMap)
-		// ^ This is commented out because of their use with interfaces.
-		// For example, if a method has a return type of "ProductIF", then it is not a dependency,
-		// but a class that implements the interface "ProductIF" and is used as a dependency in the functionality will be included as a dependency
+	// for _, method := range methods {
+	// 	// getTypesFromType(method.Type, dependenciesMap)
+	// 	// ^ This is commented out because of their use with interfaces.
+	// 	// For example, if a method has a return type of "ProductIF", then it is not a dependency,
+	// 	// but a class that implements the interface "ProductIF" and is used as a dependency in the functionality will be included as a dependency
 
-		for _, parameter := range method.Parameters {
-			addVariableAtScope(parameter.Name, 1)
-			getTypesFromType(parameter.Type, dependenciesMap)
-		}
+	// 	for _, parameter := range method.Parameters {
+	// 		addVariableAtScope(parameter.Name, 1)
+	// 		getTypesFromType(parameter.Type, dependenciesMap)
+	// 	}
 
-		var currentScope int = 1
+	// 	var currentScope int = 1
 
-		for i, f := 0, ignoreQuotes(&method.Functionality); i < len(method.Functionality); i++ {
-			isInsideQuotation := f(i)
-			if isInsideQuotation {
-				continue
-			}
+	// 	for i, f := 0, ignoreQuotes(&method.Functionality); i < len(method.Functionality); i++ {
+	// 		isInsideQuotation := f(i)
+	// 		if isInsideQuotation {
+	// 			continue
+	// 		}
 
-			if method.Functionality[i] == OpenCurly {
-				currentScope++
-				continue
-			}
+	// 		if method.Functionality[i] == OpenCurly {
+	// 			currentScope++
+	// 			continue
+	// 		}
 
-			if method.Functionality[i] == ClosedCurly {
-				removeVariablesAtAndAboveScope(currentScope)
-				currentScope--
-				continue
-			}
+	// 		if method.Functionality[i] == ClosedCurly {
+	// 			removeVariablesAtAndAboveScope(currentScope)
+	// 			currentScope--
+	// 			continue
+	// 		}
 
-			if i != 0 &&
-				method.Functionality[i-1] != OpenCurly &&
-				method.Functionality[i-1] != ClosedCurly &&
-				method.Functionality[i-1] != OpenParenthesis &&
-				method.Functionality[i-1] != ClosedParenthesis &&
-				method.Functionality[i-1] != OpenBracket &&
-				method.Functionality[i-1] != ClosedBracket &&
-				method.Functionality[i-1] != LeftArrow &&
-				method.Functionality[i-1] != RightArrow &&
-				method.Functionality[i-1] != Colon &&
-				method.Functionality[i-1] != SemiColon &&
-				method.Functionality[i-1] != EqualSign &&
-				method.Functionality[i-1] != Slash &&
-				method.Functionality[i-1] != Backslash &&
-				method.Functionality[i-1] != Asterisk &&
-				method.Functionality[i-1] != Comma &&
-				method.Functionality[i-1] != AndCondition &&
-				method.Functionality[i-1] != OrCondition &&
-				method.Functionality[i-1] != ExclamationMark &&
-				method.Functionality[i-1] != QuestionMark &&
-				method.Functionality[i-1] != PlusSign &&
-				method.Functionality[i-1] != Hyphen_MinusSign &&
-				method.Functionality[i-1] != Tilde &&
-				method.Functionality[i-1] != Percent &&
-				method.Functionality[i-1] != Caret &&
-				method.Functionality[i-1] != Space {
-				continue
-			}
+	// 		if i != 0 &&
+	// 			method.Functionality[i-1] != OpenCurly &&
+	// 			method.Functionality[i-1] != ClosedCurly &&
+	// 			method.Functionality[i-1] != OpenParenthesis &&
+	// 			method.Functionality[i-1] != ClosedParenthesis &&
+	// 			method.Functionality[i-1] != OpenBracket &&
+	// 			method.Functionality[i-1] != ClosedBracket &&
+	// 			method.Functionality[i-1] != LeftArrow &&
+	// 			method.Functionality[i-1] != RightArrow &&
+	// 			method.Functionality[i-1] != Colon &&
+	// 			method.Functionality[i-1] != SemiColon &&
+	// 			method.Functionality[i-1] != EqualSign &&
+	// 			method.Functionality[i-1] != Slash &&
+	// 			method.Functionality[i-1] != Backslash &&
+	// 			method.Functionality[i-1] != Asterisk &&
+	// 			method.Functionality[i-1] != Comma &&
+	// 			method.Functionality[i-1] != AndCondition &&
+	// 			method.Functionality[i-1] != OrCondition &&
+	// 			method.Functionality[i-1] != ExclamationMark &&
+	// 			method.Functionality[i-1] != QuestionMark &&
+	// 			method.Functionality[i-1] != PlusSign &&
+	// 			method.Functionality[i-1] != Hyphen_MinusSign &&
+	// 			method.Functionality[i-1] != Tilde &&
+	// 			method.Functionality[i-1] != Percent &&
+	// 			method.Functionality[i-1] != Caret &&
+	// 			method.Functionality[i-1] != Space {
+	// 			continue
+	// 		}
 
-			// Iterate over importedTypeNames and see if method.Functionality[i...] matches importedTypeNames[k][i...]
-			// If it does match, check if it is a variable name, and if it is add it to currentlyDeclaredVariableNames
-			// Otherwise if it is not a variable name, just add it with addToResponseMap(NameHere, dependenciesMap)
-			for typeName := range importedTypeNames {
-				ok := checkIfTypeNameIsInFunctionality(method.Functionality[i:], []byte(typeName), currentScope)
+	// 		// Iterate over importedTypeNames and see if method.Functionality[i...] matches importedTypeNames[k][i...]
+	// 		// If it does match, check if it is a variable name, and if it is add it to currentlyDeclaredVariableNames
+	// 		// Otherwise if it is not a variable name, just add it with addToResponseMap(NameHere, dependenciesMap)
+	// 		for typeName := range importedTypeNames {
+	// 			ok := checkIfTypeNameIsInFunctionality(method.Functionality[i:], []byte(typeName), currentScope)
 
-				if !ok {
-					continue
-				}
+	// 			if !ok {
+	// 				continue
+	// 			}
 
-				addToResponseMap([]byte(typeName), dependenciesMap)
-				break
-			}
+	// 			addToResponseMap([]byte(typeName), dependenciesMap)
+	// 			break
+	// 		}
 
-		}
+	// 	}
 
-		removeVariablesAtAndAboveScope(1)
-	}
+	// 	removeVariablesAtAndAboveScope(1)
+	// }
 
-	for key := range associationsMap {
-		associations = append(associations, []byte(key))
-	}
+	// for key := range associationsMap {
+	// 	associations = append(associations, []byte(key))
+	// }
 
-	for key := range dependenciesMap {
-		dependencies = append(dependencies, []byte(key))
-	}
+	// for key := range dependenciesMap {
+	// 	dependencies = append(dependencies, []byte(key))
+	// }
 
 	return associations, dependencies
 }
@@ -474,8 +474,8 @@ func getClassRelationConnections(relations []types.Relation, importedTypeNames m
 			appendRelation(FromClassId, append([]byte(""), implement...), &types.Realization{})
 		}
 
-		for _, extend := range c.Extends {
-			appendRelation(FromClassId, append([]byte(""), extend...), &types.Generalization{})
+		if c.Extends != nil {
+			appendRelation(FromClassId, append([]byte(""), c.Extends...), &types.Generalization{})
 		}
 
 		if c.DefinedWithin != nil {
@@ -500,8 +500,8 @@ func getClassRelationConnections(relations []types.Relation, importedTypeNames m
 			appendRelation(FromClassId, append([]byte(""), implement...), &types.Realization{})
 		}
 
-		for _, extend := range c.Extends {
-			appendRelation(FromClassId, append([]byte(""), extend...), &types.Generalization{})
+		if c.Extends != nil {
+			appendRelation(FromClassId, append([]byte(""), c.Extends...), &types.Generalization{})
 		}
 
 		if c.DefinedWithin != nil {
@@ -522,8 +522,8 @@ func getClassRelationConnections(relations []types.Relation, importedTypeNames m
 		FromClassId = append(FromClassId, byte('.'))
 		FromClassId = append(FromClassId, c.Name...)
 
-		for _, extend := range c.Extends {
-			appendRelation(FromClassId, append([]byte(""), extend...), &types.Generalization{})
+		if c.Extends != nil {
+			appendRelation(FromClassId, append([]byte(""), c.Extends...), &types.Generalization{})
 		}
 
 		if c.DefinedWithin != nil {

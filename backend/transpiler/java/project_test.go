@@ -370,7 +370,7 @@ func TestParseProject(t *testing.T) {
 					types.JavaClass{
 						Package: []byte("com.tarun.bmicalculator"),
 						Name:    []byte("BmiActivity"),
-						Extends: []types.CustomByteSlice{[]byte("AppCompatActivity")},
+						Extends: []byte("AppCompatActivity"),
 						Variables: []types.JavaVariable{
 							{Type: []byte("TextView"), Name: []byte("bmiValue")},
 							{Type: []byte("TextView"), Name: []byte("bmiCategory")},
@@ -391,26 +391,23 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("savedInstanceState"),
 									},
 								},
-								Functionality: []byte("super.onCreate(savedInstanceState);setContentView(R.layout.activity_bmi);bmiValue=findViewById(R.id.bmi_value);bmiCategory=findViewById(R.id.bmi_category);bmiTips=findViewById(R.id.bmi_tips);bmiTipsArray=getResources().getStringArray(R.array.tips_array);calculateAgainBtn=findViewById(R.id.calculate_again_btn);bmiValOutput=getIntent().getStringExtra(\"bmiVal\");bmiValue.setText(bmiValOutput);findCategory();categoryTips();calculateAgainBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){onBackPressed();}});"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("categoryTips"),
 								AccessModifier: []byte("private"),
-								Functionality:  []byte("double result=Double.parseDouble(bmiValOutput);if(result<15){bmiTips.setText(bmiTipsArray[0]);}else if(result>=15&&result<=16){bmiTips.setText(bmiTipsArray[0]);}else if(result>=16&&result<=18.5){bmiTips.setText(bmiTipsArray[1]);}else if(result>=18.5&&result<=25){bmiTips.setText(bmiTipsArray[2]);}else if(result>=25&&result<=30){bmiTips.setText(bmiTipsArray[3]);}else if(result>=30&&result<=35){bmiTips.setText(bmiTipsArray[4]);}else if(result>=35&&result<=50){bmiTips.setText(bmiTipsArray[4]);}else bmiTips.setText(bmiTipsArray[4]);"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("findCategory"),
 								AccessModifier: []byte("private"),
-								Functionality:  []byte("double result=Double.parseDouble(bmiValOutput);if(result<15){category=\"Very Severely Underweight\";bmiCategory.setText(category);}else if(result>=15&&result<=16){category=\"Severely Underweight\";bmiCategory.setText(category);}else if(result>=16&&result<=18.5){category=\"Underweight\";bmiCategory.setText(category);}else if(result>=18.5&&result<=25){category=\"Normal (Healthy weight)\";bmiCategory.setText(category);}else if(result>=25&&result<=30){category=\"Overweight\";bmiCategory.setText(category);}else if(result>=30&&result<=35){category=\"Moderately Obese\";bmiCategory.setText(category);}else if(result>=35&&result<=50){bmiCategory.setText(category);category=\"Severely Obese\";}else category=\"Very Severely Obese\";bmiCategory.setText(category);"),
 							},
 						},
 					},
 					types.JavaClass{
 						Package:    []byte("com.tarun.bmicalculator"),
 						Name:       []byte("MainActivity"),
-						Extends:    []types.CustomByteSlice{[]byte("AppCompatActivity")},
+						Extends:    []byte("AppCompatActivity"),
 						Implements: []types.CustomByteSlice{[]byte("View.OnClickListener")},
 						Variables: []types.JavaVariable{
 							{Type: []byte("CardView"), Name: []byte("weightCardView")},
@@ -445,7 +442,6 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("savedInstanceState"),
 									},
 								},
-								Functionality: []byte("super.onCreate(savedInstanceState);setContentView(R.layout.activity_main);weightCardView=findViewById(R.id.weight_cardView);ageCardView=findViewById(R.id.age_cardView);weightCounterText=findViewById(R.id.weight_counter_text);ageCounterText=findViewById(R.id.age_counter_text);weightBtnInc=findViewById(R.id.weight_btn_inc);weightBtnDec=findViewById(R.id.weight_btn_dec);ageBtnInc=findViewById(R.id.age_btn_inc);ageBtnDec=findViewById(R.id.age_btn_dec);feetPicker=findViewById(R.id.feet_picker);inchPicker=findViewById(R.id.inch_picker);height_title_text=findViewById(R.id.height_title_text);calculateBtn=findViewById(R.id.calculate_btn);counterInit();decimalFormat=new DecimalFormat(\".#\");weightCardView.setOnClickListener(this);ageCardView.setOnClickListener(this);weightBtnInc.setOnClickListener(this);weightBtnDec.setOnClickListener(this);ageBtnInc.setOnClickListener(this);ageBtnDec.setOnClickListener(this);feetPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener(){public void onValueChange(NumberPicker picker,int oldVal,int newVal){feetValue=newVal;heightValueIs();}});inchPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener(){public void onValueChange(NumberPicker picker,int oldVal,int newVal){inchValue=newVal;heightValueIs();}});calculateBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){calculateBmi();}});"),
 							},
 							{
 								Type:           []byte("void"),
@@ -457,31 +453,26 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("v"),
 									},
 								},
-								Functionality: []byte("switch(v.getId()){case R.id.weight_cardView:break;case R.id.weight_btn_inc:if(weightCounter<700)weightCounter++;countWeight=Integer.toString(weightCounter);weightCounterText.setText(countWeight);break;case R.id.weight_btn_dec:if(weightCounter>0)weightCounter--;countWeight=Integer.toString(weightCounter);weightCounterText.setText(countWeight);break;case R.id.age_cardView:break;case R.id.age_btn_inc:if(ageCounter<150)ageCounter++;countAge=Integer.toString(ageCounter);ageCounterText.setText(countAge);break;case R.id.age_btn_dec:if(ageCounter>1)ageCounter--;countAge=Integer.toString(ageCounter);ageCounterText.setText(countAge);break;}"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("counterInit"),
 								AccessModifier: []byte("private"),
-								Functionality:  []byte("countWeight=Integer.toString(weightCounter);weightCounterText.setText(countWeight);countAge=Integer.toString(ageCounter);ageCounterText.setText(countAge);feetPicker.setMinValue(1);feetPicker.setMaxValue(8);inchPicker.setMinValue(0);inchPicker.setMaxValue(11);feetPicker.setValue(5);inchPicker.setValue(4);heightValueIs();"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("heightValueIs"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("if(inchValue==0){heightValue=feetValue+\" feet \";height_title_text.setText(heightValue);}else heightValue=feetValue+\" feet \"+inchValue+\" inches\";height_title_text.setText(heightValue);"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("calculateBmi"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("double heightInInches=feetValue*12+inchValue;double heightInMetres=heightInInches/39.37;double heightInMetreSq=heightInMetres*heightInMetres;double bmi=weightCounter/heightInMetreSq;String bmiValue=decimalFormat.format(bmi);Intent intent=new Intent(this,BmiActivity.class);intent.putExtra(\"bmiVal\",bmiValue);startActivity(intent);"),
 							},
 							{
 								Type:           []byte("EnumTest1"),
 								Name:           []byte("test1"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return null;"),
 							},
 							{
 								Type:           []byte("void"),
@@ -493,7 +484,6 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("v"),
 									},
 								},
-								Functionality: []byte("EnumTest1 t=EnumTest1.Yo;"),
 							},
 							{
 								Type:           []byte("void"),
@@ -505,7 +495,6 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("v"),
 									},
 								},
-								Functionality: []byte(""),
 							},
 							{
 								Type:           []byte("void"),
@@ -517,7 +506,6 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("v"),
 									},
 								},
-								Functionality: []byte(""),
 							},
 							{
 								Type:           []byte("void"),
@@ -529,7 +517,6 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("v"),
 									},
 								},
-								Functionality: []byte(""),
 							},
 							{
 								Type:           []byte("void"),
@@ -541,19 +528,16 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("v"),
 									},
 								},
-								Functionality: []byte(""),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("test7"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("EnumTest6 t;"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("test8"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("int EnumTest7.Yo;"),
 							},
 						},
 					},
@@ -1008,8 +992,7 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("list"),
 									},
 								},
-								Static:        true,
-								Functionality: []byte("System.out.println(title);list.forEach(item->{System.out.println(item);});System.out.println();"),
+								Static: true,
 							},
 							{
 								Type:           []byte("void"),
@@ -1021,8 +1004,7 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("args"),
 									},
 								},
-								Static:        true,
-								Functionality: []byte("ModeInterface beginnerFactory=new ModeFactory().createFactory(\"Beginner\");CharacterInterface beginnerCharacter=beginnerFactory.createCharacter();printSelectionPanel(\"Beginner Character Selection Panel:\",beginnerCharacter.getSelectionPanel());WeaponInterface beginnerWeapon=beginnerFactory.createWeapon();printSelectionPanel(\"Beginner Weapon Selection Panel:\",beginnerWeapon.getSelectionPanel());ModeInterface advancedFactory=new ModeFactory().createFactory(\"Advanced\");CharacterInterface advancedCharacter=advancedFactory.createCharacter();printSelectionPanel(\"Advanced Character Selection Panel:\",advancedCharacter.getSelectionPanel());WeaponInterface advancedWeapon=advancedFactory.createWeapon();printSelectionPanel(\"Advanced Weapon Selection Panel:\",advancedWeapon.getSelectionPanel());ModeInterface intermediateFactory=new ModeFactory().createFactory(\"Intermediate\");CharacterInterface intermediateCharacter=intermediateFactory.createCharacter();printSelectionPanel(\"Intermediate Character Selection Panel:\",intermediateCharacter.getSelectionPanel());WeaponInterface intermediateWeapon=intermediateFactory.createWeapon();printSelectionPanel(\"Intermediate Weapon Selection Panel:\",intermediateWeapon.getSelectionPanel());"),
+								Static: true,
 							},
 						},
 					},
@@ -1061,7 +1043,6 @@ func TestParseProject(t *testing.T) {
 								Type:           []byte("List<String>"),
 								Name:           []byte("getSelectionPanel"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return this.selectionPanel;"),
 							},
 							{
 								Type:           []byte("void"),
@@ -1073,7 +1054,6 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("stance"),
 									},
 								},
-								Functionality: []byte("this.stance=stance;"),
 							},
 						},
 					},
@@ -1112,7 +1092,6 @@ func TestParseProject(t *testing.T) {
 								Type:           []byte("List<String>"),
 								Name:           []byte("getSelectionPanel"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return this.selectionPanel;"),
 							},
 							{
 								Type:           []byte("void"),
@@ -1124,7 +1103,6 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("stance"),
 									},
 								},
-								Functionality: []byte("this.stance=stance;"),
 							},
 						},
 					},
@@ -1185,7 +1163,6 @@ func TestParseProject(t *testing.T) {
 								Type:           []byte("List<String>"),
 								Name:           []byte("getSelectionPanel"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return this.selectionPanel;"),
 							},
 							{
 								Type:           []byte("void"),
@@ -1197,7 +1174,6 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("stance"),
 									},
 								},
-								Functionality: []byte("this.stance=stance;"),
 							},
 						},
 					},
@@ -1210,13 +1186,11 @@ func TestParseProject(t *testing.T) {
 								Type:           []byte("CharacterInterface"),
 								Name:           []byte("createCharacter"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return new AdvancedCharacter();"),
 							},
 							{
 								Type:           []byte("WeaponInterface"),
 								Name:           []byte("createWeapon"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return new AdvancedWeapon();"),
 							},
 						},
 					},
@@ -1229,13 +1203,11 @@ func TestParseProject(t *testing.T) {
 								Type:           []byte("CharacterInterface"),
 								Name:           []byte("createCharacter"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return new BeginnerCharacter();"),
 							},
 							{
 								Type:           []byte("WeaponInterface"),
 								Name:           []byte("createWeapon"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return new BeginnerWeapon();"),
 							},
 						},
 					},
@@ -1248,13 +1220,11 @@ func TestParseProject(t *testing.T) {
 								Type:           []byte("CharacterInterface"),
 								Name:           []byte("createCharacter"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return new IntermediateCharacter();"),
 							},
 							{
 								Type:           []byte("WeaponInterface"),
 								Name:           []byte("createWeapon"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return new IntermediateWeapon();"),
 							},
 						},
 					},
@@ -1272,7 +1242,6 @@ func TestParseProject(t *testing.T) {
 										Name: []byte("mode"),
 									},
 								},
-								Functionality: []byte("if(mode==\"Beginner\"){return new BeginnerFactory();}else if(mode==\"Advanced\"){return new AdvancedFactory();}else if(mode==\"Intermediate\"){return new IntermediateFactory();}return null;"),
 							},
 						},
 					},
@@ -1333,19 +1302,16 @@ func TestParseProject(t *testing.T) {
 								Type:           []byte("List<String>"),
 								Name:           []byte("getSelectionPanel"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return this.selectionPanel;"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("holdWeapon"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("this.weaponInPosition=true;"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("dropWeapon"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("this.weaponInPosition=false;"),
 							},
 						},
 					},
@@ -1390,19 +1356,16 @@ func TestParseProject(t *testing.T) {
 								Type:           []byte("List<String>"),
 								Name:           []byte("getSelectionPanel"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return this.selectionPanel;"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("holdWeapon"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("this.weaponInPosition=true;"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("dropWeapon"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("this.weaponInPosition=false;"),
 							},
 						},
 					},
@@ -1447,19 +1410,16 @@ func TestParseProject(t *testing.T) {
 								Type:           []byte("List<String>"),
 								Name:           []byte("getSelectionPanel"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("return this.selectionPanel;"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("holdWeapon"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("this.weaponInPosition=true;"),
 							},
 							{
 								Type:           []byte("void"),
 								Name:           []byte("dropWeapon"),
 								AccessModifier: []byte("public"),
-								Functionality:  []byte("this.weaponInPosition=false;"),
 							},
 						},
 					},
@@ -1708,10 +1668,7 @@ func TestParseProject(t *testing.T) {
 						}
 
 						subtest.Logf("class name: %s\n", string(response.Name))
-						if len(expected.Extends) != len(response.Extends) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Extends)), strconv.Itoa(len(response.Extends)))
-							subtest.FailNow()
-						} else if len(expected.Implements) != len(response.Implements) {
+						if len(expected.Implements) != len(response.Implements) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Implements)), strconv.Itoa(len(response.Implements)))
 							subtest.FailNow()
 						} else if len(expected.Variables) != len(response.Variables) {
@@ -1722,14 +1679,12 @@ func TestParseProject(t *testing.T) {
 							subtest.FailNow()
 						}
 
-						for index, word := range expected.Extends {
-							if !byteSliceExistsCustom(response.Extends, word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Extends[index]))
-							}
+						if !bytes.Equal(response.Extends, expected.Extends) {
+							subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends), string(response.Extends))
 						}
 
 						for index, word := range expected.Implements {
-							if !byteSliceExistsCustom(response.Extends, word) {
+							if !byteSliceExistsCustom(response.Implements, word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Implements[index]))
 							}
 						}
@@ -1763,8 +1718,6 @@ func TestParseProject(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
 							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
-							} else if !bytes.Equal(response.Methods[index].Functionality, variable.Functionality) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
@@ -1796,10 +1749,7 @@ func TestParseProject(t *testing.T) {
 						}
 
 						subtest.Logf("class name: %s\n", string(response.Name))
-						if len(expected.Extends) != len(response.Extends) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Extends)), strconv.Itoa(len(response.Extends)))
-							subtest.FailNow()
-						} else if len(expected.Implements) != len(response.Implements) {
+						if len(expected.Implements) != len(response.Implements) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Implements)), strconv.Itoa(len(response.Implements)))
 							subtest.FailNow()
 						} else if len(expected.Variables) != len(response.Variables) {
@@ -1810,14 +1760,12 @@ func TestParseProject(t *testing.T) {
 							subtest.FailNow()
 						}
 
-						for index, word := range expected.Extends {
-							if !bytes.Equal(response.Extends[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Extends[index]))
-							}
+						if !bytes.Equal(response.Extends, expected.Extends) {
+							subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends), string(response.Extends))
 						}
 
 						for index, word := range expected.Implements {
-							if !bytes.Equal(response.Implements[index], word) {
+							if !byteSliceExistsCustom(response.Implements, word) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Implements[index]))
 							}
 						}
@@ -1851,8 +1799,6 @@ func TestParseProject(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
 							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
-							} else if !bytes.Equal(response.Methods[index].Functionality, variable.Functionality) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
@@ -1884,10 +1830,7 @@ func TestParseProject(t *testing.T) {
 						}
 
 						subtest.Logf("class name: %s\n", string(response.Name))
-						if len(expected.Extends) != len(response.Extends) {
-							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Extends)), strconv.Itoa(len(response.Extends)))
-							subtest.FailNow()
-						} else if len(expected.Variables) != len(response.Variables) {
+						if len(expected.Variables) != len(response.Variables) {
 							subtest.Errorf("incorrect length.\nexpected: %s\ngot: %s\n", strconv.Itoa(len(expected.Variables)), strconv.Itoa(len(response.Variables)))
 							subtest.FailNow()
 						} else if len(expected.Methods) != len(response.Methods) {
@@ -1895,10 +1838,8 @@ func TestParseProject(t *testing.T) {
 							subtest.FailNow()
 						}
 
-						for index, word := range expected.Extends {
-							if !bytes.Equal(response.Extends[index], word) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(word), string(response.Extends[index]))
-							}
+						if !bytes.Equal(response.Extends, expected.Extends) {
+							subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(expected.Extends), string(response.Extends))
 						}
 
 						for index, variable := range expected.Variables {
@@ -1930,8 +1871,6 @@ func TestParseProject(t *testing.T) {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Static, response.Methods[index].Static)
 							} else if response.Methods[index].Final != variable.Final {
 								subtest.Errorf("bytes are not equal.\nexpected:\n%t\ngot:\n%t\n", variable.Final, response.Methods[index].Final)
-							} else if !bytes.Equal(response.Methods[index].Functionality, variable.Functionality) {
-								subtest.Errorf("bytes are not equal.\nexpected:\n%s\ngot:\n%s\n", string(variable.Functionality), string(response.Methods[index].Functionality))
 							}
 
 							if len(response.Methods[index].Parameters) != len(variable.Parameters) {
