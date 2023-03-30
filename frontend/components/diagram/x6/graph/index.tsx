@@ -77,12 +77,23 @@ export default function useGraph(
             highlight: true,
             router: "normal",
             anchor: "center",
-            connectionPoint: "anchor",
+            connectionPoint: {
+               name: "anchor",
+               args: {
+                  offset: -2,
+               },
+            },
             validateConnection(connection) {
                if (connection.sourcePort === connection.targetPort) {
                   return false;
                }
                return true;
+            },
+            // Dont show anchor when connecting
+            createEdge() {
+               return this.createEdge({
+                  shape: "edge",
+               });
             },
          },
          background: {
@@ -171,26 +182,7 @@ export default function useGraph(
       graph.current.use(new X6.Plugin.Export());
 
       console.log("diagram.content", diagram.content);
-      const nodes: X6Type.Node.Properties[] = [];
-      const edges: X6Type.Edge.Properties[] = [];
-      for (const cell of diagram.content) {
-         if (!cell) {
-            continue;
-         }
-
-         if (X6.Shape.Edge.isEdge(cell)) {
-            edges.push(cell);
-         } else {
-            nodes.push(cell);
-         }
-      }
-
-      // // Delete all nodes and edges
-      // graph.current.removeCells(edges as any, { ignoreHistory: true });
-
-      graph.current.addNodes(nodes, { ignoreHistory: true });
-      addAllPorts(graph.current);
-      graph.current.addEdges(edges, { ignoreHistory: true });
+      graph.current.fromJSON({ cells: diagram.content }, { ignoreHistory: true });
 
       const removeListeners = initializeListeners(graph, wsSendJson, sessionId, layoutProps);
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
