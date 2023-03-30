@@ -101,6 +101,9 @@ export default function NodeSettingsVariable({
                                  variables[index].accessModifier = option.value;
                                  node.trigger("change:variables", { current: variables });
                                  setAccessModifier(variables[index].accessModifier);
+
+                                 // don't show the dropdown anymore
+                                 setShowAccessModifierDropdown(false);
                               }}
                            >
                               {/* if this option is currently selected put a checkmark next to it */}

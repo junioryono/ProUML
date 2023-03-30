@@ -131,6 +131,9 @@ export default function NodeSettingsMethod({
                                  methods[index].accessModifier = option.value;
                                  node.trigger("change:methods", { current: methods });
                                  setAccessModifier(methods[index].accessModifier);
+
+                                 // don't show the dropdown anymore
+                                 setShowAccessModifierDropdown(false);
                               }}
                            >
                               {/* if this option is currently selected put a checkmark next to it */}

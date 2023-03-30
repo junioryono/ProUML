@@ -230,6 +230,9 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                        setRightEnd("none");
                                     }
                                  }
+
+                                 // don't show the dropdown anymore
+                                 setShowLeftEndOptions(false);
                               }}
                            >
                               {/* if this option is currently selected put a checkmark next to it */}
@@ -279,6 +282,9 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                  if (lineStyle !== option.value) {
                                     setLineStyle(option.value);
                                  }
+
+                                 // don't show the dropdown anymore
+                                 setShowLineStyleOptions(false);
                               }}
                            >
                               {/* if this option is currently selected put a checkmark next to it */}
@@ -334,6 +340,9 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                        setLeftEnd("none");
                                     }
                                  }
+
+                                 // don't show the dropdown anymore
+                                 setShowRightEndOptions(false);
                               }}
                            >
                               {/* if this option is currently selected put a checkmark next to it */}
