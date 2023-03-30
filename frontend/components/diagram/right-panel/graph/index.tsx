@@ -107,7 +107,7 @@ export default function GraphPanel({
          <div className="flex mb-3 mt-3">
             <input
                type="checkbox"
-               className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
+               className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-[1.2] accent-black"
                onChange={() => {
                   graph.current?.trigger("grid:changed", { current: !grid });
                   graph.current?.model.trigger("grid:changed", { current: !grid });
@@ -121,7 +121,7 @@ export default function GraphPanel({
          <div className="flex mb-3">
             <input
                type="checkbox"
-               className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
+               className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-[1.2] accent-black"
                onChange={() => {
                   setBackground(!background);
                   graph.current?.trigger("background:changed", { current: background ? "FFFFFF" : backgroundColor });
@@ -148,7 +148,7 @@ export default function GraphPanel({
                               key={color}
                               style={{ color: `#${color}` }}
                               className={
-                                 "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
+                                 "m-1 border transition duration-500 hover:scale-[1.2] border-black rounded-lg p-2 h-9 w-9 bg-current"
                               }
                               onClick={() => {
                                  if (color !== backgroundColor) {

@@ -137,7 +137,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                   {/* delete button to delete the node */}
                   <div className="flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
                      <div
-                        className="p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
+                        className="p-2 transform transition duration-500 hover:scale-[1.2] flex justify-center items-center"
                         onClick={() => {
                            // remove the node from the graph
                            graph.current.removeCell(node);
@@ -177,7 +177,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                   {/* if the class node is an interface */}
                   <input
                      type="checkbox"
-                     className="w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
+                     className="w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-[1.2] accent-black"
                      checked={isInterface}
                      onChange={(e) => {
                         setIsInterface(e.target.checked);
@@ -198,7 +198,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                   {/* if the class node is an abstract class */}
                   <input
                      type="checkbox"
-                     className="ml-4 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
+                     className="ml-4 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-[1.2] accent-black"
                      checked={isAbstract}
                      onChange={(e) => {
                         setIsAbstract(e.target.checked);
@@ -227,7 +227,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                      {/* add button to add a new variable to the selected node */}
                      <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
                         <div
-                           className="p-2 transform transition duration-500 hover:scale-[1.6] flex justify-center items-center"
+                           className="p-2 transform transition duration-500 hover:scale-[1.2] flex justify-center items-center"
                            onClick={() => {
                               // get the selected cell and its variables
                               const variablesTemp = [...variables];
@@ -296,7 +296,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                      {/* add button to add a new method to the selected node */}
                      <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
                         <div
-                           className="p-2 transform transition duration-500 hover:scale-[1.6] flex justify-center items-center"
+                           className="p-2 transform transition duration-500 hover:scale-[1.2] flex justify-center items-center"
                            onClick={() => {
                               // get the selected cell and its variables
                               const methodsTemp = [...methods];
@@ -417,7 +417,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                      <div className="flex mt-1.5">
                         <input
                            type="checkbox"
-                           className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
+                           className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-[1.2] accent-black"
                            onChange={() => node.trigger("change:lockPosition", { current: !positionLocked })}
                            checked={positionLocked}
                         />
@@ -470,7 +470,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                         <div className="flex mt-1.5">
                            <input
                               type="checkbox"
-                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-125 accent-black"
+                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-[1.2] accent-black"
                               onChange={() => node.trigger("change:lockSize", { current: !sizeLocked })}
                               checked={sizeLocked}
                            />

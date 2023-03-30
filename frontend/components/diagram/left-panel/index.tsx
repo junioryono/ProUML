@@ -57,7 +57,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                <div className="pb-1">
                   <div className="flex justify-between">
                      <div className="font-bold pb-1">Diagrams</div>
-                     <div className="mb-1 duration-500 hover:scale-[1.6] flex justify-center items-center">
+                     <div className="mb-1 duration-500 hover:scale-[1.2] flex justify-center items-center">
                         <span
                            role="button"
                            className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
@@ -143,7 +143,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                   <div className="font-bold mb-1">Nodes</div>
 
                   <div
-                     className="mb-1 duration-500 hover:scale-[1.6] flex justify-center items-center"
+                     className="mb-1 duration-500 hover:scale-[1.2] flex justify-center items-center"
                      onClick={() => {
                         graph.current?.addNode({
                            shape: "custom-class",
@@ -320,6 +320,58 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                </div>
             </>
          )}
+         <hr className="border-slate-400 my-2" />
+
+         {/* ---------------------- ISSUES SECTION ---------------------- */}
+         <div className="pb-1">
+            <div className="flex justify-between">
+               <div className="font-bold pb-1">Issues</div>
+               <div className="mb-1 duration-500 hover:scale-[1.2] flex justify-center items-center">
+                  <span
+                     role="button"
+                     className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                     onClick={() => {
+                        const formData = new FormData();
+
+                        formData.append("projectId", diagram.project.id);
+
+                        // createDiagram(formData)
+                        //    .then((res) => {
+                        //       if (res.success === false) {
+                        //          throw new Error(res.reason);
+                        //       }
+
+                        //       router.push(`/dashboard/diagrams/${res.response}`);
+
+                        //       return toast({
+                        //          title: "Success!",
+                        //          message: "Your issue has been created.",
+                        //          type: "success",
+                        //       });
+                        //    })
+                        //    .catch((error) => {
+                        //       console.error(error);
+                        //       return toast({
+                        //          title: "Something went wrong.",
+                        //          message: error.message,
+                        //          type: "error",
+                        //       });
+                        //    });
+                     }}
+                  >
+                     <svg className="svg" width="10" height="10" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                           d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
+                           fillRule="nonzero"
+                           fillOpacity="1"
+                           fill="#000"
+                           stroke="none"
+                        />
+                     </svg>
+                  </span>
+               </div>
+            </div>
+         </div>
       </div>
    );
 }

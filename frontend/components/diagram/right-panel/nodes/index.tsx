@@ -244,7 +244,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                {borderStyleOptions.map((style, index) => (
                   <button
                      key={index}
-                     className={`border rounded-md transition duration-500 hover:scale-125
+                     className={`border rounded-md transition duration-500 hover:scale-[1.2]
                      ${borderStyle !== style.value ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
                      onClick={() => setBorderStyleFunction(style.value)}
                   >

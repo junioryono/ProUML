@@ -222,7 +222,7 @@ export default function NodeSettingsMethod({
                {/* delete button to delete the method */}
                <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">
                   <div
-                     className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
+                     className="mt-1 p-2 transform transition duration-500 hover:scale-[1.2] flex justify-center items-center"
                      onClick={() => {
                         // update the node's variables array
                         const newMethods = [...methods];
@@ -268,7 +268,7 @@ export default function NodeSettingsMethod({
                   {/* add button to add a new method to the selected node */}
                   <div className="pr-2 flex items-center justify-center w-5 h-5 ml-2 rounded-md hover:cursor-pointer">
                      <div
-                        className="p-2 transform transition duration-500 hover:scale-[1.6] flex justify-center items-center"
+                        className="p-2 transform transition duration-500 hover:scale-[1.2] flex justify-center items-center"
                         onClick={() => {
                            // add the new parameter to the method's parameters array
                            const paramsTemp = [...parameters];

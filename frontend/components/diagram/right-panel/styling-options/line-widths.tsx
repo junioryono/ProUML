@@ -128,7 +128,7 @@ export default function LineWidth({
             <button
                key={option.width}
                className={cn(
-                  "border rounded-md transition duration-500 hover:scale-125",
+                  "border rounded-md transition duration-500 hover:scale-[1.2]",
                   lineWidth !== option.width ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400",
                )}
                onClick={() => setLineWidth(option.width)}

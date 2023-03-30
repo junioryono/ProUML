@@ -20,7 +20,7 @@ export default function ColorPicker({
                         key={color}
                         style={{ color: `#${color}` }}
                         className={
-                           "m-1 border transition duration-500 hover:scale-125 border-black rounded-lg p-2 h-9 w-9 bg-current"
+                           "m-1 border transition duration-500 hover:scale-[1.2] border-black rounded-lg p-2 h-9 w-9 bg-current"
                         }
                         onClick={() => {
                            if (color !== objColor) {

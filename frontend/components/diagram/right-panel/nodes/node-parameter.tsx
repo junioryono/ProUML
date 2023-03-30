@@ -92,7 +92,7 @@ export default function NodeSettingsParameter({
                {/* delete button to delete the variable */}
                <div className="flex items-center justify-center w-5 h-5 ml-0.5 rounded-md hover:cursor-pointer">
                   <div
-                     className="mt-1 p-2 transform transition duration-500 hover:scale-125 flex justify-center items-center"
+                     className="mt-1 p-2 transform transition duration-500 hover:scale-[1.2] flex justify-center items-center"
                      onClick={() => {
                         const newParameters = [...parameters];
                         newParameters.splice(index, 1);
