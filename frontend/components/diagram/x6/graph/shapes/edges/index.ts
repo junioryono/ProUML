@@ -9,7 +9,8 @@ import "./implement";
 const edgeNames = ["aggregation", "association", "composition", "extend", "implement"];
 
 function isEdge(cell: Cell.Properties) {
-   return edgeNames.includes(cell.shape);
+   console.log("cell.shape", cell.shape);
+   return cell.shape === "edge" || edgeNames.includes(cell.shape);
 }
 
 export default {

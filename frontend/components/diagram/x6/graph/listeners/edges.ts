@@ -47,7 +47,7 @@ export default function Edges(
    });
 
    graph.current?.on("edge:connected", (args) => {
-      console.log("edge:connected", args.edge);
+      graph.current?.select(args.edge);
       wsLocalAndDBUpdateEdge(args.edge, wsSendJson, sessionId);
    });
 
