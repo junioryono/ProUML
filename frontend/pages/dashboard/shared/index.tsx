@@ -23,20 +23,20 @@ export default function DashboardSharedPage({
    return (
       <DashboardLayout user={user}>
          <DashboardShell>
-            <DiagramsHeader
-               diagramsLength={
-                  !diagramsRequest.success
-                     ? 0
-                     : Math.max(diagramsRequest.response.diagrams.length, diagramsRequest.response.projects.length)
-               }
-               showEmptyPlaceholder={showEmptyPlaceholder}
-            />
+            <div className="flex justify-between px-2">
+               <div className="grid gap-1">
+                  <div className="flex">
+                     <h1 className="text-2xl font-bold tracking-wide text-slate-900 cursor-default">Shared Diagrams</h1>
+                  </div>
+                  <p className="text-neutral-500 cursor-default">Edit and manage shared diagrams.</p>
+               </div>
+            </div>
             <div className="flex flex-col">
                {showEmptyPlaceholder ? (
                   <>
                      <EmptyPlaceholder>
                         <EmptyPlaceholder.Icon name="post" />
-                        <EmptyPlaceholder.Title>No diagrams created</EmptyPlaceholder.Title>
+                        <EmptyPlaceholder.Title>No shared diagrams</EmptyPlaceholder.Title>
                         <EmptyPlaceholder.Description>
                            You don&apos;t have any diagrams shared with you. Get some friends.
                         </EmptyPlaceholder.Description>
