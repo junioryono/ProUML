@@ -17,8 +17,9 @@ export default function DashboardSharedPage({
    user: User;
    diagramsRequest: Awaited<ReturnType<typeof getDiagrams>>;
 }) {
+   // if there is no shared diagrams, show empty placeholder
    const showEmptyPlaceholder =
-      !diagramsRequest.success || (!diagramsRequest.response.diagrams.length && !diagramsRequest.response.projects.length);
+      diagramsRequest.response.diagrams.filter((diagram) => diagram.is_shared_with_current_user).length === 0;
 
    return (
       <DashboardLayout user={user}>
