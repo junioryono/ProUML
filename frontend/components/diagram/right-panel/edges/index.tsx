@@ -59,11 +59,11 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       },
       {
          value: "open diamond",
-         icon: <OpenDiamond />,
+         icon: <OpenDiamond direction="left" />,
       },
       {
          value: "solid diamond",
-         icon: <SolidDiamond />,
+         icon: <SolidDiamond direction="left" />,
       },
    ];
 
@@ -82,11 +82,11 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       },
       {
          value: "open diamond",
-         icon: <OpenDiamond />,
+         icon: <OpenDiamond direction="right" />,
       },
       {
          value: "solid diamond",
-         icon: <SolidDiamond />,
+         icon: <SolidDiamond direction="right" />,
       },
    ];
 
@@ -355,7 +355,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
             {/* line style options */}
             <div className="w-full flex justify-between px-2">
-               {/* left upper label input */}
+               {/* left lower label input */}
                <div className="justify-start">
                   <input
                      type="text"
@@ -370,21 +370,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   />
                </div>
 
-               <div className="flex justify-center gap-1">
-                  {/* map out all of the line style option buttons */}
-                  {lineStyleOptions.map((option) => (
-                     <button
-                        key={option.value}
-                        className={`border rounded-md transition duration-500 hover:scale-125
-                     ${lineStyle !== option.value ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                        onClick={() => setLineStyle(option.value)}
-                     >
-                        {option.icon}
-                     </button>
-                  ))}
-               </div>
-
-               {/* right upper label input */}
+               {/* right lower label input */}
                <div className="justify-end">
                   <input
                      type="text"

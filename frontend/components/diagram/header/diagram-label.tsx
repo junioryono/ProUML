@@ -51,7 +51,7 @@ export default function DiagramLabel({
       if (diagramName === "") {
          setDiagramName("Untitled Diagram");
       }
-      // if diagram name isn't empty and is different from current name, update diagram name in db
+      // if diagram is different from the current name, update diagram name in db
       if (diagramName !== diagram.name) {
          console.log("updating diagram name");
          const diagramRenameSchema = z.object({
@@ -65,6 +65,9 @@ export default function DiagramLabel({
                if (res.success === false) {
                   throw new Error(res.reason);
                }
+
+               // update the diagram name
+               diagram.name = diagramName;
 
                return toast({
                   message: "Diagram renamed.",
