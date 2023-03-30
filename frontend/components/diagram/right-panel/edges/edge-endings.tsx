@@ -2,7 +2,6 @@ interface ArrowProps {
    direction: "left" | "right";
 }
 
-// svg source: https://www.svgrepo.com/svg/500330/arrow-right
 export function OpenArrow({ direction }: ArrowProps) {
    return (
       <img
@@ -14,11 +13,10 @@ export function OpenArrow({ direction }: ArrowProps) {
             // if the direction is right, rotate the arrow 180 degrees
             transform: direction === "right" ? "rotate(180deg)" : "",
          }}
-      ></img>
+      />
    );
 }
 
-// svg source: https://www.svgrepo.com/svg/36997/triangular-arrow-facing-left
 export function SolidArrow({ direction }: ArrowProps) {
    return (
       <img
@@ -30,11 +28,10 @@ export function SolidArrow({ direction }: ArrowProps) {
             // if the direction is right, rotate the arrow 180 degrees
             transform: direction === "right" ? "rotate(180deg)" : "",
          }}
-      ></img>
+      />
    );
 }
 
-// svg source: https://www.svgrepo.com/svg/392323/diamond-figure-form-geometry-graphic-line
 export function OpenDiamond({ direction }: ArrowProps) {
    return (
       <img
@@ -46,11 +43,10 @@ export function OpenDiamond({ direction }: ArrowProps) {
             // if the direction is right, rotate the arrow 180 degrees
             transform: direction === "right" ? "rotate(180deg)" : "",
          }}
-      ></img>
+      />
    );
 }
 
-// svg source: https://www.svgrepo.com/svg/403749/large-orange-diamond
 export function SolidDiamond({ direction }: ArrowProps) {
    return (
       <img
@@ -62,6 +58,6 @@ export function SolidDiamond({ direction }: ArrowProps) {
             // if the direction is right, rotate the arrow 180 degrees
             transform: direction === "right" ? "rotate(180deg)" : "",
          }}
-      ></img>
+      />
    );
 }

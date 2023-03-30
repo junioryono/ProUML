@@ -203,7 +203,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      }}
                   >
                      {/* show the icon of the selected ending */}
-                     <div className="w-7">
+                     <div className="flex w-7 items-center justify-center">
                         {/* if the value is not none don't show any icon */}
                         {leftEnd !== "none" && leftEndingOptions.find((option) => option.value === leftEnd)?.icon}
                      </div>
@@ -307,7 +307,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      }}
                   >
                      {/* show the icon of the selected ending */}
-                     <div className="w-7">
+                     <div className="flex w-7 items-center justify-center">
                         {/* if the value is not none don't show any icon */}
                         {rightEnd !== "none" && rightEndingOptions.find((option) => option.value === rightEnd)?.icon}
                      </div>
