@@ -184,7 +184,7 @@ export default function useGraph(
       console.log("diagram.content", diagram.content);
       graph.current.fromJSON({ cells: diagram.content }, { ignoreHistory: true });
 
-      const removeListeners = initializeListeners(graph, wsSendJson, sessionId, layoutProps);
+      const removeListeners = initializeListeners(graph, wsSendJson, sessionId, layoutProps, X6.Shape.Edge);
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());
       window.addEventListener("resize", handleResize);
 

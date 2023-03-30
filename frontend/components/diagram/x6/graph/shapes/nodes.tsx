@@ -425,3 +425,5 @@ register({
       },
    },
 });
+
+export default ShapeNodeClass;

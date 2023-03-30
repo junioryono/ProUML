@@ -12,12 +12,14 @@ import {
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 import { showPorts, hidePorts, addPorts, updatePorts, hideAllPorts, showAllPorts } from "../shapes/ports";
+import type { X6StateType } from "../..";
 
 export default function Edges(
    graph: MutableRefObject<X6Type.Graph>,
    wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
+   edgeFunctions: X6StateType["Shape"]["Edge"],
 ) {
    graph.current?.on("edge:selected", (args) => {
       // Get all vertices of the edge
@@ -65,6 +67,20 @@ export default function Edges(
          return;
       }
 
+      // Check if the target node is an interface
+      const targetCell = args.edge.getTargetCell();
+      if (targetCell) {
+         const targetCellProps = targetCell.getProp();
+         if (targetCellProps.type === "interface") {
+            // If the target node is an interface, then add a port to the edge
+            edgeFunctions.setRealizationEdge(args.edge);
+         } else if (targetCellProps.type === "abstract") {
+            // If the target node is a realization, then add a port to the edge
+            edgeFunctions.setGeneralizationEdge(args.edge);
+         } else {
+            edgeFunctions.setRegularEdge(args.edge);
+         }
+      }
       wsLocalUpdateEdge(args.cell, wsSendJson, sessionId);
    });
 
