@@ -44,14 +44,13 @@ export default function DashboardSharedPage({
                   </>
                ) : (
                   <div className="flex flex-wrap select-none">
-                     {diagramsRequest.response.projects.map((project) => (
-                        <ProjectItem key={project.id} project={project} />
-                     ))}
-                     <div className="flex flex-wrap select-none">
-                        {diagramsRequest.response.diagrams.map((diagram) => (
-                           <DiagramItem key={diagram.id} diagram={diagram} userId={user.user_id} />
-                        ))}
-                     </div>
+                     {diagramsRequest.response.diagrams.map(
+                        (diagram) =>
+                           // if diagram is shared, show it
+                           diagram.is_shared_with_current_user && (
+                              <DiagramItem key={diagram.id} diagram={diagram} userId={user.user_id} />
+                           ),
+                     )}
                   </div>
                )}
             </div>

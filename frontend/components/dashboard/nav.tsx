@@ -24,7 +24,9 @@ export default function DashboardNav({ items }: DashboardNavProps) {
                <Link key={index} href={item.disabled ? router.pathname : item.href}>
                   <span
                      className={cn(
-                        "group flex items-center rounded-md px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-100",
+                        "group flex items-center rounded-md px-3 py-2 text-sm font-medium text-slate-800",
+                        // if the current page is the same as the item's href, add the bg-slate-200 class
+                        item.href !== router.pathname && " hover:bg-slate-100",
                         router.pathname === item.href ? "bg-slate-200" : "transparent",
                         item.disabled && "cursor-not-allowed opacity-80",
                      )}
