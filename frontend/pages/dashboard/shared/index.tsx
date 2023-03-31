@@ -3,11 +3,8 @@ import { GetServerSideProps } from "next";
 import { User } from "types";
 
 import DashboardShell from "@/components/dashboard/shell";
-import DiagramsHeader from "@/components/dashboard/diagrams/header";
 import DiagramItem from "@/components/dashboard/diagrams/diagram-item";
-import ProjectItem from "@/components/dashboard/diagrams/project-item";
 import EmptyPlaceholder from "@/components/dashboard/empty-placeholder";
-import NewDiagram from "@/components/dashboard/diagrams/new-diagram";
 import DashboardLayout from "@/components/dashboard/layout";
 
 export default function DashboardSharedPage({
@@ -34,15 +31,13 @@ export default function DashboardSharedPage({
             </div>
             <div className="flex flex-col">
                {showEmptyPlaceholder ? (
-                  <>
-                     <EmptyPlaceholder>
-                        <EmptyPlaceholder.Icon name="post" />
-                        <EmptyPlaceholder.Title>No shared diagrams</EmptyPlaceholder.Title>
-                        <EmptyPlaceholder.Description>
-                           You don&apos;t have any diagrams shared with you. Get some friends.
-                        </EmptyPlaceholder.Description>
-                     </EmptyPlaceholder>
-                  </>
+                  <EmptyPlaceholder>
+                     <EmptyPlaceholder.Icon name="post" />
+                     <EmptyPlaceholder.Title>No shared diagrams</EmptyPlaceholder.Title>
+                     <EmptyPlaceholder.Description>
+                        You don&apos;t have any diagrams shared with you. Get some friends.
+                     </EmptyPlaceholder.Description>
+                  </EmptyPlaceholder>
                ) : (
                   <div className="flex flex-wrap select-none">
                      {diagramsRequest.response.diagrams.map(
