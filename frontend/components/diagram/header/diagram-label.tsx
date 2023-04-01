@@ -182,7 +182,7 @@ export default function DiagramLabel({
                <DropdownMenu.Portal>
                   <DropdownMenu.Content className="mt-1 mr-2 py-1 md:w-52 rounded-none bg-diagram-menu border-0" align="end">
                      {/* Version history of diagram */}
-                     <DropdownMenu.Item
+                     {/* <DropdownMenu.Item
                         className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
                         onClick={() => {
                            // show history
@@ -191,7 +191,17 @@ export default function DiagramLabel({
                         <div>Show version history</div>
                      </DropdownMenu.Item>
 
-                     <DropdownMenu.Separator className="my-1 bg-[#636363]" />
+                     <DropdownMenu.Separator className="my-1 bg-[#636363]" /> */}
+
+                     {/* Rename diagram */}
+                     <DropdownMenu.Item
+                        className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
+                        onClick={() => {
+                           setEditDiagramName(true);
+                        }}
+                     >
+                        <div>Rename</div>
+                     </DropdownMenu.Item>
 
                      {/* Duplicate diagram */}
                      <DropdownMenu.Item
@@ -223,16 +233,6 @@ export default function DiagramLabel({
                         }}
                      >
                         <div>Duplicate</div>
-                     </DropdownMenu.Item>
-
-                     {/* Rename diagram */}
-                     <DropdownMenu.Item
-                        className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
-                        onClick={() => {
-                           setEditDiagramName(true);
-                        }}
-                     >
-                        <div>Rename</div>
                      </DropdownMenu.Item>
 
                      {/* Move diagram to project if its not in a project */}
@@ -270,6 +270,8 @@ export default function DiagramLabel({
                            <div>Remove from project...</div>
                         </DropdownMenu.Item>
                      )}
+
+                     <DropdownMenu.Separator className="my-1 bg-[#636363]" />
 
                      {/* Delete the diagram */}
                      <DropdownMenu.Item

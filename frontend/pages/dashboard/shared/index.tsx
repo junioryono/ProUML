@@ -35,7 +35,8 @@ export default function DashboardSharedPage({
                      <EmptyPlaceholder.Icon name="post" />
                      <EmptyPlaceholder.Title>No shared diagrams</EmptyPlaceholder.Title>
                      <EmptyPlaceholder.Description>
-                        You don&apos;t have any diagrams shared with you. Get some friends.
+                        You don&apos;t have any shared diagrams. Share a diagram or ask to be invited to collaborate on a
+                        diagram.
                      </EmptyPlaceholder.Description>
                   </EmptyPlaceholder>
                ) : (
