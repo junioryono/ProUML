@@ -111,9 +111,6 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    // if selected cell currently has rounded corners or not
    const [roundedIntensity, setRoundedIntensity] = useState(0); // no roundness -> 0% intensity
 
-   // the selected cells
-   const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
-
    // for the edge labels
    const [upperLeftLabel, setUpperLeftLabel] = useState("");
    const [lowerLeftLabel, setLowerLeftLabel] = useState("");
@@ -121,19 +118,42 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    const [upperRightLabel, setUpperRightLabel] = useState("");
    const [lowerRightLabel, setLowerRightLabel] = useState("");
 
-   // when selecting cells, update the selected cells
-   useEffect(() => {
-      // set the selected cells to the current selected cells
-      setSelectedCells(graph.current?.getSelectedCells());
+   // the selected cells
+   const [selectedEdges, setSelectedEdges] = useState<X6Type.Edge[]>([]);
 
-      // when a cell is selected, update the selected cells
+   const getSelectedEdges = () => {
+      const selectedCells = graph.current?.getSelectedCells();
+      const newSelectedEdges: X6Type.Edge[] = [];
+      const selectedColors = [];
+      const selectedWidths = [];
+
+      for (const cell of selectedCells) {
+         if (cell.isEdge()) {
+            newSelectedEdges.push(cell);
+
+            const color = cell.getProp("attrs/line/stroke");
+            if (color) {
+               selectedColors.push(color);
+            }
+
+            const width = cell.getProp("attrs/line/strokeWidth");
+            if (width) {
+               selectedWidths.push(width);
+            }
+         }
+      }
+      setSelectedEdges(newSelectedEdges);
+   };
+
+   useEffect(() => {
+      getSelectedEdges();
+
       graph.current?.on("cell:selected", () => {
-         setSelectedCells(graph.current?.getSelectedCells());
+         getSelectedEdges();
       });
 
-      // when a cell is unselected, update the selected cells
       graph.current?.on("cell:unselected", () => {
-         setSelectedCells(graph.current?.getSelectedCells());
+         getSelectedEdges();
       });
    }, [graph]);
 

@@ -2,6 +2,7 @@ import type X6Type from "@antv/x6";
 import { MutableRefObject, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Diagram } from "types";
+import { OpenArrow, OpenDiamond, SolidArrow, SolidDiamond } from "../right-panel/edges/edge-endings";
 import { toast } from "@/ui/toast";
 import { createDiagram } from "@/lib/auth-fetch";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,25 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
    const [nodes, setNodes] = useState<X6Type.Node[]>([]);
    const [edges, setEdges] = useState<X6Type.Edge[]>([]);
    const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
+
+   const edgeEndings = [
+      {
+         name: "open arrow",
+         icon: <OpenArrow direction="right" />,
+      },
+      {
+         name: "open diamond",
+         icon: <OpenDiamond direction="right" />,
+      },
+      {
+         name: "solid arrow",
+         icon: <SolidArrow direction="right" />,
+      },
+      {
+         name: "solid diamond",
+         icon: <SolidDiamond direction="right" />,
+      },
+   ];
 
    // when the graph changes, update the nodes, edges, and selected cells
    useEffect(() => {
@@ -275,6 +295,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         const edgeId = props.id;
                         const isSelected = selectedCells.includes(node);
 
+                        const edge = graph.current.getCellById(edgeId);
                         const sourceNodeName = graph.current.getCellById(props.source.cell)?.prop("name");
                         const targetNodeName = graph.current.getCellById(props.target.cell)?.prop("name");
 
@@ -308,7 +329,10 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                                  <div className="text-ellipsis overflow-hidden whitespace-nowrap" style={{ width: "78px" }}>
                                     {sourceNodeName}
                                  </div>
-                                 <div className="w-6 text-center">{" -> "}</div>
+                                 <div className="w-6 text-center">
+                                    {/* get the type of relationship of the edge */}
+                                    {"-->"}
+                                 </div>
                                  <div className="text-ellipsis overflow-hidden whitespace-nowrap" style={{ width: "78px" }}>
                                     {targetNodeName}
                                  </div>

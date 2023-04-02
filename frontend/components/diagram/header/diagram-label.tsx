@@ -136,8 +136,8 @@ export default function DiagramLabel({
             </>
          )}
 
-         {/* show diagram name w dropdown if user is the owner and if not timed out */}
-         {!wsTimedOut && role === "owner" ? (
+         {/* show diagram name w dropdown if user is the owner or editor */}
+         {!wsTimedOut && (role === "owner" || role === "editor") ? (
             <DropdownMenu onOpenChange={setOpen}>
                <div className="flex justify-center items-center gap-1 h-full">
                   {!editDiagramName ? (
@@ -211,7 +211,8 @@ export default function DiagramLabel({
                            const formData = new FormData();
                            formData.append("duplicateDiagramId", diagram.id);
 
-                           if (diagram.project) {
+                           // if it's in a proj (only owners can duplicate diagrams in a proj)
+                           if (diagram.project && role === "owner") {
                               formData.append("projectId", diagram.project.id);
                            }
 
@@ -236,39 +237,43 @@ export default function DiagramLabel({
                      </DropdownMenu.Item>
 
                      {/* Move diagram to project if its not in a project */}
-                     {!diagram.project ? (
-                        <DropdownMenu.Item
-                           className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
-                           onClick={() => {
-                              // move diagram to project
-                           }}
-                        >
-                           <div>Move to project...</div>
-                        </DropdownMenu.Item>
-                     ) : (
-                        <DropdownMenu.Item
-                           className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
-                           onClick={() => {
-                              removeDiagramFromProject(diagram.project.id, diagram.id).then((res) => {
-                                 if (res.success === false) {
-                                    return toast({
-                                       title: "Something went wrong.",
-                                       message: res.reason,
-                                       type: "error",
-                                    });
-                                 }
+                     {!diagram.project && role === "owner" && (
+                        <>
+                           {!diagram.project ? (
+                              <DropdownMenu.Item
+                                 className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
+                                 onClick={() => {
+                                    // move diagram to project
+                                 }}
+                              >
+                                 <div>Move to project...</div>
+                              </DropdownMenu.Item>
+                           ) : (
+                              <DropdownMenu.Item
+                                 className="flex text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected hover:bg-diagram-menu-item-hovered focus:text-white"
+                                 onClick={() => {
+                                    removeDiagramFromProject(diagram.project.id, diagram.id).then((res) => {
+                                       if (res.success === false) {
+                                          return toast({
+                                             title: "Something went wrong.",
+                                             message: res.reason,
+                                             type: "error",
+                                          });
+                                       }
 
-                                 router.refresh();
-                                 return toast({
-                                    title: "Diagram removed",
-                                    message: "The diagram has been removed from the project.",
-                                    type: "success",
-                                 });
-                              });
-                           }}
-                        >
-                           <div>Remove from project...</div>
-                        </DropdownMenu.Item>
+                                       router.refresh();
+                                       return toast({
+                                          title: "Diagram removed",
+                                          message: "The diagram has been removed from the project.",
+                                          type: "success",
+                                       });
+                                    });
+                                 }}
+                              >
+                                 <div>Remove from project...</div>
+                              </DropdownMenu.Item>
+                           )}
+                        </>
                      )}
 
                      <DropdownMenu.Separator className="my-1 bg-[#636363]" />
