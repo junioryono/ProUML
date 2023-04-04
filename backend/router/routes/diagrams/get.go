@@ -9,7 +9,14 @@ import (
 )
 
 func Get(sdkP *sdk.SDK) fiber.Handler {
+	type Response struct {
+		Projects any `json:"projects"`
+		Diagrams any `json:"diagrams"`
+	}
+
 	return func(fbCtx *fiber.Ctx) error {
+		onlyGetSharedDiagrams := fbCtx.Query("shared")
+
 		// Get offset from query string
 		offset := fbCtx.Query("offset")
 
@@ -26,39 +33,62 @@ func Get(sdkP *sdk.SDK) fiber.Handler {
 			offsetInt = conv
 		}
 
-		// Get all projects
-		projects, err := sdkP.Postgres.Projects.GetAllWithAccessRole(fbCtx.Locals("idToken").(string), offsetInt)
-		if err != nil {
-			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
-				Success: false,
-				Reason:  err.Error(),
-			})
+		var response = Response{
+			Projects: []interface{}{},
+			Diagrams: []interface{}{},
 		}
 
-		// Get the diagrams
-		diagrams, err := sdkP.Postgres.Diagrams.GetDashboard(fbCtx.Locals("idToken").(string), offsetInt)
-		if err != nil {
-			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
-				Success: false,
-				Reason:  err.Error(),
-			})
-		}
+		if onlyGetSharedDiagrams == "true" {
+			projects, err := sdkP.Postgres.Projects.GetSharedProjects(fbCtx.Locals("idToken").(string), offsetInt)
+			if err != nil {
+				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+					Success: false,
+					Reason:  err.Error(),
+				})
+			}
 
-		var response struct {
-			Projects any `json:"projects"`
-			Diagrams any `json:"diagrams"`
-		}
+			// Get all shared diagrams
+			diagrams, err := sdkP.Postgres.Diagrams.GetShared(fbCtx.Locals("idToken").(string), offsetInt)
+			if err != nil {
+				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+					Success: false,
+					Reason:  err.Error(),
+				})
+			}
 
-		if len(projects) == 0 {
-			response.Projects = []interface{}{}
+			if len(projects) != 0 {
+				response.Projects = projects
+			}
+
+			if len(diagrams) != 0 {
+				response.Diagrams = diagrams
+			}
 		} else {
-			response.Projects = projects
-		}
+			// Get all projects
+			projects, err := sdkP.Postgres.Projects.GetAllWithAccessRole(fbCtx.Locals("idToken").(string), offsetInt)
+			if err != nil {
+				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+					Success: false,
+					Reason:  err.Error(),
+				})
+			}
 
-		if len(diagrams) == 0 {
-			response.Diagrams = []interface{}{}
-		} else {
-			response.Diagrams = diagrams
+			// Get the diagrams
+			diagrams, err := sdkP.Postgres.Diagrams.GetDashboard(fbCtx.Locals("idToken").(string), offsetInt)
+			if err != nil {
+				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+					Success: false,
+					Reason:  err.Error(),
+				})
+			}
+
+			if len(projects) != 0 {
+				response.Projects = projects
+			}
+
+			if len(diagrams) != 0 {
+				response.Diagrams = diagrams
+			}
 		}
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{

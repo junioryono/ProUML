@@ -107,6 +107,8 @@ export default function useGraph(
          interacting(cellView) {
             return !graph.current?.isPannable();
          },
+         // Only render the visible area content
+         virtual: true,
       });
 
       graph.current.use(
@@ -115,6 +117,14 @@ export default function useGraph(
             graph: graph.current,
             className: "no-scrollbar",
             pageVisible: true,
+            autoResize: true,
+            // TODO - For setting the page size of the graph
+            // autoResizeOptions(scroller) {
+            //    return {
+            //       minWidth: 1920,
+            //       minHeight: 1080,
+            //    };
+            // },
          }),
       );
 
@@ -124,16 +134,13 @@ export default function useGraph(
       //    }),
       // );
 
-      // graph.current.use(
-      //    new X6.Plugin.Transform.Transform({
-      //       resizing: {
-      //          enabled: true,
-      //       },
-      //       rotating: {
-      //          enabled: true,
-      //       },
-      //    }),
-      // );
+      graph.current.use(
+         new X6.Plugin.Transform({
+            resizing: {
+               enabled: true,
+            },
+         }),
+      );
 
       graph.current.use(
          new X6.Plugin.Selection({

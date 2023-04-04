@@ -2,6 +2,7 @@ package diagram
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"strings"
 
@@ -18,6 +19,7 @@ import (
 func Post(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
 		projectId := fbCtx.FormValue("projectId")
+		fmt.Println("projectId", projectId)
 
 		// Check if user uploaded a project
 		if project, err := fbCtx.FormFile("project"); err == nil {

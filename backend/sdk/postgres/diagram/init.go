@@ -1,6 +1,7 @@
 package diagram
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 
@@ -35,14 +36,6 @@ func (d *Diagram_SDK) Create(idToken, projectId string, diagramContent *[]any) (
 		return "", err
 	}
 
-	if projectId != "" {
-		// Check if the user is a member of the project
-		var projectUserRole models.ProjectUserRoleModel
-		if err := d.getDb().Where("user_id = ? AND project_id = ?", userId, projectId).First(&projectUserRole).Error; err != nil {
-			return "", types.Wrap(err, types.ErrInvalidRequest)
-		}
-	}
-
 	diagramId := uuid.New().String()
 
 	// Create the diagram
@@ -68,8 +61,18 @@ func (d *Diagram_SDK) Create(idToken, projectId string, diagramContent *[]any) (
 		diagram.Content = diagramContentJson
 	}
 
-	// Save the diagram and the user diagram to the database
-	if err := d.getDb().Create(&diagram).Error; err != nil {
+	db := d.getDb()
+
+	// If projectId is not empty, check if the user is a member of the project
+	if projectId != "" {
+		var projectUserRole models.ProjectUserRoleModel
+		if err := db.Where("user_id = ? AND project_id = ?", userId, projectId).First(&projectUserRole).Error; err != nil {
+			return "", types.Wrap(err, types.ErrInvalidRequest)
+		}
+	}
+
+	// Save the diagram to the database
+	if err := db.Create(&diagram).Error; err != nil {
 		return "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -83,8 +86,8 @@ func (d *Diagram_SDK) Duplicate(idToken, projectId, duplicateDiagramId string) (
 		return "", err
 	}
 
+	// Check if the user is a member of the project, if projectId is provided
 	if projectId != "" {
-		// Check if the user is a member of the project
 		var projectUserRole models.ProjectUserRoleModel
 		if err := d.getDb().Where("user_id = ? AND project_id = ?", userId, projectId).First(&projectUserRole).Error; err != nil {
 			return "", types.Wrap(err, types.ErrInvalidRequest)
@@ -132,11 +135,11 @@ func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 		return err
 	}
 
+	// Start a database transaction
 	tx := d.getDb().Begin()
 
-	// Delete the diagram in the database if the user is the owner
+	// Check if the user is the owner of the diagram
 	var userDiagram models.DiagramUserRoleModel
-
 	if err := tx.Where("user_id = ? AND diagram_id = ?", userId, diagramId).First(&userDiagram).Error; err != nil {
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
@@ -147,12 +150,18 @@ func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 		return types.Wrap(errors.New("user is not the owner of the diagram"), types.ErrInvalidRequest)
 	}
 
-	if err := tx.
-		Select("UserRoles").Delete(&models.DiagramModel{ID: diagramId}).Error; err != nil {
+	// Delete the diagram's user roles and the diagram itself
+	if err := tx.Where("diagram_id = ?", diagramId).Delete(&models.DiagramUserRoleModel{}).Error; err != nil {
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
+	if err := tx.Delete(&models.DiagramModel{ID: diagramId}).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	// Commit the transaction
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
@@ -457,37 +466,46 @@ func (d *Diagram_SDK) UpdateAllowEditorPermissions(diagramId, idToken string, al
 }
 
 func (d *Diagram_SDK) UserHasDiagramEdittingPermissions(diagramId, userId string) (bool, *types.WrappedError) {
-	// Check if the user has editting permissions for either the diagram or the diagram's project
-	var diagram models.DiagramModel
-	if err := d.getDb().
-		Model(&models.DiagramModel{ID: diagramId}).
-		Preload("Project", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("UserRoles", func(db *gorm.DB) *gorm.DB {
-				return db.Model(&models.ProjectUserRoleModel{UserID: userId})
-			})
-		}).
-		Preload("UserRoles", func(db *gorm.DB) *gorm.DB {
-			return db.Model(&models.DiagramUserRoleModel{UserID: userId})
-		}).
-		Select("id, allow_editor_permissions, project_id").
-		First(&diagram).Error; err != nil {
+	type Result struct {
+		Role                   sql.NullString
+		AllowEditorPermissions bool
+		IsInProject            bool
+	}
+
+	var result Result
+	err := d.getDb().
+		Raw(`(
+			SELECT
+				diagram_user_role_models.role,
+				diagram_models.allow_editor_permissions,
+				false as is_in_project
+			FROM diagram_user_role_models
+			JOIN diagram_models ON diagram_models.id = diagram_user_role_models.diagram_id
+			WHERE diagram_user_role_models.diagram_id = ? AND diagram_user_role_models.user_id = ?
+		) UNION (
+			SELECT
+				NULL as role,
+				diagram_models.allow_editor_permissions,
+				true as is_in_project
+			FROM project_user_role_models
+			JOIN diagram_models ON diagram_models.project_id = project_user_role_models.project_id
+			WHERE diagram_models.id = ? AND project_user_role_models.user_id = ?
+		)`, diagramId, userId, diagramId, userId).Scan(&result).Error
+
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return false, types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	// If the user is the owner of the diagram, return true
-	for _, userRole := range diagram.UserRoles {
-		if userRole.Role == "owner" {
-			return true, nil
-		} else if userRole.Role == "editor" && diagram.AllowEditorPermissions {
-			return true, nil
-		}
+	if err == gorm.ErrRecordNotFound {
+		return false, nil
 	}
 
-	// If the user is in the project, return true
-	for _, userRole := range diagram.Project.UserRoles {
-		if userRole.UserID == userId {
+	if result.Role.Valid {
+		if result.Role.String == "owner" || (result.Role.String == "editor" && result.AllowEditorPermissions) {
 			return true, nil
 		}
+	} else if result.IsInProject {
+		return true, nil
 	}
 
 	return false, nil

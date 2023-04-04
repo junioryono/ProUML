@@ -53,7 +53,7 @@ function updatePorts(node: X6Type.Node) {
    const newPortProps = getNewPortProps(node);
 
    for (const portProp of newPortProps) {
-      node.portProp(portProp.id, portProp, { silent: true, ignoreHistory: true });
+      node.portProp(portProp.id, portProp, { ignoreHistory: true });
    }
 }
 

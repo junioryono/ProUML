@@ -29,7 +29,7 @@ export default function DashboardDiagramsProjectsPage({
             <div className="flex flex-col">
                {showEmptyPlaceholder ? (
                   <>
-                     <NewDiagram />
+                     <NewDiagram project={projectRequest.response} />
                      <EmptyPlaceholder>
                         <EmptyPlaceholder.Icon name="post" />
                         <EmptyPlaceholder.Title>No diagrams created</EmptyPlaceholder.Title>

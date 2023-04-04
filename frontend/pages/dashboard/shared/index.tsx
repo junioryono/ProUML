@@ -1,4 +1,4 @@
-import { getDiagrams, getSession } from "@/lib/auth-fetch";
+import { getSharedDiagrams, getSession } from "@/lib/auth-fetch";
 import { GetServerSideProps } from "next";
 import { User } from "types";
 
@@ -12,11 +12,11 @@ export default function DashboardSharedPage({
    diagramsRequest,
 }: {
    user: User;
-   diagramsRequest: Awaited<ReturnType<typeof getDiagrams>>;
+   diagramsRequest: Awaited<ReturnType<typeof getSharedDiagrams>>;
 }) {
    // if there is no shared diagrams, show empty placeholder
    const showEmptyPlaceholder =
-      diagramsRequest.response.diagrams.filter((diagram) => diagram.is_shared_with_current_user).length === 0;
+      !diagramsRequest.success || (!diagramsRequest.response.diagrams.length && !diagramsRequest.response.projects.length);
 
    return (
       <DashboardLayout user={user}>
@@ -40,15 +40,22 @@ export default function DashboardSharedPage({
                      </EmptyPlaceholder.Description>
                   </EmptyPlaceholder>
                ) : (
-                  <div className="flex flex-wrap select-none">
-                     {diagramsRequest.response.diagrams.map(
-                        (diagram) =>
-                           // if diagram is shared, show it
-                           diagram.is_shared_with_current_user && (
-                              <DiagramItem key={diagram.id} diagram={diagram} userId={user.user_id} />
-                           ),
+                  <>
+                     {diagramsRequest.response.projects.length > 0 && (
+                        <div className="flex flex-wrap select-none">
+                           {diagramsRequest.response.projects.map((project) => (
+                              <ProjectItem key={project.id} project={project} />
+                           ))}
+                        </div>
                      )}
-                  </div>
+                     {diagramsRequest.response.diagrams.length > 0 && (
+                        <div className="flex flex-wrap select-none">
+                           {diagramsRequest.response.diagrams.map((diagram) => (
+                              <DiagramItem key={diagram.id} diagram={diagram} userId={user.user_id} />
+                           ))}
+                        </div>
+                     )}
+                  </>
                )}
             </div>
          </DashboardShell>
@@ -65,7 +72,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             cookie: cookies,
          },
       }),
-      getDiagrams({
+      getSharedDiagrams({
          headers: {
             cookie: cookies,
          },
