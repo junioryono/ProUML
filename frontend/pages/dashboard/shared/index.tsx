@@ -4,6 +4,7 @@ import { User } from "types";
 
 import DashboardShell from "@/components/dashboard/shell";
 import DiagramItem from "@/components/dashboard/diagrams/diagram-item";
+import ProjectItem from "@/components/dashboard/diagrams/project-item";
 import EmptyPlaceholder from "@/components/dashboard/empty-placeholder";
 import DashboardLayout from "@/components/dashboard/layout";
 
