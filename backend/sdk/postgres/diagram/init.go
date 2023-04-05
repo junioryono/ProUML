@@ -53,7 +53,7 @@ func (d *Diagram_SDK) Create(idToken, projectId string, diagramContent *[]any) (
 
 	// Set the diagram content if it is not nil
 	if diagramContent != nil {
-		diagramContentJson, err := json.Marshal(diagramContent)
+		diagramContentJson, err := json.Marshal(*diagramContent)
 		if err != nil {
 			return "", types.Wrap(err, types.ErrInternalServerError)
 		}

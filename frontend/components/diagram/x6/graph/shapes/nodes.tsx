@@ -340,13 +340,7 @@ function ShapeNodeClass({ node }: { node?: X6Type.Node }) {
                >
                   {variables.map((variable, index) => (
                      <div key={index}>
-                        {variable.accessModifier
-                           ? variable.accessModifier === "protected"
-                              ? "#"
-                              : variable.accessModifier === "private"
-                              ? "-"
-                              : "+"
-                           : "+"}
+                        {variable.accessModifier === "protected" ? "#" : variable.accessModifier === "private" ? "-" : "+"}
                         {variable.name}
                         {variable.type && `: ${variable.type}`}
                         {variable.value &&

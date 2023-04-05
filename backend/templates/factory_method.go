@@ -9,12 +9,16 @@ func getFactoryMethod() *[]any {
 	return &[]any{
 		types.JavaClass{
 			JavaDiagramNode: types.JavaDiagramNode{
-				ID:     uuid.New().String(),
-				Shape:  "custom-class",
-				Width:  100,
-				Height: 100,
-				X:      100,
-				Y:      100,
+				ID:    uuid.New().String(),
+				Shape: "custom-class",
+				Position: types.Position{
+					X: 100,
+					Y: 100,
+				},
+				Size: types.Size{
+					Width:  100,
+					Height: 100,
+				},
 			},
 			Package: []byte("default"),
 			Name:    []byte("Client"),

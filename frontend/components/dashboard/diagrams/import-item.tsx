@@ -98,6 +98,7 @@ export default function ImportItem({ project }: { project?: Project }) {
                {isLoading && <Icons.spinner className="h-4 w-4 animate-spin" />}
                <input
                   type="file"
+                  id="dropzone-file"
                   accept={validFileTypes.join(",")}
                   className="hidden"
                   onChange={onProjectImport}

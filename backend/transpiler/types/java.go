@@ -29,7 +29,7 @@ type JavaMethodParameter struct {
 type JavaMethod struct {
 	Type           CustomByteSlice       `json:"type"`
 	Name           CustomByteSlice       `json:"name"`
-	AccessModifier CustomByteSlice       `json:"accessModifer,omitempty"` // "public" | "protected" | "private"
+	AccessModifier CustomByteSlice       `json:"accessModifier,omitempty"` // "public" | "protected" | "private"
 	Parameters     []JavaMethodParameter `json:"parameters,omitempty"`
 	Abstract       bool                  `json:"abstract"` // If abstract is true, Static and Final must be false
 	Static         bool                  `json:"static"`
@@ -39,7 +39,7 @@ type JavaMethod struct {
 
 type JavaAbstract struct {
 	DefinedWithin CustomByteSlice   `json:"-"`
-	Package       CustomByteSlice   `json:"package"`
+	Package       CustomByteSlice   `json:"packageName"`
 	Name          CustomByteSlice   `json:"name"`
 	Implements    []CustomByteSlice `json:"-"`
 	Extends       []CustomByteSlice `json:"-"`
@@ -52,7 +52,7 @@ type JavaAbstract struct {
 
 type JavaClass struct {
 	DefinedWithin CustomByteSlice   `json:"-"`
-	Package       CustomByteSlice   `json:"package"`
+	Package       CustomByteSlice   `json:"packageName"`
 	Name          CustomByteSlice   `json:"name"`
 	Implements    []CustomByteSlice `json:"-"`
 	Extends       []CustomByteSlice `json:"-"`
@@ -65,7 +65,7 @@ type JavaClass struct {
 
 type JavaInterface struct {
 	DefinedWithin CustomByteSlice   `json:"-"`
-	Package       CustomByteSlice   `json:"package"`
+	Package       CustomByteSlice   `json:"packageName"`
 	Name          CustomByteSlice   `json:"name"`
 	Extends       []CustomByteSlice `json:"-"`
 	Variables     []JavaVariable    `json:"variables,omitempty"`
@@ -77,7 +77,7 @@ type JavaInterface struct {
 
 type JavaEnum struct {
 	DefinedWithin CustomByteSlice   `json:"-"`
-	Package       CustomByteSlice   `json:"package"`
+	Package       CustomByteSlice   `json:"packageName"`
 	Name          CustomByteSlice   `json:"name"`
 	Declarations  []CustomByteSlice `json:"declarations,omitempty"`
 	Implements    []CustomByteSlice `json:"-,omitempty"`
@@ -85,11 +85,19 @@ type JavaEnum struct {
 }
 
 type JavaDiagramNode struct {
-	ID     string  `json:"id"`
-	Shape  string  `json:"shape"`
-	X      float64 `json:"x"`
-	Y      float64 `json:"y"`
+	ID       string `json:"id"`
+	Shape    string `json:"shape"`
+	Type     string `json:"type"`
+	Position `json:"position"`
+	Size     `json:"size"`
+}
+
+type Position struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+}
+
+type Size struct {
 	Width  float64 `json:"width"`
 	Height float64 `json:"height"`
-	Type   string  `json:"type"`
 }

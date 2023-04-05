@@ -4,6 +4,12 @@ import { useEffect, useState, useRef } from "react";
 import { ClassNode } from "types";
 import NodeSettingsParameter from "./node-parameter";
 
+const accessModifierOptions = [
+   { value: "public", label: "public (+)", symbol: "+" },
+   { value: "protected", label: "protected (#)", symbol: "#" },
+   { value: "private", label: "private (-)", symbol: "-" },
+];
+
 export default function NodeSettingsMethod({
    node,
    methods,
@@ -19,12 +25,8 @@ export default function NodeSettingsMethod({
    setMethods: React.Dispatch<React.SetStateAction<ClassNode["methods"]>>;
    setMethodsMaxHeight: React.Dispatch<React.SetStateAction<number>>;
 }) {
-   const [accessModifier, setAccessModifier] = useState(method.accessModifier);
-   const accessModifierOptions = [
-      { value: "public", label: "public (+)", symbol: "+" },
-      { value: "protected", label: "protected (#)", symbol: "#" },
-      { value: "private", label: "private (-)", symbol: "-" },
-   ];
+   // @ts-ignore
+   const [accessModifier, setAccessModifier] = useState(method.accessModifier || "public");
    const [showAccessModifierDropdown, setShowAccessModifierDropdown] = useState(false);
    const accessModifierDropdownRef = useRef<HTMLDivElement>(null);
    const [name, setName] = useState(method.name || "");
@@ -33,11 +35,13 @@ export default function NodeSettingsMethod({
    const [showParameters, setShowParameters] = useState(false);
    const parametersRef = useRef<HTMLDivElement>(null);
 
+   // TODO: memory leak in this component. Console.log inside a child component will log infinitely
    useEffect(() => {
       // update the node's methods array
       const newMethods = [...methods];
       newMethods[index] = {
          ...method,
+         // @ts-ignore
          accessModifier,
          name,
          type,
@@ -47,7 +51,8 @@ export default function NodeSettingsMethod({
    }, [accessModifier, name, type, parameters]);
 
    useEffect(() => {
-      setAccessModifier(method.accessModifier);
+      // @ts-ignore
+      setAccessModifier(method.accessModifier || "public");
       setName(method.name || "");
       setType(method.type || "");
       setParameters(method.parameters || []);
@@ -109,7 +114,7 @@ export default function NodeSettingsMethod({
                      <div className="text-xs w-3 pl-1.5">
                         {
                            // get the access modifier symbol from the accessModifierOptions array
-                           accessModifierOptions.find((option) => option.value === accessModifier).symbol
+                           accessModifierOptions.find((option) => option.value === accessModifier)?.symbol
                         }
                      </div>
                      <div>

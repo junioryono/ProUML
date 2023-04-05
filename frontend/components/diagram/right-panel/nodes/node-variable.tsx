@@ -2,6 +2,12 @@ import type X6Type from "@antv/x6";
 import { useEffect, useState, useRef } from "react";
 import { ClassNode } from "types";
 
+const accessModifierOptions = [
+   { value: "private", label: "private (-)", symbol: "-" },
+   { value: "protected", label: "protected (#)", symbol: "#" },
+   { value: "public", label: "public (+)", symbol: "+" },
+];
+
 export default function NodeSettingsVariable({
    node,
    variables,
@@ -15,23 +21,21 @@ export default function NodeSettingsVariable({
    index: number;
    setVariables: React.Dispatch<React.SetStateAction<ClassNode["variables"]>>;
 }) {
-   const [accessModifier, setAccessModifier] = useState(variable.accessModifier);
-   const accessModifierOptions = [
-      { value: "private", label: "private (-)", symbol: "-" },
-      { value: "protected", label: "protected (#)", symbol: "#" },
-      { value: "public", label: "public (+)", symbol: "+" },
-   ];
+   // @ts-ignore
+   const [accessModifier, setAccessModifier] = useState(variable.accessModifier || "public");
    const [showAccessModifierDropdown, setShowAccessModifierDropdown] = useState(false);
    const accessModifierDropdownRef = useRef(null);
    const [name, setName] = useState(variable.name || "");
    const [type, setType] = useState(variable.type || "");
    const [value, setValue] = useState(variable.value || "");
 
-   // update the node's variables array
+   // TODO: memory leak in this component. Console.log inside a child component will log infinitely
    useEffect(() => {
+      // update the node's methods array
       const newVariables = [...variables];
       newVariables[index] = {
          ...variable,
+         // @ts-ignore
          accessModifier,
          name,
          type,
@@ -42,7 +46,7 @@ export default function NodeSettingsVariable({
 
    // update the state when the variable prop changes
    useEffect(() => {
-      setAccessModifier(variable.accessModifier);
+      setAccessModifier(variable.accessModifier || "public");
       setName(variable.name || "");
       setType(variable.type || "");
       setValue(variable.value || "");
