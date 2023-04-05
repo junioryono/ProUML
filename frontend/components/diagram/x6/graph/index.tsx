@@ -43,6 +43,19 @@ export default function useGraph(
       ) {
          return;
       }
+      // Create a style element
+      const styleElement = document.createElement("style");
+
+      // Add your custom CSS rules
+      styleElement.textContent = `
+         .x6-node.x6-node-immovable {
+            cursor: grab;
+         }
+      `;
+
+      // Append the style element to the document head
+      document.head.appendChild(styleElement);
+
       const getGraphWidth = () => window.innerWidth - 480;
       const getGraphHeight = () => window.innerHeight - 48;
 

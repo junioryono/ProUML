@@ -23,16 +23,16 @@ export class Transform extends Basecoat<Transform.EventArgs> {
    }
 
    protected startListening() {
-      this.graph.on("node:click", this.onNodeClick, this);
+      this.graph.on("node:selected", this.onNodeSelected, this);
       this.graph.on("node:move", this.onBlankMouseDown, this);
-      this.graph.on("node:moved", this.onNodeClick, this);
+      this.graph.on("node:moved", this.onNodeSelected, this);
       this.graph.on("blank:mousedown", this.onBlankMouseDown, this);
    }
 
    protected stopListening() {
-      this.graph.off("node:click", this.onNodeClick, this);
+      this.graph.off("node:selected", this.onNodeSelected, this);
       this.graph.off("node:move", this.onBlankMouseDown, this);
-      this.graph.off("node:moved", this.onNodeClick, this);
+      this.graph.off("node:moved", this.onNodeSelected, this);
       this.graph.off("blank:mousedown", this.onBlankMouseDown, this);
    }
 
@@ -66,8 +66,10 @@ export class Transform extends Basecoat<Transform.EventArgs> {
       }
    }
 
-   protected onNodeClick({ node }: EventArgs["node:click"]) {
-      this.createWidget(node);
+   protected onNodeSelected({ node, options }: EventArgs["node:selected"]) {
+      if (!options || options.ui) {
+         this.createWidget(node);
+      }
    }
 
    protected onBlankMouseDown() {
