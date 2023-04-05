@@ -3,10 +3,10 @@ import { MutableRefObject, useEffect, useState } from "react";
 import type X6Type from "@antv/x6";
 import type { Scroller as X6PluginScrollerType } from "@antv/x6-plugin-scroller";
 import type { Snapline as X6PluginSnaplineType } from "@antv/x6-plugin-snapline";
-import type { Transform as X6PluginTransformType } from "@antv/x6-plugin-transform";
 import type { Selection as X6PluginSelectionType } from "@antv/x6-plugin-selection";
 import type { Keyboard as X6PluginKeyboardType } from "@antv/x6-plugin-keyboard";
 import type { Clipboard as X6PluginClipboardType } from "@antv/x6-plugin-clipboard";
+import type { Transform as X6PluginTransformType } from "./plugins/transform";
 import type { History as X6PluginHistoryType } from "./plugins/history";
 import type { Export as X6PluginExportType } from "./plugins/export";
 import type X6ShapeNodeType from "./graph/shapes/nodes";
@@ -47,10 +47,10 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
             X6Instance,
             X6PluginScrollerInstance,
             X6PluginSnaplineInstance,
-            X6PluginTransformInstance,
             X6PluginSelectionInstance,
             X6PluginKeyboardInstance,
             X6PluginClipboardInstance,
+            X6PluginTransformInstance,
             X6PluginHistoryInstance,
             X6PluginExportInstance,
             X6ShapeNodeInstance,
@@ -59,10 +59,10 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
             await import("@antv/x6"),
             await import("@antv/x6-plugin-scroller"),
             await import("@antv/x6-plugin-snapline"),
-            await import("@antv/x6-plugin-transform"),
             await import("@antv/x6-plugin-selection"),
             await import("@antv/x6-plugin-keyboard"),
             await import("@antv/x6-plugin-clipboard"),
+            await import("./plugins/transform"),
             await import("./plugins/history"),
             await import("./plugins/export"),
             await import("./graph/shapes/nodes"),
@@ -76,10 +76,10 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
                Plugin: {
                   Scroller: X6PluginScrollerInstance.Scroller,
                   Snapline: X6PluginSnaplineInstance.Snapline,
-                  Transform: X6PluginTransformInstance.Transform,
                   Selection: X6PluginSelectionInstance.Selection,
                   Keyboard: X6PluginKeyboardInstance.Keyboard,
                   Clipboard: X6PluginClipboardInstance.Clipboard,
+                  Transform: X6PluginTransformInstance.Transform,
                   History: X6PluginHistoryInstance.History,
                   Export: X6PluginExportInstance.Export,
                },

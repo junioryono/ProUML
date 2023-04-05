@@ -255,7 +255,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         onClick={() => {
                            graph.current.centerCell(node);
                            graph.current.cleanSelection(node);
-                           graph.current.select(node);
+                           graph.current.select(node, { ui: true });
                         }}
                      >
                         <div className="w-3">

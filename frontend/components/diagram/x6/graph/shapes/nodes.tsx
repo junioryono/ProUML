@@ -193,6 +193,14 @@ function ShapeNodeClass({ node }: { node?: X6Type.Node }) {
          });
       });
 
+      node?.on("resize", () => {
+         setSelected(false);
+      });
+
+      node?.on("resized", () => {
+         setSelected(true);
+      });
+
       // turn off the event listeners when the component unmounts
       return () => {
          node?.off("change:name");
@@ -207,6 +215,8 @@ function ShapeNodeClass({ node }: { node?: X6Type.Node }) {
          node?.off("change:borderStyle");
          node?.off("change:lockPosition");
          node?.off("change:lockSize");
+         node?.off("resize");
+         node?.off("resized");
       };
    }, [node]);
 

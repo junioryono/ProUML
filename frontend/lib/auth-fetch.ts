@@ -89,6 +89,24 @@ export async function getDiagrams(options?: RequestInit): Promise<
       .catch(() => defaultError);
 }
 
+export async function getSharedDiagrams(options?: RequestInit): Promise<
+   APIResponse<{
+      projects: Project[];
+      diagrams: Diagram[];
+   }>
+> {
+   return fetchAPI("/diagrams?shared=true", {
+      ...options,
+   })
+      .then((res) =>
+         jsonResponse<{
+            projects: Project[];
+            diagrams: Diagram[];
+         }>(res),
+      )
+      .catch(() => defaultError);
+}
+
 export async function getDiagram(
    diagramId: string,
    options?: RequestInit,

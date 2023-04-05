@@ -8,6 +8,7 @@ interface NewDiagramProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export default function NewDiagram({ className, project, ...props }: NewDiagramProps) {
+   console.log("project2", project);
    return (
       <div
          className={cn(
