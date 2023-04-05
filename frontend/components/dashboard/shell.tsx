@@ -6,7 +6,7 @@ interface DashboardShellProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export default function DashboardShell({ children, className, ...props }: DashboardShellProps) {
    return (
-      <div className={cn("flex w-full flex-1 flex-col gap-8 mb-8", className)} {...props}>
+      <div className={cn("flex w-full flex-1 flex-col gap-2 mb-4", className)} {...props}>
          {children}
       </div>
    );

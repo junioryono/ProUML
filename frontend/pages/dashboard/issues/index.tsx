@@ -22,38 +22,22 @@ export default function DashboardIssuesPage({ user, issues }: { user: User; issu
                      </EmptyPlaceholder>
                   </>
                ) : ( */}
-               <div className="w-1/2 sm:w-1/2 md:w-1/3 xl:w-1/4 mb-2 cursor-pointer">
-                  {/* Add a link to the project item and open it in a new tab */}
-                  <div className="m-2 border-gray-200 border rounded-md hover:border-blue-500">
-                     <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex flex-col group">
+               <div className="mb-2">
+                  <div className="m-2 border-black border-[1.4px] rounded-md h-screen overflow-hidden">
+                     <div className="p-2 bg-black rounded-t-sm text-white flex flex-row justify-between">
+                        <div className="ml-2">Name</div>
+                        <div className="">Issued</div>
+                        <div className="mx-12">By</div>
+                     </div>
+                     <div className="mt-2 mb-2 ml-2 mr-2 border-gray-200 flex flex-col cursor-pointer group">
                         <div className="flex overflow-hidden whitespace-nowrap">
-                           <div className="pr-4 pt-0.5 text-gray-600 text-sm">
-                              Issue number
-                              <h2 className="title-fon sm:text-base font-medium pr-4 pt-1 text-gray-900 overflow-ellipsis overflow-hidden">
-                                 Issue Name
+                           <div className="border-gray-200 border rounded-md hover:border-blue-500 cursor-pointer px-2 pt-0.5 bg-slate-200 w-full">
+                              <div className="text-gray-600">Issue number</div>
+                              <h2 className="title-fon sm:text-base font-medium pr-2 pt-1 text-gray-900 overflow-ellipsis overflow-hidden flex flex-row justify-between">
+                                 <div className="">Issue Name</div>
+                                 <div className="">Date and Time</div>
+                                 <div className="text-sm text-gray-600">Name & Icon</div>
                               </h2>
-                           </div>
-                        </div>
-                        <div className="h-fit text-sm flex flex-row text-gray-600 ml-auto md:mt-auto">
-                           Dev Name
-                           <div className="flex">
-                              -Icon
-                              {/* {Object.keys(connectedUsers).map((color, index) => {
-                                 return (
-                                    <Image
-                                       key={index}
-                                       src={connectedUsers[color].picture}
-                                       width={30}
-                                       height={30}
-                                       className={`rounded-full m-2 border-2 border-double -ml-4 only:ml-0`}
-                                       style={{
-                                          borderColor: color,
-                                          backgroundColor: color,
-                                       }}
-                                       alt="avatar"
-                                    />
-                                 );
-                              })} */}
                            </div>
                         </div>
                      </div>
