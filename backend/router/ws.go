@@ -53,11 +53,11 @@ func WebSocketDiagramHandler(sdkP *sdk.SDK) fiber.Handler {
 				case <-closeChannel:
 					return
 				case <-time.After(30 * time.Second):
-					if wc == nil {
+					if wc == nil || wc.Conn == nil {
 						return
 					}
 
-					wc.WriteMessage(websocket.TextMessage, []byte("ping"))
+					wc.Conn.WriteMessage(websocket.TextMessage, []byte("ping"))
 				}
 			}
 		}()

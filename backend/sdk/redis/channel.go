@@ -98,6 +98,9 @@ func (c *channel) addConnection(conn *connection, user *models.UserModel) {
 	c.connectionsMu.Unlock()
 
 	// Send the user their sessionId
+	if conn == nil || conn.ws == nil {
+		return
+	}
 	conn.ws.WriteJSON(types.WebSocketBody{
 		SessionId: conn.sessionId,
 		Events:    "connected",
@@ -126,6 +129,10 @@ func (c *channel) addConnection(conn *connection, user *models.UserModel) {
 
 		sentUserIds = append(sentUserIds, v.User.UserId)
 		v.Events = "connection"
+
+		if conn == nil || conn.ws == nil {
+			return
+		}
 		conn.ws.WriteJSON(v)
 	}
 }
@@ -161,15 +168,16 @@ func (c *channel) listen() {
 			for _, v := range c.connections {
 				wg.Add(1)
 				go func(v *connection) {
-					// Catch panics
-					defer recover()
 					defer wg.Done()
 
-					if v.sessionId != fromSessionId {
-						v.mu.Lock()
-						defer v.mu.Unlock()
-						v.ws.WriteJSON(payload)
+					if v.sessionId == fromSessionId || v == nil || v.ws == nil {
+						return
 					}
+
+					v.mu.Lock()
+					defer v.mu.Unlock()
+
+					v.ws.WriteJSON(payload)
 
 				}(v)
 			}
