@@ -21,7 +21,7 @@ export default function DashboardDiagramsPage({
    const showEmptyPlaceholder =
       !diagramsRequest.success || (!diagramsRequest.response.diagrams.length && !diagramsRequest.response.projects.length);
 
-   const [selectDiagrams, setSelectDiagrams] = useState(false);
+   const [selectingItems, setSelectingItems] = useState(false);
 
    return (
       <DashboardLayout user={user}>
@@ -33,8 +33,8 @@ export default function DashboardDiagramsPage({
                      : Math.max(diagramsRequest.response.diagrams.length, diagramsRequest.response.projects.length)
                }
                showEmptyPlaceholder={showEmptyPlaceholder}
-               selectDiagrams={selectDiagrams}
-               setSelectDiagrams={setSelectDiagrams}
+               selectingItems={selectingItems}
+               setSelectingItems={setSelectingItems}
             />
             <div className="flex flex-col">
                {showEmptyPlaceholder ? (
@@ -53,7 +53,7 @@ export default function DashboardDiagramsPage({
                      {diagramsRequest.response.projects.length > 0 && (
                         <div className="flex flex-wrap select-none">
                            {diagramsRequest.response.projects.map((project) => (
-                              <ProjectItem key={project.id} project={project} />
+                              <ProjectItem key={project.id} project={project} selectable={selectingItems} />
                            ))}
                         </div>
                      )}
@@ -64,7 +64,7 @@ export default function DashboardDiagramsPage({
                                  key={diagram.id}
                                  diagram={diagram}
                                  userId={user.user_id}
-                                 selectable={selectDiagrams}
+                                 selectable={selectingItems}
                               />
                            ))}
                         </div>

@@ -8,14 +8,14 @@ export default function DiagramsHeader({
    diagramsLength,
    showEmptyPlaceholder,
    project,
-   selectDiagrams,
-   setSelectDiagrams,
+   selectingItems,
+   setSelectingItems,
 }: {
    diagramsLength: number;
    showEmptyPlaceholder: boolean;
    project?: Project;
-   selectDiagrams: boolean;
-   setSelectDiagrams: (current: boolean) => void;
+   selectingItems: boolean;
+   setSelectingItems: (current: boolean) => void;
 }) {
    const [open, setOpen] = useState(false);
 
@@ -36,11 +36,11 @@ export default function DiagramsHeader({
             </div>
             <div className="flex gap-3">
                {/* initial buttons shown on the diagrams dashboard page */}
-               {!!diagramsLength && !selectDiagrams && !open && (
+               {!!diagramsLength && !selectingItems && !open && (
                   <>
                      <button
                         className="self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
-                        onClick={() => setSelectDiagrams(true)}
+                        onClick={() => setSelectingItems(true)}
                      >
                         Select
                      </button>
@@ -50,10 +50,10 @@ export default function DiagramsHeader({
                )}
 
                {/* when the user can select items */}
-               {!!diagramsLength && selectDiagrams && !open && (
+               {!!diagramsLength && selectingItems && !open && (
                   <button
                      className="self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
-                     onClick={() => setSelectDiagrams(false)}
+                     onClick={() => setSelectingItems(false)}
                   >
                      Cancel
                   </button>

@@ -1,6 +1,7 @@
 import { getProject, getSession } from "@/lib/auth-fetch";
 import { GetServerSideProps } from "next";
 import { User } from "types";
+import { useState } from "react";
 
 import EmptyPlaceholder from "@/components/dashboard/empty-placeholder";
 import DiagramItem from "@/components/dashboard/diagrams/diagram-item";
@@ -17,6 +18,7 @@ export default function DashboardDiagramsProjectsPage({
    projectRequest: Awaited<ReturnType<typeof getProject>>;
 }) {
    const showEmptyPlaceholder = !projectRequest.success || !projectRequest.response.diagrams?.length;
+   const [selectingItems, setSelectingItems] = useState(false);
 
    return (
       <DashboardLayout user={user}>
@@ -25,6 +27,8 @@ export default function DashboardDiagramsProjectsPage({
                diagramsLength={!projectRequest.success ? 0 : projectRequest.response.diagrams?.length}
                showEmptyPlaceholder={showEmptyPlaceholder}
                project={projectRequest.response}
+               selectingItems={selectingItems}
+               setSelectingItems={setSelectingItems}
             />
             <div className="flex flex-col">
                {showEmptyPlaceholder ? (
@@ -41,7 +45,12 @@ export default function DashboardDiagramsProjectsPage({
                ) : (
                   <div className="flex flex-wrap select-none">
                      {projectRequest.response.diagrams?.map((diagram) => (
-                        <DiagramItem key={diagram.id} diagram={diagram} project={projectRequest.response} />
+                        <DiagramItem
+                           key={diagram.id}
+                           diagram={diagram}
+                           project={projectRequest.response}
+                           selectable={selectingItems}
+                        />
                      ))}
                   </div>
                )}
