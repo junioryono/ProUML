@@ -1,6 +1,7 @@
 import { getProjects, getSession } from "@/lib/auth-fetch";
 import { GetServerSideProps } from "next";
 import { Project, User } from "types";
+import { useState } from "react";
 
 import EmptyPlaceholder from "@/components/dashboard/empty-placeholder";
 import ProjectItem from "@/components/dashboard/diagrams/project-item";
@@ -10,11 +11,13 @@ import DashboardHeader from "@/components/dashboard/header";
 import DashboardShell from "@/components/dashboard/shell";
 
 export default function DashboardProjectsPage({ user, projects }: { user: User; projects: Project[] }) {
+   const [selectingItems, setSelectingItems] = useState(false);
+
    return (
       <DashboardLayout user={user}>
          <DashboardShell>
             <DashboardHeader heading="Projects" text="Create and manage projects.">
-               <ProjectsHeader />
+               <ProjectsHeader projects={projects} selectingItems={selectingItems} setSelectingItems={setSelectingItems} />
             </DashboardHeader>
             <div className="flex flex-col">
                {!projects || !projects.length ? (
@@ -28,7 +31,7 @@ export default function DashboardProjectsPage({ user, projects }: { user: User; 
                ) : (
                   <div className="flex flex-wrap select-none">
                      {projects.map((project) => (
-                        <ProjectItem key={project.id} project={project} />
+                        <ProjectItem key={project.id} project={project} selectable={selectingItems} />
                      ))}
                   </div>
                )}

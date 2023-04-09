@@ -129,6 +129,7 @@ export default function DiagramItem({
                      // set selected to true
                      setSelected(!selected);
                   }}
+                  className="cursor-pointer"
                >
                   <div className="relative block h-48 overflow-hidden">
                      {diagram.image && (

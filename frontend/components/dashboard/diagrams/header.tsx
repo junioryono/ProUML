@@ -38,12 +38,14 @@ export default function DiagramsHeader({
                {/* initial buttons shown on the diagrams dashboard page */}
                {!!diagramsLength && !selectingItems && !open && (
                   <>
-                     <button
-                        className="self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
-                        onClick={() => setSelectingItems(true)}
-                     >
-                        Select
-                     </button>
+                     {diagramsLength > 1 && (
+                        <button
+                           className="self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
+                           onClick={() => setSelectingItems(true)}
+                        >
+                           Select
+                        </button>
+                     )}
 
                      <CreateButton title="New diagram" onClick={() => setOpen((current) => !current)} />
                   </>

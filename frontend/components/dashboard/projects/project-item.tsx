@@ -5,12 +5,16 @@ import { Project } from "types";
 import ProjectItemOptions from "./project-item-options";
 import { LongPressDetectEvents, useLongPress } from "use-long-press";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Icons } from "@/components/icons";
+import { cn } from "@/lib/utils";
 
-export default function ProjectItem({ project }: { project: Project }) {
+export default function ProjectItem({ project, selectable }: { project: Project; selectable?: boolean }) {
    const [showMenu, setShowMenu] = useState(false);
    const linkRef = useRef<HTMLAnchorElement>(null);
    // Store diagram.updated_at as a Date object
    const [updatedAt, setUpdatedAt] = useState<string>(formatDate(project.updated_at.toString(), "Edited"));
+
+   const [selected, setSelected] = useState(false);
 
    // Update the date every 15 seconds
    useEffect(() => {
@@ -41,6 +45,10 @@ export default function ProjectItem({ project }: { project: Project }) {
    }
 
    useEffect(() => {
+      if (!selectable) setSelected(false);
+   }, [selectable]);
+
+   useEffect(() => {
       if (!showMenu) return;
 
       document.addEventListener("click", handleClickOutside, true);
@@ -55,31 +63,83 @@ export default function ProjectItem({ project }: { project: Project }) {
       // Add a gray border to the diagram item
       // Add padding between each item
       <div className="w-1/2 sm:w-1/2 md:w-1/3 xl:w-1/4 mb-2">
-         {/* Add a link to the diagram item and open it in a new tab */}
-         <div className="m-2 border-gray-200 border rounded">
-            <Link
-               ref={linkRef}
-               href="/dashboard/projects/[id]"
-               as={`/dashboard/projects/${project.id}`}
-               {...onLongPress()}
-               className="cursor-pointer"
-               onContextMenu={(e) => {
-                  e.preventDefault();
-                  return false;
-               }}
-            >
-               <div className="pt-3 pb-3 pl-4 pr-2 flex">
-                  <div className="flex-grow overflow-hidden whitespace-nowrap">
-                     <h2 className="title-font text-sm sm:text-lg font-medium text-gray-900 overflow-ellipsis overflow-hidden">
-                        {project.name}
-                     </h2>
-                     <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p>
+         {/* Add a link to the project item and open it in a new tab */}
+         <div
+            className={cn(
+               "m-2 border-gray-200 border rounded-md hover:border-blue-500 h-14",
+               selected && selectable && "border-blue-500",
+            )}
+         >
+            {!selectable ? (
+               <Link
+                  ref={linkRef}
+                  href="/dashboard/diagrams/project/[id]"
+                  as={`/dashboard/diagrams/project/${project.id}`}
+                  {...onLongPress()}
+                  className="cursor-pointer"
+                  onContextMenu={(e) => {
+                     e.preventDefault();
+                     return false;
+                  }}
+               >
+                  <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex group">
+                     <div className="flex overflow-hidden whitespace-nowrap">
+                        <div className="pr-4 pt-0.5">
+                           <Icons.folder size={25} strokeWidth={0.4} className="group-hover:fill-black" />
+                        </div>
+                        <h2 className="title-font text-sm sm:text-base font-medium pr-4 pt-1 text-gray-900 overflow-ellipsis overflow-hidden">
+                           {project.name}
+                        </h2>
+                        {/* <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p> */}
+                     </div>
+                     <div className="h-fit ml-auto md:mt-auto">
+                        <ProjectItemOptions project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
+                     </div>
                   </div>
-                  <div className="h-fit ml-auto md:mt-auto">
-                     <ProjectItemOptions project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
+               </Link>
+            ) : (
+               <div onClick={() => setSelected(!selected)} className="cursor-pointer">
+                  <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex group">
+                     <div className="flex overflow-hidden whitespace-nowrap">
+                        <div className="pr-4 pt-0.5">
+                           <Icons.folder
+                              size={25}
+                              strokeWidth={0.4}
+                              className={cn("group-hover:fill-black", selected && selectable && "fill-black")}
+                           />
+                        </div>
+                        <h2 className="title-font text-sm sm:text-base font-medium pr-4 pt-1 text-gray-900 overflow-ellipsis overflow-hidden">
+                           {project.name}
+                        </h2>
+                        {/* <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p> */}
+                     </div>
+                     <div className=" ml-auto md:mt-auto">
+                        {/* if selected */}
+                        <div className="bg-white border border-slate-400 rounded-full h-6 w-6 m-1 text-gray-500 hover:text-gray-500 focus:outline-none hover:bg-slate-100 hidden md:block">
+                           {selected && (
+                              // svg src: https://www.svgrepo.com/svg/510901/check?edit=true
+                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                 <g id="SVGRepo_iconCarrier">
+                                    <g id="Interface / Check">
+                                       <path
+                                          id="Vector"
+                                          d="M6 12L10.2426 16.2426L18.727 7.75732"
+                                          stroke="#000000"
+                                          stroke-width="2"
+                                          stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                       ></path>
+                                    </g>
+                                 </g>
+                              </svg>
+                           )}
+                        </div>
+                     </div>
                   </div>
                </div>
-            </Link>
+            )}
          </div>
       </div>
    );

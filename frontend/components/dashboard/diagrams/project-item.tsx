@@ -102,7 +102,11 @@ export default function ProjectItem({ project, selectable }: { project: Project;
                   <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex group">
                      <div className="flex overflow-hidden whitespace-nowrap">
                         <div className="pr-4 pt-0.5">
-                           <Icons.folder size={25} strokeWidth={0.4} className="group-hover:fill-black" />
+                           <Icons.folder
+                              size={25}
+                              strokeWidth={0.4}
+                              className={cn("group-hover:fill-black", selected && selectable && "fill-black")}
+                           />
                         </div>
                         <h2 className="title-font text-sm sm:text-base font-medium pr-4 pt-1 text-gray-900 overflow-ellipsis overflow-hidden">
                            {project.name}
