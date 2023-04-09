@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Diagram, Project } from "types";
 
+import SelectedItemsOptions from "./selected-items-options";
 import NewDiagram from "@/components/dashboard/diagrams/new-diagram";
 import CreateButton from "@/components/dashboard/create-button";
 
@@ -22,6 +23,7 @@ export default function DiagramsHeader({
    setSelectedItems: (current: (Diagram | Project)[]) => void;
 }) {
    const [open, setOpen] = useState(false);
+   const [showMenu, setShowMenu] = useState(false);
 
    return (
       <>
@@ -38,13 +40,13 @@ export default function DiagramsHeader({
                </div>
                <p className="text-neutral-500 cursor-default">Create and manage diagrams.</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 items-center">
                {/* initial buttons shown on the diagrams dashboard page */}
                {!!diagramsLength && !selectingItems && !open && (
                   <>
                      {diagramsLength > 1 && (
                         <button
-                           className="self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
+                           className="relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
                            onClick={() => setSelectingItems(true)}
                         >
                            Select
@@ -59,13 +61,21 @@ export default function DiagramsHeader({
                {!!diagramsLength && selectingItems && !open && (
                   <>
                      {/* show the amount of items selected if there are any selected */}
-                     {selectedItems.length > 0 ? (
-                        <span className="self-center font-medium text-slate-900">{selectedItems.length} selected</span>
+                     {selectedItems ? (
+                        <>
+                           <span className="font-medium text-slate-900">{selectedItems.length} selected</span>
+                           <SelectedItemsOptions
+                              showMenu={showMenu}
+                              setShowMenu={setShowMenu}
+                              selectedItems={selectedItems}
+                           />
+                        </>
                      ) : (
-                        <span className="self-center font-medium text-slate-900">Select items</span>
+                        <span className="font-medium text-slate-900 mr-3">Select items</span>
                      )}
+
                      <button
-                        className="self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
+                        className="relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
                         onClick={() => {
                            setSelectingItems(false);
                            // empty the selected items array
@@ -80,7 +90,7 @@ export default function DiagramsHeader({
                {/* when the user is creating a new diagram */}
                {!!diagramsLength && open && (
                   <button
-                     className="self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
+                     className="relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
                      onClick={() => setOpen((current) => !current)}
                   >
                      Cancel

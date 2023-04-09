@@ -168,7 +168,12 @@ export default function DiagramItem({
                      </div>
                      <div className="h-fit ml-auto md:mt-auto flex gap-1 items-center">
                         {diagram.is_shared_with_current_user && <Icons.users size={22} />}
-                        <div className="bg-white border border-slate-400 rounded-full h-6 w-6 m-1 text-gray-500 hover:text-gray-500 focus:outline-none hover:bg-slate-100 hidden md:block">
+                        <div
+                           className={cn(
+                              "bg-white border border-slate-400 rounded-full h-6 w-6 m-1 text-gray-500 hover:text-gray-500 focus:outline-none hover:bg-slate-100 hidden md:block",
+                              selected && "bg-black",
+                           )}
+                        >
                            {/* if selected */}
                            {selected && (
                               // svg src: https://www.svgrepo.com/svg/510901/check?edit=true
@@ -180,8 +185,8 @@ export default function DiagramItem({
                                        <path
                                           id="Vector"
                                           d="M6 12L10.2426 16.2426L18.727 7.75732"
-                                          stroke="#000000"
-                                          stroke-width="2"
+                                          stroke="#ffffff"
+                                          stroke-width="3"
                                           stroke-linecap="round"
                                           stroke-linejoin="round"
                                        ></path>
