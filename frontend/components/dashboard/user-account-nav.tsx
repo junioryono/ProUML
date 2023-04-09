@@ -82,6 +82,12 @@ export default function UserAccountNav({ user, className }: { user: User; classN
                   </DropdownMenu.Item>
                </Link>
 
+               <Link href="/dashboard/shared">
+                  <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
+                     Shared with you
+                  </DropdownMenu.Item>
+               </Link>
+
                <Link href="/dashboard/issues">
                   <DropdownMenu.Item className="cursor-pointer focus:bg-slate-50 focus:text-black">
                      Your issues

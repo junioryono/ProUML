@@ -1,7 +1,9 @@
 import { getSharedDiagrams, getSession } from "@/lib/auth-fetch";
 import { GetServerSideProps } from "next";
-import { User } from "types";
+import { User, Diagram, Project } from "types";
+import { useState } from "react";
 
+import SharedHeader from "@/components/dashboard/shared/header";
 import DashboardShell from "@/components/dashboard/shell";
 import DiagramItem from "@/components/dashboard/diagrams/diagram-item";
 import ProjectItem from "@/components/dashboard/diagrams/project-item";
@@ -19,17 +21,26 @@ export default function DashboardSharedPage({
    const showEmptyPlaceholder =
       !diagramsRequest.success || (!diagramsRequest.response.diagrams.length && !diagramsRequest.response.projects.length);
 
+   const [selectingItems, setSelectingItems] = useState(false);
+
+   // selected items which can consist of diagrams or projects
+   const [selectedItems, setSelectedItems] = useState<Diagram[] | Project[]>([]);
+
    return (
       <DashboardLayout user={user}>
          <DashboardShell>
-            <div className="flex justify-between px-2">
-               <div className="grid gap-1">
-                  <div className="flex">
-                     <h1 className="text-2xl font-bold tracking-wide text-slate-900 cursor-default">Shared Diagrams</h1>
-                  </div>
-                  <p className="text-neutral-500 cursor-default">Edit and manage shared diagrams.</p>
-               </div>
-            </div>
+            <SharedHeader
+               diagramsLength={
+                  !diagramsRequest.success
+                     ? 0
+                     : Math.max(diagramsRequest.response.diagrams.length, diagramsRequest.response.projects.length)
+               }
+               selectingItems={selectingItems}
+               setSelectingItems={setSelectingItems}
+               selectedItems={selectedItems}
+               setSelectedItems={setSelectedItems}
+            />
+
             <div className="flex flex-col">
                {showEmptyPlaceholder ? (
                   <EmptyPlaceholder>
@@ -45,14 +56,27 @@ export default function DashboardSharedPage({
                      {diagramsRequest.response.projects.length > 0 && (
                         <div className="flex flex-wrap select-none">
                            {diagramsRequest.response.projects.map((project) => (
-                              <ProjectItem key={project.id} project={project} />
+                              <ProjectItem
+                                 key={project.id}
+                                 project={project}
+                                 selectable={selectingItems}
+                                 selectedItems={selectedItems}
+                                 setSelectedItems={setSelectedItems}
+                              />
                            ))}
                         </div>
                      )}
                      {diagramsRequest.response.diagrams.length > 0 && (
                         <div className="flex flex-wrap select-none">
                            {diagramsRequest.response.diagrams.map((diagram) => (
-                              <DiagramItem key={diagram.id} diagram={diagram} userId={user.user_id} />
+                              <DiagramItem
+                                 key={diagram.id}
+                                 diagram={diagram}
+                                 userId={user.user_id}
+                                 selectable={selectingItems}
+                                 selectedItems={selectedItems}
+                                 setSelectedItems={setSelectedItems}
+                              />
                            ))}
                         </div>
                      )}

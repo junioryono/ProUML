@@ -50,6 +50,10 @@ export default function MainNav({ user, items, children }: MainNavProps) {
          href: "/dashboard/projects",
       },
       {
+         title: "Shared",
+         href: "/dashboard/shared",
+      },
+      {
          title: "Issues",
          href: "/dashboard/issues",
       },
