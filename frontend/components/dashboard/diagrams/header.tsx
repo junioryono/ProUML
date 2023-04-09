@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Project } from "types";
+import { useState, useEffect } from "react";
+import { Diagram, Project } from "types";
 
 import NewDiagram from "@/components/dashboard/diagrams/new-diagram";
 import CreateButton from "@/components/dashboard/create-button";
@@ -10,12 +10,16 @@ export default function DiagramsHeader({
    project,
    selectingItems,
    setSelectingItems,
+   selectedItems,
+   setSelectedItems,
 }: {
    diagramsLength: number;
    showEmptyPlaceholder: boolean;
    project?: Project;
    selectingItems: boolean;
    setSelectingItems: (current: boolean) => void;
+   selectedItems: (Diagram | Project)[];
+   setSelectedItems: (current: (Diagram | Project)[]) => void;
 }) {
    const [open, setOpen] = useState(false);
 
@@ -53,12 +57,24 @@ export default function DiagramsHeader({
 
                {/* when the user can select items */}
                {!!diagramsLength && selectingItems && !open && (
-                  <button
-                     className="self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
-                     onClick={() => setSelectingItems(false)}
-                  >
-                     Cancel
-                  </button>
+                  <>
+                     {/* show the amount of items selected if there are any selected */}
+                     {selectedItems.length > 0 ? (
+                        <span className="self-center font-medium text-slate-900">{selectedItems.length} selected</span>
+                     ) : (
+                        <span className="self-center font-medium text-slate-900">Select items</span>
+                     )}
+                     <button
+                        className="self-center relative inline-flex h-9 items-center rounded-md border border-transparent bg-brand-500 px-4 py-2 text-sm flex-none font-medium text-white hover:bg-brand-400 focus:outline-none"
+                        onClick={() => {
+                           setSelectingItems(false);
+                           // empty the selected items array
+                           setSelectedItems([]);
+                        }}
+                     >
+                        Cancel
+                     </button>
+                  </>
                )}
 
                {/* when the user is creating a new diagram */}

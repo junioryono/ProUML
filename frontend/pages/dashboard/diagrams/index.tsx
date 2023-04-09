@@ -1,6 +1,7 @@
 import { getDiagrams, getSession } from "@/lib/auth-fetch";
 import { GetServerSideProps } from "next";
-import { User } from "types";
+import { Diagram, Project, User } from "types";
+import { useState } from "react";
 
 import DashboardShell from "@/components/dashboard/shell";
 import DiagramsHeader from "@/components/dashboard/diagrams/header";
@@ -9,7 +10,6 @@ import ProjectItem from "@/components/dashboard/diagrams/project-item";
 import EmptyPlaceholder from "@/components/dashboard/empty-placeholder";
 import NewDiagram from "@/components/dashboard/diagrams/new-diagram";
 import DashboardLayout from "@/components/dashboard/layout";
-import { useState } from "react";
 
 export default function DashboardDiagramsPage({
    user,
@@ -23,6 +23,9 @@ export default function DashboardDiagramsPage({
 
    const [selectingItems, setSelectingItems] = useState(false);
 
+   // selected items which can consist of diagrams and projects
+   const [selectedItems, setSelectedItems] = useState<(Diagram | Project)[]>([]);
+
    return (
       <DashboardLayout user={user}>
          <DashboardShell>
@@ -35,6 +38,8 @@ export default function DashboardDiagramsPage({
                showEmptyPlaceholder={showEmptyPlaceholder}
                selectingItems={selectingItems}
                setSelectingItems={setSelectingItems}
+               selectedItems={selectedItems}
+               setSelectedItems={setSelectedItems}
             />
             <div className="flex flex-col">
                {showEmptyPlaceholder ? (
@@ -53,7 +58,13 @@ export default function DashboardDiagramsPage({
                      {diagramsRequest.response.projects.length > 0 && (
                         <div className="flex flex-wrap select-none">
                            {diagramsRequest.response.projects.map((project) => (
-                              <ProjectItem key={project.id} project={project} selectable={selectingItems} />
+                              <ProjectItem
+                                 key={project.id}
+                                 project={project}
+                                 selectable={selectingItems}
+                                 selectedItems={selectedItems}
+                                 setSelectedItems={setSelectedItems}
+                              />
                            ))}
                         </div>
                      )}
@@ -65,6 +76,8 @@ export default function DashboardDiagramsPage({
                                  diagram={diagram}
                                  userId={user.user_id}
                                  selectable={selectingItems}
+                                 selectedItems={selectedItems}
+                                 setSelectedItems={setSelectedItems}
                               />
                            ))}
                         </div>

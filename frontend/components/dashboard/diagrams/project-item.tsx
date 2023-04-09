@@ -8,7 +8,17 @@ import { LongPressDetectEvents, useLongPress } from "use-long-press";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Icons } from "@/components/icons";
 
-export default function ProjectItem({ project, selectable }: { project: Project; selectable?: boolean }) {
+export default function ProjectItem({
+   project,
+   selectable,
+   selectedItems,
+   setSelectedItems,
+}: {
+   project: Project;
+   selectable?: boolean;
+   selectedItems?: Project[];
+   setSelectedItems?: React.Dispatch<React.SetStateAction<Project[]>>;
+}) {
    const [showMenu, setShowMenu] = useState(false);
    const linkRef = useRef<HTMLAnchorElement>(null);
    // Store project.updated_at as a Date object
@@ -59,6 +69,15 @@ export default function ProjectItem({ project, selectable }: { project: Project;
       };
    }, [showMenu]);
 
+   const updateSelectedItems = (selectedItem: Project) => {
+      if (!selectedItems) return;
+      if (selectedItems.includes(selectedItem)) {
+         setSelectedItems(selectedItems.filter((item) => item !== selectedItem));
+      } else {
+         setSelectedItems([...selectedItems, selectedItem]);
+      }
+   };
+
    return (
       // Add a gray border to the project item
       // Add padding between each item
@@ -98,7 +117,14 @@ export default function ProjectItem({ project, selectable }: { project: Project;
                   </div>
                </Link>
             ) : (
-               <div onClick={() => setSelected(!selected)} className="cursor-pointer">
+               <div
+                  onClick={() => {
+                     setSelected(!selected);
+                     // add the project to the selected items
+                     updateSelectedItems(project);
+                  }}
+                  className="cursor-pointer"
+               >
                   <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex group">
                      <div className="flex overflow-hidden whitespace-nowrap">
                         <div className="pr-4 pt-0.5">

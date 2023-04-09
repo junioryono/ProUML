@@ -13,11 +13,15 @@ export default function DiagramItem({
    project,
    userId,
    selectable,
+   selectedItems,
+   setSelectedItems,
 }: {
    diagram: Diagram;
    project?: Project;
    userId?: string;
    selectable?: boolean;
+   selectedItems?: (Diagram | Project)[];
+   setSelectedItems?: React.Dispatch<React.SetStateAction<(Diagram | Project)[]>>;
 }) {
    const [showMenu, setShowMenu] = useState(false);
    const linkRef = useRef<HTMLAnchorElement>(null);
@@ -67,6 +71,16 @@ export default function DiagramItem({
    useEffect(() => {
       if (!selectable) setSelected(false);
    }, [selectable]);
+
+   const updateSelectedItems = (selectedItem: Diagram) => {
+      if (!selectedItems || !setSelectedItems) return;
+
+      if (selected) {
+         setSelectedItems((prev) => prev.filter((item) => item.id !== selectedItem.id));
+      } else {
+         setSelectedItems((prev) => [...prev, selectedItem]);
+      }
+   };
 
    return (
       // Add a gray border to the diagram item
@@ -128,6 +142,9 @@ export default function DiagramItem({
                   onClick={() => {
                      // set selected to true
                      setSelected(!selected);
+
+                     // update the selectedItems array
+                     updateSelectedItems(diagram);
                   }}
                   className="cursor-pointer"
                >
