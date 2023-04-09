@@ -9,6 +9,7 @@ import ProjectItem from "@/components/dashboard/diagrams/project-item";
 import EmptyPlaceholder from "@/components/dashboard/empty-placeholder";
 import NewDiagram from "@/components/dashboard/diagrams/new-diagram";
 import DashboardLayout from "@/components/dashboard/layout";
+import { useState } from "react";
 
 export default function DashboardDiagramsPage({
    user,
@@ -20,6 +21,8 @@ export default function DashboardDiagramsPage({
    const showEmptyPlaceholder =
       !diagramsRequest.success || (!diagramsRequest.response.diagrams.length && !diagramsRequest.response.projects.length);
 
+   const [selectDiagrams, setSelectDiagrams] = useState(false);
+
    return (
       <DashboardLayout user={user}>
          <DashboardShell>
@@ -30,6 +33,8 @@ export default function DashboardDiagramsPage({
                      : Math.max(diagramsRequest.response.diagrams.length, diagramsRequest.response.projects.length)
                }
                showEmptyPlaceholder={showEmptyPlaceholder}
+               selectDiagrams={selectDiagrams}
+               setSelectDiagrams={setSelectDiagrams}
             />
             <div className="flex flex-col">
                {showEmptyPlaceholder ? (
@@ -55,7 +60,12 @@ export default function DashboardDiagramsPage({
                      {diagramsRequest.response.diagrams.length > 0 && (
                         <div className="flex flex-wrap select-none">
                            {diagramsRequest.response.diagrams.map((diagram) => (
-                              <DiagramItem key={diagram.id} diagram={diagram} userId={user.user_id} />
+                              <DiagramItem
+                                 key={diagram.id}
+                                 diagram={diagram}
+                                 userId={user.user_id}
+                                 selectable={selectDiagrams}
+                              />
                            ))}
                         </div>
                      )}

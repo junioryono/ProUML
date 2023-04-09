@@ -26,6 +26,7 @@ import {
    Bug,
    FileImage,
    Folder,
+   UserPlus,
 } from "lucide-react";
 import type { Icon as LucideIcon } from "lucide-react";
 
@@ -48,6 +49,7 @@ export const Icons = {
    warning: AlertTriangle,
    user: User,
    users: Users,
+   addUser: UserPlus,
    arrowRight: ArrowRight,
    help: HelpCircle,
    pizza: Pizza,

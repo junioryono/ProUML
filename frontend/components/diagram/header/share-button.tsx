@@ -8,6 +8,7 @@ import { Diagram, User } from "types";
 import { getDiagramUsers, addDiagramUser, updateDiagramUser, removeDiagramUser, updateDiagram } from "@/lib/auth-fetch";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+// import { Icons } from "@/components/icons";
 
 const userAddSchema = z.object({
    // We are using "new-password" here because the browser will try to autofill the password field
@@ -229,6 +230,7 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
                   fill="#ffffff"
                />
             </svg>
+            {/* <Icons.addUser size={15} /> */}
             Share
          </button>
          <Transition.Root show={open} as={Fragment}>
