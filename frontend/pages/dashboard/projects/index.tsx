@@ -13,11 +13,20 @@ import DashboardShell from "@/components/dashboard/shell";
 export default function DashboardProjectsPage({ user, projects }: { user: User; projects: Project[] }) {
    const [selectingItems, setSelectingItems] = useState(false);
 
+   // selected items which can consist of diagrams or projects
+   const [selectedItems, setSelectedItems] = useState<Project[]>([]);
+
    return (
       <DashboardLayout user={user}>
          <DashboardShell>
             <DashboardHeader heading="Projects" text="Create and manage projects.">
-               <ProjectsHeader projects={projects} selectingItems={selectingItems} setSelectingItems={setSelectingItems} />
+               <ProjectsHeader
+                  projects={projects}
+                  selectingItems={selectingItems}
+                  setSelectingItems={setSelectingItems}
+                  selectedItems={selectedItems}
+                  setSelectedItems={setSelectedItems}
+               />
             </DashboardHeader>
             <div className="flex flex-col">
                {!projects || !projects.length ? (
@@ -31,7 +40,13 @@ export default function DashboardProjectsPage({ user, projects }: { user: User; 
                ) : (
                   <div className="flex flex-wrap select-none">
                      {projects.map((project) => (
-                        <ProjectItem key={project.id} project={project} selectable={selectingItems} />
+                        <ProjectItem
+                           key={project.id}
+                           project={project}
+                           selectable={selectingItems}
+                           selectedItems={selectedItems}
+                           setSelectedItems={setSelectedItems}
+                        />
                      ))}
                   </div>
                )}

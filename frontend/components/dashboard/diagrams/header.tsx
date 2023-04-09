@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Diagram, Project } from "types";
 
-import SelectedItemsOptions from "./selected-items-options";
+import SelectedItemsOptions from "@/components/dashboard/diagrams/selected-items-options";
 import NewDiagram from "@/components/dashboard/diagrams/new-diagram";
 import CreateButton from "@/components/dashboard/create-button";
 
@@ -61,7 +61,7 @@ export default function DiagramsHeader({
                {!!diagramsLength && selectingItems && !open && (
                   <>
                      {/* show the amount of items selected if there are any selected */}
-                     {selectedItems ? (
+                     {selectedItems.length > 0 ? (
                         <>
                            <span className="font-medium text-slate-900">{selectedItems.length} selected</span>
                            <SelectedItemsOptions
