@@ -1,10 +1,10 @@
 import { Diagram, Project } from "types";
 import { createProject } from "@/lib/auth-fetch";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/ui/toast";
 import CreateButton from "@/components/dashboard/create-button";
-import SelectedItemsOptions from "@/components/dashboard/projects/selected-items-options";
+import SelectedItemsOptions from "@/components/dashboard/diagrams/selected-items-options";
 
 export default function SharedHeader({
    diagramsLength,
@@ -22,6 +22,22 @@ export default function SharedHeader({
    setSelectedItems: (current: (Diagram | Project)[]) => void;
 }) {
    const [showMenu, setShowMenu] = useState(false);
+
+   // if the user presses the escape key while selecting items, close the selection
+   useEffect(() => {
+      const handleEscape = (event: KeyboardEvent) => {
+         if (event.key === "Escape") {
+            setSelectingItems(false);
+            setSelectedItems([]);
+         }
+      };
+
+      window.addEventListener("keydown", handleEscape);
+
+      return () => {
+         window.removeEventListener("keydown", handleEscape);
+      };
+   }, [setSelectingItems, setSelectedItems]);
 
    return (
       <>

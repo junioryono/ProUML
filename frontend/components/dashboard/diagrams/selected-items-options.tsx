@@ -32,16 +32,7 @@ export default function SelectedItemsOptions({
    const [projects, setProjects] = useState<Project[]>([]);
    const didFetchProjects = useRef(false);
 
-   const [renameOpen, setRenameOpen] = useState(false);
    const [assignProjectOpen, setAssignProjectOpen] = useState(false);
-
-   //console.log("diagram", diagram);
-
-   useEffect(() => {
-      if (renameOpen) {
-         setShowMenu(false);
-      }
-   }, [renameOpen]);
 
    useEffect(() => {
       if (assignProjectOpen) {
@@ -96,7 +87,109 @@ export default function SelectedItemsOptions({
             leaveTo="transform opacity-0 scale-95"
             show={showMenu}
          >
-            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none top-8 sm:top-12"></Menu.Items>
+            <Menu.Items className="absolute right-0 z-10 mt-2 w-64 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none top-8 sm:top-12">
+               <div className="py-1">
+                  {/* if all items in the selectedItems array are of type "Diagram" and not "Project" */}
+                  {selectedItems?.every((item: Diagram) => item.is_shared_with_current_user === false) && (
+                     <Menu.Item>
+                        {({ active }) => (
+                           <div
+                              className={cn(
+                                 active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                                 "px-4 py-2 text-sm flex flex-row",
+                              )}
+                           >
+                              <svg
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 width="20px"
+                                 height="20px"
+                                 viewBox="0 0 64 64"
+                                 strokeWidth="4"
+                                 stroke="#000000"
+                                 fill="none"
+                                 className="w-5 h-5 mr-5"
+                              >
+                                 <path d="M41.64,50.37h-32a2,2,0,0,1-2-2V15.63a2,2,0,0,1,2-2H23.32L28.75,20H54.39a2,2,0,0,1,2,2V37.33" />
+                                 <circle cx="50.24" cy="45.23" r="10.01" strokeLinecap="round" />
+                                 <line x1="50.24" y1="39.76" x2="50.24" y2="50.71" />
+                                 <line x1="44.76" y1="45.23" x2="55.72" y2="45.23" />
+                              </svg>
+                              Assign diagrams to project
+                           </div>
+                        )}
+                     </Menu.Item>
+                  )}
+
+                  {/* Deleting is an option available for both selected diagrams and projects */}
+                  <Menu.Item>
+                     {({ active }) => (
+                        <div
+                           className={cn(
+                              active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                              "px-4 py-2 text-sm flex flex-row",
+                           )}
+                        >
+                           <svg
+                              width="20px"
+                              height="20px"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="mr-5"
+                           >
+                              <g strokeWidth="0"></g>
+                              <g strokeLinecap="round" strokeLinejoin="round"></g>
+                              <g>
+                                 <path
+                                    d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
+                                    stroke="#000000"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                 ></path>
+                              </g>
+                           </svg>
+                           Delete / remove items
+                        </div>
+                     )}
+                  </Menu.Item>
+
+                  {/* Duplicating is an option available for both selected diagrams and projects */}
+                  <Menu.Item>
+                     {({ active }) => (
+                        <div
+                           className={cn(
+                              active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                              "px-4 py-2 text-sm flex flex-row",
+                           )}
+                        >
+                           <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="20px"
+                              height="20px"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              className="w-5 h-5 mr-5"
+                           >
+                              <path
+                                 d="M19.688 5.69833C20.3342 6.28473 20.6573 6.57793 20.8287 6.96478C21 7.35163 21 7.78795 21 8.66058L21 13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H13C11.1144 17 10.1716 17 9.58579 16.4142C9 15.8284 9 14.8856 9 13L9 7C9 5.11438 9 4.17157 9.58579 3.58579C10.1716 3 11.1144 3 13 3H15.17C15.9332 3 16.3148 3 16.6625 3.13422C17.0101 3.26845 17.2927 3.52488 17.8579 4.03776L19.688 5.69833Z"
+                                 stroke="#323232"
+                                 strokeWidth="2"
+                                 strokeLinejoin="round"
+                              />
+                              <path
+                                 d="M9 7L7 7C5.11438 7 4.17157 7 3.58579 7.58579C3 8.17157 3 9.11438 3 11L3 17C3 18.8856 3 19.8284 3.58579 20.4142C4.17157 21 5.11438 21 7 21H11C12.8856 21 13.8284 21 14.4142 20.4142C15 19.8284 15 18.8856 15 17V17"
+                                 stroke="#323232"
+                                 strokeWidth="2"
+                                 strokeLinejoin="round"
+                              />
+                           </svg>
+                           Duplicate items
+                        </div>
+                     )}
+                  </Menu.Item>
+               </div>
+            </Menu.Items>
          </Transition>
       </Menu>
    );

@@ -150,17 +150,17 @@ export default function ProjectItem({
                            {selected && (
                               // svg src: https://www.svgrepo.com/svg/510901/check?edit=true
                               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                                  <g id="SVGRepo_iconCarrier">
                                     <g id="Interface / Check">
                                        <path
                                           id="Vector"
                                           d="M6 12L10.2426 16.2426L18.727 7.75732"
                                           stroke="#ffffff"
-                                          stroke-width="3"
-                                          stroke-linecap="round"
-                                          stroke-linejoin="round"
+                                          strokeWidth="3"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
                                        ></path>
                                     </g>
                                  </g>

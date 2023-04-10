@@ -117,13 +117,13 @@ export default function DiagramItemOptions({
                                  width="20px"
                                  height="20px"
                                  viewBox="0 0 64 64"
-                                 stroke-width="4"
+                                 strokeWidth="4"
                                  stroke="#000000"
                                  fill="none"
                                  className="w-5 h-5 mr-5"
                               >
                                  <path d="M41.64,50.37h-32a2,2,0,0,1-2-2V15.63a2,2,0,0,1,2-2H23.32L28.75,20H54.39a2,2,0,0,1,2,2V37.33" />
-                                 <circle cx="50.24" cy="45.23" r="10.01" stroke-linecap="round" />
+                                 <circle cx="50.24" cy="45.23" r="10.01" strokeLinecap="round" />
                                  <line x1="50.24" y1="39.76" x2="50.24" y2="50.71" />
                                  <line x1="44.76" y1="45.23" x2="55.72" y2="45.23" />
                               </svg>
@@ -208,15 +208,15 @@ export default function DiagramItemOptions({
                                  <path
                                     d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H10M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V10.8125"
                                     stroke="#000000"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                  />
                                  <path
                                     d="M14.0251 15.0251C13.3918 15.6585 13 16.5335 13 17.5C13 19.433 14.567 21 16.5 21C17.4665 21 18.3415 20.6082 18.9749 19.9749M14.0251 15.0251C14.6585 14.3918 15.5335 14 16.5 14C18.433 14 20 15.567 20 17.5C20 18.4665 19.6082 19.3415 18.9749 19.9749M14.0251 15.0251L16.5 17.5L18.9749 19.9749"
                                     stroke="#000000"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
                                  />
                               </svg>
                               Remove from project
@@ -316,15 +316,15 @@ export default function DiagramItemOptions({
                                  <path
                                     d="M13.5 3H12H8C6.34315 3 5 4.34315 5 6V18C5 19.6569 6.34315 21 8 21H10M13.5 3L19 8.625M13.5 3V7.625C13.5 8.17728 13.9477 8.625 14.5 8.625H19M19 8.625V10.8125"
                                     stroke="#000000"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                  />
                                  <path
                                     d="M14.0251 15.0251C13.3918 15.6585 13 16.5335 13 17.5C13 19.433 14.567 21 16.5 21C17.4665 21 18.3415 20.6082 18.9749 19.9749M14.0251 15.0251C14.6585 14.3918 15.5335 14 16.5 14C18.433 14 20 15.567 20 17.5C20 18.4665 19.6082 19.3415 18.9749 19.9749M14.0251 15.0251L16.5 17.5L18.9749 19.9749"
                                     stroke="#000000"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
                                  />
                               </svg>
                               Remove
@@ -379,14 +379,14 @@ export default function DiagramItemOptions({
                               <path
                                  d="M19.688 5.69833C20.3342 6.28473 20.6573 6.57793 20.8287 6.96478C21 7.35163 21 7.78795 21 8.66058L21 13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H13C11.1144 17 10.1716 17 9.58579 16.4142C9 15.8284 9 14.8856 9 13L9 7C9 5.11438 9 4.17157 9.58579 3.58579C10.1716 3 11.1144 3 13 3H15.17C15.9332 3 16.3148 3 16.6625 3.13422C17.0101 3.26845 17.2927 3.52488 17.8579 4.03776L19.688 5.69833Z"
                                  stroke="#323232"
-                                 stroke-width="2"
-                                 stroke-linejoin="round"
+                                 strokeWidth="2"
+                                 strokeLinejoin="round"
                               />
                               <path
                                  d="M9 7L7 7C5.11438 7 4.17157 7 3.58579 7.58579C3 8.17157 3 9.11438 3 11L3 17C3 18.8856 3 19.8284 3.58579 20.4142C4.17157 21 5.11438 21 7 21H11C12.8856 21 13.8284 21 14.4142 20.4142C15 19.8284 15 18.8856 15 17V17"
                                  stroke="#323232"
-                                 stroke-width="2"
-                                 stroke-linejoin="round"
+                                 strokeWidth="2"
+                                 strokeLinejoin="round"
                               />
                            </svg>
                            Duplicate
@@ -415,30 +415,30 @@ export default function DiagramItemOptions({
                               <path
                                  d="M8 21H20.4C20.7314 21 21 20.7314 21 20.4V3.6C21 3.26863 20.7314 3 20.4 3H3.6C3.26863 3 3 3.26863 3 3.6V16"
                                  stroke="#000000"
-                                 stroke-width="1.5"
-                                 stroke-linecap="round"
-                                 stroke-linejoin="round"
+                                 strokeWidth="1.5"
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
                               />
                               <path
                                  d="M10 6L18 6"
                                  stroke="#000000"
-                                 stroke-width="1.5"
-                                 stroke-linecap="round"
-                                 stroke-linejoin="round"
+                                 strokeWidth="1.5"
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
                               />
                               <path
                                  d="M6 6H7"
                                  stroke="#000000"
-                                 stroke-width="1.5"
-                                 stroke-linecap="round"
-                                 stroke-linejoin="round"
+                                 strokeWidth="1.5"
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
                               />
                               <path
                                  d="M3.5 20.5L12 12M12 12V16M12 12H8"
                                  stroke="#000000"
-                                 stroke-width="1.5"
-                                 stroke-linecap="round"
-                                 stroke-linejoin="round"
+                                 strokeWidth="1.5"
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
                               />
                            </svg>
                            Open in new tab

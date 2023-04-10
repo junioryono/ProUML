@@ -25,6 +25,22 @@ export default function DiagramsHeader({
    const [open, setOpen] = useState(false);
    const [showMenu, setShowMenu] = useState(false);
 
+   // if the user presses the escape key while selecting items, close the selection
+   useEffect(() => {
+      const handleEscape = (event: KeyboardEvent) => {
+         if (event.key === "Escape") {
+            setSelectingItems(false);
+            setSelectedItems([]);
+         }
+      };
+
+      window.addEventListener("keydown", handleEscape);
+
+      return () => {
+         window.removeEventListener("keydown", handleEscape);
+      };
+   }, [setSelectingItems, setSelectedItems]);
+
    return (
       <>
          <div className="flex justify-between px-2">

@@ -101,13 +101,13 @@ export default function Graph(
          }
          .x6-edge .connection,
          .x6-edge .connection-wrap {
-            stroke-linejoin: round;
+            strokeLinejoin: round;
             fill: none;
          }
          .x6-edge .connection-wrap {
             stroke: #000;
-            stroke-width: 15;
-            stroke-linecap: round;
+            strokeWidth: 15;
+            strokeLinecap: round;
          }
          .x6-edge .vertices,
          .x6-edge .arrowheads,

@@ -1,8 +1,10 @@
 import { Project } from "types";
 import { createProject } from "@/lib/auth-fetch";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "@/ui/toast";
+import { LongPressDetectEvents, useLongPress } from "use-long-press";
+
 import CreateButton from "@/components/dashboard/create-button";
 import SelectedItemsOptions from "@/components/dashboard/projects/selected-items-options";
 
@@ -23,6 +25,7 @@ export default function ProjectsHeader({
    const [isLoading, setIsLoading] = useState(false);
    const [open, setOpen] = useState(false);
    const [showMenu, setShowMenu] = useState(false);
+   const linkRef = useRef<HTMLAnchorElement>(null);
 
    async function onClickHandler() {
       if (isLoading) {
@@ -57,6 +60,51 @@ export default function ProjectsHeader({
          })
          .finally(() => setIsLoading(false));
    }
+
+   function handleClickOutside(event: Event) {
+      if (linkRef.current && !linkRef.current.contains(event.target as Node)) {
+         setShowMenu(false);
+      }
+   }
+
+   const onLongPress = useLongPress(
+      () => {
+         setShowMenu(true);
+      },
+      {
+         cancelOnMovement: true,
+         threshold: 700,
+         detect: LongPressDetectEvents.TOUCH,
+      },
+   );
+
+   // close the menu when the user clicks outside of it
+   useEffect(() => {
+      if (!showMenu) return;
+
+      document.addEventListener("click", handleClickOutside, true);
+      document.addEventListener("touchstart", handleClickOutside, true);
+      return () => {
+         document.removeEventListener("click", handleClickOutside, true);
+         document.addEventListener("touchstart", handleClickOutside, true);
+      };
+   }, [showMenu]);
+
+   // if the user presses the escape key while selecting items, close the selection
+   useEffect(() => {
+      const handleEscape = (event: KeyboardEvent) => {
+         if (event.key === "Escape") {
+            setSelectingItems(false);
+            setSelectedItems([]);
+         }
+      };
+
+      window.addEventListener("keydown", handleEscape);
+
+      return () => {
+         window.removeEventListener("keydown", handleEscape);
+      };
+   }, [setSelectingItems, setSelectedItems]);
 
    return (
       <div className="flex gap-3 items-center">
