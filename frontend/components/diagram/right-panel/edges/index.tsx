@@ -1,5 +1,5 @@
 import type X6Type from "@antv/x6";
-import { MutableRefObject, useEffect, useState, useRef } from "react";
+import { MutableRefObject, useEffect, useState, useRef, useCallback } from "react";
 import ColorPicker from "../styling-options/color-picker";
 import { darkColorOptions } from "../styling-options/colors";
 import { DashedLine, SolidLine } from "../styling-options/line-styles";
@@ -144,6 +144,30 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       }
       setSelectedEdges(newSelectedEdges);
    };
+
+   const setColorFunction = useCallback(
+      (color: string) => {
+         setColor(color);
+         for (const edge of selectedEdges) {
+            edge.trigger("change:color", {
+               current: color,
+            });
+         }
+      },
+      [selectedEdges],
+   );
+
+   const setWidthFunction = useCallback(
+      (width: number) => {
+         setWidth(width);
+         for (const edge of selectedEdges) {
+            edge.trigger("change:width", {
+               current: width,
+            });
+         }
+      },
+      [selectedEdges],
+   );
 
    useEffect(() => {
       getSelectedEdges();
@@ -426,7 +450,12 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          {/* ---------------------- LINE COLOR SECTION ---------------------- */}
          <div className="flex flex-col pt-1.5 pb-3">
             <div className="font-bold">Color</div>
-            <ColorPicker colorOptions={darkColorOptions} indicatorColor={"white"} objColor={color} setObjColor={setColor} />
+            <ColorPicker
+               colorOptions={darkColorOptions}
+               indicatorColor={"white"}
+               objColor={color}
+               setObjColor={setColorFunction}
+            />
          </div>
          <hr className="border-slate-400" />
 
@@ -435,7 +464,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
          <div className="flex flex-col pt-1.5 pb-3">
             <div className="font-bold mb-1">Width</div>
-            <LineWidth lineWidth={width} setLineWidth={setWidth} />
+            <LineWidth lineWidth={width} setLineWidth={setWidthFunction} />
          </div>
       </>
    );

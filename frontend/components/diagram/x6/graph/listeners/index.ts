@@ -17,7 +17,7 @@ export default function initializeListeners(
    edgeFunctions: X6StateType["Shape"]["Edge"],
 ) {
    const removeKeyBindingListeners = initializeKeyBindingListeners(graph, wsSendJson, sessionId, layoutProps);
-   const removeNodeChangeListeners = initializeNodeChangeListeners(graph, wsSendJson, sessionId, layoutProps);
+   const removeNodeChangeListeners = initializeNodeChangeListeners(graph, wsSendJson, sessionId, layoutProps, edgeFunctions);
    const removeEdgeChangeListeners = initializeEdgeChangeListeners(graph, wsSendJson, sessionId, layoutProps, edgeFunctions);
    const removeGraphListeners = initializeGraphListeners(graph, wsSendJson, sessionId, layoutProps);
 

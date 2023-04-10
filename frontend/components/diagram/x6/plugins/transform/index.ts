@@ -24,15 +24,17 @@ export class Transform extends Basecoat<Transform.EventArgs> {
 
    protected startListening() {
       this.graph.on("node:selected", this.onNodeSelected, this);
-      this.graph.on("node:move", this.onBlankMouseDown, this);
       this.graph.on("node:moved", this.onNodeSelected, this);
+      this.graph.on("node:move", this.onBlankMouseDown, this);
+      this.graph.on("edge:selected", this.onBlankMouseDown, this);
       this.graph.on("blank:mousedown", this.onBlankMouseDown, this);
    }
 
    protected stopListening() {
       this.graph.off("node:selected", this.onNodeSelected, this);
-      this.graph.off("node:move", this.onBlankMouseDown, this);
       this.graph.off("node:moved", this.onNodeSelected, this);
+      this.graph.off("node:move", this.onBlankMouseDown, this);
+      this.graph.off("edge:selected", this.onBlankMouseDown, this);
       this.graph.off("blank:mousedown", this.onBlankMouseDown, this);
    }
 

@@ -100,6 +100,7 @@ export default function useGraph(
                if (connection.sourcePort === connection.targetPort) {
                   return false;
                }
+
                return true;
             },
             // Dont show anchor when connecting

@@ -95,6 +95,10 @@ function ShapeNodeClass({ node }: { node?: X6Type.Node }) {
                   cell: node,
                   options: { ws },
                });
+               node.model.graph.trigger("node:change:type", {
+                  cell: node,
+                  type: current,
+               });
             });
          },
       );

@@ -1,12 +1,9 @@
 import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type X6Type from "@antv/x6";
 import {
-   wsLocalAndDBAddNode,
    wsLocalAndDBAddEdge,
    wsLocalAndDBRemoveCell,
-   wsLocalAndDBUpdateNode,
    wsLocalAndDBUpdateEdge,
-   wsLocalUpdateNode,
    wsLocalUpdateEdge,
 } from "@/components/diagram/x6/graph/websocket";
 import { LayoutProps } from "@/components/diagram/layout";
@@ -63,24 +60,29 @@ export default function Edges(
 
    graph.current?.on("edge:change:target", (args) => {
       console.log("edge:change:target", args);
-      if ((args.previous as any).ws) {
+      if ((args.previous as any)?.ws) {
          return;
       }
 
       // Check if the target node is an interface
       const targetCell = args.edge.getTargetCell();
       if (targetCell) {
-         const targetCellProps = targetCell.getProp();
-         if (targetCellProps.type === "interface") {
-            // If the target node is an interface, then add a port to the edge
+         const targetCellType: string = targetCell.getProp().type || "";
+         if (targetCellType === "interface") {
+            console.log("edge:change:target", "interface");
+            // TODO: the source target also determines the type of arrow.
+            // Ex: if the source is an interface and the target is an interface, then the we should extend, not implement
             edgeFunctions.setRealizationEdge(args.edge);
-         } else if (targetCellProps.type === "abstract") {
-            // If the target node is a realization, then add a port to the edge
+         } else if (targetCellType === "abstract") {
+            console.log("edge:change:target", "abstract");
             edgeFunctions.setGeneralizationEdge(args.edge);
          } else {
+            console.log("edge:change:target", "regular");
             edgeFunctions.setRegularEdge(args.edge);
          }
       }
+
+      console.log("HELLO", "wsLocalUpdateEdge");
       wsLocalUpdateEdge(args.cell, wsSendJson, sessionId);
    });
 

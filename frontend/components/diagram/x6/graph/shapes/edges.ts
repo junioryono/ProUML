@@ -25,7 +25,7 @@ function isRealizationEdge(cell: Cell.Properties) {
 }
 
 const defaultAttrs = {
-   line: { stroke: "#000000", strokeWidth: 2 },
+   line: { stroke: "#000000", strokeWidth: 2, strokeDasharray: undefined },
    lines: { connection: true, strokeLinejoin: "round" },
    wrap: { strokeWidth: 10 },
 };

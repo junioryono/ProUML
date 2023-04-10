@@ -5,16 +5,19 @@ import {
    wsLocalAndDBRemoveCell,
    wsLocalAndDBUpdateNode,
    wsLocalUpdateNode,
+   wsLocalAndDBUpdateEdge,
 } from "@/components/diagram/x6/graph/websocket";
 import { LayoutProps } from "@/components/diagram/layout";
 import { MutableRefObject } from "react";
 import { showPorts, hidePorts, addPorts, updatePorts, hideAllPorts, showAllPorts } from "../shapes/ports";
+import type { X6StateType } from "../..";
 
 export default function Nodes(
    graph: MutableRefObject<X6Type.Graph>,
    wsSendJson: SendJsonMessage,
    sessionId: MutableRefObject<string>,
    layoutProps: LayoutProps,
+   edgeFunctions: X6StateType["Shape"]["Edge"],
 ) {
    graph.current?.on("node:mouseenter", (args) => {
       if (!graph.current?.isSelected(args.node) && !graph.current?.isPannable()) {
@@ -64,7 +67,48 @@ export default function Nodes(
          });
       }
 
+      // if (args.key === "type") {
+      //    const incomingEdges = graph.current?.getConnectedEdges(args.cell, { incoming: true });
+      //    for (const edge of incomingEdges) {
+      //       graph.current?.trigger("edge:change:target", {
+      //          edge,
+      //          cell: args.cell,
+      //          options: {
+      //             ...args.options,
+      //             type:
+      //          },
+      //       });
+      //    }
+      // }
+
+      // const newType: string = args.cell.getProp("type") || "";
+      // if (newType === "interface") {
+      //    edgeFunctions.setRealizationEdge(edge);
+      // } else if (newType === "abstract") {
+      //    edgeFunctions.setGeneralizationEdge(edge);
+      // } else {
+      //    edgeFunctions.setRegularEdge(edge);
+      // }
+
       wsLocalAndDBUpdateNode(args.cell, wsSendJson, sessionId);
+   });
+
+   graph.current?.on("node:change:type", (args) => {
+      const incomingEdges = graph.current?.getConnectedEdges(args.cell, { incoming: true });
+      for (const edge of incomingEdges) {
+         if (args.type === "interface") {
+            console.log("edge:change:target", "interface");
+            edgeFunctions.setRealizationEdge(edge);
+         } else if (args.type === "abstract") {
+            console.log("edge:change:target", "abstract");
+            edgeFunctions.setGeneralizationEdge(edge);
+         } else {
+            console.log("edge:change:target", "regular");
+            edgeFunctions.setRegularEdge(edge);
+         }
+
+         wsLocalAndDBUpdateEdge(edge, wsSendJson, sessionId);
+      }
    });
 
    // When a node just starts to be moved. Triggers on mouse down and first move
