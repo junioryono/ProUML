@@ -92,8 +92,8 @@ export default function ProjectItemOptions({
                               className="w-5 h-5 mr-5"
                            >
                               <path
-                                 fill-rule="evenodd"
-                                 clip-rule="evenodd"
+                                 fillRule="evenodd"
+                                 clipRule="evenodd"
                                  d="M13 9H10V17H8V9H5V7H13V9ZM18 13H16V17H14V13H12V11H18V13Z"
                                  fill="#000000"
                               />
