@@ -144,7 +144,7 @@ func generateDiagramLayout(project *types.Project) []any {
 
 	nodeGroups, edgeGroups := groupNodesandEdges(project.Nodes, project.Edges)
 
-	err := setNodeCoordinates(&project.Nodes, nodeGroups, project.Edges, edgeGroups)
+	err := setNodeCoordinates(project.Nodes, nodeGroups, project.Edges, edgeGroups)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -158,10 +158,10 @@ func generateDiagramLayout(project *types.Project) []any {
 	return diagramContent
 }
 
-func setNodeCoordinates(nodes *[]any, nodeGroups [][]any, edges []types.Relation, edgeGroups [][]int) error {
+func setNodeCoordinates(nodes []any, nodeGroups [][]any, edges []types.Relation, edgeGroups [][]int) error {
 	//loop through the nodes and print their id
-	for i := 0; i < len(*nodes); i++ {
-		fmt.Printf("ID: %s\n", string(getNodeClassId((*nodes)[i])))
+	for i := 0; i < len(nodes); i++ {
+		fmt.Printf("ID: %s\n", string(getNodeClassId(nodes[i])))
 	}
 
 	// Create a directed graph with your nodes.
@@ -220,7 +220,7 @@ func setNodeCoordinates(nodes *[]any, nodeGroups [][]any, edges []types.Relation
 				class.X = currentX
 				currentX += float64(class.Width) + paddingX
 
-				(*nodes)[getNodeIndex(*nodes, getNodeClassId(node))] = class
+				nodes[getNodeIndex(nodes, getNodeClassId(node))] = class
 
 				totalWidth += float64(class.Width)
 				if class.Height > highestHeight {
@@ -232,7 +232,7 @@ func setNodeCoordinates(nodes *[]any, nodeGroups [][]any, edges []types.Relation
 				class.X = currentX
 				currentX += float64(class.Width) + paddingX
 
-				(*nodes)[getNodeIndex(*nodes, getNodeClassId(node))] = class
+				nodes[getNodeIndex(nodes, getNodeClassId(node))] = class
 
 				totalWidth += float64(class.Width)
 				if class.Height > highestHeight {
@@ -244,7 +244,7 @@ func setNodeCoordinates(nodes *[]any, nodeGroups [][]any, edges []types.Relation
 				class.X = currentX
 				currentX += float64(class.Width) + paddingX
 
-				(*nodes)[getNodeIndex(*nodes, getNodeClassId(node))] = class
+				nodes[getNodeIndex(nodes, getNodeClassId(node))] = class
 
 				totalWidth += float64(class.Width)
 				if class.Height > highestHeight {
@@ -256,7 +256,7 @@ func setNodeCoordinates(nodes *[]any, nodeGroups [][]any, edges []types.Relation
 				class.X = currentX
 				currentX += float64(class.Width) + paddingX
 
-				(*nodes)[getNodeIndex(*nodes, getNodeClassId(node))] = class
+				nodes[getNodeIndex(nodes, getNodeClassId(node))] = class
 
 				totalWidth += float64(class.Width)
 				if class.Height > highestHeight {
