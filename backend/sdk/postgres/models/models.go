@@ -90,7 +90,6 @@ func (d DiagramContent) Value() (driver.Value, error) {
 	if len(d) == 0 {
 		return nil, nil
 	}
-	fmt.Println("value", string(d))
 	return json.RawMessage(d).MarshalJSON()
 }
 
