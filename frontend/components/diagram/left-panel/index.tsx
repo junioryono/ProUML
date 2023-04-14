@@ -344,48 +344,95 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                </div>
             </>
          )}
-         <hr className="border-slate-400 my-2" />
 
-         {/* ---------------------- ISSUES SECTION ---------------------- */}
-         <div className="pb-1">
-            <div className="flex justify-between">
-               <div className="font-bold pb-1">Issues</div>
-               <div className="mb-1 duration-500 hover:scale-[1.2] flex justify-center items-center">
-                  <span
-                     role="button"
-                     className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
-                     onClick={() => {
-                        const formData = new FormData();
+         {diagram.issues?.length > 0 && (
+            <>
+               <hr className="border-slate-400 my-2" />
 
-                        formData.append("projectId", diagram.project.id);
+               {/* ---------------------- ISSUES SECTION ---------------------- */}
+               <div className="pb-1">
+                  <div className="flex justify-between">
+                     <div className="font-bold pb-1">Issues</div>
+                     <div className="mb-1 duration-500 hover:scale-[1.2] flex justify-center items-center">
+                        <span
+                           role="button"
+                           className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
+                           onClick={() => {
+                              const formData = new FormData();
 
-                        // createDiagram(formData)
-                        //    .then((res) => {
-                        //       if (res.success === false) {
-                        //          throw new Error(res.reason);
-                        //       }
+                              formData.append("projectId", diagram.project.id);
 
-                        //       router.push(`/dashboard/diagrams/${res.response}`);
+                              // createDiagram(formData)
+                              //    .then((res) => {
+                              //       if (res.success === false) {
+                              //          throw new Error(res.reason);
+                              //       }
 
-                        //       return toast({
-                        //          title: "Success!",
-                        //          message: "Your issue has been created.",
-                        //          type: "success",
-                        //       });
-                        //    })
-                        //    .catch((error) => {
-                        //       console.error(error);
-                        //       return toast({
-                        //          title: "Something went wrong.",
-                        //          message: error.message,
-                        //          type: "error",
-                        //       });
-                        //    });
-                     }}
-                  ></span>
+                              //       router.push(`/dashboard/diagrams/${res.response}`);
+
+                              //       return toast({
+                              //          title: "Success!",
+                              //          message: "Your issue has been created.",
+                              //          type: "success",
+                              //       });
+                              //    })
+                              //    .catch((error) => {
+                              //       console.error(error);
+                              //       return toast({
+                              //          title: "Something went wrong.",
+                              //          message: error.message,
+                              //          type: "error",
+                              //       });
+                              //    });
+                           }}
+                        >
+                           <svg
+                              className="svg"
+                              width="10"
+                              height="10"
+                              viewBox="0 0 12 12"
+                              xmlns="http://www.w3.org/2000/svg"
+                           >
+                              <path
+                                 d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
+                                 fillRule="nonzero"
+                                 fillOpacity="1"
+                                 fill="#000"
+                                 stroke="none"
+                              />
+                           </svg>
+                        </span>
+                     </div>
+                  </div>
+
+                  {diagram.issues.map((issue) => {
+                     return (
+                        <div
+                           key={issue.id}
+                           className="flex items-center rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5 hover:bg-slate-200"
+                           onClick={() => {
+                              router.push(`/dashboard/issues/${issue.id}`);
+                           }}
+                        >
+                           <div className="w-3">
+                              <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+                                 <path
+                                    d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
+                                    fillRule="evenodd"
+                                    fillOpacity="1"
+                                    stroke="none"
+                                 />
+                              </svg>
+                           </div>
+                           <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "180px" }}>
+                              {issue.title}
+                           </div>
+                        </div>
+                     );
+                  })}
                </div>
-            </div>
-         </div>
+            </>
+         )}
       </div>
    );
 }

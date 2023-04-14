@@ -95,6 +95,7 @@ export type Diagram = {
    content: Cell.Properties[];
    image?: string;
    project?: Project;
+   issues?: Issue[];
    is_shared_with_current_user?: boolean;
    is_from_unshared_project?: boolean;
    current_user_has_edit_permission?: boolean;
@@ -123,6 +124,16 @@ export type Project = {
    public: boolean;
    name: string;
    diagrams?: Diagram[];
+};
+
+export type Issue = {
+   id: string;
+   created_at: string;
+   updated_at: string;
+   created_by: DiagramUserRole;
+   title: string;
+   description: string;
+   status: string;
 };
 
 const enum AccessModifier {
