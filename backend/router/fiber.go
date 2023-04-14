@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/junioryono/ProUML/backend/router/routes/auth"
 	"github.com/junioryono/ProUML/backend/router/routes/diagram"
+	diagramIssues "github.com/junioryono/ProUML/backend/router/routes/diagram/issues"
 	diagramUsers "github.com/junioryono/ProUML/backend/router/routes/diagram/users"
 	"github.com/junioryono/ProUML/backend/router/routes/diagrams"
 	"github.com/junioryono/ProUML/backend/router/routes/oauth"
@@ -81,6 +82,8 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	DiagramRouter.Put("/", diagram.Put(sdkP))
 	DiagramRouter.Get("/", diagram.Get(sdkP))
 	DiagramRouter.Delete("/", diagram.Delete(sdkP))
+	DiagramRouter.Post("/issues", diagramIssues.Post(sdkP))
+	DiagramRouter.Delete("/issues", diagramIssues.Delete(sdkP))
 	DiagramRouter.Post("/users", diagramUsers.Post(sdkP))
 	DiagramRouter.Put("/users", diagramUsers.Put(sdkP))
 	DiagramRouter.Get("/users", diagramUsers.Get(sdkP))

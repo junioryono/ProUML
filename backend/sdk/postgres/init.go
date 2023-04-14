@@ -102,6 +102,7 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		&models.DiagramUserRoleModel{},
 		&models.ProjectModel{},
 		&models.ProjectUserRoleModel{},
+		&models.IssueModel{},
 		&models.JWTModel{},
 		&models.EmailVerificationTokenModel{},
 		&models.PasswordResetTokenModel{},

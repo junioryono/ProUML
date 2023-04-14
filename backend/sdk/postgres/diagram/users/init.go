@@ -11,13 +11,13 @@ import (
 )
 
 type Users_SDK struct {
-	Auth  *auth.Auth_SDK
+	auth  *auth.Auth_SDK
 	getDb func() *gorm.DB
 }
 
-func Init(Auth *auth.Auth_SDK, getDb func() *gorm.DB) *Users_SDK {
+func Init(auth *auth.Auth_SDK, getDb func() *gorm.DB) *Users_SDK {
 	return &Users_SDK{
-		Auth:  Auth,
+		auth:  auth,
 		getDb: getDb,
 	}
 }
@@ -29,7 +29,7 @@ func (u *Users_SDK) Get(diagramId, idToken string) (*models.DiagramUserRolesResp
 	}
 
 	// Get the user id from the id token
-	userId, err := u.Auth.Client.GetUserId(idToken)
+	userId, err := u.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (u *Users_SDK) Get(diagramId, idToken string) (*models.DiagramUserRolesResp
 
 func (u *Users_SDK) Add(diagramId, idToken, newUserEmail, newUserRole string) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := u.Auth.Client.GetUserId(idToken)
+	userId, err := u.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func (u *Users_SDK) Add(diagramId, idToken, newUserEmail, newUserRole string) *t
 
 func (u *Users_SDK) Update(diagramId, idToken, updateUserId, updateUserRole string) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := u.Auth.Client.GetUserId(idToken)
+	userId, err := u.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
@@ -241,7 +241,7 @@ func (u *Users_SDK) Update(diagramId, idToken, updateUserId, updateUserRole stri
 
 func (u *Users_SDK) Remove(diagramId, idToken, removerUserId string) *types.WrappedError {
 	// Get the user id from the id token
-	userId, err := u.Auth.Client.GetUserId(idToken)
+	userId, err := u.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}

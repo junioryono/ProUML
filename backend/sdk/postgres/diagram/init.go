@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/diagram/issues"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/diagram/users"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/types"
@@ -14,18 +15,20 @@ import (
 )
 
 type Diagram_SDK struct {
-	Admin *admin_SDK
-	Users *users.Users_SDK
-	auth  *auth.Auth_SDK
-	getDb func() *gorm.DB
+	Admin  *admin_SDK
+	Issues *issues.Issues_SDK
+	Users  *users.Users_SDK
+	auth   *auth.Auth_SDK
+	getDb  func() *gorm.DB
 }
 
 func Init(getDb func() *gorm.DB, Auth *auth.Auth_SDK) *Diagram_SDK {
 	return &Diagram_SDK{
-		Admin: &admin_SDK{getDb: getDb},
-		Users: users.Init(Auth, getDb),
-		auth:  Auth,
-		getDb: getDb,
+		Admin:  &admin_SDK{getDb: getDb},
+		Issues: issues.Init(Auth, getDb),
+		Users:  users.Init(Auth, getDb),
+		auth:   Auth,
+		getDb:  getDb,
 	}
 }
 
@@ -183,6 +186,7 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, stri
 	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
 	if err := d.getDb().
 		Preload("UserRoles").
+		Preload("Issues").
 		Preload("Project", func(db *gorm.DB) *gorm.DB {
 			// Preload the project if the user has a role in the project
 			return db.Where("id IN (SELECT project_id FROM project_user_role_models WHERE user_id = ?)", userId).

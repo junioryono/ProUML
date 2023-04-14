@@ -6,13 +6,13 @@ import (
 	"github.com/junioryono/ProUML/backend/types"
 )
 
-type body struct {
-	Public                 *bool  `json:"public"`
-	Name                   string `json:"name"`
-	AllowEditorPermissions *bool  `json:"allow_editor_permissions"`
-}
-
 func Put(sdkP *sdk.SDK) fiber.Handler {
+	type body struct {
+		Public                 *bool  `json:"public"`
+		Name                   string `json:"name"`
+		AllowEditorPermissions *bool  `json:"allow_editor_permissions"`
+	}
+
 	return func(fbCtx *fiber.Ctx) error {
 		diagramId := fbCtx.Query("id")
 

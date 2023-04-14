@@ -398,3 +398,42 @@ export async function removeDiagramFromProject(
       .then((res) => jsonResponse<null>(res))
       .catch(() => defaultError);
 }
+
+export async function createIssue(
+   diagramId: string,
+   data: { [key: string]: any },
+   options?: RequestInit,
+): Promise<APIResponse<null>> {
+   return fetchAPI(
+      "/diagram/issues?" +
+         new URLSearchParams({
+            diagram_id: diagramId,
+         }),
+      {
+         ...options,
+         method: "POST",
+         body: JSON.stringify(data),
+         headers: {
+            "Content-Type": "application/json",
+         },
+      },
+   )
+      .then((res) => jsonResponse<null>(res))
+      .catch(() => defaultError);
+}
+
+export async function deleteIssue(diagramId: string, issueId: string, options?: RequestInit): Promise<APIResponse<null>> {
+   return fetchAPI(
+      "/diagram/issues?" +
+         new URLSearchParams({
+            diagram_id: diagramId,
+            issue_id: issueId,
+         }),
+      {
+         ...options,
+         method: "DELETE",
+      },
+   )
+      .then((res) => jsonResponse<null>(res))
+      .catch(() => defaultError);
+}

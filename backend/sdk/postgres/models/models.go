@@ -68,6 +68,7 @@ type DiagramModel struct {
 	ShowGrid               bool                   `gorm:"default:true" json:"show_grid"`
 	AllowEditorPermissions bool                   `gorm:"default:true" json:"-"`
 	UserRoles              []DiagramUserRoleModel `gorm:"foreignKey:DiagramID;references:ID" json:"user_roles"`
+	Issues                 []IssueModel           `gorm:"foreignKey:DiagramID;references:ID" json:"issues"`
 }
 
 type DiagramContent json.RawMessage
@@ -111,6 +112,19 @@ type DiagramUserRoleModel struct {
 	User      UserModel    `gorm:"foreignKey:UserID;references:ID" json:"user"`
 	Diagram   DiagramModel `gorm:"foreignKey:DiagramID;references:ID" json:"diagram"`
 	Role      string       `gorm:"default:'viewer'" json:"role"`
+}
+
+type IssueModel struct {
+	ID             string    `gorm:"uniqueIndex" json:"id"`
+	DiagramID      string    `json:"diagram_id"`
+	CreatedAt      int64     `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt      int64     `gorm:"autoUpdateTime" json:"updated_at"`
+	CreatedByID    string    `json:"created_by_id"`
+	CreatedBy      UserModel `gorm:"foreignKey:CreatedByID;references:ID" json:"created_by"`
+	ConnectedCells []string  `gorm:"type:jsonb;default:'[]';not null" json:"connected_cells"`
+	Title          string    `json:"title"`
+	Description    string    `json:"description"`
+	Image          string    `json:"image"`
 }
 
 type EmailVerificationTokenModel struct {

@@ -133,7 +133,8 @@ export type Issue = {
    created_by: DiagramUserRole;
    title: string;
    description: string;
-   status: string;
+   image?: string;
+   complete: boolean;
 };
 
 const enum AccessModifier {

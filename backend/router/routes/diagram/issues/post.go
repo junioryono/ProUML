@@ -1,4 +1,4 @@
-package project
+package issues
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -6,14 +6,19 @@ import (
 	"github.com/junioryono/ProUML/backend/types"
 )
 
-func Put(sdkP *sdk.SDK) fiber.Handler {
+func Post(sdkP *sdk.SDK) fiber.Handler {
 	type body struct {
-		Name string `json:"name"`
+		ConnectedCells []string `json:"connected_cells"`
+		Title          string   `json:"title"`
+		Description    string   `json:"description"`
+		Image          string   `json:"image"`
+		Complete       bool     `json:"complete"`
 	}
 
 	return func(fbCtx *fiber.Ctx) error {
-		projectId := fbCtx.Query("id")
-		if projectId == "" {
+		diagramId := fbCtx.Query("diagram_id")
+
+		if diagramId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
 				Reason:  types.ErrInvalidRequest,
@@ -28,22 +33,18 @@ func Put(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		if b.Name != "" {
-			if err := sdkP.Postgres.Project.UpdateName(projectId, fbCtx.Locals("idToken").(string), b.Name); err != nil {
-				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
-					Success: false,
-					Reason:  err.Error(),
-				})
-			}
-		} else {
+		issue, err := sdkP.Postgres.Diagram.Issues.Create(diagramId, fbCtx.Locals("idToken").(string), b.ConnectedCells, b.Title, b.Description, b.Image)
+		if err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
-				Reason:  types.ErrInvalidRequest,
+				Reason:  err.Error(),
 			})
 		}
 
+		// User did not upload a project or use a template
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
-			Success: true,
+			Success:  true,
+			Response: issue,
 		})
 	}
 }
