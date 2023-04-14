@@ -382,17 +382,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         //       });
                         //    });
                      }}
-                  >
-                     <svg className="svg" width="10" height="10" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                           d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
-                           fillRule="nonzero"
-                           fillOpacity="1"
-                           fill="#000"
-                           stroke="none"
-                        />
-                     </svg>
-                  </span>
+                  ></span>
                </div>
             </div>
          </div>
