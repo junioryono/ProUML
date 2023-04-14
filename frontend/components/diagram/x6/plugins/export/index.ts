@@ -38,7 +38,21 @@ export class Export extends Basecoat<Export.EventArgs> {
    toSVG(callback: Export.ToSVGCallback, options: Export.ToSVGOptions = {}) {
       this.notify("before:export", options);
 
-      const rawSVG = this.view.svg;
+      const originalRawSVG = this.view.svg;
+
+      // Make a copy of the SVG document.
+      const rawSVG = originalRawSVG.cloneNode(true) as SVGSVGElement;
+
+      if (options.selectedCellIds?.length) {
+         const selectedCellIds = options.selectedCellIds;
+         const cells = Array.from(rawSVG.querySelectorAll(`[data-cell-id]`));
+         cells.forEach((cell) => {
+            if (!selectedCellIds.includes(cell.getAttribute("data-cell-id")!)) {
+               cell.remove();
+            }
+         });
+      }
+
       const vSVG = Vector.create(rawSVG).clone();
       let clonedSVG = vSVG.node as SVGSVGElement;
       const vStage = vSVG.findOne(`.${this.view.prefixClassName("graph-svg-stage")}`)!;
@@ -144,36 +158,124 @@ export class Export extends Basecoat<Export.EventArgs> {
          });
       }
 
-      if (typeof options.stylesheet === "string") {
-         // Minify the stylesheet.
-         const stylesheet = options.stylesheet
-            .replace(/\/\*[\s\S]*?\*\//g, "")
-            .replace(/\s+/g, " ")
-            .replace(/ ?([,:;{}]) ?/g, "$1")
-            .trim();
+      const customStylesheet = `
+         *, ::before, ::after {
+            box-sizing: border-box;
+         }
+         .x6-node, .x6-edge {
+            cursor: default;
+         }
+         .x6-node .scalable *,
+         .x6-edge .source-marker,
+         .x6-edge .target-marker {
+            vector-effect: non-scaling-stroke;
+         }
+         .x6-node foreignObject,
+         .x6-node foreignObject > body {
+            overflow: visible;
+            background-color: transparent;
+         }
+         .x6-node foreignObject {
+            display: block;
+         }
+         .x6-node foreignObject > body {
+            position: static;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+         }
+         .x6-edge .connection,
+         .x6-edge .connection-wrap {
+            strokeLinejoin: round;
+            fill: none;
+         }
+         .x6-edge .connection-wrap {
+            stroke: #000;
+            strokeWidth: 15;
+            strokeLinecap: round;
+         }
+         .x6-edge .vertices,
+         .x6-edge .arrowheads,
+         .x6-edge .connection-wrap {
+            opacity: 0;
+         }
+         .x6-edge .vertices .vertex,
+         .x6-edge .arrowheads .arrowhead {
+            fill: #1abc9c;
+         }
+         .x6-edge .vertices .vertex-remove {
+            fill: #fff;
+         }
+         .x6-edge .vertices .vertex-remove-area {
+            opacity: 0.1;
+         }
+         .x6-graph-background, .x6-graph-grid, .x6-graph-svg {
+            position: relative;
+         }`;
 
-         const cDATASection = rawSVG
-            .ownerDocument!.implementation.createDocument(null, "xml", null)
-            .createCDATASection(stylesheet);
+      // Minify the stylesheet.
+      const stylesheet = customStylesheet
+         .replace(/\/\*[\s\S]*?\*\//g, "")
+         .replace(/\s+/g, " ")
+         .replace(/ ?([,:;{}]) ?/g, "$1")
+         .trim();
 
-         vSVG.prepend(
-            Vector.create(
-               "style",
-               {
-                  type: "text/css",
-               },
-               [cDATASection as any],
-            ),
-         );
-      }
+      const cDATASection = rawSVG
+         .ownerDocument!.implementation.createDocument(null, "xml", null)
+         .createCDATASection(stylesheet);
+
+      vSVG.prepend(
+         Vector.create(
+            "style",
+            {
+               type: "text/css",
+            },
+            [cDATASection as any],
+         ),
+      );
 
       const format = () => {
-         const beforeSerialize = options.beforeSerialize;
-         if (typeof beforeSerialize === "function") {
-            const ret = FunctionExt.call(beforeSerialize, this.graph, clonedSVG);
-            if (ret instanceof SVGSVGElement) {
-               clonedSVG = ret;
+         function beforeSerialize(svg: SVGSVGElement): any {
+            // Remove class with "x6-graph-svg-primer"
+            const primer = svg.querySelectorAll(".x6-graph-svg-primer");
+            for (let i = 0; i < primer.length; i++) {
+               primer[i].remove();
             }
+
+            // Remove class with "x6-graph-svg-decorator"
+            const decorator = svg.querySelectorAll(".x6-graph-svg-decorator");
+            for (let i = 0; i < decorator.length; i++) {
+               decorator[i].remove();
+            }
+
+            // Remove class with "x6-graph-svg-overlay"
+            const overlay = svg.querySelectorAll(".x6-graph-svg-overlay");
+            for (let i = 0; i < overlay.length; i++) {
+               overlay[i].remove();
+            }
+
+            // Remove class with "x6-port"
+            const port = svg.querySelectorAll(".x6-port");
+            for (let i = 0; i < port.length; i++) {
+               port[i].remove();
+            }
+
+            // Remove class with "user-cell-selection"
+            const userCellSelection = svg.querySelectorAll(".user-cell-selection");
+            for (let i = 0; i < userCellSelection.length; i++) {
+               userCellSelection[i].remove();
+            }
+
+            // If a node has a class with "x6-node-selected", remove the class from the node
+            const selected = svg.querySelectorAll(".x6-node-selected");
+            for (let i = 0; i < selected.length; i++) {
+               selected[i].classList.remove("x6-node-selected");
+            }
+         }
+         const ret = FunctionExt.call(beforeSerialize, this.graph, clonedSVG);
+         if (ret instanceof SVGSVGElement) {
+            clonedSVG = ret;
          }
 
          // Remove the `xmlns` attribute from the root SVG element
@@ -364,19 +466,12 @@ export namespace Export {
        */
       copyStyles?: boolean;
 
-      stylesheet?: string;
-
       /**
        * Converts all contained images into Data URI format.
        */
       serializeImages?: boolean;
 
-      /**
-       * A function called before the XML serialization. It may be used to
-       * modify the exported SVG before it is converted to a string. The
-       * function can also return a new SVGDocument.
-       */
-      beforeSerialize?: (this: Graph, svg: SVGSVGElement) => any;
+      selectedCellIds?: string[];
    }
 
    export interface ToImageOptions extends ToSVGOptions {

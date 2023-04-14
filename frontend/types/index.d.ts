@@ -134,7 +134,7 @@ export type Issue = {
    title: string;
    description: string;
    image?: string;
-   complete: boolean;
+   connected_cells: string[];
 };
 
 const enum AccessModifier {

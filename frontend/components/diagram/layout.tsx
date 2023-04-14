@@ -12,7 +12,7 @@ import ShareButton from "@/components/diagram/header/share-button";
 import Selector from "@/components/diagram/header/selector";
 import Components from "@/components/diagram/header/components";
 import HandTool from "@/components/diagram/header/hand-tool";
-import AddComment from "@/components/diagram/header/add-comment";
+import AddIssue from "@/components/diagram/header/add-issue";
 import LeftPanel from "@/components/diagram/left-panel";
 import RightPanel from "@/components/diagram/right-panel";
 
@@ -89,7 +89,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                      <Selector graph={graph} panning={panning} setPanning={setPanning} />
                      <HandTool graph={graph} panning={panning} setPanning={setPanning} />
                      <Components graph={graph} />
-                     <AddComment graph={graph} />
+                     <AddIssue graph={ready && graph} diagramId={diagram.id} />
                   </>
                )}
             </div>

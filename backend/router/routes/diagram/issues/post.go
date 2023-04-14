@@ -12,7 +12,6 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 		Title          string   `json:"title"`
 		Description    string   `json:"description"`
 		Image          string   `json:"image"`
-		Complete       bool     `json:"complete"`
 	}
 
 	return func(fbCtx *fiber.Ctx) error {

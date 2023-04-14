@@ -28,7 +28,6 @@ export default function ShareButton({ user, role, diagram }: { user: User; role:
       register,
       reset,
       formState: { errors, isValid },
-      watch,
    } = useForm<FormData>({
       resolver: zodResolver(userAddSchema),
       defaultValues: {

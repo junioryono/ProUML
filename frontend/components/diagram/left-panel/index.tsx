@@ -65,7 +65,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
 
       // Need to change node names in the left panel when the node name is changed in the graph
       graph.current?.on("node:change:name", () => {
-         setNodes(graph.current?.getNodes());
+         setNodes(graph.current?.getNodes() || []);
       });
    }, [graph]);
 
@@ -134,7 +134,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                         <div
                            key={pDiagram.id}
                            className={cn(
-                              "rounded flex items-center gap-3 py-1 pl-4 mb-0.5",
+                              "rounded flex items-center gap-3 py-1 pl-3 mb-0.5",
                               pDiagram.id === diagram.id && "bg-slate-300 font-semibold",
                               pDiagram.id !== diagram.id && "hover:bg-slate-200 cursor-pointer",
                            )}
@@ -248,7 +248,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                      <div
                         key={nodeId}
                         className={cn(
-                           "flex items-center rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5",
+                           "flex items-center rounded cursor-pointer gap-3 py-1 pl-3 mb-0.5",
                            isSelected && "bg-slate-300 font-semibold",
                            !isSelected && "hover:bg-slate-200",
                         )}
@@ -303,7 +303,7 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                            <div
                               key={edgeId}
                               className={cn(
-                                 "flex items-center rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5",
+                                 "flex items-center rounded cursor-pointer gap-3 py-1 pl-3 mb-0.5",
                                  isSelected && "bg-slate-300 font-semibold",
                                  !isSelected && "hover:bg-slate-200",
                               )}
@@ -353,77 +353,27 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                <div className="pb-1">
                   <div className="flex justify-between">
                      <div className="font-bold pb-1">Issues</div>
-                     <div className="mb-1 duration-500 hover:scale-[1.2] flex justify-center items-center">
-                        <span
-                           role="button"
-                           className="svg-container raw_components--iconButtonEnabled--dC-EG raw_components--_iconButton--aCldD pages_panel--newPageButton--shdlr"
-                           onClick={() => {
-                              const formData = new FormData();
-
-                              formData.append("projectId", diagram.project.id);
-
-                              // createDiagram(formData)
-                              //    .then((res) => {
-                              //       if (res.success === false) {
-                              //          throw new Error(res.reason);
-                              //       }
-
-                              //       router.push(`/dashboard/diagrams/${res.response}`);
-
-                              //       return toast({
-                              //          title: "Success!",
-                              //          message: "Your issue has been created.",
-                              //          type: "success",
-                              //       });
-                              //    })
-                              //    .catch((error) => {
-                              //       console.error(error);
-                              //       return toast({
-                              //          title: "Something went wrong.",
-                              //          message: error.message,
-                              //          type: "error",
-                              //       });
-                              //    });
-                           }}
-                        >
-                           <svg
-                              className="svg"
-                              width="10"
-                              height="10"
-                              viewBox="0 0 12 12"
-                              xmlns="http://www.w3.org/2000/svg"
-                           >
-                              <path
-                                 d="M5.5 5.5v-5h1v5h5v1h-5v5h-1v-5h-5v-1h5z"
-                                 fillRule="nonzero"
-                                 fillOpacity="1"
-                                 fill="#000"
-                                 stroke="none"
-                              />
-                           </svg>
-                        </span>
-                     </div>
                   </div>
 
                   {diagram.issues.map((issue) => {
                      return (
                         <div
                            key={issue.id}
-                           className="flex items-center rounded cursor-pointer gap-3 py-1 pl-4 mb-0.5 hover:bg-slate-200"
+                           className="flex items-center rounded cursor-pointer gap-3 py-1 pl-3 mb-0.5 hover:bg-slate-200"
                            onClick={() => {
-                              router.push(`/dashboard/issues/${issue.id}`);
+                              console.log("issue", issue);
+                              graph.current.cleanSelection();
+                              graph.current.select(issue.connected_cells);
+
+                              const cells = graph.current
+                                 .getCells()
+                                 .filter((cell) => issue.connected_cells.includes(cell.id));
+                              const bbox = graph.current.getCellsBBox(cells);
+                              const center = bbox.center;
+                              graph.current.centerPoint(center.x, center.y);
                            }}
                         >
-                           <div className="w-3">
-                              <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                                 <path
-                                    d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                                    fillRule="evenodd"
-                                    fillOpacity="1"
-                                    stroke="none"
-                                 />
-                              </svg>
-                           </div>
+                           <div className="w-3"></div>
                            <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "180px" }}>
                               {issue.title}
                            </div>
