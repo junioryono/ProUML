@@ -67,5 +67,4 @@ require (
 	github.com/yourbasic/graph v0.0.0-20210606180040-8ecfec1c2869
 	golang.org/x/oauth2 v0.4.0
 	golang.org/x/sys v0.4.0 // indirect
-	gonum.org/v1/gonum v0.12.0
 )

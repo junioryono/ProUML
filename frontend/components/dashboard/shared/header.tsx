@@ -75,7 +75,7 @@ export default function SharedHeader({
                      {/* show the amount of items selected if there are any selected */}
                      {selectedItems.length > 0 ? (
                         <>
-                           <span className="font-medium text-slate-900">{selectedItems.length} selected</span>
+                           <span className="font-medium text-slate-900 text-center">{selectedItems.length} selected</span>
                            <SelectedItemsOptions
                               showMenu={showMenu}
                               setShowMenu={setShowMenu}

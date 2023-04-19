@@ -6,6 +6,8 @@ import { DashedLine, SolidLine } from "../styling-options/line-styles";
 import LineWidth from "../styling-options/line-widths";
 import { OpenArrow, OpenDiamond, SolidArrow, SolidDiamond } from "./edge-endings";
 import { cn } from "@/lib/utils";
+import EdgeRouter from "./edge-router-options";
+import EdgeJumps from "./edge-jumps";
 
 export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for the left end, middle, and right end of the edge
@@ -118,6 +120,12 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    const [upperRightLabel, setUpperRightLabel] = useState("");
    const [lowerRightLabel, setLowerRightLabel] = useState("");
 
+   // for the router options
+   const [router, setRouter] = useState("pointy");
+
+   // for the jump options
+   const [jump, setJump] = useState("None");
+
    // the selected cells
    const [selectedEdges, setSelectedEdges] = useState<X6Type.Edge[]>([]);
 
@@ -187,7 +195,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
          <div className="font-bold mb-1">Edge Settings</div>
 
-         <div className="flex flex-col pb-3">
+         <div className="flex flex-col pb-1">
             <div className="w-full flex justify-between px-2 mb-1">
                {/* left upper label input */}
                <div className="justify-start">
@@ -437,6 +445,22 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                      onChange={(e) => setLowerRightLabel(e.target.value)}
                   />
                </div>
+            </div>
+         </div>
+
+         {/* line vertex options */}
+         <div className="font-bold mb-1 pt-1.5">Edge Styling</div>
+         <div className="flex flex-col pb-1">
+            <div className="w-full flex flex-col items-center">
+               <EdgeRouter router={router} setRouter={setRouter} />
+            </div>
+         </div>
+
+         {/* line vertex options */}
+         <div className="font-bold mb-1 pt-1.5">Edge Jumps</div>
+         <div className="flex flex-col pb-3">
+            <div className="w-full flex flex-col items-center">
+               <EdgeJumps jump={jump} setJump={setJump} />
             </div>
          </div>
 
