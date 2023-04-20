@@ -4,6 +4,9 @@ import { Diagram, Project } from "types";
 import SelectedItemsOptions from "@/components/dashboard/diagrams/selected-items-options";
 import NewDiagram from "@/components/dashboard/diagrams/new-diagram";
 import CreateButton from "@/components/dashboard/create-button";
+import { createProject } from "@/lib/auth-fetch";
+import { toast } from "@/ui/toast";
+import { useRouter } from "next/navigation";
 
 export default function DiagramsHeader({
    diagramsLength,
@@ -22,8 +25,10 @@ export default function DiagramsHeader({
    selectedItems: (Diagram | Project)[];
    setSelectedItems: (current: (Diagram | Project)[]) => void;
 }) {
+   const router = useRouter();
    const [open, setOpen] = useState(false);
    const [showMenu, setShowMenu] = useState(false);
+   const [isLoadingProject, setIsLoadingProject] = useState(false);
 
    // if the user presses the escape key while selecting items, close the selection
    useEffect(() => {
@@ -40,6 +45,40 @@ export default function DiagramsHeader({
          window.removeEventListener("keydown", handleEscape);
       };
    }, [setSelectingItems, setSelectedItems]);
+
+   async function onClickHandlerProject() {
+      if (isLoadingProject) {
+         return;
+      }
+
+      setIsLoadingProject(true);
+
+      const formData = new FormData();
+
+      createProject(formData)
+         .then((res) => {
+            if (res.success === false) {
+               throw new Error(res.reason);
+            }
+
+            router.refresh();
+
+            return toast({
+               title: "Success!",
+               message: "Your team was successfuly created!",
+               type: "success",
+            });
+         })
+         .catch((error) => {
+            console.error(error);
+            return toast({
+               title: "Something went wrong.",
+               message: error.message,
+               type: "error",
+            });
+         })
+         .finally(() => setIsLoadingProject(false));
+   }
 
    return (
       <>
@@ -69,6 +108,7 @@ export default function DiagramsHeader({
                         </button>
                      )}
 
+                     <CreateButton title="New project" isLoading={isLoadingProject} onClick={onClickHandlerProject} />
                      <CreateButton title="New diagram" onClick={() => setOpen((current) => !current)} />
                   </>
                )}

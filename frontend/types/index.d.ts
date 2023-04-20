@@ -160,8 +160,7 @@ export type ClassNode = {
       width: number;
       height: number;
    };
-   lockPosition: boolean;
-   lockSize: boolean;
+   lock: boolean;
    package: string;
    name: string;
    variables?: {

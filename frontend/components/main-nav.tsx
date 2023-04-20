@@ -20,13 +20,17 @@ export default function MainNav({ user, items, children }: MainNavProps) {
    if (!items?.length) {
       items = [
          {
-            title: "Marketplace",
-            href: "/marketplace",
+            title: "Home",
+            href: "/",
          },
-         {
-            title: "Explore",
-            href: "/explore",
-         },
+         // {
+         //    title: "Marketplace",
+         //    href: "/marketplace",
+         // },
+         // {
+         //    title: "Explore",
+         //    href: "/explore",
+         // },
          {
             title: "GitHub",
             href: "https://github.com/junioryono/prouml",
@@ -44,10 +48,6 @@ export default function MainNav({ user, items, children }: MainNavProps) {
       {
          title: "Diagrams",
          href: "/dashboard/diagrams",
-      },
-      {
-         title: "Projects",
-         href: "/dashboard/projects",
       },
       {
          title: "Shared",

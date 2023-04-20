@@ -27,10 +27,8 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
    const [height, setHeight] = useState<number>(0);
    // for the width of a cell
    const [width, setWidth] = useState<number>(0);
-   // if the position of the node is locked or not
-   const [positionLocked, setPositionLocked] = useState<boolean>(false);
-   // if the size of the node is locked or not
-   const [sizeLocked, setSizeLocked] = useState<boolean>(false);
+   // if is locked or not
+   const [locked, setLocked] = useState<boolean>(false);
    // for the max height of the methods section, in rem
    const [methodsMaxHeight, setMethodsMaxHeight] = useState<number>(7);
 
@@ -53,8 +51,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
       setY(props.position?.y || 0);
       setHeight(props.size?.height || 0);
       setWidth(props.size?.width || 0);
-      setPositionLocked(props.lockPosition || false);
-      setSizeLocked(props.lockSize || false);
+      setLocked(props.lock || false);
 
       // re-render when the selected node changes
       node.on("change:name", (args) => {
@@ -90,14 +87,10 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
          }
       });
 
-      // re-render when the node pos lock changes
-      node.on("change:lockPosition", (args) => {
-         setPositionLocked(!!args.current);
-      });
-
-      // re-render when the node size lock changes
-      node.on("change:lockSize", (args) => {
-         setSizeLocked(!!args.current);
+      // re-render when the node lock changes
+      node.on("change:lock", (args) => {
+         graph.current?.trigger("node:selected", { cell: node, node: node });
+         setLocked(!!args.current);
       });
    }, [node]);
 
@@ -380,7 +373,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                                  node.setPosition(newX || 0, y);
                               }}
                               className={`w-16 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
-                                 positionLocked
+                                 locked
                                     ? "hover:cursor-not-allowed text-slate-500"
                                     : "hover:border-slate-400 focus:border-slate-400"
                               }`}
@@ -389,7 +382,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               autoComplete="both"
                               autoCorrect="off"
                               spellCheck="false"
-                              disabled={positionLocked}
+                              disabled={locked}
                            />
                         </div>
 
@@ -403,7 +396,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                                  node.setPosition(x, newY || 0);
                               }}
                               className={`w-16 h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
-                                 positionLocked
+                                 locked
                                     ? "hover:cursor-not-allowed text-slate-500"
                                     : "hover:border-slate-400 focus:border-slate-400"
                               }`}
@@ -412,7 +405,7 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                               autoComplete="both"
                               autoCorrect="off"
                               spellCheck="false"
-                              disabled={positionLocked}
+                              disabled={locked}
                            />
                         </div>
                      </div>
@@ -420,10 +413,10 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                         <input
                            type="checkbox"
                            className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-[1.2] accent-black"
-                           onChange={() => node.trigger("change:lockPosition", { current: !positionLocked })}
-                           checked={positionLocked}
+                           onChange={() => node.trigger("change:lock", { current: !locked })}
+                           checked={locked}
                         />
-                        <label htmlFor="position-lock">Lock pos</label>
+                        <label htmlFor="lock">Lock Node</label>
                      </div>
                   </div>
 
@@ -441,12 +434,12 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                                  node.resize(newWidth || 0, height);
                               }}
                               className={`w-16 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
-                                 sizeLocked
+                                 locked
                                     ? "hover:cursor-not-allowed text-slate-500"
                                     : "hover:border-slate-400 focus:border-slate-400"
                               }`}
                               type="text"
-                              disabled={sizeLocked}
+                              disabled={locked}
                            />
                         </div>
 
@@ -460,23 +453,13 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
                                  node.resize(width, newHeight || 0);
                               }}
                               className={`w-16 block h-3 rounded-md border bg-slate-200 border-slate-300 py-3 px-3 text-md focus:outline-none ${
-                                 sizeLocked
+                                 locked
                                     ? "hover:cursor-not-allowed text-slate-500"
                                     : "hover:border-slate-400 focus:border-slate-400 text-black"
                               }`}
                               type="text"
-                              disabled={sizeLocked}
+                              disabled={locked}
                            />
-                        </div>
-
-                        <div className="flex mt-1.5">
-                           <input
-                              type="checkbox"
-                              className="mr-2 w-5 h-5 border-slate-300 hover:ring-0 transition duration-500 hover:scale-[1.2] accent-black"
-                              onChange={() => node.trigger("change:lockSize", { current: !sizeLocked })}
-                              checked={sizeLocked}
-                           />
-                           <label htmlFor="size-lock">Lock size</label>
                         </div>
                      </div>
                   </div>

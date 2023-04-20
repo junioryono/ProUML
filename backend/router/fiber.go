@@ -13,6 +13,7 @@ import (
 	diagramIssues "github.com/junioryono/ProUML/backend/router/routes/diagram/issues"
 	diagramUsers "github.com/junioryono/ProUML/backend/router/routes/diagram/users"
 	"github.com/junioryono/ProUML/backend/router/routes/diagrams"
+	"github.com/junioryono/ProUML/backend/router/routes/diagrams/issues"
 	"github.com/junioryono/ProUML/backend/router/routes/oauth"
 	"github.com/junioryono/ProUML/backend/router/routes/project"
 	projectDiagram "github.com/junioryono/ProUML/backend/router/routes/project/diagram"
@@ -91,6 +92,7 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 
 	DiagramsRouter := Router.Group("/diagrams", isAuthenticated(sdkP))
 	DiagramsRouter.Get("/", diagrams.Get(sdkP))
+	DiagramsRouter.Get("/issues", issues.Get(sdkP))
 
 	ProjectRouter := Router.Group("/project", isAuthenticated(sdkP))
 	ProjectRouter.Post("/", project.Post(sdkP))

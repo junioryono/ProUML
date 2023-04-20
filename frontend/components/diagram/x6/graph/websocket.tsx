@@ -74,8 +74,7 @@ function onWebSocketMessage(
          nodeInGraph.trigger("change:borderColor", { current: node["borderColor"], ws: true });
          nodeInGraph.trigger("change:borderWidth", { current: node["borderWidth"], ws: true });
          nodeInGraph.trigger("change:borderStyle", { current: node["borderStyle"], ws: true });
-         nodeInGraph.trigger("change:lockPosition", { current: node["lockPosition"], ws: true });
-         nodeInGraph.trigger("change:lockSize", { current: node["lockSize"], ws: true });
+         nodeInGraph.trigger("change:lock", { current: node["lock"], ws: true });
 
          nodeInGraph.angle(node["angle"] || 0, { ws: true });
          nodeInGraph.setSize(node["size"], { ws: true });

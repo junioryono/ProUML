@@ -3,7 +3,7 @@ import { register } from "@antv/x6-react-shape";
 import { useEffect, useState } from "react";
 import { ClassNode } from "types";
 
-function ShapeNodeClass({ node }: { node?: X6Type.Node }) {
+function ShapeNodeClass({ node }: { node: X6Type.Node }) {
    const [selected, setSelected] = useState<boolean>(false);
 
    const [type, setType] = useState<ClassNode["type"]>("class");
@@ -181,17 +181,9 @@ function ShapeNodeClass({ node }: { node?: X6Type.Node }) {
          });
       });
 
-      node?.on("change:lockPosition", ({ current, ws }: { current: boolean; ws: boolean }) => {
-         node.prop("lockPosition", current, { silent: true }).model.graph.trigger("node:change:data", {
-            key: "lockPosition",
-            cell: node,
-            options: { ws },
-         });
-      });
-
-      node?.on("change:lockSize", ({ current, ws }: { current: boolean; ws: boolean }) => {
-         node.prop("lockSize", current, { silent: true }).model.graph.trigger("node:change:data", {
-            key: "lockSize",
+      node?.on("change:lock", ({ current, ws }: { current: boolean; ws: boolean }) => {
+         node.prop("lock", current, { silent: true }).model.graph.trigger("node:change:data", {
+            key: "lock",
             cell: node,
             options: { ws },
          });
@@ -217,8 +209,7 @@ function ShapeNodeClass({ node }: { node?: X6Type.Node }) {
          node?.off("change:borderColor");
          node?.off("change:borderWidth");
          node?.off("change:borderStyle");
-         node?.off("change:lockPosition");
-         node?.off("change:lockSize");
+         node?.off("change:lock");
          node?.off("resize");
          node?.off("resized");
       };

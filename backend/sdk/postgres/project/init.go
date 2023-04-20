@@ -100,28 +100,23 @@ func (p *Project_SDK) Delete(projectId, idToken string) *types.WrappedError {
 		return types.Wrap(errors.New("user is not the owner of the project"), types.ErrInvalidRequest)
 	}
 
-	// Use Joins to delete
-	// project_models has id
-	// diagram_models has project_id as a foreign key
-	// diagram_user_role_models has diagram_id as a foreign key
-	// Delete the project_user_role_models, then diagram_models, then project_models
-	if err := tx.Table("project_user_role_models").
-		Joins("INNER JOIN diagram_models ON project_user_role_models.project_id = diagram_models.project_id").
-		Joins("INNER JOIN diagram_user_role_models ON diagram_models.id = diagram_user_role_models.diagram_id").
-		Where("project_user_role_models.project_id = ?", projectId).
+	// First, delete the diagram user role models
+	if err := tx.Table("diagram_user_role_models").
+		Where("diagram_user_role_models.diagram_id IN (SELECT id FROM diagram_models WHERE project_id = ?)", projectId).
 		Delete(&models.DiagramUserRoleModel{}).Error; err != nil {
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	if err := tx.Table("project_user_role_models").
-		Joins("INNER JOIN diagram_models ON project_user_role_models.project_id = diagram_models.project_id").
-		Where("project_user_role_models.project_id = ?", projectId).
+	// Second, delete the diagram models
+	if err := tx.Table("diagram_models").
+		Where("diagram_models.project_id = ?", projectId).
 		Delete(&models.DiagramModel{}).Error; err != nil {
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
+	// Third, delete the project user role models
 	if err := tx.Table("project_user_role_models").
 		Where("project_user_role_models.project_id = ?", projectId).
 		Delete(&models.ProjectUserRoleModel{}).Error; err != nil {
@@ -129,6 +124,7 @@ func (p *Project_SDK) Delete(projectId, idToken string) *types.WrappedError {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
+	// Finally, delete the project models
 	if err := tx.Table("project_models").
 		Where("project_models.id = ?", projectId).
 		Delete(&models.ProjectModel{}).Error; err != nil {

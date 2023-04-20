@@ -119,6 +119,10 @@ export default function useGraph(
             modifiers: ["ctrl", "meta"],
          },
          interacting(cellView) {
+            if (cellView.cell.prop("lock") === true) {
+               return false;
+            }
+
             return !graph.current?.isPannable();
          },
          // Only render the visible area content
@@ -151,7 +155,13 @@ export default function useGraph(
       graph.current.use(
          new X6.Plugin.Transform({
             resizing: {
-               enabled: true,
+               enabled(node) {
+                  if (node.prop("lock")) {
+                     return false;
+                  }
+
+                  return true;
+               },
             },
          }),
       );
@@ -161,15 +171,11 @@ export default function useGraph(
             enabled: true,
             multiple: true,
             rubberband: true,
+            rubberNode: true,
+            rubberEdge: true,
             movable: true,
             showNodeSelectionBox: false,
             showEdgeSelectionBox: false,
-            // filter(cell) {
-            //    if (cell.isEdge()) {
-            //       return false;
-            //    }
-            //    return true;
-            // },
          }),
       );
 

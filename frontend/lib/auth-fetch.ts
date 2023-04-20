@@ -1,4 +1,4 @@
-import { Diagram, User, APIResponse, Project } from "types";
+import { Diagram, User, APIResponse, Project, Issue } from "types";
 import { fetchAPI } from "./utils";
 
 const defaultError: APIResponse<any> = {
@@ -396,6 +396,14 @@ export async function removeDiagramFromProject(
       },
    )
       .then((res) => jsonResponse<null>(res))
+      .catch(() => defaultError);
+}
+
+export async function getAllIssues(options?: RequestInit): Promise<APIResponse<Issue[]>> {
+   return fetchAPI("/diagrams/issues", {
+      ...options,
+   })
+      .then((res) => jsonResponse<Issue[]>(res))
       .catch(() => defaultError);
 }
 

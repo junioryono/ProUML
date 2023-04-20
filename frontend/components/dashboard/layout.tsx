@@ -22,11 +22,6 @@ export default function DashboardLayout({ user, children }: { user: User; childr
                         icon: "post",
                      },
                      {
-                        title: "Projects",
-                        href: "/dashboard/projects",
-                        icon: "fileImage",
-                     },
-                     {
                         title: "Shared",
                         href: "/dashboard/shared",
                         icon: "users",

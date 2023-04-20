@@ -153,12 +153,19 @@ func (d *Diagram_SDK) Delete(diagramId, idToken string) *types.WrappedError {
 		return types.Wrap(errors.New("user is not the owner of the diagram"), types.ErrInvalidRequest)
 	}
 
-	// Delete the diagram's user roles and the diagram itself
+	// Delete the diagram's user roles
 	if err := tx.Where("diagram_id = ?", diagramId).Delete(&models.DiagramUserRoleModel{}).Error; err != nil {
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
+	// Delete the diagram's issues
+	if err := tx.Where("diagram_id = ?", diagramId).Delete(&models.IssueModel{}).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	// Delete the diagram
 	if err := tx.Delete(&models.DiagramModel{ID: diagramId}).Error; err != nil {
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
