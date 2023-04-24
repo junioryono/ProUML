@@ -24,10 +24,12 @@ func createStateToken(fbCtx *fiber.Ctx, sdkP *sdk.SDK) (string, error) {
 
 func validateStateToken(fbCtx *fiber.Ctx, sdkP *sdk.SDK) error {
 	if fbCtx.FormValue("state") != fbCtx.Cookies(auth.OAuthStateCookieName) {
+		fmt.Println("invalid oauth state")
 		return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 	}
 
 	if err := auth.DeleteCookie(fbCtx, auth.OAuthStateCookieName); err != nil {
+		fmt.Println("invalid oauth state 2")
 		return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 	}
 
@@ -37,20 +39,16 @@ func validateStateToken(fbCtx *fiber.Ctx, sdkP *sdk.SDK) error {
 func getUserFromIdentityProvider(fbCtx *fiber.Ctx, sdkP *sdk.SDK, id, email, fullName string) error {
 	_, idToken, refreshToken, err := sdkP.Postgres.Auth.Admin.GetUserFromIdentityProvider(fbCtx.IP(), id, email, fullName)
 	if err != nil {
-		fmt.Println("err4", err)
 		return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 	}
 
 	if err := auth.SetCookie(fbCtx, auth.IdTokenCookieName, idToken); err != nil {
-		fmt.Println("err5", err)
 		return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 	}
 
 	if err := auth.SetCookie(fbCtx, auth.RefreshTokenCookieName, refreshToken); err != nil {
-		fmt.Println("err6", err)
 		return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 	}
 
-	fmt.Println("complete")
 	return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.CallbackSuccessURL)
 }

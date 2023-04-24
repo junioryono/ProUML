@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
@@ -56,7 +55,6 @@ func (adminSDK *admin_SDK) GetUserFromIdentityProvider(userIPAddress, id, email,
 				return userModel, "", "", types.Wrap(err, types.ErrInternalServerError)
 			}
 		} else {
-			fmt.Println("err7", err)
 			return userModel, "", "", types.Wrap(err, types.ErrInternalServerError)
 		}
 	}
@@ -64,7 +62,6 @@ func (adminSDK *admin_SDK) GetUserFromIdentityProvider(userIPAddress, id, email,
 	// Create the user's id token, access token, and refresh token using postgres
 	idToken, refreshToken, err := adminSDK.auth.createUserTokens(userModel)
 	if err != nil {
-		fmt.Println("err8", err)
 		return userModel, "", "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
