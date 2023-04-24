@@ -23,7 +23,8 @@ func createStateToken(fbCtx *fiber.Ctx, sdkP *sdk.SDK) (string, error) {
 }
 
 func validateStateToken(fbCtx *fiber.Ctx, sdkP *sdk.SDK) error {
-	fmt.Println("validateStateToken", fbCtx.Cookies(auth.OAuthStateCookieName), fbCtx.FormValue("state"))
+	fmt.Println("validateStateToken cookie", fbCtx.Cookies(auth.OAuthStateCookieName))
+	fmt.Println("validateStateToken state", fbCtx.FormValue("state"))
 	if fbCtx.FormValue("state") != fbCtx.Cookies(auth.OAuthStateCookieName) {
 		fmt.Println("validateStateToken state not the same")
 		return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
