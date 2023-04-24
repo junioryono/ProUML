@@ -95,20 +95,20 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	db.Raw("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'").Pluck("table_name", &tables)
 	fmt.Println(tables)
 
-	if err := db.AutoMigrate(
-		&models.ClusterModel{},
-		&models.UserModel{},
-		&models.DiagramModel{},
-		&models.DiagramUserRoleModel{},
-		&models.ProjectModel{},
-		&models.ProjectUserRoleModel{},
-		&models.IssueModel{},
-		&models.JWTModel{},
-		&models.EmailVerificationTokenModel{},
-		&models.PasswordResetTokenModel{},
-	); err != nil {
-		return nil, err
-	}
+	// if err := db.AutoMigrate(
+	// 	&models.ClusterModel{},
+	// 	&models.UserModel{},
+	// 	&models.DiagramModel{},
+	// 	&models.DiagramUserRoleModel{},
+	// 	&models.ProjectModel{},
+	// 	&models.ProjectUserRoleModel{},
+	// 	&models.IssueModel{},
+	// 	&models.JWTModel{},
+	// 	&models.EmailVerificationTokenModel{},
+	// 	&models.PasswordResetTokenModel{},
+	// ); err != nil {
+	// 	return nil, err
+	// }
 
 	cluster, err := getCluster(db)
 	if err != nil {
