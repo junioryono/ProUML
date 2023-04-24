@@ -3,6 +3,7 @@ package oauth
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/router/routes/auth"
@@ -22,11 +23,14 @@ func createStateToken(fbCtx *fiber.Ctx, sdkP *sdk.SDK) (string, error) {
 }
 
 func validateStateToken(fbCtx *fiber.Ctx, sdkP *sdk.SDK) error {
+	fmt.Println("validateStateToken", fbCtx.Cookies(auth.OAuthStateCookieName), fbCtx.FormValue("state"))
 	if fbCtx.FormValue("state") != fbCtx.Cookies(auth.OAuthStateCookieName) {
+		fmt.Println("validateStateToken state not the same")
 		return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 	}
 
 	if err := auth.DeleteCookie(fbCtx, auth.OAuthStateCookieName); err != nil {
+		fmt.Println("validateStateToken err", err)
 		return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 	}
 
