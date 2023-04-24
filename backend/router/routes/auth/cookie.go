@@ -35,12 +35,8 @@ func SetCookie(fbCtx *fiber.Ctx, name, value string) error {
 	if Production {
 		cookie.Domain = "prouml.com"
 		cookie.Secure = true
-		cookie.SameSite = "Strict"
+		cookie.SameSite = "None"
 		cookie.Path = "/"
-
-		if name == OAuthStateCookieName {
-			cookie.SameSite = "None"
-		}
 	}
 
 	fbCtx.Cookie(cookie)
@@ -58,12 +54,8 @@ func DeleteCookie(fbCtx *fiber.Ctx, name string) error {
 	if Production {
 		cookie.Domain = "prouml.com"
 		cookie.Secure = true
-		cookie.SameSite = "Strict"
+		cookie.SameSite = "None"
 		cookie.Path = "/"
-
-		if name == OAuthStateCookieName {
-			cookie.SameSite = "None"
-		}
 	}
 
 	fbCtx.Cookie(cookie)
