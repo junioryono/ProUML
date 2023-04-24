@@ -13,18 +13,13 @@ export default function HomeLayout({ user, children }: { user: User; children: R
                   user={user}
                   items={[
                      {
-                        title: "Features",
-                        href: "/features",
-                     },
-                     {
-                        title: "Blog",
-                        href: "/blog",
+                        title: "Home",
+                        href: "/",
                      },
                      {
                         title: "GitHub",
                         href: "https://github.com/junioryono/ProUML",
                         newTab: true,
-                        hideOnXS: true,
                      },
                   ]}
                />

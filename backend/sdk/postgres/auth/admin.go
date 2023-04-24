@@ -18,23 +18,36 @@ type admin_SDK struct {
 	ses   *ses.SES_SDK
 }
 
-func (adminSDK *admin_SDK) GetUserFromIdentityProvider(userIPAddress, email, fullName string) (models.UserModel, string, string, *types.WrappedError) {
+func (adminSDK *admin_SDK) GetUserFromIdentityProvider(userIPAddress, id, email, fullName string) (models.UserModel, string, string, *types.WrappedError) {
 	var userModel models.UserModel
 
-	// Get the user from the database using the email
-	if err := adminSDK.getDb().Where("email = ?", email).First(&userModel).Error; err != nil {
+	query := adminSDK.getDb()
+
+	if id != "" {
+		query = query.Where("id = ?", id)
+	}
+
+	if email != "" {
+		query = query.Or("email = ?", email)
+	}
+
+	if err := query.First(&userModel).Error; err != nil {
 		// If the user does not exist, create a new user
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			if id == "" {
+				id = uuid.New().String()
+			}
+
 			// Create the user
 			userModel = models.UserModel{
-				ID:      uuid.New().String(),
-				Email:   email,
-				LastIP:  userIPAddress,
-				Picture: getUserPictureURL(fullName),
+				ID:     id,
+				Email:  email,
+				LastIP: userIPAddress,
 			}
 
 			if fullName != "" {
 				userModel.FullName = fullName
+				userModel.Picture = getUserPictureURL(fullName)
 			}
 
 			// Create the user in the database

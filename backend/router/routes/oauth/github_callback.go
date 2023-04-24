@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/go-github/github"
@@ -14,7 +15,7 @@ func GitHubCallback(sdkP *sdk.SDK) fiber.Handler {
 			return err
 		}
 
-		token, err := sdkP.OAuth.GitHub.Exchange(context.Background(), fbCtx.FormValue("code"))
+		token, err := sdkP.OAuth.GitHub.Exchange(context.Background(), fbCtx.Query("code"))
 		if err != nil {
 			return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 		}
@@ -26,6 +27,6 @@ func GitHubCallback(sdkP *sdk.SDK) fiber.Handler {
 			return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 		}
 
-		return getUserFromIdentityProvider(fbCtx, sdkP, user.GetEmail(), user.GetName())
+		return getUserFromIdentityProvider(fbCtx, sdkP, fmt.Sprintf("%d", user.GetID()), user.GetEmail(), user.GetName())
 	}
 }

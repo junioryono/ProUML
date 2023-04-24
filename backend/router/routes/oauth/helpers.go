@@ -33,8 +33,8 @@ func validateStateToken(fbCtx *fiber.Ctx, sdkP *sdk.SDK) error {
 	return nil
 }
 
-func getUserFromIdentityProvider(fbCtx *fiber.Ctx, sdkP *sdk.SDK, email, fullName string) error {
-	_, idToken, refreshToken, err := sdkP.Postgres.Auth.Admin.GetUserFromIdentityProvider(fbCtx.IP(), email, fullName)
+func getUserFromIdentityProvider(fbCtx *fiber.Ctx, sdkP *sdk.SDK, id, email, fullName string) error {
+	_, idToken, refreshToken, err := sdkP.Postgres.Auth.Admin.GetUserFromIdentityProvider(fbCtx.IP(), id, email, fullName)
 	if err != nil {
 		return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 	}

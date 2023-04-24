@@ -46,11 +46,13 @@ func Init() (*OAuth_SDK, error) {
 }
 
 func initGitHub() (*oauth2.Config, error) {
+	callbackUrl := getCallbackURL("github")
+	fmt.Println(callbackUrl)
 	var response *oauth2.Config = &oauth2.Config{
 		ClientID:     os.Getenv("OAUTH_GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("OAUTH_GITHUB_CLIENT_SECRET"),
 		Endpoint:     github.Endpoint,
-		RedirectURL:  getCallbackURL("github"),
+		RedirectURL:  callbackUrl,
 		Scopes:       []string{"user:email", "read:user"},
 	}
 
@@ -86,5 +88,5 @@ func initGoogle() (*oauth2.Config, error) {
 }
 
 func getCallbackURL(provider string) string {
-	return fmt.Sprintf(webDomain+"/oauth/%s", provider)
+	return fmt.Sprintf(apiDomain+"/oauth/%s/callback", provider)
 }

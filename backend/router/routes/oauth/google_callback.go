@@ -39,6 +39,7 @@ func GoogleCallback(sdkP *sdk.SDK) fiber.Handler {
 		defer response.Body.Close()
 
 		user := struct {
+			ID    string `json:"id"`
 			Email string `json:"email"`
 			Name  string `json:"name"`
 		}{}
@@ -46,6 +47,6 @@ func GoogleCallback(sdkP *sdk.SDK) fiber.Handler {
 			return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 		}
 
-		return getUserFromIdentityProvider(fbCtx, sdkP, user.Email, user.Name)
+		return getUserFromIdentityProvider(fbCtx, sdkP, user.ID, user.Email, user.Name)
 	}
 }
