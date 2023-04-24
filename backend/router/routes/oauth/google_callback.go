@@ -3,6 +3,7 @@ package oauth
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -18,6 +19,7 @@ func GoogleCallback(sdkP *sdk.SDK) fiber.Handler {
 
 		token, err := sdkP.OAuth.Google.Exchange(context.Background(), fbCtx.FormValue("code"))
 		if err != nil {
+			fmt.Println("err1", err)
 			return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 		}
 
@@ -34,6 +36,7 @@ func GoogleCallback(sdkP *sdk.SDK) fiber.Handler {
 			},
 		})
 		if err != nil {
+			fmt.Println("err2", err)
 			return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 		}
 		defer response.Body.Close()
@@ -44,6 +47,7 @@ func GoogleCallback(sdkP *sdk.SDK) fiber.Handler {
 			Name  string `json:"name"`
 		}{}
 		if err := json.NewDecoder(response.Body).Decode(&user); err != nil {
+			fmt.Println("err3", err)
 			return fbCtx.Status(fiber.StatusTemporaryRedirect).Redirect(sdkP.OAuth.FailureURL)
 		}
 
