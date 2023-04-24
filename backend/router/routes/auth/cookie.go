@@ -37,6 +37,10 @@ func SetCookie(fbCtx *fiber.Ctx, name, value string) error {
 		cookie.Secure = true
 		cookie.SameSite = "Strict"
 		cookie.Path = "/"
+
+		if name == OAuthStateCookieName {
+			cookie.SameSite = "None"
+		}
 	}
 
 	fbCtx.Cookie(cookie)
@@ -56,6 +60,10 @@ func DeleteCookie(fbCtx *fiber.Ctx, name string) error {
 		cookie.Secure = true
 		cookie.SameSite = "Strict"
 		cookie.Path = "/"
+
+		if name == OAuthStateCookieName {
+			cookie.SameSite = "None"
+		}
 	}
 
 	fbCtx.Cookie(cookie)
