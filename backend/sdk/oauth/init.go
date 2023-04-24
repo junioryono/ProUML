@@ -46,12 +46,11 @@ func Init() (*OAuth_SDK, error) {
 }
 
 func initGitHub() (*oauth2.Config, error) {
-	callbackUrl := getCallbackURL("github")
 	var response *oauth2.Config = &oauth2.Config{
 		ClientID:     os.Getenv("OAUTH_GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("OAUTH_GITHUB_CLIENT_SECRET"),
 		Endpoint:     github.Endpoint,
-		RedirectURL:  callbackUrl,
+		RedirectURL:  getCallbackURL("github"),
 		Scopes:       []string{"user:email", "read:user"},
 	}
 
