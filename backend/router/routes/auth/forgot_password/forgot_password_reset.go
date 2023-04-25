@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/types"
@@ -8,6 +10,7 @@ import (
 
 func Reset(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
+		fmt.Println("Reset")
 		password := fbCtx.FormValue("password")
 		if password == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{

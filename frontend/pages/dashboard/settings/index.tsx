@@ -2,6 +2,7 @@ import { getProjects, getSession } from "@/lib/auth-fetch";
 import { GetServerSideProps } from "next";
 import { Project, User } from "types";
 
+import UserPasswordForm from "@/components/dashboard/settings/user-password-form";
 import UserDeleteForm from "@/components/dashboard/settings/user-delete-form";
 import UserEmailForm from "@/components/dashboard/settings/user-email-form";
 import FormContainer from "@/components/dashboard/settings/form-container";
@@ -20,6 +21,9 @@ export default function DashboardSettingsPage({ user }: { user: User }) {
             </div>
             <div>
                <FormContainer Component={UserEmailForm} user={user} />
+            </div>
+            <div>
+               <FormContainer Component={UserPasswordForm} user={user} />
             </div>
             <div>
                <FormContainer Component={UserDeleteForm} user={user} />

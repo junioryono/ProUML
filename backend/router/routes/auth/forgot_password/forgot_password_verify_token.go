@@ -16,7 +16,7 @@ func VerifyToken(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		if err := sdkP.Postgres.Auth.Client.VerifyPasswordResetToken(passwordResetToken); err != nil {
+		if _, err := sdkP.Postgres.Auth.Client.VerifyPasswordResetToken(passwordResetToken); err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
 				Reason:  err.Error(),

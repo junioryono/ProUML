@@ -8,7 +8,7 @@ import (
 
 func Initiate(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
-		email := fbCtx.Query("email")
+		email := fbCtx.FormValue("email")
 		if email == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,

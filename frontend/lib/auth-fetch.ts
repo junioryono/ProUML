@@ -63,6 +63,63 @@ export async function logout(options?: RequestInit): Promise<APIResponse<undefin
       .catch(() => defaultError);
 }
 
+export async function forgotPassword(email: string, options?: RequestInit): Promise<APIResponse<undefined>> {
+   const form = new FormData();
+   form.append("email", email);
+
+   return fetchAPI("/auth/forgot-password", {
+      ...options,
+      method: "POST",
+      body: form,
+   })
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function forgotPasswordVerifyToken(token: string, options?: RequestInit): Promise<APIResponse<undefined>> {
+   return fetchAPI("/auth/forgot-password/verify-token?" + new URLSearchParams({ token }), {
+      ...options,
+      method: "GET",
+   })
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function forgotPasswordReset(
+   token: string,
+   password: string,
+   options?: RequestInit,
+): Promise<APIResponse<undefined>> {
+   const form = new FormData();
+   form.append("password", password);
+
+   return fetchAPI("/auth/forgot-password/reset?" + new URLSearchParams({ token }), {
+      ...options,
+      method: "PATCH",
+      body: form,
+   })
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function changePassword(
+   oldPassword: string,
+   newPassword: string,
+   options?: RequestInit,
+): Promise<APIResponse<undefined>> {
+   const form = new FormData();
+   form.append("oldPassword", oldPassword);
+   form.append("newPassword", newPassword);
+
+   return fetchAPI("/auth/change-password", {
+      ...options,
+      method: "PATCH",
+      body: form,
+   })
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
 export async function updateProfile(form: FormData, options?: RequestInit): Promise<APIResponse<undefined>> {
    return fetchAPI("/auth/update-profile", {
       ...options,

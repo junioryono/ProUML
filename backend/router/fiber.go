@@ -67,14 +67,14 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	AuthRouter.Post("/logout", auth.Logout(sdkP))
 	AuthRouter.Post("/verify-email", auth.VerifyEmail(sdkP))
 	AuthRouter.Post("/resend-verification-email", isAuthenticated(sdkP), auth.ResendVerificationEmail(sdkP))
-	AuthRouter.Patch("/reset-password", isAuthenticated(sdkP), auth.ResetPassword(sdkP))
+	AuthRouter.Patch("/change-password", isAuthenticated(sdkP), auth.ChangePassword(sdkP))
 	AuthRouter.Delete("/delete-account", isAuthenticated(sdkP), auth.DeleteAccount(sdkP))
 	AuthRouter.Get("/session", isAuthenticated(sdkP), auth.Session(sdkP))
 	AuthRouter.Get("/get-profile", isAuthenticated(sdkP), auth.GetProfile(sdkP))
 	AuthRouter.Patch("/update-profile", isAuthenticated(sdkP), auth.UpdateProfile(sdkP))
 
 	ForgotPasswordRouter := AuthRouter.Group("/forgot-password")
-	ForgotPasswordRouter.Get("/", forgotPassword.Initiate(sdkP))
+	ForgotPasswordRouter.Post("/", forgotPassword.Initiate(sdkP))
 	ForgotPasswordRouter.Get("/verify-token", forgotPassword.VerifyToken(sdkP))
 	ForgotPasswordRouter.Patch("/reset", forgotPassword.Reset(sdkP))
 
@@ -112,12 +112,6 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 
 	ProjectsRouter := Router.Group("/projects", isAuthenticated(sdkP))
 	ProjectsRouter.Get("/", projects.Get(sdkP))
-
-	// TeamRouter := Router.Group("/team", isAuthenticated(sdkP))
-	// TeamRouter.Post("/", team.Post(sdkP))
-	// TeamRouter.Put("/", team.Put(sdkP))
-	// TeamRouter.Get("/", team.Get(sdkP))
-	// TeamRouter.Delete("/", team.Delete(sdkP))
 
 	Router.Get("/.well-known/jwks.json", JWKSet(sdkP))
 

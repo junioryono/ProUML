@@ -1,11 +1,10 @@
-import { getSession } from "@/lib/auth-fetch";
+import { forgotPassword, getSession } from "@/lib/auth-fetch";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { login } from "@/lib/auth-fetch";
 import { toast } from "@/ui/toast";
 import { useState } from "react";
 import * as z from "zod";
@@ -15,21 +14,21 @@ import { Icons } from "@/components/icons";
 
 const userLoginSchema = z.object({
    email: z.string().email(),
-   password: z.string().min(8),
 });
 
 type FormData = z.infer<typeof userLoginSchema>;
 
-export default function Index() {
+export default function Index({ email }: { email: string }) {
    const {
       register,
       handleSubmit,
-      watch,
       formState: { errors },
    } = useForm<FormData>({
       resolver: zodResolver(userLoginSchema),
+      defaultValues: {
+         email: email ? decodeURIComponent(email) : "",
+      },
    });
-   const watchEmail = watch("email", undefined); // Defaults to undefined
    const [isLoading, setIsLoading] = useState<boolean>(false);
    const searchParams = useSearchParams();
    const router = useRouter();
@@ -37,32 +36,37 @@ export default function Index() {
    async function onSubmit(data: FormData) {
       setIsLoading(true);
 
-      const signInResult = await login(data.email, data.password);
+      const forgotPasswordResult = await forgotPassword(data.email);
 
       setIsLoading(false);
 
-      if (!signInResult.success) {
+      if (!forgotPasswordResult.success) {
          return toast({
             title: "Something went wrong.",
-            message: "Incorrect email or password. Please try again.",
+            message: forgotPasswordResult.reason,
             type: "error",
          });
       }
 
       toast({
-         title: "Logging you in!",
-         message: "You will be redirected to your dashboard shortly.",
+         title: "Password reset email sent!",
+         message: "If an account with that email exists, you will receive an email shortly.",
          type: "success",
       });
 
-      return router.push(searchParams.get("redirect") || "/dashboard/diagrams");
+      // redirect to login page. include searchParams.get("redirect") if it exists
+      if (searchParams.get("redirect")) {
+         return router.push(`/login?redirect=${searchParams.get("redirect")}`);
+      }
+
+      return router.push("/login");
    }
 
    return (
       <div className="min-h-screen">
          <div className="container flex h-screen w-screen flex-col items-center justify-center">
             <Link
-               href="/"
+               href="/login"
                className="absolute top-4 left-4 inline-flex items-center justify-center rounded-lg border border-transparent bg-transparent py-2 px-3 text-center text-sm  font-medium text-slate-900 hover:border-slate-200 hover:bg-slate-100 focus:z-10 focus:outline-none md:top-8 md:left-8"
             >
                <>
@@ -73,8 +77,8 @@ export default function Index() {
             <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
                <div className="flex flex-col space-y-2 text-center">
                   <Icons.logo className="mx-auto h-6 w-6" />
-                  <h1 className="text-2xl font-bold">Welcome back</h1>
-                  <p className="text-sm text-slate-600">Enter your details to sign in to your account</p>
+                  <h1 className="text-2xl font-bold">Forgot password</h1>
+                  <p className="text-sm text-slate-600">Enter your email to reset your password.</p>
                </div>
                <div className="grid gap-6">
                   <form onSubmit={handleSubmit(onSubmit)}>
@@ -96,43 +100,23 @@ export default function Index() {
                            />
                            {errors?.email && <p className="px-1 text-xs text-red-600">{errors.email.message}</p>}
                         </div>
-                        <label className="sr-only" htmlFor="password">
-                           Password
-                        </label>
-                        <input
-                           placeholder="Password"
-                           className="my-0 mb-2 block h-9 w-full rounded-md border border-slate-300 py-2 px-3 text-base placeholder:text-slate-400 hover:border-slate-400 focus:border-neutral-300 focus:outline-none"
-                           type="password"
-                           autoCapitalize="none"
-                           autoComplete="current-password"
-                           autoCorrect="off"
-                           name="password"
-                           disabled={isLoading}
-                           {...register("password")}
-                        />
-                        {errors?.password && <p className="px-1 text-xs text-red-600">{errors.password.message}</p>}
                         <button
                            className="inline-flex w-full items-center justify-center rounded-lg bg-[#24292F] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#24292F]/90 focus:outline-none focus:ring-4 focus:ring-[#24292F]/50 disabled:opacity-50 dark:hover:bg-[#050708]/30 dark:focus:ring-slate-500"
                            disabled={isLoading}
                         >
                            {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-                           Sign In
+                           Send password reset email
                         </button>
                         <p className="px-8 text-center text-sm text-slate-600">
                            <Link
                               href={{
                                  pathname: searchParams.get("redirect")
-                                    ? `/forgot-password?redirect=${searchParams.get("redirect")}`
-                                    : "/forgot-password",
-                                 query: {
-                                    ...(watchEmail && watchEmail.includes("@") && watchEmail.includes(".")
-                                       ? { email: encodeURIComponent(watchEmail) }
-                                       : {}),
-                                 },
+                                    ? `/login?redirect=${searchParams.get("redirect")}`
+                                    : "/login",
                               }}
                               className="underline hover:text-brand"
                            >
-                              Forgot password?
+                              Remember password? Sign In
                            </Link>
                         </p>
                      </div>
@@ -183,7 +167,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       ctx.res.setHeader("set-cookie", userRequest.cookie);
    }
 
+   const searchParams = new URLSearchParams(ctx.query as any);
+   const email = searchParams.get("email");
+
    return {
-      props: {},
+      props: {
+         email,
+      },
    };
 };

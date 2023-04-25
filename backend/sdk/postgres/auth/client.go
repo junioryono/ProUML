@@ -376,8 +376,8 @@ func (clientSDK *client_SDK) SendEmailVerificationEmail(user models.UserModel) *
 		Subject        = "ProUML Account Verification"
 		ToAddressName  = user.FullName
 		ToAddressEmail = user.Email
-		TextBody       = "Verify your email by clicking this link: https://prouml.com/verify/" + emailVerificationToken
-		HtmlBody       = "Click <a href=\"https://prouml.com/verify/" + emailVerificationToken + "\">here</a> to verify your email."
+		TextBody       = "Verify your email by clicking this link: https://prouml.com/verify-email/" + emailVerificationToken
+		HtmlBody       = "Click <a href=\"https://prouml.com/verify-email/" + emailVerificationToken + "\">here</a> to verify your email."
 	)
 
 	if _, err := clientSDK.sendgrid.SendEmail(SenderName, SenderEmail, Subject, ToAddressName, ToAddressEmail, TextBody, HtmlBody); err != nil {
@@ -474,7 +474,13 @@ func (clientSDK *client_SDK) ChangePassword(idToken, oldPassword, newPassword st
 	// Get the user from the database
 	var user models.UserModel
 	if err := clientSDK.getDb().Where("id = ?", userId).First(&user).Error; err != nil {
+		fmt.Println("err1", err)
 		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if user.EmailVerified {
+		// Users that have a verified email must change their password using the email verification token
+		return types.Wrap(err, types.ErrInvalidRequest)
 	}
 
 	// Check if the old password is correct
@@ -490,6 +496,7 @@ func (clientSDK *client_SDK) ChangePassword(idToken, oldPassword, newPassword st
 
 	// Update the user's password
 	if err := clientSDK.getDb().Model(&user).Update("password", hashedPassword).Error; err != nil {
+		fmt.Println("err2", err)
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -500,7 +507,8 @@ func (clientSDK *client_SDK) ForgotPassword(email string) *types.WrappedError {
 	// Get the user from the database
 	var user models.UserModel
 	if err := clientSDK.getDb().Where("email = ?", email).First(&user).Error; err != nil {
-		return types.Wrap(err, types.ErrInternalServerError)
+		// We don't want to tell the user that the email doesn't exist
+		return nil
 	}
 
 	// Delete any existing password reset tokens
@@ -523,7 +531,7 @@ func (clientSDK *client_SDK) ForgotPassword(email string) *types.WrappedError {
 	var (
 		SenderName     = "ProUML"
 		SenderEmail    = "no-reply@prouml.com"
-		Subject        = "ProUML Account Verification"
+		Subject        = "ProUML Password Reset"
 		ToAddressName  = user.FullName
 		ToAddressEmail = user.Email
 		TextBody       = "Reset your password by clicking this link: https://prouml.com/reset-password/" + passwordResetToken
@@ -537,58 +545,45 @@ func (clientSDK *client_SDK) ForgotPassword(email string) *types.WrappedError {
 	return nil
 }
 
-func (clientSDK *client_SDK) VerifyPasswordResetToken(passwordResetToken string) error {
+func (clientSDK *client_SDK) VerifyPasswordResetToken(passwordResetToken string) (*models.PasswordResetTokenModel, *types.WrappedError) {
 	// Get the password reset token from the database
 	var passwordResetTokenModel models.PasswordResetTokenModel
 	if err := clientSDK.getDb().Where("token = ?", passwordResetToken).First(&passwordResetTokenModel).Error; err != nil {
-		return types.Wrap(err, types.ErrInternalServerError)
+		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Check if the password reset token has expired
 	if passwordResetTokenModel.ExpiresAt < time.Now().Unix() {
-		return types.Wrap(errors.New("password reset token has expired"), types.ErrTokenExpired)
+		return nil, types.Wrap(errors.New("password reset token has expired"), types.ErrTokenExpired)
 	}
 
-	return nil
+	return &passwordResetTokenModel, nil
 }
 
 // Function that will reset the user's password
 func (clientSDK *client_SDK) ResetPassword(passwordResetToken, newPassword string) *types.WrappedError {
-	// Get the user id from the password reset token
-	userId, err := clientSDK.GetUserId(passwordResetToken)
+	fmt.Println("Resetting password")
+	passwordResetTokenModel, err := clientSDK.VerifyPasswordResetToken(passwordResetToken)
 	if err != nil {
 		return err
 	}
 
-	tx := clientSDK.getDb().Begin()
-
-	// Get the user from the database
-	var user models.UserModel
-	if err := tx.Where("id = ?", userId).First(&user).Error; err != nil {
-		tx.Rollback()
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
+	fmt.Println("Password reset token verified")
 	// Hash the new password
 	hashedPassword, err := clientSDK.hashPassword(newPassword)
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
 
+	fmt.Println("Password hashed")
 	// Update the user's password
-	if err := tx.Model(&user).Update("password", hashedPassword).Error; err != nil {
-		tx.Rollback()
+	if err := clientSDK.getDb().Model(&models.UserModel{}).Where("id = ?", passwordResetTokenModel.UserID).Update("password", hashedPassword).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	if err := clientSDK.getDb().Where("user_id = ?", userId).Delete(&models.PasswordResetTokenModel{}).Error; err != nil {
-		tx.Rollback()
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
+	fmt.Println("Password updated")
+	// Delete the password reset token
+	if err := clientSDK.getDb().Where("token = ?", passwordResetToken).Delete(&models.PasswordResetTokenModel{}).Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 

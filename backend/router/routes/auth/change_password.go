@@ -6,11 +6,11 @@ import (
 	"github.com/junioryono/ProUML/backend/types"
 )
 
-func ResetPassword(sdkP *sdk.SDK) fiber.Handler {
+func ChangePassword(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
 		idToken := fbCtx.Cookies(IdTokenCookieName, fbCtx.Locals("idToken").(string))
-		oldPassword := fbCtx.FormValue("old-password")
-		newPassword := fbCtx.FormValue("new-password")
+		oldPassword := fbCtx.FormValue("oldPassword")
+		newPassword := fbCtx.FormValue("newPassword")
 		if oldPassword == "" || newPassword == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
