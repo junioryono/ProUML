@@ -14,7 +14,7 @@ type SendGrid_SDK struct {
 func Init() (*SendGrid_SDK, error) {
 	APIKey := os.Getenv("SENDGRID_API_KEY")
 	if APIKey == "" {
-		return nil, errors.New("api key is empty")
+		return nil, errors.New("sendgrid api key is empty")
 	}
 
 	return &SendGrid_SDK{
