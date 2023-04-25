@@ -1,6 +1,8 @@
 package types
 
 const (
+	ErrInvalidEmail           = "Invalid email."
+	ErrEmailAlreadyExists     = "Email already exists."
 	ErrInvalidEmailOrPassword = "Incorrect email or password."
 	ErrNotAuthenticated       = "Not authenticated. Please login."
 	ErrInternalServerError    = "Internal server error. Please try again later."

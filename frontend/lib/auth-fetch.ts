@@ -54,10 +54,29 @@ export async function register(
       .catch(() => defaultError);
 }
 
+export async function verifyEmail(token: string, options?: RequestInit): Promise<APIResponse<User>> {
+   return fetchAPI("/auth/verify-email?" + new URLSearchParams({ token }), {
+      ...options,
+      method: "POST",
+   })
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
 export async function logout(options?: RequestInit): Promise<APIResponse<undefined>> {
    return fetchAPI("/auth/logout", {
       ...options,
       method: "POST",
+   })
+      .then((res) => res.json())
+      .catch(() => defaultError);
+}
+
+export async function updateProfile(form: FormData, options?: RequestInit): Promise<APIResponse<undefined>> {
+   return fetchAPI("/auth/update-profile", {
+      ...options,
+      method: "PATCH",
+      body: form,
    })
       .then((res) => res.json())
       .catch(() => defaultError);

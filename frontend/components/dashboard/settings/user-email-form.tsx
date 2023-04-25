@@ -9,6 +9,7 @@ import { toast } from "@/ui/toast";
 import { Icons } from "@/components/icons";
 import UserEmailFormSkeleton from "./user-email-form-skeleton";
 import { User } from "types";
+import { updateProfile } from "@/lib/auth-fetch";
 
 const userEmailSchema = z.object({
    email: z.string().min(3).max(32),
@@ -31,7 +32,7 @@ export default function UserEmailForm({ user }: { user: User }) {
    const [isSaving, setIsSaving] = useState<boolean>(false);
    const [isSending, setIsSending] = useState<boolean>(false);
 
-   async function onChangeSubmit(data: FormData) {
+   function onChangeSubmit(data: FormData) {
       if (data.email === user.email) {
          return toast({
             title: "No changes detected.",
@@ -45,39 +46,29 @@ export default function UserEmailForm({ user }: { user: User }) {
       const form = new FormData();
       form.append("email", data.email);
 
-      const success = await fetchAPI("/auth/update-profile", {
-         method: "PATCH",
-         body: form,
-      })
-         .then((res) => res.json())
+      updateProfile(form)
          .then((res) => {
-            if (res && res.success === true) {
-               // TODO
-               // setUser((prev) => ({ ...prev, email: data.email }));
-               return true;
+            if (res.success === false) {
+               throw new Error(res.reason);
             }
 
-            return false;
+            toast({
+               title: "Email updated.",
+               message: "Your email has been updated.",
+               type: "success",
+            });
          })
          .catch((err) => {
             console.error(err);
-            return false;
+            return toast({
+               title: "Something went wrong.",
+               message: err.message,
+               type: "error",
+            });
+         })
+         .finally(() => {
+            setIsSaving(false);
          });
-
-      setIsSaving(false);
-
-      if (!success) {
-         return toast({
-            title: "Something went wrong.",
-            message: "Your email was not updated. Please try again.",
-            type: "error",
-         });
-      }
-
-      toast({
-         message: "Your email has been updated.",
-         type: "success",
-      });
    }
 
    async function onResendSubmit() {

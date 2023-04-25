@@ -29,7 +29,26 @@ func UpdateProfile(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		// TODO - Add more fields to update
+		if fbCtx.FormValue("email") != "" {
+			idToken := fbCtx.Cookies(IdTokenCookieName, fbCtx.Locals("idToken").(string))
+			if err := sdkP.Postgres.Auth.Client.UpdateUserEmail(idToken, fbCtx.FormValue("email")); err != nil {
+				return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
+					Success: false,
+					Reason:  err.Error(),
+				})
+			}
+
+			if err := reissueIdToken(fbCtx, sdkP); err != nil {
+				return fbCtx.Status(fiber.StatusInternalServerError).JSON(types.Status{
+					Success: false,
+					Reason:  err.Error(),
+				})
+			}
+
+			return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
+				Success: true,
+			})
+		}
 
 		return fbCtx.Status(fiber.StatusOK).JSON(types.Status{
 			Success: false,

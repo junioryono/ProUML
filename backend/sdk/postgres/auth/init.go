@@ -5,7 +5,7 @@ import (
 
 	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
-	"github.com/junioryono/ProUML/backend/sdk/ses"
+	"github.com/junioryono/ProUML/backend/sdk/sendgrid"
 	"github.com/junioryono/ProUML/backend/types"
 	jwkT "github.com/lestrrat-go/jwx/jwk"
 	"gorm.io/gorm"
@@ -17,23 +17,23 @@ type Auth_SDK struct {
 	jwk    *jwk.JWK_SDK
 }
 
-func Init(getDb func() *gorm.DB, jwk *jwk.JWK_SDK, ses *ses.SES_SDK) *Auth_SDK {
+func Init(getDb func() *gorm.DB, jwk *jwk.JWK_SDK, sendgrid *sendgrid.SendGrid_SDK) *Auth_SDK {
 	authSDK := &Auth_SDK{
 		jwk: jwk,
 	}
 
 	authSDK.Admin = &admin_SDK{
-		auth:  authSDK,
-		getDb: getDb,
-		jwk:   jwk,
-		ses:   ses,
+		auth:     authSDK,
+		getDb:    getDb,
+		jwk:      jwk,
+		sendgrid: sendgrid,
 	}
 
 	authSDK.Client = &client_SDK{
-		auth:  authSDK,
-		getDb: getDb,
-		jwk:   jwk,
-		ses:   ses,
+		auth:     authSDK,
+		getDb:    getDb,
+		jwk:      jwk,
+		sendgrid: sendgrid,
 	}
 
 	return authSDK

@@ -6,16 +6,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
-	"github.com/junioryono/ProUML/backend/sdk/ses"
+	"github.com/junioryono/ProUML/backend/sdk/sendgrid"
 	"github.com/junioryono/ProUML/backend/types"
 	"gorm.io/gorm"
 )
 
 type admin_SDK struct {
-	auth  *Auth_SDK
-	getDb func() *gorm.DB
-	jwk   *jwk.JWK_SDK
-	ses   *ses.SES_SDK
+	auth     *Auth_SDK
+	getDb    func() *gorm.DB
+	jwk      *jwk.JWK_SDK
+	sendgrid *sendgrid.SendGrid_SDK
 }
 
 func (adminSDK *admin_SDK) GetUserFromIdentityProvider(userIPAddress, id, email, fullName string) (models.UserModel, string, string, *types.WrappedError) {

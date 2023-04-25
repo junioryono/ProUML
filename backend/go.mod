@@ -49,6 +49,8 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/savsgio/gotils v0.0.0-20220530130905-52f3993e8d6d // indirect
+	github.com/sendgrid/rest v2.6.9+incompatible // indirect
+	github.com/sendgrid/sendgrid-go v3.12.0+incompatible // indirect
 	golang.org/x/image v0.5.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect

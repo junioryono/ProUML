@@ -9,7 +9,7 @@ import (
 	"github.com/junioryono/ProUML/backend/sdk/oauth"
 	"github.com/junioryono/ProUML/backend/sdk/postgres"
 	"github.com/junioryono/ProUML/backend/sdk/redis"
-	"github.com/junioryono/ProUML/backend/sdk/ses"
+	"github.com/junioryono/ProUML/backend/sdk/sendgrid"
 )
 
 type SDK struct {
@@ -24,12 +24,12 @@ func Init() (*SDK, error) {
 		return nil, err
 	}
 
-	SES, err := ses.Init()
+	SendGrid, err := sendgrid.Init()
 	if err != nil {
 		return nil, err
 	}
 
-	Postgres, err := postgres.Init(SES)
+	Postgres, err := postgres.Init(SendGrid)
 	if err != nil {
 		return nil, err
 	}

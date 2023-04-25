@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 	"time"
 
@@ -9,17 +10,17 @@ import (
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/jwk"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
-	"github.com/junioryono/ProUML/backend/sdk/ses"
+	"github.com/junioryono/ProUML/backend/sdk/sendgrid"
 	"github.com/junioryono/ProUML/backend/types"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type client_SDK struct {
-	auth  *Auth_SDK
-	getDb func() *gorm.DB
-	jwk   *jwk.JWK_SDK
-	ses   *ses.SES_SDK
+	auth     *Auth_SDK
+	getDb    func() *gorm.DB
+	jwk      *jwk.JWK_SDK
+	sendgrid *sendgrid.SendGrid_SDK
 }
 
 // Function that will authenticate the user
@@ -69,6 +70,14 @@ func (clientSDK *client_SDK) AuthenticateUser(userIPAddress, email, password str
 // Function that will create a user in the database
 // Returns the users access token, id token, and refresh token
 func (clientSDK *client_SDK) CreateUser(userIPAddress, email, password, fullName string) (models.UserModel, string, string, *types.WrappedError) {
+	if email == "" || password == "" {
+		return models.UserModel{}, "", "", types.Wrap(errors.New("email or password is empty"), types.ErrInvalidEmailOrPassword)
+	}
+
+	if !isValidEmail(email) {
+		return models.UserModel{}, "", "", types.Wrap(errors.New("invalid email"), types.ErrInvalidEmail)
+	}
+
 	// Check if the user already exists
 	var user models.UserModel
 	if err := clientSDK.getDb().Where("email = ?", email).First(&user).Error; err == nil {
@@ -220,9 +229,7 @@ func (clientSDK *client_SDK) ResendEmailVerificationEmail(idToken string) *types
 	}
 
 	// Send the user an email to verify their email address in a separate goroutine
-	go clientSDK.SendEmailVerificationEmail(user)
-
-	return nil
+	return clientSDK.SendEmailVerificationEmail(user)
 }
 
 // Function that will verify the user's email address
@@ -284,29 +291,6 @@ func (clientSDK *client_SDK) GetUser(idToken string) (*models.UserModel, *types.
 	return &user, nil
 }
 
-// Function that will update a user in the database
-func (clientSDK *client_SDK) UpdateUser(idToken, email, fullName string) *types.WrappedError {
-	// Get the user id from the id token
-	userId, err := clientSDK.GetUserId(idToken)
-	if err != nil {
-		return err
-	}
-
-	var user models.UserModel
-	if err := clientSDK.getDb().Where("id = ?", userId).First(&user).Error; err != nil {
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	user.Email = email
-	user.FullName = fullName
-
-	if err := clientSDK.getDb().Save(&user).Error; err != nil {
-		return types.Wrap(err, types.ErrInternalServerError)
-	}
-
-	return nil
-}
-
 // Function that will update a user's full name in the database
 func (clientSDK *client_SDK) UpdateUserFullName(idToken, fullName string) *types.WrappedError {
 	// Get the user id from the id token
@@ -341,6 +325,35 @@ func (clientSDK *client_SDK) UpdateUserFullName(idToken, fullName string) *types
 	return nil
 }
 
+// Function that will update a user's email in the database
+func (clientSDK *client_SDK) UpdateUserEmail(idToken, newEmail string) *types.WrappedError {
+	// Get the user id from the id token
+	userId, err := clientSDK.GetUserId(idToken)
+	if err != nil {
+		return err
+	}
+
+	// Validate the new email
+	if !isValidEmail(newEmail) {
+		return types.Wrap(errors.New("invalid email"), types.ErrInvalidRequest)
+	}
+
+	// Check if the user already exists
+	var user models.UserModel
+	if err := clientSDK.getDb().Where("email = ?", newEmail).First(&user).Error; err == nil {
+		return types.Wrap(err, types.ErrEmailAlreadyExists)
+	}
+
+	// Update the user's email in the database
+	if err := clientSDK.getDb().Model(&models.UserModel{}).
+		Where("id = ?", userId).
+		Update("email", newEmail).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	return nil
+}
+
 // Function that will send the user an email to verify their email address
 func (clientSDK *client_SDK) SendEmailVerificationEmail(user models.UserModel) *types.WrappedError {
 	// Create the email verification token
@@ -350,15 +363,16 @@ func (clientSDK *client_SDK) SendEmailVerificationEmail(user models.UserModel) *
 	}
 
 	var (
-		Sender      = "no-reply@prouml.com"
-		Subject     = "ProUML Account Verification"
-		HtmlBody    = "Click <a href=\"https://prouml.com/verify/" + emailVerificationToken + "\">here</a> to verify your email."
-		TextBody    = "Verify your email by clicking this link: https://prouml.com/verify/" + emailVerificationToken
-		ToAddresses = []string{user.Email}
-		CcAddresses = []string{}
+		SenderName     = "ProUML"
+		SenderEmail    = "no-reply@prouml.com"
+		Subject        = "ProUML Account Verification"
+		ToAddressName  = user.FullName
+		ToAddressEmail = user.Email
+		TextBody       = "Verify your email by clicking this link: https://prouml.com/verify/" + emailVerificationToken
+		HtmlBody       = "Click <a href=\"https://prouml.com/verify/" + emailVerificationToken + "\">here</a> to verify your email."
 	)
 
-	if _, err := clientSDK.ses.SendEmail(Sender, Subject, HtmlBody, TextBody, ToAddresses, CcAddresses); err != nil {
+	if _, err := clientSDK.sendgrid.SendEmail(SenderName, SenderEmail, Subject, ToAddressName, ToAddressEmail, TextBody, HtmlBody); err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -517,4 +531,11 @@ func (clientSDK *client_SDK) ResetPassword(passwordResetToken, newPassword strin
 	}
 
 	return nil
+}
+
+// Helper function to validate email format
+func isValidEmail(email string) bool {
+	emailRegex := `^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$`
+	re := regexp.MustCompile(emailRegex)
+	return re.MatchString(email)
 }

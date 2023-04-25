@@ -64,13 +64,12 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	AuthRouter.Post("/register", auth.Register(sdkP))
 	AuthRouter.Post("/login", auth.Login(sdkP))
 	AuthRouter.Post("/logout", auth.Logout(sdkP))
+	AuthRouter.Post("/verify-email", auth.ResendVerificationEmail(sdkP))
 	AuthRouter.Post("/resend-verification-email", isAuthenticated(sdkP), auth.ResendVerificationEmail(sdkP))
-	AuthRouter.Patch("/update-profile", isAuthenticated(sdkP), auth.UpdateProfile(sdkP))
 	AuthRouter.Delete("/delete-account", isAuthenticated(sdkP), auth.DeleteAccount(sdkP))
 	AuthRouter.Get("/session", isAuthenticated(sdkP), auth.Session(sdkP))
 	AuthRouter.Get("/get-profile", isAuthenticated(sdkP), auth.GetProfile(sdkP))
-
-	// AuthRouter.Get("/verify-email", auth.VerifyEmail(sdkP))
+	AuthRouter.Patch("/update-profile", isAuthenticated(sdkP), auth.UpdateProfile(sdkP))
 
 	OAuthRouter := Router.Group("/oauth")
 	OAuthRouter.Get("/github/login", oauth.GitHubLogin(sdkP))

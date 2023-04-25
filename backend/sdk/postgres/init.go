@@ -17,7 +17,7 @@ import (
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/project"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/projects"
-	"github.com/junioryono/ProUML/backend/sdk/ses"
+	"github.com/junioryono/ProUML/backend/sdk/sendgrid"
 )
 
 type Postgres_SDK struct {
@@ -28,13 +28,13 @@ type Postgres_SDK struct {
 	Projects *projects.Projects_SDK
 	db       *gorm.DB
 	jwk      *jwk.JWK_SDK
-	ses      *ses.SES_SDK
+	sendgrid *sendgrid.SendGrid_SDK
 	cluster  *models.ClusterModel
 
 	dsn string
 }
 
-func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
+func Init(sendgrid *sendgrid.SendGrid_SDK) (*Postgres_SDK, error) {
 	Username := os.Getenv("POSTGRES_USERNAME")
 	Password := os.Getenv("POSTGRES_PASSWORD")
 	Host := os.Getenv("POSTGRES_HOST")
@@ -116,10 +116,10 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 	}
 
 	p := &Postgres_SDK{
-		db:      db,
-		ses:     ses,
-		cluster: cluster,
-		dsn:     dsn,
+		db:       db,
+		sendgrid: sendgrid,
+		cluster:  cluster,
+		dsn:      dsn,
 	}
 
 	if err := p.createFuntionsAndTriggers(); err != nil {
@@ -132,7 +132,7 @@ func Init(ses *ses.SES_SDK) (*Postgres_SDK, error) {
 		return nil, err
 	}
 
-	p.Auth = auth.Init(p.getDb, p.jwk, ses)
+	p.Auth = auth.Init(p.getDb, p.jwk, sendgrid)
 	p.Diagram = diagram.Init(p.getDb, p.Auth)
 	p.Diagrams = diagrams.Init(p.getDb, p.Auth)
 	p.Project = project.Init(p.getDb, p.Auth)
