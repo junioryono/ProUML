@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -82,6 +83,8 @@ func (clientSDK *client_SDK) CreateUser(userIPAddress, email, password, fullName
 	var user models.UserModel
 	if err := clientSDK.getDb().Where("email = ?", email).First(&user).Error; err == nil {
 		return user, "", "", types.Wrap(err, types.ErrUserAlreadyExists)
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return user, "", "", types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Hash the password
@@ -115,7 +118,10 @@ func (clientSDK *client_SDK) CreateUser(userIPAddress, email, password, fullName
 	}
 
 	// Send the user an email to verify their email address in a separate goroutine
-	go clientSDK.SendEmailVerificationEmail(user)
+	go func() {
+		err := clientSDK.SendEmailVerificationEmail(user)
+		fmt.Println("SendEmailVerificationEmail error:", err)
+	}()
 
 	return user, idToken, refreshToken, nil
 }
@@ -341,7 +347,9 @@ func (clientSDK *client_SDK) UpdateUserEmail(idToken, newEmail string) *types.Wr
 	// Check if the user already exists
 	var user models.UserModel
 	if err := clientSDK.getDb().Where("email = ?", newEmail).First(&user).Error; err == nil {
-		return types.Wrap(err, types.ErrEmailAlreadyExists)
+		return types.Wrap(err, types.ErrUserAlreadyExists)
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Update the user's email in the database

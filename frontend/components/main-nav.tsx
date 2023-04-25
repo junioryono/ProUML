@@ -22,15 +22,8 @@ export default function MainNav({ user, items, children }: MainNavProps) {
          {
             title: "Home",
             href: "/",
+            hideOnXS: true,
          },
-         // {
-         //    title: "Marketplace",
-         //    href: "/marketplace",
-         // },
-         // {
-         //    title: "Explore",
-         //    href: "/explore",
-         // },
          {
             title: "GitHub",
             href: "https://github.com/junioryono/prouml",
