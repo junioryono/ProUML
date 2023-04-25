@@ -111,8 +111,8 @@ function IssueComponent({ issue }: { issue: Issue }) {
                   possimus. Eaque, aliquid asperiores et sed ut eveniet ea blanditiis distinctio amet maiores hic neque nemo.
                </p>
                <h2 className="title-fon sm:text-base font-medium pr-2 pt-1 text-gray-900 flex flex-row justify-between">
-                  <div className="">Issue Name</div>
-                  <div className="">Date and Time</div>
+                  <div className="">{issue.title}</div>
+                  <div className="">{issue.created_at}</div>
                   <div className="text-sm text-gray-600">Name & Icon</div>
                </h2>
             </div>
