@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/junioryono/ProUML/backend/router/routes/auth"
+	forgotPassword "github.com/junioryono/ProUML/backend/router/routes/auth/forgot_password"
 	"github.com/junioryono/ProUML/backend/router/routes/diagram"
 	diagramIssues "github.com/junioryono/ProUML/backend/router/routes/diagram/issues"
 	diagramUsers "github.com/junioryono/ProUML/backend/router/routes/diagram/users"
@@ -66,10 +67,16 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	AuthRouter.Post("/logout", auth.Logout(sdkP))
 	AuthRouter.Post("/verify-email", auth.VerifyEmail(sdkP))
 	AuthRouter.Post("/resend-verification-email", isAuthenticated(sdkP), auth.ResendVerificationEmail(sdkP))
+	AuthRouter.Patch("/reset-password", isAuthenticated(sdkP), auth.ResetPassword(sdkP))
 	AuthRouter.Delete("/delete-account", isAuthenticated(sdkP), auth.DeleteAccount(sdkP))
 	AuthRouter.Get("/session", isAuthenticated(sdkP), auth.Session(sdkP))
 	AuthRouter.Get("/get-profile", isAuthenticated(sdkP), auth.GetProfile(sdkP))
 	AuthRouter.Patch("/update-profile", isAuthenticated(sdkP), auth.UpdateProfile(sdkP))
+
+	ForgotPasswordRouter := AuthRouter.Group("/forgot-password")
+	ForgotPasswordRouter.Get("/", forgotPassword.Initiate(sdkP))
+	ForgotPasswordRouter.Get("/verify-token", forgotPassword.VerifyToken(sdkP))
+	ForgotPasswordRouter.Patch("/reset", forgotPassword.Reset(sdkP))
 
 	OAuthRouter := Router.Group("/oauth")
 	OAuthRouter.Get("/github/login", oauth.GitHubLogin(sdkP))

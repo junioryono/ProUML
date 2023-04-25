@@ -456,31 +456,92 @@ func (clientSDK *client_SDK) checkPasswordHash(password, hashedPassword string) 
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }
 
-// Function that will create a password reset token
-func (clientSDK *client_SDK) CreatePasswordResetToken(idToken string) (string, *types.WrappedError) {
+func (clientSDK *client_SDK) ChangePassword(idToken, oldPassword, newPassword string) *types.WrappedError {
 	// Get the user id from the id token
 	userId, err := clientSDK.GetUserId(idToken)
 	if err != nil {
-		return "", err
+		return err
+	}
+
+	// Get the user from the database
+	var user models.UserModel
+	if err := clientSDK.getDb().Where("id = ?", userId).First(&user).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	// Check if the old password is correct
+	if !clientSDK.checkPasswordHash(oldPassword, user.Password) {
+		return types.Wrap(err, types.ErrInvalidPassword)
+	}
+
+	// Hash the new password
+	hashedPassword, err := clientSDK.hashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
+	// Update the user's password
+	if err := clientSDK.getDb().Model(&user).Update("password", hashedPassword).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	return nil
+}
+
+func (clientSDK *client_SDK) ForgotPassword(email string) *types.WrappedError {
+	// Get the user from the database
+	var user models.UserModel
+	if err := clientSDK.getDb().Where("email = ?", email).First(&user).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	// Delete any existing password reset tokens
+	if err := clientSDK.getDb().Where("user_id = ?", user.ID).Delete(&models.PasswordResetTokenModel{}).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
 	// Create the password reset token
 	passwordResetToken := uuid.New().String()
 
 	// Create the password reset token in the database
-	if err := clientSDK.getDb().Where("user_id = ?", userId).Delete(&models.PasswordResetTokenModel{}).Error; err != nil {
-		return "", types.Wrap(err, types.ErrInternalServerError)
-	}
-
 	if err := clientSDK.getDb().Create(&models.PasswordResetTokenModel{
 		Token:     passwordResetToken,
-		UserID:    userId,
+		UserID:    user.ID,
 		ExpiresAt: time.Now().Add(time.Hour * 24 * 7).Unix(),
 	}).Error; err != nil {
-		return "", types.Wrap(err, types.ErrInternalServerError)
+		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
-	return passwordResetToken, nil
+	var (
+		SenderName     = "ProUML"
+		SenderEmail    = "no-reply@prouml.com"
+		Subject        = "ProUML Account Verification"
+		ToAddressName  = user.FullName
+		ToAddressEmail = user.Email
+		TextBody       = "Reset your password by clicking this link: https://prouml.com/reset-password/" + passwordResetToken
+		HtmlBody       = "Click <a href=\"https://prouml.com/reset-password/" + passwordResetToken + "\">here</a> to reset your password."
+	)
+
+	if _, err := clientSDK.sendgrid.SendEmail(SenderName, SenderEmail, Subject, ToAddressName, ToAddressEmail, TextBody, HtmlBody); err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	return nil
+}
+
+func (clientSDK *client_SDK) VerifyPasswordResetToken(passwordResetToken string) error {
+	// Get the password reset token from the database
+	var passwordResetTokenModel models.PasswordResetTokenModel
+	if err := clientSDK.getDb().Where("token = ?", passwordResetToken).First(&passwordResetTokenModel).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	// Check if the password reset token has expired
+	if passwordResetTokenModel.ExpiresAt < time.Now().Unix() {
+		return types.Wrap(errors.New("password reset token has expired"), types.ErrTokenExpired)
+	}
+
+	return nil
 }
 
 // Function that will reset the user's password
@@ -512,13 +573,6 @@ func (clientSDK *client_SDK) ResetPassword(passwordResetToken, newPassword strin
 		tx.Rollback()
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
-
-	// TODO
-	// // Delete the password reset token from the database
-	// if err := clientSDK.DeletePasswordResetToken(userId); err != nil {
-	// 	tx.Rollback()
-	// 	return err
-	// }
 
 	if err := clientSDK.getDb().Where("user_id = ?", userId).Delete(&models.PasswordResetTokenModel{}).Error; err != nil {
 		tx.Rollback()

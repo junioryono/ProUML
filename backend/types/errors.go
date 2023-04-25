@@ -4,6 +4,7 @@ const (
 	ErrInvalidEmail           = "Invalid email."
 	ErrEmailAlreadyExists     = "Email already exists."
 	ErrInvalidEmailOrPassword = "Incorrect email or password."
+	ErrInvalidPassword        = "Incorrect password."
 	ErrNotAuthenticated       = "Not authenticated. Please login."
 	ErrInternalServerError    = "Internal server error. Please try again later."
 	ErrUserAlreadyExists      = "User already exists."
