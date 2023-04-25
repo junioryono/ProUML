@@ -194,6 +194,7 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, stri
 	if err := d.getDb().
 		Preload("UserRoles").
 		Preload("Issues").
+		Preload("Issues.CreatedBy").
 		Preload("Project", func(db *gorm.DB) *gorm.DB {
 			// Preload the project if the user has a role in the project
 			return db.Where("id IN (SELECT project_id FROM project_user_role_models WHERE user_id = ?)", userId).

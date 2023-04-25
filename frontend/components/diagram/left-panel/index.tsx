@@ -1,13 +1,23 @@
 import type X6Type from "@antv/x6";
-import { MutableRefObject, useEffect, useState } from "react";
+import { Dispatch, MutableRefObject, SetStateAction, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Diagram } from "types";
+import { Diagram, Issue } from "types";
 import { OpenArrow, OpenDiamond, SolidArrow, SolidDiamond } from "../right-panel/edges/edge-endings";
 import { toast } from "@/ui/toast";
 import { createDiagram } from "@/lib/auth-fetch";
 import { cn } from "@/lib/utils";
 
-export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph: MutableRefObject<X6Type.Graph> }) {
+export default function LeftPanel({
+   diagram,
+   graph,
+   selectedIssue,
+   setSelectedIssue,
+}: {
+   diagram: Diagram;
+   graph: MutableRefObject<X6Type.Graph>;
+   selectedIssue: Issue;
+   setSelectedIssue: Dispatch<SetStateAction<Issue>>;
+}) {
    const router = useRouter();
 
    const [nodes, setNodes] = useState<X6Type.Node[]>([]);
@@ -55,12 +65,20 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          setEdges(graph.current?.getEdges());
       });
 
-      graph.current?.on("cell:selected", () => {
+      graph.current?.on("cell:selected", (args) => {
          setSelectedCells(graph.current?.getSelectedCells());
+
+         if (!args?.options?.issue) {
+            setSelectedIssue(undefined);
+         }
       });
 
-      graph.current?.on("cell:unselected", () => {
+      graph.current?.on("cell:unselected", (args) => {
          setSelectedCells(graph.current?.getSelectedCells());
+
+         if (!args?.options?.issue) {
+            setSelectedIssue(undefined);
+         }
       });
 
       // Need to change node names in the left panel when the node name is changed in the graph
@@ -68,6 +86,12 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
          setNodes(graph.current?.getNodes() || []);
       });
    }, [graph]);
+
+   useEffect(() => {}, [selectedCells]);
+
+   useEffect(() => {
+      console.log("selectedIssue", selectedIssue);
+   }, [selectedIssue]);
 
    return (
       <div className="w-60 h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
@@ -356,14 +380,21 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                   </div>
 
                   {diagram.issues.map((issue) => {
+                     const isSelected = selectedIssue?.id === issue.id;
+                     console.log("issue", issue);
+
                      return (
                         <div
                            key={issue.id}
-                           className="flex items-center rounded cursor-pointer gap-3 py-1 pl-3 mb-0.5 hover:bg-slate-200"
+                           className={cn(
+                              "flex items-center rounded cursor-pointer gap-3 py-1 pl-3 mb-0.5",
+                              isSelected && "bg-slate-300 font-semibold",
+                              !isSelected && "hover:bg-slate-200",
+                           )}
                            onClick={() => {
                               console.log("issue", issue);
-                              graph.current.cleanSelection();
-                              graph.current.select(issue.connected_cells);
+                              graph.current.cleanSelection({ issue: true });
+                              graph.current.select(issue.connected_cells, { issue: true });
 
                               const cells = graph.current
                                  .getCells()
@@ -371,6 +402,8 @@ export default function LeftPanel({ diagram, graph }: { diagram: Diagram; graph:
                               const bbox = graph.current.getCellsBBox(cells);
                               const center = bbox.center;
                               graph.current.centerPoint(center.x, center.y);
+
+                              setSelectedIssue(issue);
                            }}
                         >
                            <div className="w-3"></div>

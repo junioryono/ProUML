@@ -1,7 +1,7 @@
 import { Dispatch, MutableRefObject, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import UserAccountNav from "@/components/dashboard/user-account-nav";
 import { ReadyState } from "react-use-websocket";
-import { Diagram, User } from "types";
+import { Diagram, Issue, User } from "types";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -39,6 +39,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
    const [backgroundColor, setBackgroundColor] = useState(diagram.background_color);
    const backgroundColorRef = useRef(backgroundColor);
    const [panning, setPanning] = useState(false);
+   const [selectedIssue, setSelectedIssue] = useState<Issue>();
    const router = useRouter();
 
    // Core
@@ -169,13 +170,20 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                )}
 
                <div className="flex text-sm">
-                  {ready && <LeftPanel diagram={diagram} graph={graph} />}
+                  {ready && (
+                     <LeftPanel
+                        diagram={diagram}
+                        graph={graph}
+                        selectedIssue={selectedIssue}
+                        setSelectedIssue={setSelectedIssue}
+                     />
+                  )}
 
                   <div className="flex-1">
                      <div ref={(rf) => (container.current = rf)} />
                   </div>
 
-                  {ready && <RightPanel graph={graph} backgroundColor={backgroundColor} />}
+                  {ready && <RightPanel graph={graph} backgroundColor={backgroundColor} selectedIssue={selectedIssue} />}
                </div>
             </>
          )}

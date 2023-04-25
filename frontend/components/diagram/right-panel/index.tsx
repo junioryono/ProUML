@@ -1,48 +1,50 @@
 import type X6Type from "@antv/x6";
-import { MutableRefObject, useEffect, useState } from "react";
+import { MutableRefObject, useCallback, useEffect, useState } from "react";
+import { Issue } from "types";
 import GraphPanel from "./graph";
 import EdgesPanel from "./edges";
 import NodesPanel from "./nodes";
-import { Diagram } from "types";
 import NodesAndEdgesPanel from "./nodes-and-edges";
+import IssuePanel from "./issue";
 
 // RightPanel component, receives a `graph` prop of type `MutableRefObject<X6Type.Graph>`
 export default function RightPanel({
    graph,
    backgroundColor,
+   selectedIssue,
 }: {
    graph: MutableRefObject<X6Type.Graph>;
    backgroundColor: string;
+   selectedIssue: Issue;
 }) {
    // State to keep track of the current tab, either "graph", "nodes", or "edges"
-   const [tab, setTab] = useState<"graph" | "nodes" | "edges" | "nodes&edges">("graph");
+   const [tab, setTab] = useState<"graph" | "nodes" | "edges" | "nodes&edges" | "issue">("graph");
+
+   const setTabFunction = useCallback(() => {
+      if (graph.current?.getSelectedCells().length === 0) {
+         setTab("graph");
+      } else if (graph.current?.getSelectedCells().every((cell) => cell.isNode())) {
+         setTab("nodes");
+      } else if (graph.current?.getSelectedCells().every((cell) => cell.isEdge())) {
+         setTab("edges");
+      } else {
+         setTab("nodes&edges");
+      }
+   }, [graph]);
 
    // Use effect to listen to the events on the `graph` and set the tab accordingly
    useEffect(() => {
-      // Listen to the "node:selected" event and set the tab to "nodes"
-      graph.current?.on("node:selected", () => {
-         setTab("nodes");
-      });
-
-      // Listen to the "node:unselected" event and set the tab to "graph" if there's no selected cells
-      graph.current?.on("node:unselected", () => {
-         if (graph.current?.getSelectedCells().length === 0) {
-            setTab("graph");
-         }
-      });
-
-      // Listen to the "edge:selected" event and set the tab to "edges"
-      graph.current?.on("edge:selected", () => {
-         setTab("edges");
-      });
-
-      // Listen to the "edge:unselected" event and set the tab to "graph" if there's no selected cells
-      graph.current?.on("edge:unselected", () => {
-         if (graph.current?.getSelectedCells().length === 0) {
-            setTab("graph");
-         }
-      });
+      graph.current?.on("node:selected", setTabFunction);
+      graph.current?.on("node:unselected", setTabFunction);
+      graph.current?.on("edge:selected", setTabFunction);
+      graph.current?.on("edge:unselected", setTabFunction);
    }, [graph]);
+
+   useEffect(() => {
+      if (selectedIssue) {
+         setTab("issue");
+      }
+   }, [selectedIssue]);
 
    // Render the component with a width of 60 and a left border of 1
    return (
@@ -56,6 +58,8 @@ export default function RightPanel({
             <EdgesPanel graph={graph} />
          ) : tab === "nodes&edges" ? (
             <NodesAndEdgesPanel graph={graph} />
+         ) : tab === "issue" ? (
+            <IssuePanel issue={selectedIssue} />
          ) : null}
       </div>
    );
