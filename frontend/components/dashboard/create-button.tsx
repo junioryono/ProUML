@@ -5,9 +5,10 @@ import { Icons } from "../icons";
 interface CreateButtonProps extends HTMLAttributes<HTMLButtonElement> {
    title: string;
    isLoading?: boolean;
+   children?: React.ReactNode;
 }
 
-export default function CreateButton({ className, title, isLoading, ...props }: CreateButtonProps) {
+export default function CreateButton({ className, title, isLoading, children, ...props }: CreateButtonProps) {
    return (
       <button
          className={cn(
@@ -21,6 +22,7 @@ export default function CreateButton({ className, title, isLoading, ...props }: 
          disabled={isLoading}
       >
          {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+         {children}
          {title}
       </button>
    );

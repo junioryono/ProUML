@@ -470,4 +470,3 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
       </>
    );
 }
-1;

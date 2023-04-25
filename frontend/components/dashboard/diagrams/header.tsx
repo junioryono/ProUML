@@ -7,6 +7,7 @@ import CreateButton from "@/components/dashboard/create-button";
 import { createProject } from "@/lib/auth-fetch";
 import { toast } from "@/ui/toast";
 import { useRouter } from "next/navigation";
+import { Icons } from "@/components/icons";
 
 export default function DiagramsHeader({
    diagramsLength,
@@ -108,8 +109,12 @@ export default function DiagramsHeader({
                         </button>
                      )}
 
-                     <CreateButton title="New project" isLoading={isLoadingProject} onClick={onClickHandlerProject} />
-                     <CreateButton title="New diagram" onClick={() => setOpen((current) => !current)} />
+                     <CreateButton title="New project" isLoading={isLoadingProject} onClick={onClickHandlerProject}>
+                        <Icons.folderPlus className="mr-1.5 w-5 h-5" strokeWidth={1.5} />
+                     </CreateButton>
+                     <CreateButton title="New diagram" onClick={() => setOpen((current) => !current)}>
+                        <Icons.filePlus className="mr-1.5 w-5 h-5" strokeWidth={1.5} />
+                     </CreateButton>
                   </>
                )}
 
