@@ -3,7 +3,6 @@ module github.com/junioryono/ProUML/backend
 go 1.19
 
 require (
-	github.com/aws/aws-sdk-go v1.44.162
 	github.com/fogleman/gg v1.3.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/gofiber/fiber/v2 v2.41.0
@@ -12,6 +11,8 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/lestrrat-go/jwx v1.2.25
 	github.com/lib/pq v1.10.7
+	github.com/sendgrid/rest v2.6.9+incompatible
+	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	golang.org/x/crypto v0.4.0
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.2
@@ -37,7 +38,6 @@ require (
 	github.com/jackc/pgx/v4 v4.17.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/lestrrat-go/backoff/v2 v2.0.8 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.0 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
@@ -49,8 +49,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/savsgio/gotils v0.0.0-20220530130905-52f3993e8d6d // indirect
-	github.com/sendgrid/rest v2.6.9+incompatible // indirect
-	github.com/sendgrid/sendgrid-go v3.12.0+incompatible // indirect
 	golang.org/x/image v0.5.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
