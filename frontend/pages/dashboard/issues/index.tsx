@@ -15,7 +15,7 @@ import { toast } from "@/ui/toast";
 
 export default function DashboardIssuesPage({ user, issuesRequest }: { user: User; issuesRequest: APIResponse<Issue[]> }) {
    const [issues, setIssues] = useState<Issue[]>(issuesRequest.response || []);
-   const showEmptyPlaceholder = !issuesRequest.success || !issuesRequest.response.length;
+   const showEmptyPlaceholder = !issuesRequest.success || !issuesRequest.response?.length;
 
    return (
       <DashboardLayout user={user}>
@@ -35,9 +35,9 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                      <div className="mb-2">
                         <div className="m-2 border-black border-[1.4px] rounded-md h-screen w-[1100px] overflow-auto">
                            <div className="p-2 bg-black rounded-t-sm text-white flex flex-row ">
-                              <div className="ml-2 w-5/12">Name</div>
-                              <div className="w-4/12 pl-2">Issued</div>
-                              <div className="mx-12 pl-16">By</div>
+                              <div className="ml-2 w-[50%]">Name</div>
+                              <div className="w-[39.75%] pl-2">Issued</div>
+                              <div className="mx-12 pl-16">Issuer</div>
                            </div>
                            {issues.map((issue) => (
                               <IssueComponent key={issue.id} issue={issue} setIssues={setIssues} />
@@ -102,8 +102,8 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                   <div className="text-gray-600">{issue.id}</div>
 
                   <h2 className="title-fon sm:text-base font-medium pr-2 pt-1 text-gray-900 flex flex-row">
-                     <div className=" w-5/12">{issue.title}</div>
-                     <div className=" w-5/12">{issueDate}</div>
+                     <div className=" w-[45%]">{issue.title}</div>
+                     <div className=" w-[45%]">{issueDate}</div>
                      <Image
                         src={issue.created_by.picture}
                         width={30}
@@ -120,39 +120,46 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
    }
 
    return (
-      <div className="h-18 mt-2 mb-2 ml-2 mr-2 border-gray-200 flex flex-col group border rounded-md hover:border-blue-500 overflow-hidden">
+      <div
+         className="h-18 mt-2 mb-2 ml-2 mr-2 border-gray-200 flex flex-col group border rounded-md hover:border-blue-500 overflow-hidden"
+         onClick={() => setOpen(false)}
+      >
          <div className="flex overflow-hidden">
             <div className="border-gray-200 border rounded-md px-2 pt-0.5 bg-slate-200 w-full">
                <div className="text-gray-600 flex flex-row justify-between">
-                  <div className="text-gray-600" onClick={() => setOpen(false)}>
-                     {issue.id}
-                  </div>
+                  <div className="text-gray-600">{issue.id}</div>
                   <div className="flex items-center mb-4" onClick={deleteIssueFunction}>
-                     <button className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-500 border border-transparent rounded-md dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800">
+                     <button className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-red-500 border border-transparent rounded-md dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800">
                         <svg
+                           width="20px"
+                           height="20px"
+                           viewBox="0 0 24 24"
+                           fill="none"
                            xmlns="http://www.w3.org/2000/svg"
-                           className="w-4 h-4 mr-2"
-                           viewBox="0 0 20 20"
-                           fill="currentColor"
+                           className=""
                         >
-                           <path
-                              fillRule="evenodd"
-                              d="M16.364 3.636A8 8 0 1 0 3.636 16.364 8 8 0 0 0 16.364 3.636zm-1.414 1.414A6 6 0 1 1 5.05 14.95a6 6 0 0 1 9.9-8.9z"
-                              clipRule="evenodd"
-                           />
-                           <path
-                              fillRule="evenodd"
-                              d="M10 4a1 1 0 0 1 1 1v8a1 1 0 0 1-2 0V5a1 1 0 0 1 1-1zM7 5a1 1 0 0 1 2 0v8a1 1 0 0 1-2 0V5z"
-                              clipRule="evenodd"
-                           />
+                           <g stroke-width="0"></g>
+                           <g stroke-linecap="round" stroke-linejoin="round"></g>
+                           <g>
+                              <path
+                                 d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
+                                 stroke="#FFFFFF"
+                                 stroke-width="1.5"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                              ></path>
+                           </g>
                         </svg>
-                        Delete
                      </button>
                   </div>
                </div>
-               <p className="p-2 font-medium flex flex-col">
+               <p className="p-2 font-medium flex flex-col text-center">
                   {issue.diagram.project && <div>Project: {issue.diagram.project.name}</div>}
                   <div>Diagram: {issue.diagram.name}</div>
+               </p>
+               <p className="p-2 text-sm text-center">
+                  <b>Description: </b>
+                  {issue.description}
                </p>
                <div className="relative block">
                   <div
@@ -168,13 +175,10 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                      Go to Diagram
                   </Link>
                </p>
-               <p className="p-2 text-sm">
-                  <b>Description: </b>
-                  {issue.description}
-               </p>
+
                <h2 className="title-fon sm:text-base font-medium pr-2 pt-1 text-gray-900 flex flex-row">
-                  <div className=" w-5/12">{issue.title}</div>
-                  <div className=" w-5/12">{issueDate}</div>
+                  <div className=" w-[46%]">{issue.title}</div>
+                  <div className=" w-[44%]">{issueDate}</div>
                   <Image
                      src={issue.created_by.picture}
                      width={30}
