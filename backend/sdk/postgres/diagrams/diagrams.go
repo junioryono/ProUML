@@ -156,7 +156,18 @@ func (d *Diagrams_SDK) GetAllDiagramsIssues(idToken string) ([]models.IssueModel
 		return nil, err
 	}
 
-	// Get all Diagrams that the user has a role in
+	// Collect all Diagram IDs that the user has a role in
+	var diagramIDs []string
+	if err := d.getDb().
+		Table("diagram_models").
+		Joins("LEFT JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").
+		Joins("LEFT JOIN project_user_role_models ON project_user_role_models.project_id = diagram_models.project_id").
+		Where("diagram_user_role_models.user_id = ? OR project_user_role_models.user_id = ?", userId, userId).
+		Pluck("diagram_models.id", &diagramIDs).Error; err != nil {
+		return nil, types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	// Get all Diagrams and their associated issues
 	var diagrams []models.DiagramModel
 	if err := d.getDb().
 		Model(&models.DiagramModel{}).
@@ -168,9 +179,7 @@ func (d *Diagrams_SDK) GetAllDiagramsIssues(idToken string) ([]models.IssueModel
 		Preload("Issues.Diagram.Project", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, name")
 		}).
-		Joins("LEFT JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").
-		Joins("LEFT JOIN project_user_role_models ON project_user_role_models.project_id = diagram_models.project_id").
-		Where("diagram_user_role_models.user_id = ? OR project_user_role_models.user_id = ?", userId, userId).
+		Where("id IN (?)", diagramIDs).
 		Find(&diagrams).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrInternalServerError)
 	}
