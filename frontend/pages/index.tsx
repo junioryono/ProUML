@@ -15,16 +15,20 @@ import HomeLayout from "@/components/home/layout";
 import { login } from "@/lib/auth-fetch";
 
 export default function Index({ stars }: { stars: string }) {
+   useEffect(() => {
+      window.scrollTo(0, 0);
+   }, []);
+
    return (
       <HomeLayout user={null}>
          <section className="container grid items-center justify-center gap-6 pt-6 pb-8 md:pt-10 md:pb-12 lg:pt-16 lg:pb-24">
-            <div className="mx-auto flex flex-col items-start gap-4 lg:w-[52rem]">
+            <div className="mx-auto flex flex-col items-center gap-4 lg:w-[52rem]">
                <h1 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-5xl md:text-6xl">
                   UML Diagramming made easy.
                </h1>
-               <p className="leading-normal text-slate-700 sm:text-xl sm:leading-8">
-                  ProUml is an intuitive UML diagramming tool for teams and individuals. It's free to use and you can create
-                  and save multiple diagrams.
+               <p className="text-center leading-normal text-slate-700 sm:text-xl sm:leading-8">
+                  ProUML is an intuitive UML diagramming tool for teams and individuals looking to create and edit UML
+                  diagrams. It's free to use and you can create and save multiple diagrams.
                </p>
             </div>
             <section className="container grid justify-center gap-6 py-3 md:pb-12 lg:pb-12">
@@ -58,12 +62,14 @@ export default function Index({ stars }: { stars: string }) {
                </Link> */}
             </div>
          </section>
+
          <hr className="border-slate-200" />
-         <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24">
-            <div className="mx-auto flex flex-col gap-4 md:max-w-[52rem]">
+
+         <section className="text-center container grid justify-center gap-6 py-8 md:py-12 lg:py-24">
+            <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
                <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">Features</h2>
-               <p className="max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
-                  All of the features that have been implemented in Prouml are listed below.
+               <p className="text-center max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
+                  Here are some of the features that ProUML offers.
                </p>
             </div>
             <div className="grid justify-center gap-4 sm:grid-cols-2 md:max-w-[56rem] md:grid-cols-3">
@@ -86,32 +92,70 @@ export default function Index({ stars }: { stars: string }) {
                         />
                      </svg>
                      <div className="space-y-2">
-                        <h3 className="font-bold text-slate-100">Live Share</h3>
+                        <h3 className="font-bold text-slate-100">Live Sharing</h3>
                         <p className="text-sm text-slate-100">
-                           Share live Share live Share live Share live Share live Share live
+                           Collaborate with other users in real-time on a single diagram.
                         </p>
                      </div>
                   </div>
                </div>
                <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-2xl">
                   <div className="flex h-[180px] flex-col justify-between rounded-md bg-[#000000] p-6 text-slate-200">
-                     <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
-                        <path d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38a2.167 2.167 0 0 0-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44a23.476 23.476 0 0 0-3.107-.534A23.892 23.892 0 0 0 12.769 4.7c1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442a22.73 22.73 0 0 0-3.113.538 15.02 15.02 0 0 1-.254-1.42c-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87a25.64 25.64 0 0 1-4.412.005 26.64 26.64 0 0 1-1.183-1.86c-.372-.64-.71-1.29-1.018-1.946a25.17 25.17 0 0 1 1.013-1.954c.38-.66.773-1.286 1.18-1.868A25.245 25.245 0 0 1 12 8.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933a25.952 25.952 0 0 0-1.345-2.32zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493a23.966 23.966 0 0 0-1.1-2.98c.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98a23.142 23.142 0 0 0-1.086 2.964c-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39a25.819 25.819 0 0 0 1.341-2.338zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143a22.005 22.005 0 0 1-2.006-.386c.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295a1.185 1.185 0 0 1-.553-.132c-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z" />
+                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-12 w-12">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                           <path
+                              d="M22 2L13.8 10.2"
+                              stroke="#ffffff"
+                              stroke-width="2.4"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                           ></path>
+                           <path
+                              d="M13 6.17004V11H17.83"
+                              stroke="#ffffff"
+                              stroke-width="2.4"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                           ></path>
+                           <path
+                              d="M11 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22H15C20 22 22 20 22 15V13"
+                              stroke="#ffffff"
+                              stroke-width="2.4"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                           ></path>
+                        </g>
                      </svg>
                      <div className="space-y-2">
                         <h3 className="font-bold text-slate-100">Import Source Code</h3>
-                        <p className="text-sm text-slate-100">Code source import</p>
+                        <p className="text-sm text-slate-100">
+                           Import Java source code in a .zip file to translate into a customizable UML diagram.
+                        </p>
                      </div>
                   </div>
                </div>
                <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-2xl">
                   <div className="flex h-[180px] flex-col justify-between rounded-md bg-[#000000] p-6 text-slate-200">
-                     <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
-                        <path d="M0 12C0 5.373 5.373 0 12 0c4.873 0 9.067 2.904 10.947 7.077l-15.87 15.87a11.981 11.981 0 0 1-1.935-1.099L14.99 12H12l-8.485 8.485A11.962 11.962 0 0 1 0 12Zm12.004 12L24 12.004C23.998 18.628 18.628 23.998 12.004 24Z" />
+                     <svg
+                        fill="#ffffff"
+                        viewBox="0 0 32 32"
+                        version="1.1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        stroke="#ffffff"
+                     >
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                           {" "}
+                           <title>folder</title>{" "}
+                           <path d="M0 26.016q0 2.496 1.76 4.224t4.256 1.76h20q2.464 0 4.224-1.76t1.76-4.224v-16q0-2.496-1.76-4.256t-4.224-1.76h-6.368q-0.64-1.76-2.176-2.88t-3.456-1.12h-8q-2.496 0-4.256 1.76t-1.76 4.256v20zM4 26.016v-20q0-0.832 0.576-1.408t1.44-0.608h8q0.8 0 1.408 0.608t0.576 1.408v1.984h10.016q0.8 0 1.408 0.608t0.576 1.408v16q0 0.832-0.576 1.408t-1.408 0.576h-20q-0.832 0-1.44-0.576t-0.576-1.408z"></path>{" "}
+                        </g>
                      </svg>
                      <div className="space-y-2">
-                        <h3 className="font-bold text-slate-100">Better than draw.io</h3>
-                        <p className="text-sm text-slate-100">Draw.io sucks</p>
+                        <h3 className="font-bold text-slate-100">Projects</h3>
+                        <p className="text-sm text-slate-100">Organize UML diagrams by storing them into projects.</p>
                      </div>
                   </div>
                </div>
@@ -121,9 +165,9 @@ export default function Index({ stars }: { stars: string }) {
                         <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z" />
                      </svg>
                      <div className="space-y-2">
-                        <h3 className="font-bold text-slate-100">Components</h3>
+                        <h3 className="font-bold text-slate-100">Diagram Editor</h3>
                         <p className="text-sm text-slate-100">
-                           UI components built using Radix UI and styled with Tailwind CSS.
+                           Customize and style your UML diagrams with an easy-to-use diagram editor.
                         </p>
                      </div>
                   </div>
@@ -151,26 +195,160 @@ export default function Index({ stars }: { stars: string }) {
                         <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z" />
                      </svg>
                      <div className="space-y-2">
-                        <h3 className="font-bold text-slate-100">Subscriptions</h3>
-                        <p className="text-sm text-slate-100">Free and paid subscriptions using Stripe.</p>
+                        <h3 className="font-bold text-slate-100">Issues</h3>
+                        <p className="text-sm text-slate-100">Markup any UML diagram objects with issues.</p>
                      </div>
                   </div>
                </div>
             </div>
-            <div className="mx-auto flex flex-col gap-4 md:max-w-[52rem]">
-               <p className="max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
-                  Taxonomy also includes a blog and a full-featured documentation site built using Contentlayer and MDX.
+            <div className="mx-auto flex flex-col gap-4 md:max-w-[52rem] items-center">
+               <p className="max-w-[85%] text-slate-700 sm:text-lg sm:leading-7">
+                  Refer to ProUML's detailed documentation or the project CapStone poster to learn more about the
+                  application.
                </p>
+
+               {/* buttons to access documentation and poster */}
+               <div className="flex flex-col sm:flex-row gap-4 self-center">
+                  <Link
+                     href="/documentation.pdf"
+                     target="_blank"
+                     className="relative inline-flex h-11 items-center rounded-md border border-transparent bg-brand-500 px-8 py-2 font-medium text-white hover:bg-brand-400 focus:outline-none"
+                  >
+                     Documentation
+                  </Link>
+                  <Link
+                     href="/poster.pdf"
+                     target="_blank"
+                     className="relative inline-flex h-11 items-center rounded-md border border-transparent bg-brand-500 px-8 py-2 font-medium text-white hover:bg-brand-400 focus:outline-none"
+                  >
+                     CapStone Poster
+                  </Link>
+               </div>
             </div>
          </section>
+
+         <FadeIn id="diagramFeature">
+            <hr className="border-slate-200" />
+            <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
+               <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
+                  <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
+                     Using the Diagram Editor
+                  </h2>
+                  <div className="relative">
+                     <Image
+                        src={diagramEditorFeature}
+                        height={800}
+                        width={800}
+                        alt="Diagram Editor"
+                        priority
+                        className="border border-black"
+                     />
+                  </div>
+                  <p className="text-center max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
+                     ProUML's diagram editor comes with a variety of customizable options to style and edit your UML diagrams
+                     however you want.
+                  </p>
+               </div>
+            </section>
+         </FadeIn>
+
+         <FadeIn id="shareFeature">
+            <hr className="border-slate-200" />
+            <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
+               <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
+                  <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
+                     Live Sharing and Collaboration
+                  </h2>
+                  <Image
+                     src={shareFeature}
+                     height={800}
+                     width={800}
+                     className="border border-black"
+                     alt="Live sharing popup"
+                     priority
+                  />
+                  <p className="text-center max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
+                     Share your diagrams with other users and collaborate on them at the same time.
+                  </p>
+               </div>
+            </section>
+         </FadeIn>
+
+         <FadeIn id="importFeature">
+            <hr className="border-slate-200" />
+            <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
+               <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
+                  <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
+                     Importing Source Code
+                  </h2>
+                  <div className="flex justify-center border-black">
+                     <Image
+                        src={importFeature}
+                        height={800}
+                        width={800}
+                        className="border border-black"
+                        alt="Importing Source Code"
+                        priority
+                     />
+                  </div>
+                  <p className="text-center max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
+                     ProUML's diagram editor comes with a variety of customizable options to stype and edit your UML diagrams
+                     however you want.
+                  </p>
+               </div>
+            </section>
+         </FadeIn>
+
+         <FadeIn id="issueFeature">
+            <hr className="border-slate-200" />
+            <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
+               <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
+                  <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
+                     Diagram Issues
+                  </h2>
+                  <Image
+                     src={issuesFeature}
+                     height={800}
+                     width={800}
+                     className="border border-black"
+                     alt="Issues Popup"
+                     priority
+                  />
+                  <p className="text-center max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
+                     Create issues in diagrams by clicking on diagram objects and adding issue descriptions.
+                  </p>
+               </div>
+            </section>
+         </FadeIn>
+
+         <FadeIn id="projectFeature">
+            <hr className="border-slate-200" />
+            <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
+               <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
+                  <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">UML Projects</h2>
+                  <Image
+                     src={projectFeature}
+                     height={800}
+                     width={800}
+                     className="border border-black"
+                     alt="Project Page"
+                     priority
+                  />
+                  <p className="text-center max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
+                     To organize diagrams, you can create projects and assign diagrams to them.
+                  </p>
+               </div>
+            </section>
+         </FadeIn>
+
          <hr className="border-slate-200" />
-         <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24">
+         <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
             <div className="mx-auto flex flex-col gap-4 md:max-w-[52rem]">
                <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
                   Proudly Open Source
                </h2>
                <p className="max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
-                  Taxonomy is open source and powered by open source software. The code is available on{" "}
+                  ProUML is open source and powered by open source software. The code is available on{" "}
                   <Link
                      href="https://github.com/junioryono/prouml"
                      target="_blank"
@@ -181,30 +359,32 @@ export default function Index({ stars }: { stars: string }) {
                   </Link>
                   .{" "}
                   <Link href="/docs" className="underline underline-offset-4">
-                     I&apos;m also documenting everything here
+                     Everything is also documented here.
                   </Link>
                   .
                </p>
             </div>
             {stars && (
-               <Link href="https://github.com/junioryono/prouml" target="_blank" rel="noreferrer" className="flex">
-                  <div className="flex h-10 w-10 items-center justify-center space-x-2 rounded-md border border-slate-600 bg-slate-800">
-                     <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                        className="h-5 w-5 text-white"
-                     >
-                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
-                     </svg>
-                  </div>
-                  <div className="flex items-center">
-                     <div className="h-4 w-4 border-y-8 border-r-8 border-l-0 border-solid border-y-transparent border-r-slate-800"></div>
-                     <div className="flex h-10 items-center rounded-md border border-slate-800 bg-slate-800 px-4  font-medium text-slate-200">
-                        {stars} stars on GitHub
+               <div className="flex justify-center">
+                  <Link href="https://github.com/junioryono/prouml" target="_blank" rel="noreferrer" className="flex">
+                     <div className="flex h-10 w-10 items-center justify-center space-x-2 rounded-md border border-slate-600 bg-slate-800">
+                        <svg
+                           xmlns="http://www.w3.org/2000/svg"
+                           fill="currentColor"
+                           viewBox="0 0 24 24"
+                           className="h-5 w-5 text-white"
+                        >
+                           <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+                        </svg>
                      </div>
-                  </div>
-               </Link>
+                     <div className="flex items-center">
+                        <div className="h-4 w-4 border-y-8 border-r-8 border-l-0 border-solid border-y-transparent border-r-slate-800"></div>
+                        <div className="flex h-10 items-center rounded-md border border-slate-800 bg-slate-800 px-4 font-medium text-slate-200">
+                           {stars} stars on GitHub
+                        </div>
+                     </div>
+                  </Link>
+               </div>
             )}
          </section>
       </HomeLayout>
@@ -241,3 +421,49 @@ async function getGitHubStars(): Promise<string | null> {
       return null;
    }
 }
+
+import { useState, useEffect } from "react";
+
+const FadeIn = ({ children, id }) => {
+   const [isVisible, setIsVisible] = useState(false);
+   const [isLoaded, setIsLoaded] = useState(false);
+
+   useEffect(() => {
+      const handleScroll = () => {
+         const currentScrollPos = window.pageYOffset + 800;
+         const maxScrollPos = document.body.scrollHeight - window.innerHeight;
+         const scrollPercentage = (currentScrollPos / maxScrollPos) * 100;
+
+         const element = document.getElementById(id);
+         if (element) {
+            const elementTop = element.offsetTop;
+            const elementHeight = element.offsetHeight;
+            const elementBottom = elementTop + elementHeight;
+
+            if (currentScrollPos > elementTop && currentScrollPos < elementBottom && !isLoaded) {
+               setIsVisible(true);
+               setIsLoaded(true);
+            } else {
+               setIsVisible(false);
+            }
+         }
+      };
+
+      window.addEventListener("scroll", handleScroll);
+
+      return () => {
+         window.removeEventListener("scroll", handleScroll);
+      };
+   }, [id, isLoaded]);
+
+   return (
+      <div
+         id={id}
+         className={`transition-opacity duration-1000 ${
+            isLoaded ? (isVisible ? "opacity-100" : "opacity-100") : "opacity-0"
+         }`}
+      >
+         {children}
+      </div>
+   );
+};
