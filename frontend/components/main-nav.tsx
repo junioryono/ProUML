@@ -89,7 +89,7 @@ export default function MainNav({ user, items, children }: MainNavProps) {
                      target={item.newTab ? "_blank" : undefined}
                      className={cn(
                         "flex items-center text-sm font-semibold text-slate-600 hover:text-black",
-                        item.href.endsWith("/") && "text-slate-900",
+                        item.href.startsWith(router.asPath) && "text-slate-black",
                         item.disabled && "cursor-not-allowed opacity-80",
                         item.hideOnXS && "hidden sm:flex",
                      )}
