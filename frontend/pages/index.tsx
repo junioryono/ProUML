@@ -430,7 +430,7 @@ const FadeIn = ({ children, id }) => {
 
    useEffect(() => {
       const handleScroll = () => {
-         const currentScrollPos = window.pageYOffset + 800;
+         const currentScrollPos = window.pageYOffset + 500;
          const maxScrollPos = document.body.scrollHeight - window.innerHeight;
          const scrollPercentage = (currentScrollPos / maxScrollPos) * 100;
 
