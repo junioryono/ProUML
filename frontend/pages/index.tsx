@@ -101,7 +101,13 @@ export default function Index({ stars }: { stars: string }) {
                   </div>
                   <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-2xl">
                      <div className="flex h-[180px] flex-col justify-between rounded-md bg-[#000000] p-6 text-slate-200">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-12 w-12">
+                        <svg
+                           viewBox="0 0 24 24"
+                           fill="none"
+                           xmlns="http://www.w3.org/2000/svg"
+                           className="h-12 w-12"
+                           stroke="currentColor"
+                        >
                            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                            <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                            <g id="SVGRepo_iconCarrier">
@@ -161,20 +167,20 @@ export default function Index({ stars }: { stars: string }) {
                   <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-2xl">
                      <div className="flex h-[180px] flex-col justify-between rounded-md bg-[#000000] p-6 text-slate-200">
                         <svg
+                           viewBox="0 0 16 16"
                            xmlns="http://www.w3.org/2000/svg"
-                           fill="#FFFFFF"
-                           height="150px"
-                           width="150px"
-                           version="1.1"
-                           id="Layer_1"
-                           viewBox="0 0 512 512"
-                           className="h-12 w-12"
-                           strokeWidth="20"
+                           fill="#ffffff"
+                           className="w-12 h-12"
+                           stroke="#ffffff"
+                           strokeWidth="0"
                         >
-                           <g>
-                              <g>
-                                 <path d="M486.4,426.667h-45.926L380.741,307.2h88.593c4.713,0,8.533-3.82,8.533-8.533v-85.333c0-4.713-3.821-8.533-8.533-8.533    h-81.97L277.649,102.4h72.217c4.713,0,8.533-3.821,8.533-8.533V8.533C358.4,3.82,354.579,0,349.867,0H162.133    c-4.713,0-8.533,3.82-8.533,8.533v85.333c0,4.713,3.82,8.533,8.533,8.533h72.217L124.636,204.8h-81.97    c-4.713,0-8.533,3.821-8.533,8.533v85.333c0,4.713,3.82,8.533,8.533,8.533h88.593L71.526,426.667H25.6    c-4.713,0-8.533,3.82-8.533,8.533v68.267c0,4.713,3.82,8.533,8.533,8.533H128c4.713,0,8.533-3.82,8.533-8.533V435.2    c0-4.713-3.82-8.533-8.533-8.533H90.607l56.177-112.354l91.288,112.354H204.8c-4.713,0-8.533,3.82-8.533,8.533v68.267    c0,4.713,3.82,8.533,8.533,8.533h102.4c4.713,0,8.533-3.82,8.533-8.533V435.2c0-4.713-3.82-8.533-8.533-8.533h-33.272    l91.288-112.354l56.177,112.354H384c-4.713,0-8.533,3.82-8.533,8.533v68.267c0,4.713,3.82,8.533,8.533,8.533h102.4    c4.713,0,8.533-3.82,8.533-8.533V435.2C494.933,430.487,491.113,426.667,486.4,426.667z M119.467,494.933H34.133v-51.2h85.333    V494.933z M460.8,290.133h-93.926c-0.001,0-0.002,0-0.003,0h-76.738v-68.267H460.8V290.133z M170.667,17.067h170.667v68.267    H170.667V17.067z M256,105.539L362.351,204.8H281.6c-4.713,0-8.533,3.821-8.533,8.533v85.333c0,4.713,3.82,8.533,8.533,8.533    h67.405L256,421.668L162.995,307.2H230.4c4.713,0,8.533-3.82,8.533-8.533v-85.333c0-4.713-3.821-8.533-8.533-8.533h-80.751    L256,105.539z M51.2,221.867h170.667v68.267h-76.738c-0.001,0-0.002,0-0.003,0H51.2V221.867z M298.667,494.933h-85.333v-51.2    h42.605c0.001,0,0.002,0,0.003,0h0.118c0.001,0,0.002,0,0.003,0h42.605V494.933z M477.867,494.933h-85.333v-51.2h85.333V494.933z" />
-                              </g>
+                           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                           <g id="SVGRepo_iconCarrier">
+                              <path
+                                 fill-rule="evenodd"
+                                 d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zm-6 8A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm6 0A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm6 0a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1z"
+                              ></path>
                            </g>
                         </svg>
                         <div className="space-y-2">
@@ -187,18 +193,25 @@ export default function Index({ stars }: { stars: string }) {
                   </div>
                   <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-2xl">
                      <div className="flex h-[180px] flex-col justify-between rounded-md bg-[#000000] p-6 text-slate-200">
-                        <svg
-                           viewBox="0 0 24 24"
-                           fill="none"
-                           stroke="currentColor"
-                           strokeWidth="1"
-                           className="h-12 w-12 fill-current"
-                        >
-                           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-12 h-12">
+                           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                           <g id="SVGRepo_iconCarrier">
+                              <g id="File / File_Add">
+                                 <path
+                                    id="Vector"
+                                    d="M12 18V15M12 15V12M12 15H9M12 15H15M13 3.00087C12.9045 3 12.7973 3 12.6747 3H8.2002C7.08009 3 6.51962 3 6.0918 3.21799C5.71547 3.40973 5.40973 3.71547 5.21799 4.0918C5 4.51962 5 5.08009 5 6.2002V17.8002C5 18.9203 5 19.4801 5.21799 19.9079C5.40973 20.2842 5.71547 20.5905 6.0918 20.7822C6.51921 21 7.079 21 8.19694 21L15.8031 21C16.921 21 17.48 21 17.9074 20.7822C18.2837 20.5905 18.5905 20.2842 18.7822 19.9079C19 19.4805 19 18.9215 19 17.8036V9.32568C19 9.20296 19 9.09561 18.9991 9M13 3.00087C13.2856 3.00347 13.4663 3.01385 13.6388 3.05526C13.8429 3.10425 14.0379 3.18526 14.2168 3.29492C14.4186 3.41857 14.5918 3.59182 14.9375 3.9375L18.063 7.06298C18.4089 7.40889 18.5809 7.58136 18.7046 7.78319C18.8142 7.96214 18.8953 8.15726 18.9443 8.36133C18.9857 8.53376 18.9963 8.71451 18.9991 9M13 3.00087V5.8C13 6.9201 13 7.47977 13.218 7.90759C13.4097 8.28392 13.7155 8.59048 14.0918 8.78223C14.5192 9 15.079 9 16.1969 9H18.9991M18.9991 9H19.0002"
+                                    stroke="#ffffff"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                 ></path>
+                              </g>
+                           </g>
                         </svg>
                         <div className="space-y-2">
-                           <h3 className="font-bold text-slate-100">Authentication</h3>
-                           <p className="text-sm text-slate-100">Authentication using NextAuth.js and middlewares.</p>
+                           <h3 className="font-bold text-slate-100">Free and Unlimited Storage</h3>
+                           <p className="text-sm text-slate-100">Create and edit as many UML diagrams as needed.</p>
                         </div>
                      </div>
                   </div>
