@@ -55,6 +55,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
    useEffect(() => {
       setDiagramName(diagram.name);
       setBackgroundColor(diagram.background_color);
+      setSelectedIssue(undefined);
    }, [diagram]);
 
    useEffect(() => {
