@@ -174,7 +174,7 @@ func (d *Diagrams_SDK) GetAllDiagramsIssues(idToken string) ([]models.IssueModel
 		Preload("Issues").
 		Preload("Issues.CreatedBy").
 		Preload("Issues.Diagram", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id, name")
+			return db.Select("id, name, project_id")
 		}).
 		Preload("Issues.Diagram.Project", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, name")
