@@ -9,7 +9,7 @@ import DashboardHeader from "@/components/dashboard/header";
 import Image from "next/image";
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatTime } from "@/lib/utils";
 import { deleteIssue } from "@/lib/auth-fetch";
 import { toast } from "@/ui/toast";
 
@@ -83,13 +83,7 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
       [issue],
    );
 
-   const issueDate = useMemo(() => {
-      const date = new Date(issue.created_at);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${month}/${day}/${year}`;
-   }, [issue.created_at]);
+   const issueDate = useMemo(() => formatTime(issue.created_at), [issue.created_at]);
 
    if (!open) {
       return (
