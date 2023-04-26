@@ -17,16 +17,6 @@ export default function HomeLayout({ user, children }: { user: User; children: R
                         href: "/",
                      },
                      {
-                        title: "Documentation",
-                        href: "/documentation.pdf",
-                        newTab: true,
-                     },
-                     {
-                        title: "Poster",
-                        href: "/poster.pdf",
-                        newTab: true,
-                     },
-                     {
                         title: "GitHub",
                         href: "https://github.com/junioryono/ProUML",
                         newTab: true,
