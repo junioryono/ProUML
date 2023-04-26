@@ -86,7 +86,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                   </>
                ) : (
                   <>
-                     <Menu graph={graph} />
+                     <Menu graph={graph} ready={ready} />
                      <Selector graph={graph} panning={panning} setPanning={setPanning} />
                      <HandTool graph={graph} panning={panning} setPanning={setPanning} />
                      <Components graph={graph} />

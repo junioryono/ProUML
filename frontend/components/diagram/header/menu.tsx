@@ -6,11 +6,14 @@ import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-export default function Menu({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
+export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.Graph>; ready: boolean }) {
    const [openArrow, setOpenArrow] = useState(false);
 
    const [open, setOpen] = useState(false);
    const [hovered, setHovered] = useState(false);
+   const [canUndo, setCanUndo] = useState(false);
+   const [canRedo, setCanRedo] = useState(false);
+   const [cellsAreSelected, setCellsAreSelected] = useState(false);
 
    useEffect(() => {
       if (open || hovered) {
@@ -19,6 +22,26 @@ export default function Menu({ graph }: { graph: MutableRefObject<X6Type.Graph> 
          setOpenArrow(false);
       }
    }, [open, hovered]);
+
+   useEffect(() => {
+      if (!ready || !graph.current) {
+         return;
+      }
+
+      graph.current.on("history:change", () => {
+         setCanUndo(graph.current.canUndo());
+         setCanRedo(graph.current.canRedo());
+      });
+
+      graph.current.on("selection:changed", () => {
+         setCellsAreSelected(graph.current.getSelectedCells().length > 0);
+      });
+
+      return () => {
+         graph.current?.off("history:added");
+         graph.current?.off("selection:changed");
+      };
+   }, [ready, graph]);
 
    return (
       <DropdownMenu onOpenChange={setOpen}>
@@ -94,12 +117,93 @@ export default function Menu({ graph }: { graph: MutableRefObject<X6Type.Graph> 
                   </SubDropdownMenu.Trigger>
                   <SubDropdownMenu.Content>
                      <DropdownMenu.Item
-                        className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
+                        className={cn(
+                           "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                           !canUndo && "opacity-50",
+                        )}
                         onSelect={(e) => {
-                           e.preventDefault();
+                           if (!canUndo) {
+                              e.preventDefault();
+                              return;
+                           }
+
+                           graph.current?.undo();
                         }}
                      >
-                        New
+                        Undo
+                     </DropdownMenu.Item>
+                     <DropdownMenu.Item
+                        className={cn(
+                           "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                           !canRedo && "opacity-50",
+                        )}
+                        onSelect={(e) => {
+                           if (!canRedo) {
+                              e.preventDefault();
+                              return;
+                           }
+
+                           graph.current?.redo();
+                        }}
+                     >
+                        Redo
+                     </DropdownMenu.Item>
+                     <DropdownMenu.Item
+                        className={cn(
+                           "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                           !cellsAreSelected && "opacity-50",
+                        )}
+                        onSelect={(e) => {
+                           if (!cellsAreSelected) {
+                              e.preventDefault();
+                              return;
+                           }
+
+                           const cells = graph.current?.getSelectedCells();
+                           if (!cells) {
+                              return;
+                           }
+
+                           // Start batch
+                           graph.current?.startBatch("Duplicate");
+
+                           let clonedCells: X6Type.Cell<X6Type.Cell.Properties>[] = [];
+                           for (const cell of cells) {
+                              const clone = cell.clone();
+                              clone.translate(20, 20);
+                              graph.current?.addCell(clone);
+                              clonedCells.push(clone);
+                           }
+
+                           // Select cloned cells
+                           graph.current?.resetSelection(clonedCells);
+
+                           // End batch
+                           graph.current?.stopBatch("Duplicate");
+                        }}
+                     >
+                        Duplicate
+                     </DropdownMenu.Item>
+                     <DropdownMenu.Item
+                        className={cn(
+                           "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                           !cellsAreSelected && "opacity-50",
+                        )}
+                        onSelect={(e) => {
+                           if (!cellsAreSelected) {
+                              e.preventDefault();
+                              return;
+                           }
+
+                           const cells = graph.current?.getSelectedCells();
+                           if (!cells || cells.length === 0) {
+                              return;
+                           }
+
+                           graph.current.removeCells(cells);
+                        }}
+                     >
+                        Delete
                      </DropdownMenu.Item>
                   </SubDropdownMenu.Content>
                </SubDropdownMenu>

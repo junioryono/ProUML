@@ -130,23 +130,16 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                   <div className="text-gray-600">{issue.id}</div>
                   <div className="flex items-center mb-4" onClick={deleteIssueFunction}>
                      <button className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-red-500 border border-transparent rounded-md dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800">
-                        <svg
-                           width="20px"
-                           height="20px"
-                           viewBox="0 0 24 24"
-                           fill="none"
-                           xmlns="http://www.w3.org/2000/svg"
-                           className=""
-                        >
-                           <g stroke-width="0"></g>
-                           <g stroke-linecap="round" stroke-linejoin="round"></g>
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" className="">
+                           <g strokeWidth="0"></g>
+                           <g strokeLinecap="round" strokeLinejoin="round"></g>
                            <g>
                               <path
                                  d="M10 10V16M14 10V16M18 6V18C18 19.1046 17.1046 20 16 20H8C6.89543 20 6 19.1046 6 18V6M4 6H20M15 6V5C15 3.89543 14.1046 3 13 3H11C9.89543 3 9 3.89543 9 5V6"
                                  stroke="#FFFFFF"
-                                 stroke-width="1.5"
-                                 stroke-linecap="round"
-                                 stroke-linejoin="round"
+                                 strokeWidth="1.5"
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
                               ></path>
                            </g>
                         </svg>
