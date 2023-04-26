@@ -139,19 +139,18 @@ export default function Index({ stars }: { stars: string }) {
                <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-2xl">
                   <div className="flex h-[180px] flex-col justify-between rounded-md bg-[#000000] p-6 text-slate-200">
                      <svg
-                        fill="#ffffff"
-                        viewBox="0 0 32 32"
-                        version="1.1"
                         xmlns="http://www.w3.org/2000/svg"
-                        stroke="#ffffff"
+                        width="90px"
+                        height="90px"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        className="group-hover:fill-black"
                      >
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                        <g id="SVGRepo_iconCarrier">
-                           {" "}
-                           <title>folder</title>{" "}
-                           <path d="M0 26.016q0 2.496 1.76 4.224t4.256 1.76h20q2.464 0 4.224-1.76t1.76-4.224v-16q0-2.496-1.76-4.256t-4.224-1.76h-6.368q-0.64-1.76-2.176-2.88t-3.456-1.12h-8q-2.496 0-4.256 1.76t-1.76 4.256v20zM4 26.016v-20q0-0.832 0.576-1.408t1.44-0.608h8q0.8 0 1.408 0.608t0.576 1.408v1.984h10.016q0.8 0 1.408 0.608t0.576 1.408v16q0 0.832-0.576 1.408t-1.408 0.576h-20q-0.832 0-1.44-0.576t-0.576-1.408z"></path>{" "}
-                        </g>
+                        <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
                      </svg>
                      <div className="space-y-2">
                         <h3 className="font-bold text-slate-100">Projects</h3>
@@ -161,8 +160,20 @@ export default function Index({ stars }: { stars: string }) {
                </div>
                <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-2xl">
                   <div className="flex h-[180px] flex-col justify-between rounded-md bg-[#000000] p-6 text-slate-200">
-                     <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
-                        <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z" />
+                     <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="#FFFFFF"
+                        height="150px"
+                        width="150px"
+                        version="1.1"
+                        id="Layer_1"
+                        viewBox="0 0 512 512"
+                     >
+                        <g>
+                           <g>
+                              <path d="M486.4,426.667h-45.926L380.741,307.2h88.593c4.713,0,8.533-3.82,8.533-8.533v-85.333c0-4.713-3.821-8.533-8.533-8.533    h-81.97L277.649,102.4h72.217c4.713,0,8.533-3.821,8.533-8.533V8.533C358.4,3.82,354.579,0,349.867,0H162.133    c-4.713,0-8.533,3.82-8.533,8.533v85.333c0,4.713,3.82,8.533,8.533,8.533h72.217L124.636,204.8h-81.97    c-4.713,0-8.533,3.821-8.533,8.533v85.333c0,4.713,3.82,8.533,8.533,8.533h88.593L71.526,426.667H25.6    c-4.713,0-8.533,3.82-8.533,8.533v68.267c0,4.713,3.82,8.533,8.533,8.533H128c4.713,0,8.533-3.82,8.533-8.533V435.2    c0-4.713-3.82-8.533-8.533-8.533H90.607l56.177-112.354l91.288,112.354H204.8c-4.713,0-8.533,3.82-8.533,8.533v68.267    c0,4.713,3.82,8.533,8.533,8.533h102.4c4.713,0,8.533-3.82,8.533-8.533V435.2c0-4.713-3.82-8.533-8.533-8.533h-33.272    l91.288-112.354l56.177,112.354H384c-4.713,0-8.533,3.82-8.533,8.533v68.267c0,4.713,3.82,8.533,8.533,8.533h102.4    c4.713,0,8.533-3.82,8.533-8.533V435.2C494.933,430.487,491.113,426.667,486.4,426.667z M119.467,494.933H34.133v-51.2h85.333    V494.933z M460.8,290.133h-93.926c-0.001,0-0.002,0-0.003,0h-76.738v-68.267H460.8V290.133z M170.667,17.067h170.667v68.267    H170.667V17.067z M256,105.539L362.351,204.8H281.6c-4.713,0-8.533,3.821-8.533,8.533v85.333c0,4.713,3.82,8.533,8.533,8.533    h67.405L256,421.668L162.995,307.2H230.4c4.713,0,8.533-3.82,8.533-8.533v-85.333c0-4.713-3.821-8.533-8.533-8.533h-80.751    L256,105.539z M51.2,221.867h170.667v68.267h-76.738c-0.001,0-0.002,0-0.003,0H51.2V221.867z M298.667,494.933h-85.333v-51.2    h42.605c0.001,0,0.002,0,0.003,0h0.118c0.001,0,0.002,0,0.003,0h42.605V494.933z M477.867,494.933h-85.333v-51.2h85.333V494.933z" />
+                           </g>
+                        </g>
                      </svg>
                      <div className="space-y-2">
                         <h3 className="font-bold text-slate-100">Diagram Editor</h3>
@@ -191,8 +202,27 @@ export default function Index({ stars }: { stars: string }) {
                </div>
                <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-2xl">
                   <div className="flex h-[180px] flex-col justify-between rounded-md bg-[#000000] p-6 text-slate-200">
-                     <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
-                        <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z" />
+                     <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="100px"
+                        height="100px"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        className="stroke-1"
+                     >
+                        <rect width="8" height="14" x="8" y="6" rx="4"></rect>
+                        <path d="m19 7-3 2"></path>
+                        <path d="m5 7 3 2"></path>
+                        <path d="m19 19-3-2"></path>
+                        <path d="m5 19 3-2"></path>
+                        <path d="M20 13h-4"></path>
+                        <path d="M4 13h4"></path>
+                        <path d="m10 4 1 2"></path>
+                        <path d="m14 4-1 2"></path>
                      </svg>
                      <div className="space-y-2">
                         <h3 className="font-bold text-slate-100">Issues</h3>
@@ -430,7 +460,7 @@ const FadeIn = ({ children, id }) => {
 
    useEffect(() => {
       const handleScroll = () => {
-         const currentScrollPos = window.pageYOffset + 500;
+         const currentScrollPos = window.pageYOffset + 800;
          const maxScrollPos = document.body.scrollHeight - window.innerHeight;
          const scrollPercentage = (currentScrollPos / maxScrollPos) * 100;
 
