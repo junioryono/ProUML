@@ -23,8 +23,6 @@ func Init(auth *auth.Auth_SDK, getDb func() *gorm.DB) *Issues_SDK {
 }
 
 func (d *Issues_SDK) Create(diagramId, idToken string, connectedCells []string, title, description, image string) (*models.IssueModel, *types.WrappedError) {
-	var diagram models.DiagramModel
-
 	// Get the user id from the id token
 	userId, err := d.auth.Client.GetUserId(idToken)
 	if err != nil {
@@ -32,6 +30,7 @@ func (d *Issues_SDK) Create(diagramId, idToken string, connectedCells []string, 
 	}
 
 	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
+	var diagram models.DiagramModel
 	if err := d.getDb().
 		Preload("UserRoles").
 		Where("id = ?", diagramId).
@@ -72,21 +71,31 @@ func (d *Issues_SDK) Create(diagramId, idToken string, connectedCells []string, 
 }
 
 func (d *Issues_SDK) Delete(diagramId, idToken, issueId string) *types.WrappedError {
-	var diagram models.DiagramModel
-
 	// Get the user id from the id token
 	userId, err := d.auth.Client.GetUserId(idToken)
 	if err != nil {
 		return err
 	}
 
-	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
+	var diagram models.DiagramModel
 	if err := d.getDb().
-		Joins("LEFT JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").
-		Joins("LEFT JOIN project_user_role_models ON project_user_role_models.project_id = diagram_models.project_id").
-		Where("diagram_models.id = ? AND (diagram_models.public = true OR diagram_user_role_models.user_id = ? OR project_user_role_models.user_id = ?)", diagramId, userId, userId).
+		Preload("UserRoles").
+		Where("id = ?", diagramId).
 		First(&diagram).Error; err != nil {
 		return types.Wrap(err, types.ErrDiagramNotFound)
+	}
+
+	// Check if the user has access to the diagram
+	userHasAccess := false
+	for _, userDiagram := range diagram.UserRoles {
+		if userDiagram.UserID == userId {
+			userHasAccess = true
+			break
+		}
+	}
+
+	if !userHasAccess {
+		return types.Wrap(errors.New("user does not have access to the diagram"), types.ErrInvalidRequest)
 	}
 
 	// Delete the issue from the database

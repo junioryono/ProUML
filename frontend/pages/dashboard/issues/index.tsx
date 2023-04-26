@@ -39,8 +39,8 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                               <div className="w-4/12 pl-2">Issued</div>
                               <div className="mx-12 pl-16">By</div>
                            </div>
-                           {issues.map((issue, index) => (
-                              <IssueComponent key={index} issue={issue} setIssues={setIssues} />
+                           {issues.map((issue) => (
+                              <IssueComponent key={issue.id} issue={issue} setIssues={setIssues} />
                            ))}
                         </div>
                      </div>
@@ -63,7 +63,7 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
    const deleteIssueFunction = useCallback(
       async (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
          e.stopPropagation();
-         const response = await deleteIssue(issue.id, issue.diagram.id);
+         const response = await deleteIssue(issue.diagram.id, issue.id);
 
          if (!response.success) {
             return toast({
