@@ -119,8 +119,8 @@ type IssueModel struct {
 	ID             string         `gorm:"uniqueIndex" json:"id"`
 	DiagramID      string         `json:"-"`
 	Diagram        DiagramModel   `gorm:"foreignKey:DiagramID;references:ID" json:"diagram"`
-	CreatedAt      int64          `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt      int64          `gorm:"autoUpdateTime" json:"updated_at"`
+	CreatedAt      time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt      time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
 	CreatedByID    string         `json:"-"`
 	CreatedBy      UserModel      `gorm:"foreignKey:CreatedByID;references:ID" json:"created_by"`
 	ConnectedCells pq.StringArray `gorm:"type:text[]" json:"connected_cells"`

@@ -2,7 +2,6 @@ package issues
 
 import (
 	"errors"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
@@ -57,8 +56,6 @@ func (d *Issues_SDK) Create(diagramId, idToken string, connectedCells []string, 
 	issue := models.IssueModel{
 		ID:             uuid.New().String(),
 		DiagramID:      diagramId,
-		CreatedAt:      time.Now().Unix(),
-		UpdatedAt:      time.Now().Unix(),
 		CreatedByID:    userId,
 		ConnectedCells: connectedCells,
 		Title:          title,
