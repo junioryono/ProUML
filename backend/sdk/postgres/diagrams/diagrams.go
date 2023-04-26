@@ -162,6 +162,12 @@ func (d *Diagrams_SDK) GetAllDiagramsIssues(idToken string) ([]models.IssueModel
 		Model(&models.DiagramModel{}).
 		Preload("Issues").
 		Preload("Issues.CreatedBy").
+		Preload("Issues.Diagram", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, name")
+		}).
+		Preload("Issues.Diagram.Project", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, name")
+		}).
 		Joins("LEFT JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").
 		Joins("LEFT JOIN project_user_role_models ON project_user_role_models.project_id = diagram_models.project_id").
 		Where("diagram_user_role_models.user_id = ? OR project_user_role_models.user_id = ?", userId, userId).
