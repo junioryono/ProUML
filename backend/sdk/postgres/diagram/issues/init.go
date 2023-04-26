@@ -82,27 +82,11 @@ func (d *Issues_SDK) Delete(diagramId, idToken, issueId string) *types.WrappedEr
 
 	// Get the diagram from the database if the user has access to it or models.DiagramModel.public is true
 	if err := d.getDb().
-		Preload("UserRoles").
 		Joins("LEFT JOIN diagram_user_role_models ON diagram_user_role_models.diagram_id = diagram_models.id").
 		Joins("LEFT JOIN project_user_role_models ON project_user_role_models.project_id = diagram_models.project_id").
-		Where("diagram_models.id = ?", diagramId).
+		Where("diagram_models.id = ? AND (diagram_models.public = true OR diagram_user_role_models.user_id = ? OR project_user_role_models.user_id = ?)", diagramId, userId, userId).
 		First(&diagram).Error; err != nil {
 		return types.Wrap(err, types.ErrDiagramNotFound)
-	}
-
-	// Check if the user has access to the diagram
-	userHasAccess := diagram.Public
-	if !userHasAccess {
-		for _, userRole := range diagram.UserRoles {
-			if userRole.UserID == userId {
-				userHasAccess = true
-				break
-			}
-		}
-	}
-
-	if !userHasAccess {
-		return types.Wrap(errors.New("user does not have access to the diagram"), types.ErrInvalidRequest)
 	}
 
 	// Delete the issue from the database
