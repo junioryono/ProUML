@@ -123,7 +123,7 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                <div className="text-gray-600 flex flex-row justify-between">
                   <div className="text-gray-600">{issue.id}</div>
                   <div className="flex items-center mb-4" onClick={deleteIssueFunction}>
-                     <button className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-red-500 border border-transparent rounded-md dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800">
+                     <button className="inline-flex items-center justify-center mt-1 px-3 py-2 text-sm font-medium text-white bg-red-500 border border-transparent rounded-md dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800">
                         <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" className="">
                            <g strokeWidth="0"></g>
                            <g strokeLinecap="round" strokeLinejoin="round"></g>

@@ -15,12 +15,61 @@ import HomeLayout from "@/components/home/layout";
 import { login } from "@/lib/auth-fetch";
 
 export default function Index({ stars }: { stars: string }) {
+   // to keep track of if the user has scrolled to the bottom of the page or not
+   const [bottom, setBottom] = useState(false);
+
    useEffect(() => {
       window.scrollTo(0, 0);
    }, []);
 
+   // if the user has scrolled to the bottom of the page, then set bottom to true
+   const handleScroll = () => {
+      const scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+      const scrollHeight = (document.documentElement && document.documentElement.scrollHeight) || document.body.scrollHeight;
+      if (scrollTop + window.innerHeight + 50 >= scrollHeight) {
+         setBottom(true);
+      } else {
+         setBottom(false);
+      }
+   };
+
+   // add an event listener to the window to listen for scroll events
+   useEffect(() => {
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+   }, []);
+
    return (
       <HomeLayout user={null}>
+         {/* only show scroll down arrrow if not at the bottom */}
+         {!bottom && (
+            <div
+               className="fixed bottom-10 left-1/2 transform -translate-x-1/2 justify-center z-50 shadow-lg rounded-full bg-white cursor-pointer"
+               onClick={() => {
+                  // scroll to the bottom of the page
+                  window.scrollTo({
+                     top: document.body.scrollHeight,
+                     behavior: "smooth",
+                  });
+               }}
+            >
+               <svg
+                  viewBox="0 0 16 16"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="#000000"
+                  className="bi bi-arrow-down-circle-fill"
+                  height={50}
+                  width={50}
+               >
+                  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                  <g id="SVGRepo_iconCarrier">
+                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"></path>{" "}
+                  </g>
+               </svg>
+            </div>
+         )}
+
          <section className="container grid items-center justify-center gap-6 pt-6 pb-8 md:pt-10 md:pb-12 lg:pt-16 lg:pb-24">
             <div className="mx-auto flex flex-col items-center gap-4 lg:w-[52rem]">
                <h1 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-5xl md:text-6xl">
@@ -81,7 +130,7 @@ export default function Index({ stars }: { stars: string }) {
                            height="100px"
                            viewBox="0 0 24 24"
                            fill="none"
-                           className="h-12 w-12"
+                           className="h-14 w-14"
                         >
                            <path
                               d="M16 10.5H8M16 10.5L13 13.5M16 10.5L13 7.5M12 20H16M12 20H8M12 20V16M12 16H5C4.44772 16 4 15.5523 4 15V6C4 5.44771 4.44772 5 5 5H19C19.5523 5 20 5.44772 20 6V7M12 16H19C19.5523 16 20 15.5523 20 15V11"
@@ -105,7 +154,7 @@ export default function Index({ stars }: { stars: string }) {
                            viewBox="0 0 24 24"
                            fill="none"
                            xmlns="http://www.w3.org/2000/svg"
-                           className="h-12 w-12"
+                           className="h-10 w-10"
                            stroke="currentColor"
                         >
                            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -136,9 +185,7 @@ export default function Index({ stars }: { stars: string }) {
                         </svg>
                         <div className="space-y-2">
                            <h3 className="font-bold text-slate-100">Import Source Code</h3>
-                           <p className="text-sm text-slate-100">
-                              Import Java source code in a .zip file to translate into a customizable UML diagram.
-                           </p>
+                           <p className="text-sm text-slate-100">Translate code to UML by importing Java source code.</p>
                         </div>
                      </div>
                   </div>
@@ -178,7 +225,7 @@ export default function Index({ stars }: { stars: string }) {
                            <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                            <g id="SVGRepo_iconCarrier">
                               <path
-                                 fill-rule="evenodd"
+                                 fillRule="evenodd"
                                  d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zm-6 8A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm6 0A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm6 0a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1z"
                               ></path>
                            </g>
@@ -202,7 +249,7 @@ export default function Index({ stars }: { stars: string }) {
                                     id="Vector"
                                     d="M12 18V15M12 15V12M12 15H9M12 15H15M13 3.00087C12.9045 3 12.7973 3 12.6747 3H8.2002C7.08009 3 6.51962 3 6.0918 3.21799C5.71547 3.40973 5.40973 3.71547 5.21799 4.0918C5 4.51962 5 5.08009 5 6.2002V17.8002C5 18.9203 5 19.4801 5.21799 19.9079C5.40973 20.2842 5.71547 20.5905 6.0918 20.7822C6.51921 21 7.079 21 8.19694 21L15.8031 21C16.921 21 17.48 21 17.9074 20.7822C18.2837 20.5905 18.5905 20.2842 18.7822 19.9079C19 19.4805 19 18.9215 19 17.8036V9.32568C19 9.20296 19 9.09561 18.9991 9M13 3.00087C13.2856 3.00347 13.4663 3.01385 13.6388 3.05526C13.8429 3.10425 14.0379 3.18526 14.2168 3.29492C14.4186 3.41857 14.5918 3.59182 14.9375 3.9375L18.063 7.06298C18.4089 7.40889 18.5809 7.58136 18.7046 7.78319C18.8142 7.96214 18.8953 8.15726 18.9443 8.36133C18.9857 8.53376 18.9963 8.71451 18.9991 9M13 3.00087V5.8C13 6.9201 13 7.47977 13.218 7.90759C13.4097 8.28392 13.7155 8.59048 14.0918 8.78223C14.5192 9 15.079 9 16.1969 9H18.9991M18.9991 9H19.0002"
                                     stroke="#ffffff"
-                                    strokeWidth="2"
+                                    strokeWidth="1.8"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                  ></path>
@@ -224,7 +271,7 @@ export default function Index({ stars }: { stars: string }) {
                            viewBox="0 0 24 24"
                            fill="none"
                            stroke="currentColor"
-                           strokeWidth="2"
+                           strokeWidth="1.5"
                            strokeLinecap="round"
                            strokeLinejoin="round"
                            className="h-14 w-14"
@@ -248,7 +295,7 @@ export default function Index({ stars }: { stars: string }) {
                </div>
                <div className="mx-auto flex flex-col gap-4 md:max-w-[52rem] items-center">
                   <p className="max-w-[85%] text-slate-700 sm:text-lg sm:leading-7">
-                     Refer to ProUML's detailed documentation or the project CapStone poster to learn more about the
+                     Refer to ProUML's detailed documentation or the project's CapStone poster to learn more about the
                      application.
                   </p>
 
@@ -319,8 +366,8 @@ export default function Index({ stars }: { stars: string }) {
                </div>
             </section>
          </FadeIn>
-
          <hr className="border-slate-200" />
+
          <FadeIn id="importFeature">
             <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
                <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
@@ -338,14 +385,14 @@ export default function Index({ stars }: { stars: string }) {
                      />
                   </div>
                   <p className="text-center max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
-                     ProUML's diagram editor comes with a variety of customizable options to stype and edit your UML diagrams
-                     however you want.
+                     When creating a new diagram, you can import Java source code in a .zip file to automatically generate a
+                     UML diagram in ProUML.
                   </p>
                </div>
             </section>
          </FadeIn>
-
          <hr className="border-slate-200" />
+
          <FadeIn id="issueFeature">
             <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
                <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
@@ -361,13 +408,14 @@ export default function Index({ stars }: { stars: string }) {
                      priority
                   />
                   <p className="text-center max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
-                     Create issues in diagrams by clicking on diagram objects and adding issue descriptions.
+                     Create issues in diagrams by clicking on diagram objects, then click on the issue bug button in the top
+                     bar to show a popup menu to describe the issue.
                   </p>
                </div>
             </section>
          </FadeIn>
-
          <hr className="border-slate-200" />
+
          <FadeIn id="projectFeature">
             <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
                <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
@@ -386,7 +434,6 @@ export default function Index({ stars }: { stars: string }) {
                </div>
             </section>
          </FadeIn>
-
          <hr className="border-slate-200" />
 
          <FadeIn id="openSource">
@@ -396,7 +443,7 @@ export default function Index({ stars }: { stars: string }) {
                      Proudly Open Source
                   </h2>
                   <p className="max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
-                     ProUML is open source and powered by open source software. The code is available on{" "}
+                     ProUML is open source and is powered by open source software. The code is available on{" "}
                      <Link
                         href="https://github.com/junioryono/prouml"
                         target="_blank"
@@ -407,7 +454,7 @@ export default function Index({ stars }: { stars: string }) {
                      </Link>
                      .{" "}
                      <Link href="/docs" className="underline underline-offset-4">
-                        Everything is also documented here.
+                        Everything is also documented here
                      </Link>
                      .
                   </p>
