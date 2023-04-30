@@ -164,7 +164,7 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                      Go to Diagram
                   </Link>
                </p>
-               <h2 className="pr-2 pt-1 grid grid-flow-col items-center">
+               <h2 className="pr-2 pt-1 grid grid-cols-3 items-center">
                   <div className="flex justify-start">{issue.title}</div>
                   <div className="flex justify-center">{issueDate}</div>
                   <div className="flex justify-end">
