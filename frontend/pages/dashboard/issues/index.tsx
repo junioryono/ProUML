@@ -33,11 +33,11 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                ) : (
                   <>
                      <div className="mb-2">
-                        <div className="m-2 border-black border-[1.4px] rounded-md h-screen w-[1100px] overflow-auto">
-                           <div className="p-2 bg-black rounded-t-sm text-white flex flex-row ">
-                              <div className="ml-2 w-[50%]">Name</div>
-                              <div className="w-[39.75%] pl-2">Issued</div>
-                              <div className="mx-12 pl-16">Issuer</div>
+                        <div className="m-2 border-black border-[1.4px] rounded-md overflow-auto">
+                           <div className="p-2 bg-black rounded-t-sm text-white grid grid-flow-col ">
+                              <div className="flex justify-start pl-4">Name</div>
+                              <div className="flex justify-center">Issued</div>
+                              <div className="flex justify-end pr-4">Issuer</div>
                            </div>
                            {issues.map((issue) => (
                               <IssueComponent key={issue.id} issue={issue} setIssues={setIssues} />
@@ -88,24 +88,26 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
    if (!open) {
       return (
          <div
-            className="mt-2 mb-2 ml-2 mr-2 border-gray-200 flex flex-col cursor-pointer group overflow-scroll"
+            className="mt-2 mb-2 ml-2 mr-2 border-gray-200 flex flex-col cursor-pointer group"
             onClick={() => setOpen(true)}
          >
             <div className="flex overflow-hidden whitespace-nowrap">
                <div className="border-gray-200 border rounded-md hover:border-blue-500 cursor-pointer px-2 pt-0.5 bg-slate-200 w-full">
                   <div className="text-gray-600">{issue.id}</div>
 
-                  <h2 className="title-fon sm:text-base font-medium pr-2 pt-1 text-gray-900 flex flex-row">
-                     <div className=" w-[45%]">{issue.title}</div>
-                     <div className=" w-[45%]">{issueDate}</div>
-                     <Image
-                        src={issue.created_by.picture}
-                        width={30}
-                        height={30}
-                        className={`rounded-full border-2 border-double -ml-4 only:ml-0`}
-                        alt="avatar"
-                     />
-                     <div className="text-sm text-gray-600 mt-1 ml-1 ">{issue.created_by.full_name}</div>
+                  <h2 className="pr-2 pt-1 grid grid-cols-3 items-center">
+                     <div className="flex justify-start">{issue.title}</div>
+                     <div className="flex justify-center">{issueDate}</div>
+                     <div className="flex justify-end">
+                        <Image
+                           src={issue.created_by.picture}
+                           width={30}
+                           height={30}
+                           className="rounded-full border-2 border-double -ml-4 only:ml-0"
+                           alt="avatar"
+                        />
+                        <div className="mt-1 ml-1">{issue.created_by.full_name}</div>
+                     </div>
                   </h2>
                </div>
             </div>
@@ -140,10 +142,10 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                      </button>
                   </div>
                </div>
-               <p className="p-2 font-medium flex flex-col text-center">
+               <div className="p-2 font-medium flex flex-col items-center">
                   {issue.diagram.project && <div>Project: {issue.diagram.project.name}</div>}
                   <div>Diagram: {issue.diagram.name}</div>
-               </p>
+               </div>
                <p className="p-2 text-sm text-center">
                   <b>Description: </b>
                   {issue.description}
@@ -162,18 +164,19 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                      Go to Diagram
                   </Link>
                </p>
-
-               <h2 className="title-fon sm:text-base font-medium pr-2 pt-1 text-gray-900 flex flex-row">
-                  <div className=" w-[46%]">{issue.title}</div>
-                  <div className=" w-[44%]">{issueDate}</div>
-                  <Image
-                     src={issue.created_by.picture}
-                     width={30}
-                     height={30}
-                     className={`rounded-full border-2 border-double -ml-4 only:ml-0`}
-                     alt="avatar"
-                  />
-                  <div className="text-sm text-gray-600 mt-1 ml-1 ">{issue.created_by.full_name}</div>
+               <h2 className="pr-2 pt-1 grid grid-flow-col items-center">
+                  <div className="flex justify-start">{issue.title}</div>
+                  <div className="flex justify-center">{issueDate}</div>
+                  <div className="flex justify-end">
+                     <Image
+                        src={issue.created_by.picture}
+                        width={30}
+                        height={30}
+                        className="rounded-full border-2 border-double -ml-4 only:ml-0"
+                        alt="avatar"
+                     />
+                     <div className="mt-1 ml-1">{issue.created_by.full_name}</div>
+                  </div>
                </h2>
             </div>
          </div>

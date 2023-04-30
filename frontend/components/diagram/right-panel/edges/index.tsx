@@ -9,6 +9,64 @@ import { cn } from "@/lib/utils";
 import EdgeRouter from "./edge-router-options";
 import EdgeJumps from "./edge-jumps";
 
+const leftEndingOptions = [
+   {
+      value: "none",
+      icon: "None",
+   },
+   {
+      value: "open arrow",
+      icon: <OpenArrow direction="left" />,
+   },
+   {
+      value: "solid arrow",
+      icon: <SolidArrow direction="left" />,
+   },
+   {
+      value: "open diamond",
+      icon: <OpenDiamond direction="left" />,
+   },
+   {
+      value: "solid diamond",
+      icon: <SolidDiamond direction="left" />,
+   },
+];
+
+const rightEndingOptions = [
+   {
+      value: "none",
+      icon: "None",
+   },
+   {
+      value: "open arrow",
+      icon: <OpenArrow direction="right" />,
+   },
+   {
+      value: "solid arrow",
+      icon: <SolidArrow direction="right" />,
+   },
+   {
+      value: "open diamond",
+      icon: <OpenDiamond direction="right" />,
+   },
+   {
+      value: "solid diamond",
+      icon: <SolidDiamond direction="right" />,
+   },
+];
+
+// for the line style options
+const lineStyleOptions = [
+   {
+      value: "solid",
+      icon: <SolidLine />,
+   },
+   {
+      value: "dashed",
+      icon: <DashedLine />,
+   },
+];
+
 export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for the left end, middle, and right end of the edge
    const [leftEnd, setLeftEnd] = useState("none");
@@ -46,64 +104,6 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       };
    }, [leftEndRef, lineStyleRef, rightEndRef]);
 
-   const leftEndingOptions = [
-      {
-         value: "none",
-         icon: "None",
-      },
-      {
-         value: "open arrow",
-         icon: <OpenArrow direction="left" />,
-      },
-      {
-         value: "solid arrow",
-         icon: <SolidArrow direction="left" />,
-      },
-      {
-         value: "open diamond",
-         icon: <OpenDiamond direction="left" />,
-      },
-      {
-         value: "solid diamond",
-         icon: <SolidDiamond direction="left" />,
-      },
-   ];
-
-   const rightEndingOptions = [
-      {
-         value: "none",
-         icon: "None",
-      },
-      {
-         value: "open arrow",
-         icon: <OpenArrow direction="right" />,
-      },
-      {
-         value: "solid arrow",
-         icon: <SolidArrow direction="right" />,
-      },
-      {
-         value: "open diamond",
-         icon: <OpenDiamond direction="right" />,
-      },
-      {
-         value: "solid diamond",
-         icon: <SolidDiamond direction="right" />,
-      },
-   ];
-
-   // for the line style options
-   const lineStyleOptions = [
-      {
-         value: "solid",
-         icon: <SolidLine />,
-      },
-      {
-         value: "dashed",
-         icon: <DashedLine />,
-      },
-   ];
-
    // for current background & border colors of selected line
    const [color, setColor] = useState("000000"); // <- default should be initial border color
 
@@ -124,7 +124,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    const [router, setRouter] = useState("pointy");
 
    // for the jump options
-   const [jump, setJump] = useState("None");
+   const [jump, setJump] = useState("none");
 
    // the selected cells
    const [selectedEdges, setSelectedEdges] = useState<X6Type.Edge[]>([]);
@@ -217,7 +217,7 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                   <input
                      type="text"
                      className={cn(
-                        "h-6 w-16 text-center block rounded-md border text-xs font-bold focus:outline-none hover:border-slate-400 focus:border-slate-400",
+                        "h-6 w-16 text-center block rounded-md border text-xs focus:outline-none hover:border-slate-400 focus:border-slate-400",
                         centerLabel === ""
                            ? "border-2 border-dotted bg-slate-100 border-slate-400"
                            : "bg-slate-200 border-slate-300",

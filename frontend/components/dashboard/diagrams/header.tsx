@@ -109,9 +109,12 @@ export default function DiagramsHeader({
                         </button>
                      )}
 
-                     <CreateButton title="New project" isLoading={isLoadingProject} onClick={onClickHandlerProject}>
-                        <Icons.folderPlus className="mr-1.5 w-5 h-5" strokeWidth={1.5} />
-                     </CreateButton>
+                     {/* if not inside of a project */}
+                     {!project && (
+                        <CreateButton title="New project" isLoading={isLoadingProject} onClick={onClickHandlerProject}>
+                           <Icons.folderPlus className="mr-1.5 w-5 h-5" strokeWidth={1.5} />
+                        </CreateButton>
+                     )}
                      <CreateButton title="New diagram" onClick={() => setOpen((current) => !current)}>
                         <Icons.filePlus className="mr-1.5 w-5 h-5" strokeWidth={1.5} />
                      </CreateButton>
