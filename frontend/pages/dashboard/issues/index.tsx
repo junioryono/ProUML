@@ -40,7 +40,7 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                               <div className="flex justify-end pr-4">Issuer</div>
                            </div>
                            {issues.map((issue) => (
-                              <IssueComponent key={issue.id} issue={issue} setIssues={setIssues} />
+                              <IssueComponent key={issue.id} user={user} issue={issue} setIssues={setIssues} />
                            ))}
                         </div>
                      </div>
@@ -52,7 +52,15 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
    );
 }
 
-function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.Dispatch<React.SetStateAction<Issue[]>> }) {
+function IssueComponent({
+   user,
+   issue,
+   setIssues,
+}: {
+   user: User;
+   issue: Issue;
+   setIssues: React.Dispatch<React.SetStateAction<Issue[]>>;
+}) {
    const [open, setOpen] = useState(false);
    const [checked, setChecked] = useState(false);
 
@@ -87,18 +95,15 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
 
    if (!open) {
       return (
-         <div
-            className="mt-2 mb-2 ml-2 mr-2 border-gray-200 flex flex-col cursor-pointer group"
-            onClick={() => setOpen(true)}
-         >
+         <div className="my-2 mx-2 border-gray-200 flex flex-col cursor-pointer group" onClick={() => setOpen(true)}>
             <div className="flex overflow-hidden whitespace-nowrap">
-               <div className="border-gray-200 border rounded-md hover:border-blue-500 cursor-pointer px-2 pt-0.5 bg-slate-200 w-full">
+               <div className="py-0.5 border-gray-200 border rounded-md hover:border-blue-500 cursor-pointer px-2 pt-0.5 bg-slate-200 w-full">
                   <div className="text-gray-600">{issue.id}</div>
 
-                  <h2 className="pr-2 pt-1 grid grid-cols-3 items-center">
+                  <h2 className="pt-1 grid grid-cols-3 items-center">
                      <div className="flex justify-start">{issue.title}</div>
                      <div className="flex justify-center">{issueDate}</div>
-                     <div className="flex justify-end">
+                     <div className="flex justify-end items-center">
                         <Image
                            src={issue.created_by.picture}
                            width={30}
@@ -106,7 +111,7 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                            className="rounded-full border-2 border-double -ml-4 only:ml-0"
                            alt="avatar"
                         />
-                        <div className="mt-1 ml-1">{issue.created_by.full_name}</div>
+                        <div className="ml-1">{issue.created_by.full_name}</div>
                      </div>
                   </h2>
                </div>
@@ -117,11 +122,11 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
 
    return (
       <div
-         className="h-18 mt-2 mb-2 ml-2 mr-2 border-gray-200 flex flex-col group border rounded-md hover:border-blue-500 overflow-hidden"
+         className="my-2 mx-2 border-gray-200 flex flex-col group border rounded-md hover:border-blue-500 overflow-hidden"
          onClick={() => setOpen(false)}
       >
          <div className="flex overflow-hidden">
-            <div className="border-gray-200 border rounded-md px-2 pt-0.5 bg-slate-200 w-full">
+            <div className="py-0.5 border-gray-200 border rounded-md px-2 pt-0.5 bg-slate-200 w-full">
                <div className="text-gray-600 flex flex-row justify-between">
                   <div className="text-gray-600">{issue.id}</div>
                   <div className="flex items-center mb-4" onClick={deleteIssueFunction}>
@@ -142,11 +147,41 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                      </button>
                   </div>
                </div>
-               <div className="p-2 font-medium flex flex-col items-center">
-                  {issue.diagram.project && <div>Project: {issue.diagram.project.name}</div>}
-                  <div>Diagram: {issue.diagram.name}</div>
+               {/* <div className="p-2 font-medium flex flex-col items-center">
+                  {issue.diagram.project && (
+                     <div>
+                        <b>Project:</b> {issue.diagram.project.name}
+                     </div>
+                  )}
+                  <div>
+                     <b>Diagram:</b> {issue.diagram.name}
+                  </div>
+               </div> */}
+
+               <div className="p-1 text-sm text-center flex items-center justify-center">
+                  <b>Where: </b>&nbsp;
+                  {/* if the issue is in a diagram within a project */}
+                  {issue.diagram.project && (
+                     <>
+                        <div className="hover:text-blue-500 cursor-pointer hover:underline">
+                           <Link
+                              href="/dashboard/diagrams/project/[id]"
+                              as={`/dashboard/diagrams/project/${issue.diagram.project.id}`}
+                           >
+                              {issue.diagram.project.name}
+                           </Link>
+                        </div>
+                        <span className="mx-1">/</span>
+                     </>
+                  )}
+                  <div className="hover:text-blue-500 cursor-pointer hover:underline">
+                     <Link href="/dashboard/diagrams/[id]" as={`/dashboard/diagrams/${issue.diagram.id}`}>
+                        {issue.diagram.name}
+                     </Link>
+                  </div>
                </div>
-               <p className="p-2 text-sm text-center">
+
+               <p className="p-1 text-sm text-center">
                   <b>Description: </b>
                   {issue.description}
                </p>
@@ -159,15 +194,15 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                      dangerouslySetInnerHTML={{ __html: issue.image }}
                   />
                </div>
-               <p className="px-2 pb-2 text-sm hover:text-blue-500 cursor-pointer text-center">
+               {/* <p className="px-2 pb-3 text-sm hover:text-blue-500 cursor-pointer text-center underline">
                   <Link href="/dashboard/diagrams/[id]" as={`/dashboard/diagrams/${issue.diagram.id}`}>
                      Go to Diagram
                   </Link>
-               </p>
-               <h2 className="pr-2 pt-1 grid grid-cols-3 items-center">
+               </p> */}
+               <h2 className="pt-1 grid grid-cols-3 items-center">
                   <div className="flex justify-start">{issue.title}</div>
                   <div className="flex justify-center">{issueDate}</div>
-                  <div className="flex justify-end">
+                  <div className="flex justify-end items-center">
                      <Image
                         src={issue.created_by.picture}
                         width={30}
@@ -175,7 +210,7 @@ function IssueComponent({ issue, setIssues }: { issue: Issue; setIssues: React.D
                         className="rounded-full border-2 border-double -ml-4 only:ml-0"
                         alt="avatar"
                      />
-                     <div className="mt-1 ml-1">{issue.created_by.full_name}</div>
+                     <div className="ml-1">{issue.created_by.full_name}</div>
                   </div>
                </h2>
             </div>
