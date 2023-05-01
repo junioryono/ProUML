@@ -1,5 +1,5 @@
 import type X6Type from "@antv/x6";
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Diagram, Issue } from "types";
 import { OpenArrow, OpenDiamond, SolidArrow, SolidDiamond } from "../right-panel/edges/edge-endings";
@@ -158,7 +158,7 @@ export default function LeftPanel({
                         <div
                            key={pDiagram.id}
                            className={cn(
-                              "rounded flex items-center gap-3 py-1 pl-3 mb-0.5",
+                              "rounded flex items-center py-1 mb-0.5",
                               pDiagram.id === diagram.id && "bg-slate-300 font-semibold",
                               pDiagram.id !== diagram.id && "hover:bg-slate-200 cursor-pointer",
                            )}
@@ -273,7 +273,7 @@ export default function LeftPanel({
                      <div
                         key={nodeId}
                         className={cn(
-                           "flex items-center rounded cursor-pointer gap-3 py-1 pl-3 mb-0.5",
+                           "flex items-center cursor-pointer py-1 pl-3 mb-0.5",
                            isSelected && "bg-slate-300 font-semibold",
                            !isSelected && "hover:bg-slate-200",
                         )}
@@ -283,46 +283,43 @@ export default function LeftPanel({
                            graph.current.select(node, { ui: true });
                         }}
                      >
-                        <div className="w-3">
-                           {/* {isSelected && (
-                              <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                                 <path
-                                    d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                                    fillRule="evenodd"
-                                    fillOpacity="1"
-                                    stroke="none"
-                                 />
-                              </svg>
-                           )} */}
-                        </div>
-                        <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "180px" }}>
-                           {nodeName}
-                           {/* if the node is locked */}
-                           {isLocked ? (
-                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                                 <g id="SVGRepo_iconCarrier">
-                                    <path
-                                       fill-rule="evenodd"
-                                       clip-rule="evenodd"
-                                       d="M5.5 10V7C5.5 5.27609 6.18482 3.62279 7.40381 2.40381C8.62279 1.18482 10.2761 0.5 12 0.5C13.7239 0.5 15.3772 1.18482 16.5962 2.40381C17.8152 3.62279 18.5 5.27609 18.5 7V10H19C20.6569 10 22 11.3431 22 13V20C22 21.6569 20.6569 23 19 23H5C3.34315 23 2 21.6569 2 20V13C2 11.3431 3.34315 10 5 10H5.5ZM9.52513 4.52513C10.1815 3.86875 11.0717 3.5 12 3.5C12.9283 3.5 13.8185 3.86875 14.4749 4.52513C15.1313 5.1815 15.5 6.07174 15.5 7V10H8.5V7C8.5 6.07174 8.86875 5.1815 9.52513 4.52513Z"
-                                       fill="#000000"
-                                    ></path>
-                                 </g>
-                              </svg>
-                           ) : (
-                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                                 <g id="SVGRepo_iconCarrier">
-                                    <path
-                                       d="M9.52513 4.52513C10.1815 3.86875 11.0717 3.5 12 3.5C12.9283 3.5 13.8185 3.86875 14.4749 4.52513C14.7873 4.83751 15.0344 5.20276 15.2078 5.59999L15.4078 6.05825C15.6287 6.56443 16.2181 6.79568 16.7243 6.57477L17.6408 6.17478C18.147 5.95387 18.3783 5.36445 18.1574 4.85827L17.9574 4.40001C17.6355 3.66243 17.1763 2.98389 16.5962 2.40381C15.3772 1.18482 13.7239 0.5 12 0.5C10.2761 0.5 8.62279 1.18482 7.40381 2.40381C6.18482 3.62279 5.5 5.27609 5.5 7V10H5C3.34315 10 2 11.3431 2 13V20C2 21.6569 3.34315 23 5 23H19C20.6569 23 22 21.6569 22 20V13C22 11.3431 20.6569 10 19 10H8.5V7C8.5 6.07174 8.86875 5.1815 9.52513 4.52513Z"
-                                       fill="#000000"
-                                    ></path>
-                                 </g>
-                              </svg>
-                           )}
+                        <div className="flex justify-between">
+                           <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "170px" }}>
+                              {nodeName}
+                           </div>
+                           {/* only show the lock svg if the div of this node is being hovered over */}
+                           <div className="justify-left" style={{ width: "20px" }}>
+                              {/* if the node is locked */}
+                              {isLocked ? (
+                                 <svg
+                                    fill="#000000"
+                                    viewBox="0 0 56 56"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width={16}
+                                    height={16}
+                                 >
+                                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                       <path d="M 28.0000 4.2578 C 21.4609 4.2578 15.4844 8.9219 15.4844 18.5078 L 15.4844 24.1328 C 12.9531 24.4375 11.7109 25.9610 11.7109 28.9610 L 11.7109 46.8438 C 11.7109 50.2188 13.2578 51.7422 16.375 51.7422 L 39.625 51.7422 C 42.7422 51.7422 44.2891 50.2188 44.2891 46.8438 L 44.2891 28.9375 C 44.2891 25.9375 43.0469 24.3437 40.5156 24.0625 L 40.5156 18.5078 C 40.5156 8.9219 34.5391 4.2578 28.0000 4.2578 Z M 19.2578 17.9922 C 19.2578 11.4532 23.1484 7.8672 28.0000 7.8672 C 32.8515 7.8672 36.7422 11.4532 36.7422 17.9922 L 36.7422 24.0391 L 19.2578 24.0625 Z"></path>
+                                    </g>
+                                 </svg>
+                              ) : (
+                                 <svg
+                                    fill="#000000"
+                                    viewBox="0 0 56 56"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width={16}
+                                    height={16}
+                                 >
+                                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                       <path d="M 40.3163 3.2969 C 33.7070 3.2969 27.3320 7.8438 27.3320 17.5234 L 27.3320 24.9063 L 7.2460 24.9063 C 4.1288 24.9063 2.6757 26.3828 2.6757 29.7344 L 2.6757 47.8750 C 2.6757 51.2266 4.1288 52.7031 7.2460 52.7031 L 30.8242 52.7031 C 33.9413 52.7031 35.3944 51.2266 35.3944 47.8750 L 35.3944 29.7344 C 35.3944 26.5000 34.0351 25.0234 31.1054 24.9297 L 31.1054 17.0313 C 31.1054 10.3750 35.4179 6.8828 40.3163 6.8828 C 45.2382 6.8828 49.5505 10.3750 49.5505 17.0313 L 49.5505 22.4219 C 49.5505 24.0860 50.3708 24.7891 51.4489 24.7891 C 52.4804 24.7891 53.3243 24.1563 53.3243 22.4922 L 53.3243 17.5234 C 53.3243 7.8438 46.9259 3.2969 40.3163 3.2969 Z"></path>
+                                    </g>
+                                 </svg>
+                              )}
+                           </div>
                         </div>
                      </div>
                   );
@@ -354,7 +351,7 @@ export default function LeftPanel({
                            <div
                               key={edgeId}
                               className={cn(
-                                 "flex items-center rounded cursor-pointer gap-3 py-1 pl-3 mb-0.5",
+                                 "flex items-center cursor-pointer gap-3 py-1 pl-3 mb-0.5",
                                  isSelected && "bg-slate-300 font-semibold",
                                  !isSelected && "hover:bg-slate-200",
                               )}
@@ -364,18 +361,6 @@ export default function LeftPanel({
                                  graph.current.select(node);
                               }}
                            >
-                              <div className="w-3">
-                                 {/* {isSelected && (
-                                    <svg width="8" height="8" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-                                       <path
-                                          d="M1.176 2.824L3.06 4.706 6.824.941 8 2.118 3.059 7.059 0 4l1.176-1.176z"
-                                          fillRule="evenodd"
-                                          fillOpacity="1"
-                                          stroke="none"
-                                       />
-                                    </svg>
-                                 )} */}
-                              </div>
                               <div className="flex">
                                  <div className="text-ellipsis overflow-hidden whitespace-nowrap" style={{ width: "78px" }}>
                                     {sourceNodeName}
@@ -414,7 +399,7 @@ export default function LeftPanel({
                         <div
                            key={issue.id}
                            className={cn(
-                              "flex items-center rounded cursor-pointer gap-3 py-1 pl-3 mb-0.5",
+                              "flex items-center cursor-pointer py-1 mb-0.5",
                               isSelected && "bg-slate-300 font-semibold",
                               !isSelected && "hover:bg-slate-200",
                            )}
