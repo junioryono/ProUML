@@ -285,6 +285,30 @@ export default function LeftPanel({
                      </span>
                   </div>
                </div>
+
+               {/* if no nodes exist yet, show a msg */}
+               {nodes.length === 0 && (
+                  <div className="text-md font-bold text-center bg-slate-200 rounded-2xl p-3">
+                     <div className="flex flex-col justify-center items-center">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width={35} height={35}>
+                           <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                           <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                           <g id="SVGRepo_iconCarrier">
+                              <path
+                                 d="M16 10H16.01M12 10H12.01M8 10H8.01M7 16V21L12 16H20V4H4V16H7Z"
+                                 stroke="#000000"
+                                 strokeWidth="1.5"
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
+                              ></path>
+                           </g>
+                        </svg>
+                        There are no nodes in this diagram! Click the "+" button to add a node, or drag a template onto the
+                        diagram.
+                     </div>
+                  </div>
+               )}
+
                {nodes.map((node) => {
                   const props = node.getProp();
                   const nodeId = props.id;
@@ -320,7 +344,7 @@ export default function LeftPanel({
                                     height={16}
                                  >
                                     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" stroke-linejoin="round"></g>
+                                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                                     <g id="SVGRepo_iconCarrier">
                                        <rect x="8" y="8" width="48" height="48"></rect>
                                        <line x1="32" y1="56" x2="32" y2="8"></line>
