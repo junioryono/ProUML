@@ -34,7 +34,7 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                   <>
                      <div className="mb-2">
                         <div className="m-2 border-black border-[1.4px] rounded-md overflow-auto">
-                           <div className="p-2 bg-black rounded-t-sm text-white grid grid-flow-col ">
+                           <div className="p-2 bg-black rounded-t-sm text-white font-bold grid grid-flow-col ">
                               <div className="flex justify-start pl-4">Name</div>
                               <div className="flex justify-center">Issued</div>
                               <div className="flex justify-end pr-4">Issuer</div>
