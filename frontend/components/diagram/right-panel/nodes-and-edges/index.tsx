@@ -10,13 +10,13 @@ export default function NodesAndEdgesPanel({ graph }: { graph: MutableRefObject<
    return (
       <>
          {/* Tabs navigation */}
-         <div className="flex rounded-lg mb-1 border pl-0 outline-none">
+         <div className="flex rounded-lg mb-1 border pl-0">
             <button
                className={cn(
-                  "w-1/2 py-1.5 border rounded-l-md text-md leading-tight",
+                  "w-1/2 py-1.5 border rounded-l-md text-md leading-tight outline-none",
                   activeTab === "nodes"
                      ? "bg-slate-400 border-slate-600 font-bold"
-                     : "bg-slate-300 border-slate-400 font-normal",
+                     : "bg-slate-200 border-slate-400 font-normal",
                )}
                onClick={() => setActiveTab("nodes")}
             >
@@ -25,10 +25,10 @@ export default function NodesAndEdgesPanel({ graph }: { graph: MutableRefObject<
 
             <button
                className={cn(
-                  "w-1/2 py-1.5 border rounded-r-md text-md leading-tight",
+                  "w-1/2 py-1.5 border rounded-r-md text-md leading-tight outline-none",
                   activeTab === "edges"
                      ? "bg-slate-400 border-slate-600 font-bold"
-                     : "bg-slate-300 border-slate-400 font-normal",
+                     : "bg-slate-200 border-slate-400 font-normal",
                )}
                onClick={() => setActiveTab("edges")}
             >

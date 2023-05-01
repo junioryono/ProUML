@@ -6,6 +6,7 @@ import { OpenArrow, OpenDiamond, SolidArrow, SolidDiamond } from "../right-panel
 import { toast } from "@/ui/toast";
 import { createDiagram } from "@/lib/auth-fetch";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const edgeEndings = [
    {
@@ -158,7 +159,7 @@ export default function LeftPanel({
                         <div
                            key={pDiagram.id}
                            className={cn(
-                              "rounded flex items-center py-1 mb-0.5",
+                              "flex items-center py-1 mb-0.5 gap-1",
                               pDiagram.id === diagram.id && "bg-slate-300 font-semibold",
                               pDiagram.id !== diagram.id && "hover:bg-slate-200 cursor-pointer",
                            )}
@@ -168,8 +169,30 @@ export default function LeftPanel({
                               }
                            }}
                         >
-                           <div className="w-3"></div>
-                           <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "180px" }}>
+                           <div className="flex items-center">
+                              <div className="ml-1">
+                                 <svg
+                                    fill="#000000"
+                                    height="20"
+                                    width="20"
+                                    version="1.1"
+                                    id="Layer_1"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 512 512"
+                                 >
+                                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                       <g>
+                                          <g>
+                                             <path d="M496,324.362h-31.702v-60.01c0-8.836-7.164-16-16-16H271.996v-60.714h127.109c8.836,0,16-7.164,16-16V76.235 c0-8.836-7.164-16-16-16h-286.21c-8.836,0-16,7.164-16,16v95.404c0,8.836,7.164,16,16,16h127.101v60.714H63.702 c-8.836,0-16,7.164-16,16v60.01H16c-8.836,0-16,7.164-16,16v95.404c0,8.836,7.164,16,16,16h95.404c8.836,0,16-7.164,16-16v-95.404 c0-8.836-7.164-16-16-16H79.702v-44.01h160.293v44.01h-31.698c-8.836,0-16,7.164-16,16v95.404c0,8.836,7.164,16,16,16h95.404 c8.836,0,16-7.164,16-16v-95.404c0-8.836-7.164-16-16-16h-31.707v-44.01h160.302v44.01h-31.702c-8.836,0-16,7.164-16,16v95.404 c0,8.836,7.164,16,16,16H496c8.836,0,16-7.164,16-16v-95.404C512,331.525,504.836,324.362,496,324.362z M95.404,356.362v63.404H32 v-63.404H95.404z M287.702,356.362v63.404h-63.404v-63.404H287.702z M128.895,155.638V92.235h254.21v63.404H128.895z M480,419.765 h-63.404v-63.404H480V419.765z"></path>{" "}
+                                          </g>
+                                       </g>
+                                    </g>
+                                 </svg>
+                              </div>
+                           </div>
+                           <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "190px" }}>
                               {pDiagram.name}
                            </div>
                         </div>
@@ -273,7 +296,7 @@ export default function LeftPanel({
                      <div
                         key={nodeId}
                         className={cn(
-                           "flex items-center cursor-pointer py-1 pl-3 mb-0.5",
+                           "flex items-center cursor-pointer py-1",
                            isSelected && "bg-slate-300 font-semibold",
                            !isSelected && "hover:bg-slate-200",
                         )}
@@ -283,17 +306,38 @@ export default function LeftPanel({
                            graph.current.select(node, { ui: true });
                         }}
                      >
-                        <div className="flex justify-between">
-                           <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "170px" }}>
-                              {nodeName}
+                        <div className="flex justify-between w-full">
+                           <div className="flex gap-1 items-center">
+                              <div className="ml-1">
+                                 <svg
+                                    viewBox="0 0 64 64"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    stroke="#000000"
+                                    transform="rotate(90)"
+                                    strokeWidth="6.4"
+                                    width={16}
+                                    height={16}
+                                 >
+                                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" stroke-linejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                       <rect x="8" y="8" width="48" height="48"></rect>
+                                       <line x1="32" y1="56" x2="32" y2="8"></line>
+                                    </g>
+                                 </svg>
+                              </div>
+                              <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "177px" }}>
+                                 {nodeName}
+                              </div>
                            </div>
                            {/* only show the lock svg if the div of this node is being hovered over */}
-                           <div className="justify-left" style={{ width: "20px" }}>
+                           <div className="ml-auto pr-1">
                               {/* if the node is locked */}
                               {isLocked ? (
                                  <svg
                                     fill="#000000"
-                                    viewBox="0 0 56 56"
+                                    viewBox="10 0 56 56"
                                     xmlns="http://www.w3.org/2000/svg"
                                     width={16}
                                     height={16}
@@ -351,7 +395,7 @@ export default function LeftPanel({
                            <div
                               key={edgeId}
                               className={cn(
-                                 "flex items-center cursor-pointer gap-3 py-1 pl-3 mb-0.5",
+                                 "flex items-center cursor-pointer gap-3 py-1",
                                  isSelected && "bg-slate-300 font-semibold",
                                  !isSelected && "hover:bg-slate-200",
                               )}
@@ -362,15 +406,42 @@ export default function LeftPanel({
                               }}
                            >
                               <div className="flex">
-                                 <div className="text-ellipsis overflow-hidden whitespace-nowrap" style={{ width: "78px" }}>
-                                    {sourceNodeName}
+                                 <div className="flex gap-0.5 items-center">
+                                    <div className="ml-1">
+                                       <svg
+                                          fill="#000000"
+                                          viewBox="0 0 24 24"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          stroke="#000000"
+                                          strokeWidth="1.2"
+                                          width={16}
+                                          height={16}
+                                       >
+                                          <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                          <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                                          <g id="SVGRepo_iconCarrier">
+                                             <path d="M3.293,20.707a1,1,0,0,1,0-1.414l16-16a1,1,0,1,1,1.414,1.414l-16,16A1,1,0,0,1,3.293,20.707Z"></path>
+                                          </g>
+                                       </svg>
+                                    </div>
+                                    <div
+                                       className="text-ellipsis overflow-hidden whitespace-nowrap flex-shrink-0"
+                                       style={{ maxWidth: "78px" }}
+                                    >
+                                       {sourceNodeName}
+                                    </div>
                                  </div>
                                  <div className="w-6 text-center">
                                     {/* get the type of relationship of the edge */}
                                     {"-->"}
                                  </div>
-                                 <div className="text-ellipsis overflow-hidden whitespace-nowrap" style={{ width: "78px" }}>
-                                    {targetNodeName}
+                                 <div className="flex flex-grow-1">
+                                    <div
+                                       className="text-ellipsis overflow-hidden whitespace-nowrap flex-shrink-0"
+                                       style={{ maxWidth: "78px" }}
+                                    >
+                                       {targetNodeName}
+                                    </div>
                                  </div>
                               </div>
                            </div>
@@ -383,7 +454,7 @@ export default function LeftPanel({
 
          {diagram.issues?.length > 0 && (
             <>
-               <hr className="border-slate-400 my-2" />
+               <hr className="border-slate-400 mb-2" />
 
                {/* ---------------------- ISSUES SECTION ---------------------- */}
                <div className="pb-1">
@@ -399,7 +470,7 @@ export default function LeftPanel({
                         <div
                            key={issue.id}
                            className={cn(
-                              "flex items-center cursor-pointer py-1 mb-0.5",
+                              "flex items-center cursor-pointer h-[29px]",
                               isSelected && "bg-slate-300 font-semibold",
                               !isSelected && "hover:bg-slate-200",
                            )}
@@ -418,9 +489,19 @@ export default function LeftPanel({
                               setSelectedIssue(issue);
                            }}
                         >
-                           <div className="w-3"></div>
-                           <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "180px" }}>
-                              {issue.title}
+                           <div className="flex gap-1 items-center">
+                              <div>
+                                 <Image
+                                    src={issue.created_by.picture}
+                                    width={27}
+                                    height={27}
+                                    className="rounded-full border-2 border-double -ml-4 only:ml-0"
+                                    alt="avatar"
+                                 />
+                              </div>
+                              <div className="text-ellipsis overflow-hidden whitespace-nowrap" style={{ width: "185px" }}>
+                                 {issue.title}
+                              </div>
                            </div>
                         </div>
                      );
