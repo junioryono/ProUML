@@ -288,7 +288,7 @@ export default function LeftPanel({
 
                {/* if no nodes exist yet, show a msg */}
                {nodes.length === 0 && (
-                  <div className="text-md font-bold text-center bg-slate-200 rounded-2xl p-3">
+                  <div className="text-md font-bold text-center bg-slate-300 rounded-2xl p-3">
                      <div className="flex flex-col justify-center items-center">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width={35} height={35}>
                            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>

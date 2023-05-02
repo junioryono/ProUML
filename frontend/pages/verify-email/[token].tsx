@@ -35,26 +35,28 @@ export default function VerifyEmailPage({
                   ) : (
                      <div className="h-screen flex justify-center items-center">
                         <div className="bg-slate-300 p-14 rounded-2xl flex flex-col items-center">
-                           <svg
-                              fill="#00D100"
-                              viewBox="0 0 36 36"
-                              version="1.1"
-                              preserveAspectRatio="xMidYMid meet"
-                              xmlns="http://www.w3.org/2000/svg"
-                              height={100}
-                              width={100}
-                           >
-                              <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                              <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                              <g id="SVGRepo_iconCarrier">
-                                 <path
-                                    className="clr-i-solid clr-i-solid-path-1"
-                                    d="M18,2A16,16,0,1,0,34,18,16,16,0,0,0,18,2ZM28.45,12.63,15.31,25.76,7.55,18a1.4,1.4,0,0,1,2-2l5.78,5.78L26.47,10.65a1.4,1.4,0,1,1,2,2Z"
-                                 ></path>
-                                 <rect x="0" y="0" width="36" height="36" fillOpacity="0"></rect>
-                              </g>
-                           </svg>
-                           <p>Your email has been verified.</p>
+                           <div className="bg-white rounded-full">
+                              <svg
+                                 fill="#00D100"
+                                 viewBox="2 2 32 32"
+                                 version="1.1"
+                                 preserveAspectRatio="xMidYMid meet"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 height={100}
+                                 width={100}
+                              >
+                                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                                 <g id="SVGRepo_iconCarrier">
+                                    <path
+                                       className="clr-i-solid clr-i-solid-path-1"
+                                       d="M18,2A16,16,0,1,0,34,18,16,16,0,0,0,18,2ZM28.45,12.63,15.31,25.76,7.55,18a1.4,1.4,0,0,1,2-2l5.78,5.78L26.47,10.65a1.4,1.4,0,1,1,2,2Z"
+                                    ></path>
+                                    <rect x="0" y="0" width="36" height="36" fillOpacity="0"></rect>
+                                 </g>
+                              </svg>
+                           </div>
+                           <p className="mt-2 font-bold">Your email has been verified.</p>
                         </div>
                      </div>
                   )}
