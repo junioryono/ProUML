@@ -94,6 +94,13 @@ export default function LeftPanel({
       console.log("selectedIssue", selectedIssue);
    }, [selectedIssue]);
 
+   // listen for node lock/unlock events
+   useEffect(() => {
+      graph.current?.on("node:change:locked", ({ node }) => {
+         setNodes(graph.current?.getNodes() || []);
+      });
+   }, [graph]);
+
    return (
       <div className="w-60 h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
          {/* ---------------------- DIAGRAMS SECTION ---------------------- */}
@@ -159,7 +166,7 @@ export default function LeftPanel({
                         <div
                            key={pDiagram.id}
                            className={cn(
-                              "flex items-center py-1 mb-0.5 gap-1",
+                              "flex items-center py-1 gap-1",
                               pDiagram.id === diagram.id && "bg-slate-300 font-semibold",
                               pDiagram.id !== diagram.id && "hover:bg-slate-200 cursor-pointer",
                            )}
@@ -365,6 +372,12 @@ export default function LeftPanel({
                                     xmlns="http://www.w3.org/2000/svg"
                                     width={16}
                                     height={16}
+                                    onClick={(e) => {
+                                       e.stopPropagation();
+
+                                       // unlock the node
+                                       node.setProp({ lock: false });
+                                    }}
                                  >
                                     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                                     <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
@@ -373,19 +386,27 @@ export default function LeftPanel({
                                     </g>
                                  </svg>
                               ) : (
-                                 <svg
-                                    fill="#000000"
-                                    viewBox="0 0 56 56"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width={16}
-                                    height={16}
-                                 >
-                                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                                    <g id="SVGRepo_iconCarrier">
-                                       <path d="M 40.3163 3.2969 C 33.7070 3.2969 27.3320 7.8438 27.3320 17.5234 L 27.3320 24.9063 L 7.2460 24.9063 C 4.1288 24.9063 2.6757 26.3828 2.6757 29.7344 L 2.6757 47.8750 C 2.6757 51.2266 4.1288 52.7031 7.2460 52.7031 L 30.8242 52.7031 C 33.9413 52.7031 35.3944 51.2266 35.3944 47.8750 L 35.3944 29.7344 C 35.3944 26.5000 34.0351 25.0234 31.1054 24.9297 L 31.1054 17.0313 C 31.1054 10.3750 35.4179 6.8828 40.3163 6.8828 C 45.2382 6.8828 49.5505 10.3750 49.5505 17.0313 L 49.5505 22.4219 C 49.5505 24.0860 50.3708 24.7891 51.4489 24.7891 C 52.4804 24.7891 53.3243 24.1563 53.3243 22.4922 L 53.3243 17.5234 C 53.3243 7.8438 46.9259 3.2969 40.3163 3.2969 Z"></path>
-                                    </g>
-                                 </svg>
+                                 <>
+                                    <svg
+                                       fill="#000000"
+                                       viewBox="0 0 56 56"
+                                       xmlns="http://www.w3.org/2000/svg"
+                                       width={16}
+                                       height={16}
+                                       onClick={(e) => {
+                                          e.stopPropagation();
+
+                                          // lock the node
+                                          node.setProp({ lock: true });
+                                       }}
+                                    >
+                                       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                       <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                                       <g id="SVGRepo_iconCarrier">
+                                          <path d="M 40.3163 3.2969 C 33.7070 3.2969 27.3320 7.8438 27.3320 17.5234 L 27.3320 24.9063 L 7.2460 24.9063 C 4.1288 24.9063 2.6757 26.3828 2.6757 29.7344 L 2.6757 47.8750 C 2.6757 51.2266 4.1288 52.7031 7.2460 52.7031 L 30.8242 52.7031 C 33.9413 52.7031 35.3944 51.2266 35.3944 47.8750 L 35.3944 29.7344 C 35.3944 26.5000 34.0351 25.0234 31.1054 24.9297 L 31.1054 17.0313 C 31.1054 10.3750 35.4179 6.8828 40.3163 6.8828 C 45.2382 6.8828 49.5505 10.3750 49.5505 17.0313 L 49.5505 22.4219 C 49.5505 24.0860 50.3708 24.7891 51.4489 24.7891 C 52.4804 24.7891 53.3243 24.1563 53.3243 22.4922 L 53.3243 17.5234 C 53.3243 7.8438 46.9259 3.2969 40.3163 3.2969 Z"></path>
+                                       </g>
+                                    </svg>
+                                 </>
                               )}
                            </div>
                         </div>

@@ -147,23 +147,16 @@ function IssueComponent({
                      </button>
                   </div>
                </div>
-               {/* <div className="p-2 font-medium flex flex-col items-center">
-                  {issue.diagram.project && (
-                     <div>
-                        <b>Project:</b> {issue.diagram.project.name}
-                     </div>
-                  )}
-                  <div>
-                     <b>Diagram:</b> {issue.diagram.name}
-                  </div>
-               </div> */}
 
                <div className="p-1 text-sm text-center flex items-center justify-center">
                   <b>Where: </b>&nbsp;
                   {/* if the issue is in a diagram within a project */}
                   {issue.diagram.project && (
                      <>
-                        <div className="hover:text-blue-500 cursor-pointer hover:underline">
+                        <div
+                           className="hover:text-blue-500 cursor-pointer hover:underline"
+                           onClick={(e) => e.stopPropagation()}
+                        >
                            <Link
                               href="/dashboard/diagrams/project/[id]"
                               as={`/dashboard/diagrams/project/${issue.diagram.project.id}`}
@@ -174,7 +167,7 @@ function IssueComponent({
                         <span className="mx-1">/</span>
                      </>
                   )}
-                  <div className="hover:text-blue-500 cursor-pointer hover:underline">
+                  <div className="hover:text-blue-500 cursor-pointer hover:underline" onClick={(e) => e.stopPropagation()}>
                      <Link href="/dashboard/diagrams/[id]" as={`/dashboard/diagrams/${issue.diagram.id}`}>
                         {issue.diagram.name}
                      </Link>
@@ -194,11 +187,7 @@ function IssueComponent({
                      dangerouslySetInnerHTML={{ __html: issue.image }}
                   />
                </div>
-               {/* <p className="px-2 pb-3 text-sm hover:text-blue-500 cursor-pointer text-center underline">
-                  <Link href="/dashboard/diagrams/[id]" as={`/dashboard/diagrams/${issue.diagram.id}`}>
-                     Go to Diagram
-                  </Link>
-               </p> */}
+
                <h2 className="pt-1 grid grid-cols-3 items-center">
                   <div className="flex justify-start">{issue.title}</div>
                   <div className="flex justify-center">{issueDate}</div>
