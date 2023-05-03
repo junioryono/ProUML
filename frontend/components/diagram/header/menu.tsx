@@ -1,7 +1,7 @@
 import type X6Type from "@antv/x6";
 
-import { MutableRefObject, useEffect, useRef, useState } from "react";
-import { DropdownMenu, SubDropdownMenu } from "@/ui/dropdown";
+import { MutableRefObject, createRef, useEffect, useState } from "react";
+import { DropdownMenu } from "@/ui/dropdown";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -42,6 +42,43 @@ export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.
          graph.current?.off("selection:changed");
       };
    }, [ready, graph]);
+
+   const [fileInputRef] = useState(createRef<HTMLInputElement>());
+
+   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!graph.current) {
+         return;
+      }
+
+      const file = e.target.files[0];
+      if (!file || !file.name.endsWith(".json")) {
+         return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+         try {
+            if (!event.target?.result) {
+               return;
+            }
+
+            const parsedJSON = JSON.parse(event.target.result as string);
+
+            if (!parsedJSON || !Array.isArray(parsedJSON.cells)) {
+               throw new Error("Invalid JSON file");
+            }
+
+            const cells = graph.current.parseJSON(parsedJSON);
+
+            for (const cell of cells) {
+               cell.addTo(graph.current);
+            }
+         } catch (err) {
+            console.error("Error parsing JSON file:", err);
+         }
+      };
+      reader.readAsText(file);
+   };
 
    return (
       <DropdownMenu onOpenChange={setOpen}>
@@ -84,22 +121,39 @@ export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.
 
                <DropdownMenu.Separator className="my-1 bg-[#636363]" />
 
+               <input
+                  type="file"
+                  accept=".json"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={(e) => handleFileInputChange(e)}
+               />
+
                <DropdownMenu.Item
                   className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
-                  onSelect={(e) => {
-                     e.preventDefault();
-                  }}
+                  onSelect={() => fileInputRef.current.click()}
                >
-                  Import
+                  Import JSON
                </DropdownMenu.Item>
 
                <DropdownMenu.Item
                   className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
-                  onSelect={(e) => {
-                     e.preventDefault();
+                  onSelect={() => {
+                     const cells = graph.current?.toJSON();
+                     if (!cells) {
+                        return;
+                     }
+
+                     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cells));
+                     const downloadAnchorNode = document.createElement("a");
+                     downloadAnchorNode.setAttribute("href", dataStr);
+                     downloadAnchorNode.setAttribute("download", "diagram.json");
+                     document.body.appendChild(downloadAnchorNode);
+                     downloadAnchorNode.click();
+                     downloadAnchorNode.remove();
                   }}
                >
-                  Export
+                  Download JSON
                </DropdownMenu.Item>
 
                <DropdownMenu.Separator className="my-1 bg-[#636363]" />
@@ -206,6 +260,15 @@ export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.
                         e.preventDefault();
                         return;
                      }
+
+                     const cells = graph.current?.getSelectedCells();
+                     if (!cells || cells.length === 0) {
+                        return;
+                     }
+
+                     for (const cell of cells) {
+                        cell.toFront();
+                     }
                   }}
                >
                   Bring to front
@@ -220,6 +283,20 @@ export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.
                      if (!cellsAreSelected) {
                         e.preventDefault();
                         return;
+                     }
+
+                     const cells = graph.current?.getSelectedCells();
+                     if (!cells || cells.length === 0) {
+                        return;
+                     }
+
+                     for (const cell of cells) {
+                        const zIndex = cell.getZIndex();
+                        if (zIndex === 0) {
+                           return;
+                        }
+
+                        cell.setZIndex(zIndex + 1);
                      }
                   }}
                >
@@ -236,6 +313,20 @@ export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.
                         e.preventDefault();
                         return;
                      }
+
+                     const cells = graph.current?.getSelectedCells();
+                     if (!cells || cells.length === 0) {
+                        return;
+                     }
+
+                     for (const cell of cells) {
+                        const zIndex = cell.getZIndex();
+                        if (zIndex === 0) {
+                           return;
+                        }
+
+                        cell.setZIndex(zIndex - 1);
+                     }
                   }}
                >
                   Send backward
@@ -250,6 +341,15 @@ export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.
                      if (!cellsAreSelected) {
                         e.preventDefault();
                         return;
+                     }
+
+                     const cells = graph.current?.getSelectedCells();
+                     if (!cells || cells.length === 0) {
+                        return;
+                     }
+
+                     for (const cell of cells) {
+                        cell.toBack();
                      }
                   }}
                >

@@ -10,7 +10,6 @@ import Menu from "@/components/diagram/header/menu";
 import ZoomButton from "@/components/diagram/header/zoom-button";
 import ShareButton from "@/components/diagram/header/share-button";
 import Selector from "@/components/diagram/header/selector";
-import Components from "@/components/diagram/header/components";
 import HandTool from "@/components/diagram/header/hand-tool";
 import AddIssue from "@/components/diagram/header/add-issue";
 import LeftPanel from "@/components/diagram/left-panel";
@@ -90,7 +89,6 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
                      <Menu graph={graph} ready={ready} />
                      <Selector graph={graph} panning={panning} setPanning={setPanning} />
                      <HandTool graph={graph} panning={panning} setPanning={setPanning} />
-                     <Components graph={graph} />
                      <AddIssue graph={ready && graph} diagramId={diagram.id} />
                   </>
                )}
