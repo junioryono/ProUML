@@ -177,7 +177,7 @@ func (d *Diagrams_SDK) GetAllDiagramsIssues(idToken string) ([]models.IssueModel
 			return db.Select("id, name, project_id")
 		}).
 		Preload("Issues.Diagram.Project", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id, name")
+			return db.Select("id, name").Where("id != ?", "default")
 		}).
 		Where("id IN (?)", diagramIDs).
 		Find(&diagrams).Error; err != nil {
