@@ -213,7 +213,7 @@ export default function Index({ stars }: { stars: string }) {
                   </div>
                   <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-2xl">
                      <div className="flex h-[180px] flex-col justify-between rounded-md bg-[#000000] p-6 text-slate-200">
-                        <svg
+                        {/* <svg
                            viewBox="0 0 16 16"
                            xmlns="http://www.w3.org/2000/svg"
                            fill="#ffffff"
@@ -228,6 +228,30 @@ export default function Index({ stars }: { stars: string }) {
                                  fillRule="evenodd"
                                  d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zm-6 8A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm6 0A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm6 0a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1z"
                               ></path>
+                           </g>
+                        </svg> */}
+                        <svg
+                           fill="#ffffff"
+                           className="w-12 h-12"
+                           version="1.1"
+                           id="Layer_1"
+                           xmlns="http://www.w3.org/2000/svg"
+                           viewBox="0 0 512 512"
+                           stroke="#ffffff"
+                        >
+                           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                           <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                           <g id="SVGRepo_iconCarrier">
+                              <g>
+                                 <g>
+                                    <path d="M399.105,60.235h-286.21c-8.836,0-16,7.164-16,16v95.404c0,8.836,7.164,16,16,16h286.21c8.836,0,16-7.164,16-16V76.235 C415.105,67.398,407.941,60.235,399.105,60.235z"></path>{" "}
+                                 </g>
+                              </g>
+                              <g>
+                                 <g>
+                                    <path d="M496,324.362h-31.702v-60.01c0-8.836-7.164-16-16-16H271.996v-28.714h-32v28.714H63.702c-8.836,0-16,7.164-16,16v60.01H16 c-8.836,0-16,7.164-16,16v95.404c0,8.836,7.164,16,16,16h95.404c8.836,0,16-7.164,16-16v-95.404c0-8.836-7.164-16-16-16H79.702 v-44.01h160.293v44.01h-31.698c-8.836,0-16,7.164-16,16v95.404c0,8.836,7.164,16,16,16h95.404c8.836,0,16-7.164,16-16v-95.404 c0-8.836-7.164-16-16-16h-31.707v-44.01h160.302v44.01h-31.702c-8.836,0-16,7.164-16,16v95.404c0,8.836,7.164,16,16,16H496 c8.836,0,16-7.164,16-16v-95.404C512,331.525,504.836,324.362,496,324.362z"></path>{" "}
+                                 </g>
+                              </g>
                            </g>
                         </svg>
                         <div className="space-y-2">

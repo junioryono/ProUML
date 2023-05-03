@@ -18,10 +18,12 @@ import { toast } from "@/ui/toast";
 import * as z from "zod";
 
 export default function DiagramLabel({
+   diagramName: diagramNameProp,
    diagram,
    role,
    wsTimedOut,
 }: {
+   diagramName: string;
    diagram: Diagram;
    role: string;
    wsTimedOut: boolean;
@@ -33,6 +35,11 @@ export default function DiagramLabel({
    const [open, setOpen] = useState(false);
    const [hovered, setHovered] = useState(false);
    const router = useRouter();
+
+   // if the diagram name changes, update the diagram name
+   useEffect(() => {
+      setDiagramName(diagramNameProp);
+   }, [diagramNameProp]);
 
    // open the arrow when the dropdown menu is open or hovered
    useEffect(() => {

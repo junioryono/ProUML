@@ -97,7 +97,7 @@ export default function DiagramLayout({ user, role, diagram }: { user: User; rol
             </div>
 
             {/* diagram label w proj (if has one), diagram name, and diagram settings dropdown */}
-            <DiagramLabel diagram={diagram} role={role} wsTimedOut={wsTimedOut} />
+            <DiagramLabel diagramName={diagramName} diagram={diagram} role={role} wsTimedOut={wsTimedOut} />
 
             <div className="flex h-full items-center">
                {!wsTimedOut && (
