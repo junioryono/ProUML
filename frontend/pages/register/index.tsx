@@ -9,7 +9,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "@/ui/toast";
 import { useState } from "react";
 import * as z from "zod";
-
+import SignUpPicture from "../../public/images/SignUpPicture.png";
+import Image from "next/image";
 import { LoginProviders } from "@/components/auth/login-providers";
 import { Icons } from "@/components/icons";
 
@@ -66,7 +67,9 @@ export default function Index() {
             >
                Login
             </Link>
-            <div className="hidden h-full bg-slate-100 lg:block" />
+            <div className="hidden h-full bg-slate-100 lg:block">
+               <Image src={SignUpPicture} alt="Sign up picture" className="h-full w-full object-cover blur-sm opacity-50" />
+            </div>
             <div className="lg:p-8">
                <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
                   <div className="flex flex-col space-y-2 text-center">
