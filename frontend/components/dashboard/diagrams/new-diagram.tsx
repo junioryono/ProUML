@@ -12,7 +12,8 @@ export default function NewDiagram({ className, project, ...props }: NewDiagramP
    return (
       <div
          className={cn(
-            "flex lg:flex-wrap max-w-[calc(100vw-3rem)] overflow-x-auto overflow-y-hidden mb-4 px-3 pt-4 bg-slate-100 rounded-md rounded-t-none",
+            //"flex lg:flex-wrap max-w-[calc(100vw-3rem)] overflow-x-auto overflow-y-hidden mb-4 px-3 pt-4 bg-slate-100 rounded-md rounded-t-none",
+            "flex max-w-[calc(100vw-20rem)] overflow-x-scroll overflow-y-hidden mb-4 px-3 pt-4 bg-slate-100 rounded-md rounded-t-none no-scrollbar",
             className,
          )}
          {...props}

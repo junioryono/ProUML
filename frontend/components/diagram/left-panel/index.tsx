@@ -86,6 +86,11 @@ export default function LeftPanel({
       graph.current?.on("node:change:name", () => {
          setNodes(graph.current?.getNodes() || []);
       });
+
+      // Need to change to lock icon in the left panel when the node is locked in the graph
+      graph.current?.on("node:change:lock", () => {
+         setNodes(graph.current?.getNodes() || []);
+      });
    }, [graph]);
 
    useEffect(() => {}, [selectedCells]);
@@ -93,13 +98,6 @@ export default function LeftPanel({
    useEffect(() => {
       console.log("selectedIssue", selectedIssue);
    }, [selectedIssue]);
-
-   // listen for node lock/unlock events
-   useEffect(() => {
-      graph.current?.on("node:change:locked", ({ node }) => {
-         setNodes(graph.current?.getNodes() || []);
-      });
-   }, [graph]);
 
    return (
       <div className="w-60 h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
@@ -310,8 +308,7 @@ export default function LeftPanel({
                               ></path>
                            </g>
                         </svg>
-                        There are no nodes in this diagram! Click the "+" button to add a node, or drag a template onto the
-                        diagram.
+                        There are no nodes in this diagram! Click the "+" button to add a node.
                      </div>
                   </div>
                )}
@@ -372,6 +369,7 @@ export default function LeftPanel({
                                     xmlns="http://www.w3.org/2000/svg"
                                     width={16}
                                     height={16}
+                                    className="duration-500 hover:scale-[1.2]"
                                     onClick={(e) => {
                                        e.stopPropagation();
 
@@ -393,6 +391,7 @@ export default function LeftPanel({
                                        xmlns="http://www.w3.org/2000/svg"
                                        width={16}
                                        height={16}
+                                       className="duration-500 hover:scale-[1.2]"
                                        onClick={(e) => {
                                           e.stopPropagation();
 

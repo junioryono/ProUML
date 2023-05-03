@@ -51,10 +51,10 @@ export default function TemplateItem({ template, project }: { template: DiagramT
    }
 
    return (
-      <div className="w-36 lg:w-1/5 xl:w-1/7 h-52 mb-4 mr-3 lg:mr-0">
+      <div className="w-36 h-52 mb-4 mr-3">
          <div
             className={cn(
-               "w-[inherit] lg:w-auto m-1 flex flex-col items-center justify-center pt-5 pb-6 border-gray-150 border rounded-md bg-white h-full text-center",
+               "w-[inherit] m-1 flex flex-col items-center justify-center pt-5 pb-6 border-gray-150 border rounded-md bg-white h-full text-center",
                !isLoading && "cursor-pointer hover:border-blue-500",
             )}
             onClick={onClickHandler}

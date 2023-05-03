@@ -67,8 +67,8 @@ export default function ImportItem({ project }: { project?: Project }) {
    }
 
    return (
-      <div className="w-36 lg:w-1/5 xl:w-1/7 mb-4 mr-3 lg:mr-0">
-         <div className="w-[inherit] lg:w-auto flex items-center justify-center m-1">
+      <div className="w-36 mb-4 mr-3">
+         <div className="w-[inherit] flex items-center justify-center m-1">
             <label
                htmlFor="dropzone-file"
                className={cn(
