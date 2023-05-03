@@ -12,7 +12,7 @@ export default function NewDiagram({ className, project, ...props }: NewDiagramP
    return (
       <div
          className={cn(
-            "flex lg:flex-wrap max-w-[calc(100vw-3rem)] mb-4 px-3 pt-4 bg-slate-100 rounded-md rounded-t-none overflow-x-auto no-scrollbar",
+            "flex lg:flex-wrap max-w-[calc(100vw-3rem)] overflow-x-auto overflow-y-hidden mb-4 px-3 pt-4 bg-slate-100 rounded-md rounded-t-none",
             className,
          )}
          {...props}
@@ -56,69 +56,69 @@ const templates: DiagramTemplate[] = [
       label: "Singleton",
       image: "https://refactoring.guru/images/patterns/cards/singleton-mini.png?id=914e1565dfdf15f240e766163bd303ec",
    },
-   // {
-   //    name: "adapter",
-   //    label: "Adapter",
-   //    image: "",
-   // },
-   // {
-   //    name: "bridge",
-   //    label: "Bridge",
-   //    image: "",
-   // },
-   // {
-   //    name: "composite",
-   //    label: "Composite",
-   //    image: "",
-   // },
-   // {
-   //    name: "decorator",
-   //    label: "Decorator",
-   //    image: "",
-   // },
-   // {
-   //    name: "facade",
-   //    label: "Facade",
-   //    image: "",
-   // },
-   // {
-   //    name: "flyweight",
-   //    label: "Flyweight",
-   //    image: "",
-   // },
-   // {
-   //    name: "proxy",
-   //    label: "Proxy",
-   //    image: "",
-   // },
-   // {
-   //    name: "chain_of_responsibility",
-   //    label: "Chain of Responsibility",
-   //    image: "",
-   // },
-   // {
-   //    name: "command",
-   //    label: "Command",
-   //    image: "",
-   // },
-   // {
-   //    name: "interpreter",
-   //    label: "Interpreter",
-   //    image: "",
-   // },
-   // {
-   //    name: "iterator",
-   //    label: "Iterator",
-   //    image: "",
-   // },
-   // {
-   //    name: "mediator",
-   //    label: "Mediator",
-   //    image: "",
-   // },
-   // {
-   //    name: "memento",
-   //    label: "Memento",
-   //    image: "",
-   // },
+   {
+      name: "adapter",
+      label: "Adapter",
+      image: "",
+   },
+   {
+      name: "bridge",
+      label: "Bridge",
+      image: "",
+   },
+   {
+      name: "composite",
+      label: "Composite",
+      image: "",
+   },
+   {
+      name: "decorator",
+      label: "Decorator",
+      image: "",
+   },
+   {
+      name: "facade",
+      label: "Facade",
+      image: "",
+   },
+   {
+      name: "flyweight",
+      label: "Flyweight",
+      image: "",
+   },
+   {
+      name: "proxy",
+      label: "Proxy",
+      image: "",
+   },
+   {
+      name: "chain_of_responsibility",
+      label: "Chain of Responsibility",
+      image: "",
+   },
+   {
+      name: "command",
+      label: "Command",
+      image: "",
+   },
+   {
+      name: "interpreter",
+      label: "Interpreter",
+      image: "",
+   },
+   {
+      name: "iterator",
+      label: "Iterator",
+      image: "",
+   },
+   {
+      name: "mediator",
+      label: "Mediator",
+      image: "",
+   },
+   {
+      name: "memento",
+      label: "Memento",
+      image: "",
+   },
 ];

@@ -12,17 +12,27 @@ export default function IssuePanel({ issue }: { issue: Issue }) {
    return (
       <>
          {/* ---------------------- ISSUE SETTINGS SECTION ---------------------- */}
-         <div className="font-bold mb-1">Issue</div>
-         <div className="font-bold">{issue.title}</div>
-
-         <div>{issueDate}</div>
-         <div>Created by:</div>
-         <div>{issue.created_by.full_name}</div>
-         <div>{issue.description}</div>
-         <div
-            className={cn("flex justify-center h-48 my-4 overflow-hidden", issue.connected_cells.length > 1 && "h-60")}
-            dangerouslySetInnerHTML={{ __html: issue.image }}
+         <div className="flex flex-row justify-between">
+            <label className="font-bold mb-1 text-left">Issue Name</label>
+            <div className="flex justify-end text-gray-500">{issueDate}</div>
+         </div>
+         <input
+            className="border border-gray-400 p-2 rounded-lg shadow-md focus:outline-none hover:border-gray-500 focus:border-gray-500 focus:border-transparent"
+            value={issue.title}
          />
+
+         <label className="font-bold mb-1 mt-4 text-left">Issue Description</label>
+         <textarea
+            className="border border-gray-400 p-2 mb-2 rounded-lg shadow-md focus:outline-none hover:border-gray-500 focus:border-gray-500 focus:border-transparent h-32"
+            value={issue.description}
+         ></textarea>
+
+         <div className="flex flex-row pt-2 pb-3 items-center justify-center text-gray-500">
+            <div className="pr-1">Created by:</div>
+            <div className="text-center">{issue.created_by.full_name}</div>
+         </div>
+
+         <hr className="border-slate-400" />
       </>
    );
 }

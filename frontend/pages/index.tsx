@@ -442,7 +442,7 @@ export default function Index({ stars }: { stars: string }) {
                   <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
                      Proudly Open Source
                   </h2>
-                  <p className="max-w-[85%] leading-normal text-slate-700 sm:text-lg sm:leading-7">
+                  <p className="leading-normal text-slate-700 sm:text-lg sm:leading-7">
                      ProUML is open source and is powered by open source software. The code is available on{" "}
                      <Link
                         href="https://github.com/junioryono/prouml"
