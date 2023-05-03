@@ -6,7 +6,15 @@ import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.Graph>; ready: boolean }) {
+export default function Menu({
+   graph,
+   ready,
+   diagramName,
+}: {
+   graph: MutableRefObject<X6Type.Graph>;
+   ready: boolean;
+   diagramName: string;
+}) {
    const [openArrow, setOpenArrow] = useState(false);
 
    const [open, setOpen] = useState(false);
@@ -147,7 +155,7 @@ export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.
                      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cells));
                      const downloadAnchorNode = document.createElement("a");
                      downloadAnchorNode.setAttribute("href", dataStr);
-                     downloadAnchorNode.setAttribute("download", "diagram.json");
+                     downloadAnchorNode.setAttribute("download", `${diagramName}.json`);
                      document.body.appendChild(downloadAnchorNode);
                      downloadAnchorNode.click();
                      downloadAnchorNode.remove();
