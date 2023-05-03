@@ -59,66 +59,61 @@ const templates: DiagramTemplate[] = [
    {
       name: "adapter",
       label: "Adapter",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/adapter-mini-2x.png",
    },
    {
       name: "bridge",
       label: "Bridge",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/bridge-mini-2x.png",
    },
    {
       name: "composite",
       label: "Composite",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/composite-mini-2x.png",
    },
    {
       name: "decorator",
       label: "Decorator",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/decorator-mini-2x.png",
    },
    {
       name: "facade",
       label: "Facade",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/facade-mini-2x.png",
    },
    {
       name: "flyweight",
       label: "Flyweight",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/flyweight-mini-2x.png",
    },
    {
       name: "proxy",
       label: "Proxy",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/proxy-mini-2x.png",
    },
    {
       name: "chain_of_responsibility",
       label: "Chain of Responsibility",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/chain-of-responsibility-mini-2x.png",
    },
    {
       name: "command",
       label: "Command",
-      image: "",
-   },
-   {
-      name: "interpreter",
-      label: "Interpreter",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/command-mini-2x.png",
    },
    {
       name: "iterator",
       label: "Iterator",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/iterator-mini-2x.png",
    },
    {
       name: "mediator",
       label: "Mediator",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/mediator-mini-2x.png",
    },
    {
       name: "memento",
       label: "Memento",
-      image: "",
+      image: "https://refactoring.guru/images/patterns/cards/memento-mini-2x.png",
    },
 ];

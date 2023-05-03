@@ -3,6 +3,7 @@ import { MutableRefObject, useEffect, useMemo, useState } from "react";
 import { lightColorOptions } from "../styling-options/colors";
 import { Issue } from "types";
 import { cn, formatTime } from "@/lib/utils";
+import Image from "next/image";
 
 export default function IssuePanel({ issue }: { issue: Issue }) {
    console.log("issue", issue);
@@ -17,18 +18,27 @@ export default function IssuePanel({ issue }: { issue: Issue }) {
             <div className="flex justify-end text-gray-500">{issueDate}</div>
          </div>
          <input
-            className="border border-gray-400 p-2 rounded-lg shadow-md focus:outline-none hover:border-gray-500 focus:border-gray-500 focus:border-transparent"
+            className="border bg-slate-200 border-gray-400 p-2 rounded-lg shadow-md focus:outline-none hover:border-gray-500 focus:border-gray-500 "
             value={issue.title}
          />
 
          <label className="font-bold mb-1 mt-4 text-left">Issue Description</label>
          <textarea
-            className="border border-gray-400 p-2 mb-2 rounded-lg shadow-md focus:outline-none hover:border-gray-500 focus:border-gray-500 focus:border-transparent h-32"
+            className="border bg-slate-200 border-gray-400 p-2 mb-2 rounded-lg shadow-md focus:outline-none hover:border-gray-500 focus:border-gray-500 h-32"
             value={issue.description}
          ></textarea>
 
-         <div className="flex flex-row pt-2 pb-3 items-center justify-center text-gray-500">
+         <div className="flex pt-2 pb-3 items-center justify-center text-gray-500">
             <div className="pr-1">Created by:</div>
+            <div>
+               <Image
+                  src={issue.created_by.picture}
+                  width={30}
+                  height={30}
+                  className="rounded-full border-2 border-double -ml-4 only:ml-0"
+                  alt="avatar"
+               />
+            </div>
             <div className="text-center">{issue.created_by.full_name}</div>
          </div>
 
