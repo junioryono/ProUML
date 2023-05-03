@@ -84,216 +84,177 @@ export default function Menu({ graph, ready }: { graph: MutableRefObject<X6Type.
 
                <DropdownMenu.Separator className="my-1 bg-[#636363]" />
 
-               <SubDropdownMenu>
-                  <SubDropdownMenu.Trigger>
-                     <div>File</div>
-                     <SubDropdownMenu.Arrow />
-                  </SubDropdownMenu.Trigger>
-                  <SubDropdownMenu.Content>
-                     <DropdownMenu.Item
-                        className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
-                        onSelect={(e) => {
-                           e.preventDefault();
-                        }}
-                     >
-                        Import
-                     </DropdownMenu.Item>
+               <DropdownMenu.Item
+                  className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
+                  onSelect={(e) => {
+                     e.preventDefault();
+                  }}
+               >
+                  Import
+               </DropdownMenu.Item>
 
-                     <DropdownMenu.Item
-                        className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
-                        onSelect={(e) => {
-                           e.preventDefault();
-                        }}
-                     >
-                        Export
-                     </DropdownMenu.Item>
-                  </SubDropdownMenu.Content>
-               </SubDropdownMenu>
-
-               <SubDropdownMenu>
-                  <SubDropdownMenu.Trigger>
-                     <div>Edit</div>
-                     <SubDropdownMenu.Arrow />
-                  </SubDropdownMenu.Trigger>
-                  <SubDropdownMenu.Content>
-                     <DropdownMenu.Item
-                        className={cn(
-                           "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
-                           !canUndo && "opacity-50",
-                        )}
-                        onSelect={(e) => {
-                           if (!canUndo) {
-                              e.preventDefault();
-                              return;
-                           }
-
-                           graph.current?.undo();
-                        }}
-                     >
-                        Undo
-                     </DropdownMenu.Item>
-                     <DropdownMenu.Item
-                        className={cn(
-                           "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
-                           !canRedo && "opacity-50",
-                        )}
-                        onSelect={(e) => {
-                           if (!canRedo) {
-                              e.preventDefault();
-                              return;
-                           }
-
-                           graph.current?.redo();
-                        }}
-                     >
-                        Redo
-                     </DropdownMenu.Item>
-                     <DropdownMenu.Item
-                        className={cn(
-                           "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
-                           !cellsAreSelected && "opacity-50",
-                        )}
-                        onSelect={(e) => {
-                           if (!cellsAreSelected) {
-                              e.preventDefault();
-                              return;
-                           }
-
-                           const cells = graph.current?.getSelectedCells();
-                           if (!cells) {
-                              return;
-                           }
-
-                           // Start batch
-                           graph.current?.startBatch("Duplicate");
-
-                           let clonedCells: X6Type.Cell<X6Type.Cell.Properties>[] = [];
-                           for (const cell of cells) {
-                              const clone = cell.clone();
-                              clone.translate(20, 20);
-                              graph.current?.addCell(clone);
-                              clonedCells.push(clone);
-                           }
-
-                           // Select cloned cells
-                           graph.current?.resetSelection(clonedCells);
-
-                           // End batch
-                           graph.current?.stopBatch("Duplicate");
-                        }}
-                     >
-                        Duplicate
-                     </DropdownMenu.Item>
-                     <DropdownMenu.Item
-                        className={cn(
-                           "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
-                           !cellsAreSelected && "opacity-50",
-                        )}
-                        onSelect={(e) => {
-                           if (!cellsAreSelected) {
-                              e.preventDefault();
-                              return;
-                           }
-
-                           const cells = graph.current?.getSelectedCells();
-                           if (!cells || cells.length === 0) {
-                              return;
-                           }
-
-                           graph.current.removeCells(cells);
-                        }}
-                     >
-                        Delete
-                     </DropdownMenu.Item>
-                  </SubDropdownMenu.Content>
-               </SubDropdownMenu>
-
-               <SubDropdownMenu>
-                  <SubDropdownMenu.Trigger>
-                     <div>View</div>
-                     <SubDropdownMenu.Arrow />
-                  </SubDropdownMenu.Trigger>
-                  <SubDropdownMenu.Content>
-                     <DropdownMenu.Item
-                        className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
-                        onSelect={(e) => {
-                           e.preventDefault();
-                        }}
-                     >
-                        New
-                     </DropdownMenu.Item>
-                  </SubDropdownMenu.Content>
-               </SubDropdownMenu>
-
-               <SubDropdownMenu>
-                  <SubDropdownMenu.Trigger>
-                     <div>Object</div>
-                     <SubDropdownMenu.Arrow />
-                  </SubDropdownMenu.Trigger>
-                  <SubDropdownMenu.Content>
-                     <DropdownMenu.Item
-                        className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
-                        onSelect={(e) => {
-                           e.preventDefault();
-                        }}
-                     >
-                        New
-                     </DropdownMenu.Item>
-                  </SubDropdownMenu.Content>
-               </SubDropdownMenu>
-
-               <SubDropdownMenu>
-                  <SubDropdownMenu.Trigger>
-                     <div>Text</div>
-                     <SubDropdownMenu.Arrow />
-                  </SubDropdownMenu.Trigger>
-                  <SubDropdownMenu.Content>
-                     <DropdownMenu.Item
-                        className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
-                        onSelect={(e) => {
-                           e.preventDefault();
-                        }}
-                     >
-                        New
-                     </DropdownMenu.Item>
-                  </SubDropdownMenu.Content>
-               </SubDropdownMenu>
-
-               <SubDropdownMenu>
-                  <SubDropdownMenu.Trigger>
-                     <div>Arrange</div>
-                     <SubDropdownMenu.Arrow />
-                  </SubDropdownMenu.Trigger>
-                  <SubDropdownMenu.Content>
-                     <DropdownMenu.Item
-                        className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
-                        onSelect={(e) => {
-                           e.preventDefault();
-                        }}
-                     >
-                        New
-                     </DropdownMenu.Item>
-                  </SubDropdownMenu.Content>
-               </SubDropdownMenu>
+               <DropdownMenu.Item
+                  className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
+                  onSelect={(e) => {
+                     e.preventDefault();
+                  }}
+               >
+                  Export
+               </DropdownMenu.Item>
 
                <DropdownMenu.Separator className="my-1 bg-[#636363]" />
 
-               <SubDropdownMenu>
-                  <SubDropdownMenu.Trigger>
-                     <div>Preferences</div>
-                     <SubDropdownMenu.Arrow />
-                  </SubDropdownMenu.Trigger>
-                  <SubDropdownMenu.Content>
-                     <DropdownMenu.Item
-                        className="text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
-                        onSelect={(e) => {
-                           e.preventDefault();
-                        }}
-                     >
-                        New
-                     </DropdownMenu.Item>
-                  </SubDropdownMenu.Content>
-               </SubDropdownMenu>
+               <DropdownMenu.Item
+                  className={cn(
+                     "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                     !canUndo && "opacity-50",
+                  )}
+                  onSelect={(e) => {
+                     if (!canUndo) {
+                        e.preventDefault();
+                        return;
+                     }
+
+                     graph.current?.undo();
+                  }}
+               >
+                  Undo
+               </DropdownMenu.Item>
+               <DropdownMenu.Item
+                  className={cn(
+                     "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                     !canRedo && "opacity-50",
+                  )}
+                  onSelect={(e) => {
+                     if (!canRedo) {
+                        e.preventDefault();
+                        return;
+                     }
+
+                     graph.current?.redo();
+                  }}
+               >
+                  Redo
+               </DropdownMenu.Item>
+               <DropdownMenu.Item
+                  className={cn(
+                     "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                     !cellsAreSelected && "opacity-50",
+                  )}
+                  onSelect={(e) => {
+                     if (!cellsAreSelected) {
+                        e.preventDefault();
+                        return;
+                     }
+
+                     const cells = graph.current?.getSelectedCells();
+                     if (!cells) {
+                        return;
+                     }
+
+                     // Start batch
+                     graph.current?.startBatch("Duplicate");
+
+                     let clonedCells: X6Type.Cell<X6Type.Cell.Properties>[] = [];
+                     for (const cell of cells) {
+                        const clone = cell.clone();
+                        clone.translate(20, 20);
+                        graph.current?.addCell(clone);
+                        clonedCells.push(clone);
+                     }
+
+                     // Select cloned cells
+                     graph.current?.resetSelection(clonedCells);
+
+                     // End batch
+                     graph.current?.stopBatch("Duplicate");
+                  }}
+               >
+                  Duplicate
+               </DropdownMenu.Item>
+               <DropdownMenu.Item
+                  className={cn(
+                     "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                     !cellsAreSelected && "opacity-50",
+                  )}
+                  onSelect={(e) => {
+                     if (!cellsAreSelected) {
+                        e.preventDefault();
+                        return;
+                     }
+
+                     const cells = graph.current?.getSelectedCells();
+                     if (!cells || cells.length === 0) {
+                        return;
+                     }
+
+                     graph.current.removeCells(cells);
+                  }}
+               >
+                  Delete
+               </DropdownMenu.Item>
+
+               <DropdownMenu.Separator className="my-1 bg-[#636363]" />
+
+               <DropdownMenu.Item
+                  className={cn(
+                     "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                     !cellsAreSelected && "opacity-50",
+                  )}
+                  onSelect={(e) => {
+                     if (!cellsAreSelected) {
+                        e.preventDefault();
+                        return;
+                     }
+                  }}
+               >
+                  Bring to front
+               </DropdownMenu.Item>
+
+               <DropdownMenu.Item
+                  className={cn(
+                     "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                     !cellsAreSelected && "opacity-50",
+                  )}
+                  onSelect={(e) => {
+                     if (!cellsAreSelected) {
+                        e.preventDefault();
+                        return;
+                     }
+                  }}
+               >
+                  Bring forward
+               </DropdownMenu.Item>
+
+               <DropdownMenu.Item
+                  className={cn(
+                     "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                     !cellsAreSelected && "opacity-50",
+                  )}
+                  onSelect={(e) => {
+                     if (!cellsAreSelected) {
+                        e.preventDefault();
+                        return;
+                     }
+                  }}
+               >
+                  Send backward
+               </DropdownMenu.Item>
+
+               <DropdownMenu.Item
+                  className={cn(
+                     "text-white text-xs pl-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white",
+                     !cellsAreSelected && "opacity-50",
+                  )}
+                  onSelect={(e) => {
+                     if (!cellsAreSelected) {
+                        e.preventDefault();
+                        return;
+                     }
+                  }}
+               >
+                  Send to back
+               </DropdownMenu.Item>
             </DropdownMenu.Content>
          </DropdownMenu.Portal>
       </DropdownMenu>

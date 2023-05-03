@@ -7,7 +7,7 @@ function addPorts(node: X6Type.Node) {
    const existingPorts = node.getPorts();
    const existingPortIds = existingPorts.map((port) => port.id);
    const newPortPropsToAdd = newPortProps.filter((portProp) => !existingPortIds.includes(portProp.id));
-   node.addPorts(newPortPropsToAdd, { silent: true, ignoreHistory: true });
+   node.addPorts(newPortPropsToAdd, { ignoreHistory: true });
 }
 
 function addAllPorts(graph: X6Type.Graph) {

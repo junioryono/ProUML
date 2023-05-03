@@ -29,6 +29,29 @@ type Node struct {
 	Data any // Holds JavaAbstract | JavaClass | JavaInterface | JavaEnum
 }
 
+type Edge struct {
+	EdgeType string             `json:"edgeType"`
+	ID       string             `json:"id"`
+	Shape    string             `json:"shape"`
+	Source   EdgeNodeConnection `json:"source"`
+	Target   EdgeNodeConnection `json:"target"`
+}
+
+type EdgeNodeConnection struct {
+	CellId          string              `json:"cell"`
+	ConnectionPoint EdgeConnectionPoint `json:"connectionPoint"`
+	Port            string              `json:"port"`
+}
+
+type EdgeConnectionPoint struct {
+	Args EdgeConnectionPointArgs `json:"args"`
+	Name string                  `json:"name"`
+}
+
+type EdgeConnectionPointArgs struct {
+	Offset float64 `json:"offset"`
+}
+
 type Relation struct {
 	FromClassId CustomByteSlice `json:"fromClassId"`
 	ToClassId   CustomByteSlice `json:"toClassId"`
@@ -40,6 +63,7 @@ type RelationData interface {
 	GetToArrow() bool
 	SetFromArrow(bool)
 	SetToArrow(bool)
+	GetType() string
 }
 
 type Association struct {
@@ -67,6 +91,10 @@ func (t *Association) SetToArrow(value bool) {
 	t.ToArrow = value
 }
 
+func (t Association) GetType() string {
+	return "association"
+}
+
 type Dependency struct {
 	FromArrow bool `json:"fromArrow"`
 	ToArrow   bool `json:"toArrow"`
@@ -90,6 +118,10 @@ func (t *Dependency) SetFromArrow(value bool) {
 
 func (t *Dependency) SetToArrow(value bool) {
 	t.ToArrow = value
+}
+
+func (t Dependency) GetType() string {
+	return "dependency"
 }
 
 type Realization struct {
@@ -119,6 +151,10 @@ func (t *Realization) SetToArrow(value bool) {
 	t.ToArrow = value
 }
 
+func (t Realization) GetType() string {
+	return "realization"
+}
+
 type Generalization struct {
 	FromArrow bool `json:"fromArrow"`
 	ToArrow   bool `json:"toArrow"`
@@ -146,6 +182,10 @@ func (t *Generalization) SetToArrow(value bool) {
 	t.ToArrow = value
 }
 
+func (t Generalization) GetType() string {
+	return "generalization"
+}
+
 type NestedOwnership struct {
 	FromArrow bool `json:"fromArrow"`
 	ToArrow   bool `json:"toArrow"`
@@ -171,4 +211,8 @@ func (t *NestedOwnership) SetFromArrow(value bool) {
 func (t *NestedOwnership) SetToArrow(value bool) {
 	t.FromArrow = !value
 	t.ToArrow = value
+}
+
+func (t NestedOwnership) GetType() string {
+	return "nestedOwnership"
 }

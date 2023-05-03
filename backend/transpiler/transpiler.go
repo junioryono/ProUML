@@ -4,16 +4,20 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"math"
 	"path/filepath"
 	"reflect"
+	"strconv"
+	"strings"
 
 	"github.com/fogleman/gg"
+	"github.com/goccy/go-graphviz"
+	"github.com/goccy/go-graphviz/cgraph"
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/transpiler/java"
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 	httpTypes "github.com/junioryono/ProUML/backend/types"
-	"github.com/yourbasic/graph"
 )
 
 var (
@@ -109,163 +113,215 @@ func contains(s []string, e string) string {
 func generateDiagramLayout(project *types.Project) []any {
 	var diagramContent []any
 
+	g := graphviz.New()
+	graph, _ := g.Graph()
+	defer graph.Close()
+
+	graph.Set("nodesep", "2")   // Adjust node separation
+	graph.Set("ranksep", "2.5") // Adjust rank separation
+
+	nodeGroups := groupNodes(project.Nodes, project.Edges)
+
+	// Create subgraphs for each group of nodes
+	subgraphs := make(map[int]*cgraph.Graph)
+	for _, groupNumber := range nodeGroups {
+		subgraph := graph.SubGraph(fmt.Sprintf("cluster_%d", groupNumber), 1)
+		subgraphs[groupNumber] = subgraph
+	}
+
 	for i := 0; i < len(project.Nodes); i++ {
+		nodeClassId := getNodeClassId(project.Nodes[i])
+		var gN *cgraph.Node
+		var err error
+
+		// Add the node to the appropriate subgraph
+		if groupNumber, ok := nodeGroups[string(nodeClassId)]; ok {
+			gN, err = subgraphs[groupNumber].CreateNode(string(nodeClassId))
+		} else {
+			gN, err = graph.CreateNode(string(nodeClassId))
+		}
+
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
 		switch node := project.Nodes[i].(type) {
 		case types.JavaAbstract:
 			node.ID = uuid.New().String()
 			node.Type = "abstract"
 			node.Shape = "custom-class"
 			node.Width, node.Height = getNodeSize(node.Name, node.Variables, node.Methods, nil, false)
+			gN.SetWidth(node.Width)
+			gN.SetHeight(node.Height)
 			project.Nodes[i] = node
 		case types.JavaClass:
 			node.ID = uuid.New().String()
 			node.Type = "class"
 			node.Shape = "custom-class"
 			node.Width, node.Height = getNodeSize(node.Name, node.Variables, node.Methods, nil, false)
+			gN.SetWidth(node.Width)
+			gN.SetHeight(node.Height)
 			project.Nodes[i] = node
 		case types.JavaEnum:
 			node.ID = uuid.New().String()
 			node.Type = "enum"
 			node.Shape = "custom-class"
 			node.Width, node.Height = getNodeSize(node.Name, nil, nil, node.Declarations, true)
+			gN.SetWidth(node.Width)
+			gN.SetHeight(node.Height)
 			project.Nodes[i] = node
 		case types.JavaInterface:
 			node.ID = uuid.New().String()
 			node.Type = "interface"
 			node.Shape = "custom-class"
 			node.Width, node.Height = getNodeSize(node.Name, node.Variables, node.Methods, nil, true)
+			gN.SetWidth(node.Width)
+			gN.SetHeight(node.Height)
 			project.Nodes[i] = node
 		}
 	}
 
-	nodeGroups, edgeGroups := groupNodesandEdges(project.Nodes, project.Edges)
+	// Set all edges
+	for _, edge := range project.Edges {
+		// Find the source and target in graph
+		source, err := graph.Node(string(edge.FromClassId))
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
 
-	err := setNodeCoordinates(project.Nodes, nodeGroups, project.Edges, edgeGroups)
-	if err != nil {
+		target, err := graph.Node(string(edge.ToClassId))
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		graph.CreateEdge(uuid.New().String(), source, target)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+	}
+
+	// Generate layout
+	var buf bytes.Buffer
+	if err := g.Render(graph, graphviz.Format(graphviz.DOT), &buf); err != nil {
 		fmt.Println(err)
 		return nil
+	}
+
+	// Read the graph with the layout information
+	layoutGraph, _ := graphviz.ParseBytes(buf.Bytes())
+	defer layoutGraph.Close()
+
+	// Extract node position
+	for i := 0; i < len(project.Nodes); i++ {
+		nodeClassId := getNodeClassId(project.Nodes[i])
+
+		layoutNode, err := layoutGraph.Node(string(nodeClassId))
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		pos := layoutNode.Get("pos")
+		fmt.Printf("Node %s: pos=%s\n", nodeClassId, pos)
+
+		// Split the pos string and convert to float64
+		posParts := strings.Split(pos, ",")
+		x, err := strconv.ParseFloat(posParts[0], 64)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		y, err := strconv.ParseFloat(posParts[1], 64)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		// Scale the positions
+		x *= 0.015
+		y *= 0.025
+
+		// Set the position of the node
+		switch node := project.Nodes[i].(type) {
+		case types.JavaAbstract:
+			node.Position.X = x
+			node.Position.Y = y
+			project.Nodes[i] = node
+		case types.JavaClass:
+			node.Position.X = x
+			node.Position.Y = y
+			project.Nodes[i] = node
+		case types.JavaEnum:
+			node.Position.X = x
+			node.Position.Y = y
+			project.Nodes[i] = node
+		case types.JavaInterface:
+			node.Position.X = x
+			node.Position.Y = y
+			project.Nodes[i] = node
+		}
 	}
 
 	// Add nodes to diagramContent
 	diagramContent = append(diagramContent, project.Nodes...)
 
-	// Add connections to diagramContent
+	// Iterate over the edges
+	for _, edge := range project.Edges {
+		edgeType := edge.Type.GetType()
+		edgeId := uuid.New().String()
+		edgeShape := "edge"
+
+		// Get the source and target node positions
+		sourceNode := project.Nodes[getNodeIndexById(project.Nodes, edge.FromClassId)]
+		targetNode := project.Nodes[getNodeIndexById(project.Nodes, edge.ToClassId)]
+
+		sourceId := getNodeId(sourceNode)
+		targetId := getNodeId(targetNode)
+
+		sourceX := getNodePositionX(sourceNode)
+		sourceY := getNodePositionY(sourceNode)
+		targetX := getNodePositionX(targetNode)
+		targetY := getNodePositionY(targetNode)
+
+		// Calculate the correct ports based on node positions
+		sourcePort, targetPort := selectPort(sourceX, sourceY, targetX, targetY)
+
+		// Create an Edge instance and set its properties
+		diagramEdge := types.Edge{
+			EdgeType: edgeType,
+			ID:       edgeId,
+			Shape:    edgeShape,
+			Source: types.EdgeNodeConnection{
+				CellId: sourceId,
+				ConnectionPoint: types.EdgeConnectionPoint{
+					Args: types.EdgeConnectionPointArgs{
+						Offset: 0,
+					},
+					Name: "anchor",
+				},
+				Port: sourcePort,
+			},
+			Target: types.EdgeNodeConnection{
+				CellId: targetId,
+				ConnectionPoint: types.EdgeConnectionPoint{
+					Args: types.EdgeConnectionPointArgs{
+						Offset: 0,
+					},
+					Name: "anchor",
+				},
+				Port: targetPort,
+			},
+		}
+
+		// Add the edge to diagramContent
+		diagramContent = append(diagramContent, diagramEdge)
+	}
 
 	return diagramContent
-}
-
-func setNodeCoordinates(nodes []any, nodeGroups [][]any, edges []types.Relation, edgeGroups [][]int) error {
-	//loop through the nodes and print their id
-	for i := 0; i < len(nodes); i++ {
-		fmt.Printf("ID: %s\n", string(getNodeClassId(nodes[i])))
-	}
-
-	// Create a directed graph with your nodes.
-	g := graph.New(len(nodeGroups))
-	for i := 0; i < len(edgeGroups); i++ {
-		for j := 0; j < len(edgeGroups[i]); j++ {
-			g.Add(i, edgeGroups[i][j])
-		}
-	}
-
-	// Perform a topological sort on the graph.
-	groupOrdered, ok := graph.TopSort(g)
-	if !ok {
-		fmt.Println("A cycle exists in the graph.")
-		return errors.New("a cycle exists in the graph")
-	}
-
-	var (
-		layers [][]any
-		layer  int = 0
-	)
-	for _, i := range groupOrdered {
-		// iterate through the nodes in the group and add them to the ordered array at the current layer
-		for j := 0; j < len(nodeGroups[i]); j++ {
-			if len(layers) <= layer {
-				layers = append(layers, []any{})
-			}
-			layers[layer] = append(layers[layer], nodeGroups[i][j])
-		}
-
-		if g.Degree(i) > 0 {
-			layer++
-		}
-	}
-
-	// Calculate the x and y coordinates for each node.
-	var (
-		previousLayerEndY float64 = 0
-		paddingY          float64 = 50
-		paddingX          float64 = 50
-	)
-
-	for i := 0; i < len(layers); i++ {
-		var totalWidth float64 = 0
-		var highestHeight float64 = 0
-		var currentX float64 = 0
-
-		// Loop through the nodes in the layer
-		for j := 0; j < len(layers[i]); j++ {
-			node := layers[i][j]
-
-			switch class := node.(type) {
-			case types.JavaAbstract:
-				class.Y = previousLayerEndY
-
-				class.X = currentX
-				currentX += float64(class.Width) + paddingX
-
-				nodes[getNodeIndex(nodes, getNodeClassId(node))] = class
-
-				totalWidth += float64(class.Width)
-				if class.Height > highestHeight {
-					highestHeight = class.Height
-				}
-			case types.JavaClass:
-				class.Y = previousLayerEndY
-
-				class.X = currentX
-				currentX += float64(class.Width) + paddingX
-
-				nodes[getNodeIndex(nodes, getNodeClassId(node))] = class
-
-				totalWidth += float64(class.Width)
-				if class.Height > highestHeight {
-					highestHeight = class.Height
-				}
-			case types.JavaEnum:
-				class.Y = previousLayerEndY
-
-				class.X = currentX
-				currentX += float64(class.Width) + paddingX
-
-				nodes[getNodeIndex(nodes, getNodeClassId(node))] = class
-
-				totalWidth += float64(class.Width)
-				if class.Height > highestHeight {
-					highestHeight = class.Height
-				}
-			case types.JavaInterface:
-				class.Y = previousLayerEndY
-
-				class.X = currentX
-				currentX += float64(class.Width) + paddingX
-
-				nodes[getNodeIndex(nodes, getNodeClassId(node))] = class
-
-				totalWidth += float64(class.Width)
-				if class.Height > highestHeight {
-					highestHeight = class.Height
-				}
-			}
-		}
-
-		fmt.Printf("Layer %d: totalWidth: %f, highestHeight: %f, previousLayerEndY: %f\n", i, totalWidth, highestHeight, previousLayerEndY)
-		previousLayerEndY += highestHeight + paddingY
-	}
-
-	return nil
 }
 
 func getNodeSize(name []byte, variables []types.JavaVariable, methods []types.JavaMethod, declarations []types.CustomByteSlice, doubleTitle bool) (float64, float64) {
@@ -378,6 +434,21 @@ func getNodeClassId(node any) []byte {
 	return nodeClassId
 }
 
+func getNodeId(node any) string {
+	switch class := node.(type) {
+	case types.JavaAbstract:
+		return string(class.ID)
+	case types.JavaClass:
+		return string(class.ID)
+	case types.JavaEnum:
+		return string(class.ID)
+	case types.JavaInterface:
+		return string(class.ID)
+	}
+
+	return ""
+}
+
 func getNodeIndex(nodes []any, nodeClassId []byte) int {
 	for i, node := range nodes {
 		if bytes.Equal(getNodeClassId(node), nodeClassId) {
@@ -393,15 +464,14 @@ type Connections struct {
 	ToClassIds   [][]byte
 }
 
-// Returns a 2D array of nodes grouped by their connections and a 2D array of the connections that correspond to the groups
-func groupNodesandEdges(nodes []any, edges []types.Relation) ([][]any, [][]int) {
+// Returns a map nodeIds to their group number
+func groupNodes(nodes []any, edges []types.Relation) map[string]int {
 	connections := getNodeConnections(nodes, edges)
 
 	// Create a map of nodes to groups
 	// The key is the node's class id and the value is the group number
 	var (
 		nodeGroups   = make(map[string]int) // The key is the node's class id and the value is the group number
-		edgeGroups   [][]int                // The index is the group number and the values are the indexes of the groups that the group is connected to
 		currentGroup = 0
 	)
 
@@ -492,46 +562,7 @@ func groupNodesandEdges(nodes []any, edges []types.Relation) ([][]any, [][]int) 
 		}
 	}
 
-	// Convert the map of groups to nodes to a list of groups
-	var returnGroups = make([][]any, len(groups))
-	for i := 0; i < len(groups); i++ {
-		returnGroups[i] = groups[i]
-
-		// Create a list of the groups that the group is connected to
-		var connectedGroups []int
-		for j := 0; j < len(groups); j++ {
-			if i == j {
-				continue
-			}
-
-			for k := 0; k < len(groups[i]); k++ {
-				for l := 0; l < len(groups[j]); l++ {
-					for m := 0; m < len(edges); m++ {
-						if bytes.Equal(getNodeClassId(groups[i][k]), edges[m].FromClassId) && bytes.Equal(getNodeClassId(groups[j][l]), edges[m].ToClassId) {
-							// Need to check if the group is already in the list
-							exists := false
-							for n := 0; n < len(connectedGroups); n++ {
-								if connectedGroups[n] == j {
-									exists = true
-									break
-								}
-							}
-
-							if exists {
-								continue
-							}
-
-							connectedGroups = append(connectedGroups, j)
-						}
-					}
-				}
-			}
-		}
-
-		edgeGroups = append(edgeGroups, connectedGroups)
-	}
-
-	return returnGroups, edgeGroups
+	return nodeGroups
 }
 
 func getNodeConnections(nodes []any, edges []types.Relation) map[string]Connections {
@@ -560,4 +591,66 @@ func getNodeConnections(nodes []any, edges []types.Relation) map[string]Connecti
 	}
 
 	return connections
+}
+
+func selectPort(sourceX, sourceY, targetX, targetY float64) (sourcePort, targetPort string) {
+	xDiff := targetX - sourceX
+	yDiff := targetY - sourceY
+
+	if math.Abs(xDiff) > math.Abs(yDiff) {
+		if xDiff > 0 {
+			sourcePort = "right-middle"
+			targetPort = "left-middle"
+		} else {
+			sourcePort = "left-middle"
+			targetPort = "right-middle"
+		}
+	} else {
+		if yDiff > 0 {
+			sourcePort = "top-middle"
+			targetPort = "bottom-middle"
+		} else {
+			sourcePort = "bottom-middle"
+			targetPort = "top-middle"
+		}
+	}
+
+	return sourcePort, targetPort
+}
+
+func getNodeIndexById(nodes []any, id []byte) int {
+	for i, node := range nodes {
+		if bytes.Equal(getNodeClassId(node), id) {
+			return i
+		}
+	}
+	return -1
+}
+
+func getNodePositionX(node any) float64 {
+	switch n := node.(type) {
+	case types.JavaAbstract:
+		return n.Position.X
+	case types.JavaClass:
+		return n.Position.X
+	case types.JavaEnum:
+		return n.Position.X
+	case types.JavaInterface:
+		return n.Position.X
+	}
+	return 0
+}
+
+func getNodePositionY(node any) float64 {
+	switch n := node.(type) {
+	case types.JavaAbstract:
+		return n.Position.Y
+	case types.JavaClass:
+		return n.Position.Y
+	case types.JavaEnum:
+		return n.Position.Y
+	case types.JavaInterface:
+		return n.Position.Y
+	}
+	return 0
 }

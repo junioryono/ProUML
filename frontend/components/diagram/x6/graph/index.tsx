@@ -125,8 +125,6 @@ export default function useGraph(
 
             return !graph.current?.isPannable();
          },
-         // Only render the visible area content
-         virtual: true,
       });
 
       graph.current.use(
