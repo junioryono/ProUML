@@ -7,8 +7,6 @@ import NodeSettingsVariable from "./node-variable";
 
 // if only one node is selected, show the node settings
 export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObject<X6Type.Graph> }) {
-   console.log("NodeSettings", node.prop());
-
    // for the name of the node
    const [nodeName, setNodeName] = useState("");
    // for if the node is an interface or not

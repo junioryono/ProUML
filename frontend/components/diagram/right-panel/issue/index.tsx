@@ -6,8 +6,6 @@ import { cn, formatTime } from "@/lib/utils";
 import Image from "next/image";
 
 export default function IssuePanel({ issue }: { issue: Issue }) {
-   console.log("issue", issue);
-
    const issueDate = useMemo(() => formatTime(issue.created_at), [issue.created_at]);
 
    return (

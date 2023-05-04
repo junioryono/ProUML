@@ -93,12 +93,6 @@ export default function LeftPanel({
       });
    }, [graph]);
 
-   useEffect(() => {}, [selectedCells]);
-
-   useEffect(() => {
-      console.log("selectedIssue", selectedIssue);
-   }, [selectedIssue]);
-
    return (
       <div className="w-60 h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
          {/* ---------------------- DIAGRAMS SECTION ---------------------- */}
@@ -508,7 +502,6 @@ export default function LeftPanel({
 
                   {diagram.issues.map((issue) => {
                      const isSelected = selectedIssue?.id === issue.id;
-                     console.log("issue", issue);
 
                      return (
                         <div
@@ -519,7 +512,6 @@ export default function LeftPanel({
                               !isSelected && "hover:bg-slate-200",
                            )}
                            onClick={() => {
-                              console.log("issue", issue);
                               graph.current.cleanSelection({ issue: true });
                               graph.current.select(issue.connected_cells, { issue: true });
 

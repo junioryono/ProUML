@@ -1,10 +1,11 @@
 import type X6Type from "@antv/x6";
 
 import { MutableRefObject, createRef, useEffect, useState } from "react";
-import { DropdownMenu } from "@/ui/dropdown";
+import { DropdownMenu, SubDropdownMenu } from "@/ui/dropdown";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import DownloadJavaSkeleton from "./skeleton/java";
 
 export default function Menu({
    graph,
@@ -163,6 +164,38 @@ export default function Menu({
                >
                   Download JSON
                </DropdownMenu.Item>
+
+               <SubDropdownMenu>
+                  <SubDropdownMenu.Trigger>
+                     <div className="pr-2">Download Skeleton</div>
+                     <SubDropdownMenu.Arrow />
+                  </SubDropdownMenu.Trigger>
+
+                  <SubDropdownMenu.Content>
+                     <DropdownMenu.Item
+                        className="text-white text-xs px-7 h-6 opacity-50"
+                        onSelect={(e) => {
+                           e.preventDefault();
+                        }}
+                     >
+                        C++
+                     </DropdownMenu.Item>
+
+                     <DropdownMenu.Item
+                        className="text-white text-xs px-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
+                        onSelect={(e) => {
+                           if (!graph.current) {
+                              e.preventDefault();
+                              return;
+                           }
+
+                           DownloadJavaSkeleton(diagramName, graph.current.getCells());
+                        }}
+                     >
+                        Java
+                     </DropdownMenu.Item>
+                  </SubDropdownMenu.Content>
+               </SubDropdownMenu>
 
                <DropdownMenu.Separator className="my-1 bg-[#636363]" />
 

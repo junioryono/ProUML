@@ -20,17 +20,24 @@ export default function RightPanel({
    // State to keep track of the current tab, either "graph", "nodes", or "edges"
    const [tab, setTab] = useState<"graph" | "nodes" | "edges" | "nodes&edges" | "issue">("graph");
 
-   const setTabFunction = useCallback(() => {
-      if (graph.current?.getSelectedCells().length === 0) {
-         setTab("graph");
-      } else if (graph.current?.getSelectedCells().every((cell) => cell.isNode())) {
-         setTab("nodes");
-      } else if (graph.current?.getSelectedCells().every((cell) => cell.isEdge())) {
-         setTab("edges");
-      } else {
-         setTab("nodes&edges");
-      }
-   }, [graph]);
+   const setTabFunction = useCallback(
+      (args: any) => {
+         if (args?.options?.issue) {
+            return;
+         }
+
+         if (graph.current?.getSelectedCells().length === 0) {
+            setTab("graph");
+         } else if (graph.current?.getSelectedCells().every((cell) => cell.isNode())) {
+            setTab("nodes");
+         } else if (graph.current?.getSelectedCells().every((cell) => cell.isEdge())) {
+            setTab("edges");
+         } else {
+            setTab("nodes&edges");
+         }
+      },
+      [graph],
+   );
 
    // Use effect to listen to the events on the `graph` and set the tab accordingly
    useEffect(() => {
