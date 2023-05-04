@@ -250,10 +250,21 @@ func (d *Diagram_SDK) UpdatePublic(diagramId, idToken string, public bool) *type
 		return types.Wrap(errors.New("user does not have permission to edit the diagram"), types.ErrInvalidRequest)
 	}
 
+	tx := d.getDb().Begin()
+
+	if err := tx.Exec("SELECT * FROM diagram_models WHERE id = ? FOR UPDATE;", diagramId).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
 	// Update the diagram in the database
-	if err := d.getDb().Model(&models.DiagramModel{}).
+	if err := tx.Model(&models.DiagramModel{}).
 		Where("id = ?", diagramId).
 		Update("public", public).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -280,10 +291,21 @@ func (d *Diagram_SDK) UpdateName(diagramId, idToken string, name string) *types.
 		return types.Wrap(errors.New("user does not have permission to edit the diagram"), types.ErrInvalidRequest)
 	}
 
+	tx := d.getDb().Begin()
+
+	if err := tx.Exec("SELECT * FROM diagram_models WHERE id = ? FOR UPDATE;", diagramId).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
 	// Update the diagram in the database
-	if err := d.getDb().Model(&models.DiagramModel{}).
+	if err := tx.Model(&models.DiagramModel{}).
 		Where("id = ?", diagramId).
 		Update("name", name).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -306,7 +328,19 @@ func (d *Diagram_SDK) UpdateContentAddCell(diagramId, idToken string, cell map[s
 		return types.Wrap(errors.New("user does not have permission to edit the diagram"), types.ErrInvalidRequest)
 	}
 
-	if err := d.getDb().Exec("SELECT add_cell_to_diagram(?, ?::jsonb);", diagramId, cell).Error; err != nil {
+	tx := d.getDb().Begin()
+
+	if err := tx.Exec("SELECT * FROM diagram_models WHERE id = ? FOR UPDATE;", diagramId).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Exec("SELECT add_cell_to_diagram(?, ?::jsonb);", diagramId, cell).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -334,7 +368,19 @@ func (d *Diagram_SDK) UpdateContentUpdateCell(diagramId, idToken string, cell ma
 		return types.Wrap(errors.New("cell id not found"), types.ErrInvalidRequest)
 	}
 
-	if err := d.getDb().Exec("SELECT update_cell_in_diagram(?, ?, ?::jsonb);", diagramId, cellId, cell).Error; err != nil {
+	tx := d.getDb().Begin()
+
+	if err := tx.Exec("SELECT * FROM diagram_models WHERE id = ? FOR UPDATE;", diagramId).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Exec("SELECT update_cell_in_diagram(?, ?, ?::jsonb);", diagramId, cellId, cell).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -362,7 +408,19 @@ func (d *Diagram_SDK) UpdateContentRemoveCell(diagramId, idToken string, cell ma
 		return types.Wrap(errors.New("cell id not found"), types.ErrInvalidRequest)
 	}
 
-	if err := d.getDb().Exec("SELECT remove_cell_from_diagram(?, ?);", diagramId, cellId).Error; err != nil {
+	tx := d.getDb().Begin()
+
+	if err := tx.Exec("SELECT * FROM diagram_models WHERE id = ? FOR UPDATE;", diagramId).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Exec("SELECT remove_cell_from_diagram(?, ?);", diagramId, cellId).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -385,10 +443,20 @@ func (d *Diagram_SDK) UpdateImage(diagramId, idToken string, image string) *type
 		return types.Wrap(errors.New("user does not have permission to edit the diagram"), types.ErrInvalidRequest)
 	}
 
-	if err := d.getDb().
-		Model(&models.DiagramModel{}).
+	tx := d.getDb().Begin()
+
+	if err := tx.Exec("SELECT * FROM diagram_models WHERE id = ? FOR UPDATE;", diagramId).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Model(&models.DiagramModel{}).
 		Where("id = ?", diagramId).
 		Update("image", image).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -411,10 +479,20 @@ func (d *Diagram_SDK) UpdateBackgroundColor(diagramId, idToken string, backgroun
 		return types.Wrap(errors.New("user does not have permission to edit the diagram"), types.ErrInvalidRequest)
 	}
 
-	if err := d.getDb().
-		Model(&models.DiagramModel{}).
+	tx := d.getDb().Begin()
+
+	if err := tx.Exec("SELECT * FROM diagram_models WHERE id = ? FOR UPDATE;", diagramId).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Model(&models.DiagramModel{}).
 		Where("id = ?", diagramId).
 		Update("background_color", backgroundColor).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 
@@ -437,10 +515,20 @@ func (d *Diagram_SDK) UpdateShowGrid(diagramId, idToken string, showGrid bool) *
 		return types.Wrap(errors.New("user does not have permission to edit the diagram"), types.ErrInvalidRequest)
 	}
 
-	if err := d.getDb().
-		Model(&models.DiagramModel{}).
+	tx := d.getDb().Begin()
+
+	if err := tx.Exec("SELECT * FROM diagram_models WHERE id = ? FOR UPDATE;", diagramId).Error; err != nil {
+		tx.Rollback()
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Model(&models.DiagramModel{}).
 		Where("id = ?", diagramId).
 		Update("show_grid", showGrid).Error; err != nil {
+		return types.Wrap(err, types.ErrInternalServerError)
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return types.Wrap(err, types.ErrInternalServerError)
 	}
 

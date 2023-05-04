@@ -82,7 +82,6 @@ export default function Edges(
          }
       }
 
-      console.log("HELLO", "wsLocalUpdateEdge");
       wsLocalUpdateEdge(args.cell, wsSendJson, sessionId);
    });
 
