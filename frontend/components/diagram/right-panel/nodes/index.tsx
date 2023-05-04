@@ -195,17 +195,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
    return (
       <>
-         {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
-         {selectedNodes.length === 1 && (
-            <NodeSettings
-               key={selectedNodes[0].id}
-               node={selectedNodes[0] as X6Type.Node}
-               graph={graph}
-               setLoading={setLoading}
-            />
-         )}
-
-         {loading ? (
+         {!loading ? (
             <>
                <div className="flex flex-col items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-gray-900"></div>
@@ -213,6 +203,15 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             </>
          ) : (
             <>
+               {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
+               {selectedNodes.length === 1 && (
+                  <NodeSettings
+                     key={selectedNodes[0].id}
+                     node={selectedNodes[0] as X6Type.Node}
+                     graph={graph}
+                     setLoading={setLoading}
+                  />
+               )}
                {/* ---------------------- BACKGROUND COLOR SECTION ---------------------- */}
                <div className="flex flex-col pb-3">
                   <div className="font-bold">Background Color</div>

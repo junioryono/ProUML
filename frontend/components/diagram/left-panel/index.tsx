@@ -40,6 +40,7 @@ export default function LeftPanel({
 }) {
    const router = useRouter();
 
+   const [projDiagrams, setProjDiagrams] = useState<Diagram[]>(diagram.project?.diagrams || []);
    const [nodes, setNodes] = useState<X6Type.Node[]>([]);
    const [edges, setEdges] = useState<X6Type.Edge[]>([]);
    const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
@@ -93,10 +94,24 @@ export default function LeftPanel({
       });
    }, [graph]);
 
+   // refresh the diagrams in the project if any of the diagram names change
+   useEffect(() => {
+      if (diagram.project) {
+         setProjDiagrams(
+            diagram.project.diagrams.map((d) => {
+               if (d.name === diagram.name) {
+                  return { ...d, name: diagram.name };
+               }
+               return d;
+            }),
+         );
+      }
+   }, [diagram.name, diagram.project]);
+
    return (
       <div className="w-60 h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
          {/* ---------------------- DIAGRAMS SECTION ---------------------- */}
-         {diagram.project && (
+         {projDiagrams && (
             <>
                <div className="pb-1">
                   <div className="flex justify-between">
@@ -153,7 +168,7 @@ export default function LeftPanel({
                      </div>
                   </div>
 
-                  {diagram.project.diagrams.map((pDiagram) => {
+                  {projDiagrams.map((pDiagram) => {
                      return (
                         <div
                            key={pDiagram.id}

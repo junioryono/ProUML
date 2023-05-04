@@ -46,62 +46,62 @@ export default function NodeSettings({
          return;
       }
 
-      // get the properties of the node
-      const props = node.prop() as ClassNode;
+      const timer = setTimeout(() => {
+         // get the properties of the node
+         const props = node.prop() as ClassNode;
 
-      // update the state information of the node
-      setNodeName(props.name || "");
-      setIsInterface(props.type === "interface");
-      setIsAbstract(props.type === "abstract");
-      setVariables(props.variables || []);
-      setMethods(props.methods || []);
-      setX(props.position?.x || 0);
-      setY(props.position?.y || 0);
-      setHeight(props.size?.height || 0);
-      setWidth(props.size?.width || 0);
-      setLocked(props.lock || false);
+         // update the state information of the node
+         setNodeName(props.name || "");
+         setIsInterface(props.type === "interface");
+         setIsAbstract(props.type === "abstract");
+         setVariables(props.variables || []);
+         setMethods(props.methods || []);
+         setX(props.position?.x || 0);
+         setY(props.position?.y || 0);
+         setHeight(props.size?.height || 0);
+         setWidth(props.size?.width || 0);
+         setLocked(props.lock || false);
 
-      // re-render when the selected node changes
-      node.on("change:name", (args) => {
-         setNodeName(args.current);
-      });
+         // re-render when the selected node changes
+         node.on("change:name", (args) => {
+            setNodeName(args.current);
+         });
 
-      // re-render when the node size changes
-      node.on("change:size", (args) => {
-         const size = args.cell.getProp("size");
-         setWidth(size.width);
-         setHeight(size.height);
-      });
+         // re-render when the node size changes
+         node.on("change:size", (args) => {
+            const size = args.cell.getProp("size");
+            setWidth(size.width);
+            setHeight(size.height);
+         });
 
-      // re-render when the node position changes
-      node.on("change:position", (cell) => {
-         setX(cell.current.x);
-         setY(cell.current.y);
-      });
+         // re-render when the node position changes
+         node.on("change:position", (cell) => {
+            setX(cell.current.x);
+            setY(cell.current.y);
+         });
 
-      // re-render when a node variable changes
-      node.on("change:variables", (args) => {
-         setVariables(args.current);
-         if (args.newHeight) {
-            setHeight(args.newHeight);
-         }
-      });
+         // re-render when a node variable changes
+         node.on("change:variables", (args) => {
+            setVariables(args.current);
+            if (args.newHeight) {
+               setHeight(args.newHeight);
+            }
+         });
 
-      // re-render when a node method changes
-      node.on("change:methods", (args) => {
-         setMethods(args.current);
-         if (args.newHeight) {
-            setHeight(args.newHeight);
-         }
-      });
+         // re-render when a node method changes
+         node.on("change:methods", (args) => {
+            setMethods(args.current);
+            if (args.newHeight) {
+               setHeight(args.newHeight);
+            }
+         });
 
-      // re-render when the node lock changes
-      node.on("change:lock", (args) => {
-         graph.current?.trigger("node:selected", { cell: node, node: node });
-         setLocked(!!args.current);
-      });
-
-      setLoading(false);
+         // re-render when the node lock changes
+         node.on("change:lock", (args) => {
+            graph.current?.trigger("node:selected", { cell: node, node: node });
+            setLocked(!!args.current);
+         });
+      }, 1000);
    }, [node]);
 
    return (
