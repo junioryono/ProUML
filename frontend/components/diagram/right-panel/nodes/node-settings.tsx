@@ -6,7 +6,17 @@ import NodeSettingsMethod from "./node-method";
 import NodeSettingsVariable from "./node-variable";
 
 // if only one node is selected, show the node settings
-export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph: MutableRefObject<X6Type.Graph> }) {
+export default function NodeSettings({
+   node,
+   graph,
+   setLoading,
+}: {
+   node: X6Type.Node;
+   graph: MutableRefObject<X6Type.Graph> | null;
+   setLoading: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+}) {
+   console.log("NodeSettings", node.prop());
+
    // for the name of the node
    const [nodeName, setNodeName] = useState("");
    // for if the node is an interface or not
@@ -90,6 +100,8 @@ export default function NodeSettings({ node, graph }: { node: X6Type.Node; graph
          graph.current?.trigger("node:selected", { cell: node, node: node });
          setLocked(!!args.current);
       });
+
+      setLoading(false);
    }, [node]);
 
    return (

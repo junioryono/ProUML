@@ -318,7 +318,7 @@ export default function LeftPanel({
                      <div
                         key={nodeId}
                         className={cn(
-                           "flex items-center cursor-pointer py-1",
+                           "flex items-center cursor-pointer py-1 group",
                            isSelected && "bg-slate-300 font-semibold",
                            !isSelected && "hover:bg-slate-200",
                         )}
@@ -354,7 +354,7 @@ export default function LeftPanel({
                               </div>
                            </div>
                            {/* only show the lock svg if the div of this node is being hovered over */}
-                           <div className="ml-auto pr-1">
+                           <div className="ml-auto pr-1 opacity-0 group-hover:opacity-100">
                               {/* if the node is locked */}
                               {isLocked ? (
                                  <svg
@@ -365,8 +365,6 @@ export default function LeftPanel({
                                     height={16}
                                     className="duration-500 hover:scale-[1.2]"
                                     onClick={(e) => {
-                                       e.stopPropagation();
-
                                        // unlock the node
                                        node.setProp({ lock: false });
                                     }}
@@ -387,8 +385,6 @@ export default function LeftPanel({
                                        height={16}
                                        className="duration-500 hover:scale-[1.2]"
                                        onClick={(e) => {
-                                          e.stopPropagation();
-
                                           // lock the node
                                           node.setProp({ lock: true });
                                        }}

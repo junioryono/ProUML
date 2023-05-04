@@ -7,6 +7,26 @@ import LineWidth from "../styling-options/line-widths";
 import NodeSettings from "./node-settings";
 import { SolidLine, DashedLine, DottedLine, DoubleLine } from "../styling-options/line-styles";
 
+// for the border style of the selected cell
+const borderStyleOptions = [
+   {
+      value: "solid",
+      icon: <SolidLine />,
+   },
+   {
+      value: "dashed",
+      icon: <DashedLine />,
+   },
+   {
+      value: "dotted",
+      icon: <DottedLine />,
+   },
+   {
+      value: "double",
+      icon: <DoubleLine />,
+   },
+];
+
 export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.Graph> }) {
    // for current background & border colors of selected cell
    const [backgroundColor, setBackgroundColor] = useState<string>(); // <- default should be initial bg color
@@ -16,25 +36,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    const [borderWidth, setBorderWidth] = useState<number>(); // <- default should be initial border width
    const [borderStyle, setBorderStyle] = useState<string>(); // <- default should be initial border style
 
-   // for the border style of the selected cell
-   const borderStyleOptions = [
-      {
-         value: "solid",
-         icon: <SolidLine />,
-      },
-      {
-         value: "dashed",
-         icon: <DashedLine />,
-      },
-      {
-         value: "dotted",
-         icon: <DottedLine />,
-      },
-      {
-         value: "double",
-         icon: <DoubleLine />,
-      },
-   ];
+   const [loading, setLoading] = useState(true);
 
    // the selected cells
    const [selectedNodes, setSelectedNodes] = useState<X6Type.Node[]>([]);
@@ -195,65 +197,80 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
       <>
          {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
          {selectedNodes.length === 1 && (
-            <NodeSettings key={selectedNodes[0].id} node={selectedNodes[0] as X6Type.Node} graph={graph} />
+            <NodeSettings
+               key={selectedNodes[0].id}
+               node={selectedNodes[0] as X6Type.Node}
+               graph={graph}
+               setLoading={setLoading}
+            />
          )}
 
-         {/* ---------------------- BACKGROUND COLOR SECTION ---------------------- */}
-         <div className="flex flex-col pb-3">
-            <div className="font-bold">Background Color</div>
+         {loading ? (
+            <>
+               <div className="flex flex-col items-center justify-center h-full">
+                  <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-gray-900"></div>
+               </div>
+            </>
+         ) : (
+            <>
+               {/* ---------------------- BACKGROUND COLOR SECTION ---------------------- */}
+               <div className="flex flex-col pb-3">
+                  <div className="font-bold">Background Color</div>
 
-            {/* all of the background color options */}
-            <ColorPicker
-               colorOptions={lightColorOptions}
-               indicatorColor={"black"}
-               objColor={backgroundColor}
-               setObjColor={setBackgroundColorFunction}
-            />
-         </div>
-         <hr className="border-slate-400" />
+                  {/* all of the background color options */}
+                  <ColorPicker
+                     colorOptions={lightColorOptions}
+                     indicatorColor={"black"}
+                     objColor={backgroundColor}
+                     setObjColor={setBackgroundColorFunction}
+                  />
+               </div>
+               <hr className="border-slate-400" />
 
-         {/* ---------------------- BORDER COLOR SECTION ---------------------- */}
-         <div className="flex flex-col pt-1.5 pb-3">
-            <div className="font-bold">Border Color</div>
+               {/* ---------------------- BORDER COLOR SECTION ---------------------- */}
+               <div className="flex flex-col pt-1.5 pb-3">
+                  <div className="font-bold">Border Color</div>
 
-            {/* all of the border color options */}
-            <ColorPicker
-               colorOptions={darkColorOptions}
-               indicatorColor={"white"}
-               objColor={borderColor}
-               setObjColor={setBorderColorFunction}
-            />
-         </div>
-         <hr className="border-slate-400" />
+                  {/* all of the border color options */}
+                  <ColorPicker
+                     colorOptions={darkColorOptions}
+                     indicatorColor={"white"}
+                     objColor={borderColor}
+                     setObjColor={setBorderColorFunction}
+                  />
+               </div>
+               <hr className="border-slate-400" />
 
-         {/*---------------------- BORDER WIDTH SECTION ---------------------- */}
-         {/* line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
-         <div className="flex flex-col pt-1.5 pb-3">
-            <div className="font-bold mb-1">Border Width</div>
+               {/*---------------------- BORDER WIDTH SECTION ---------------------- */}
+               {/* line svg source: https://www.svgrepo.com/svg/409180/layout-line-solid?edit=true */}
+               <div className="flex flex-col pt-1.5 pb-3">
+                  <div className="font-bold mb-1">Border Width</div>
 
-            <LineWidth lineWidth={borderWidth} setLineWidth={setBorderWidthFunction} />
-         </div>
-         <hr className="border-slate-400" />
+                  <LineWidth lineWidth={borderWidth} setLineWidth={setBorderWidthFunction} />
+               </div>
+               <hr className="border-slate-400" />
 
-         {/* ---------------------- BORDER STYLE SECTION ---------------------- */}
-         <div className="flex flex-col pt-1.5">
-            <div className="font-bold mb-1">Border Style</div>
+               {/* ---------------------- BORDER STYLE SECTION ---------------------- */}
+               <div className="flex flex-col pt-1.5">
+                  <div className="font-bold mb-1">Border Style</div>
 
-            <div className="flex items-center gap-2 pl-1.5">
-               {/* map out all of the buttons for the border styles */}
-               {borderStyleOptions.map((style, index) => (
-                  <button
-                     key={index}
-                     className={`border rounded-md transition duration-500 hover:scale-[1.2]
+                  <div className="flex items-center gap-2 pl-1.5">
+                     {/* map out all of the buttons for the border styles */}
+                     {borderStyleOptions.map((style, index) => (
+                        <button
+                           key={index}
+                           className={`border rounded-md transition duration-500 hover:scale-[1.2]
                      ${borderStyle !== style.value ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
-                     onClick={() => setBorderStyleFunction(style.value)}
-                  >
-                     {/* show the component of this style */}
-                     {style.icon}
-                  </button>
-               ))}
-            </div>
-         </div>
+                           onClick={() => setBorderStyleFunction(style.value)}
+                        >
+                           {/* show the component of this style */}
+                           {style.icon}
+                        </button>
+                     ))}
+                  </div>
+               </div>
+            </>
+         )}
       </>
    );
 }
