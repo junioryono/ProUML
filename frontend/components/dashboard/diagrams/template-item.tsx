@@ -51,7 +51,7 @@ export default function TemplateItem({ template, project }: { template: DiagramT
    }
 
    return (
-      <div className="w-36 h-52 mb-4 mr-3">
+      <div className="w-36 h-52 mx-1 my-1 items-center justify-center">
          <div
             className={cn(
                "w-[inherit] m-1 flex flex-col items-center justify-center pt-5 pb-6 border-gray-150 border rounded-md bg-white h-full text-center",

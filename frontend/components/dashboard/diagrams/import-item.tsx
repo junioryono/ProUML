@@ -67,7 +67,7 @@ export default function ImportItem({ project }: { project?: Project }) {
    }
 
    return (
-      <div className="w-36 mb-4 mr-3">
+      <div className="w-36 mx-1 my-1  items-center justify-center">
          <div className="w-[inherit] flex items-center justify-center m-1">
             <label
                htmlFor="dropzone-file"

@@ -83,13 +83,34 @@ export default function Index({ stars }: { stars: string }) {
             <section className="container grid justify-center gap-6 py-3 md:pb-12 lg:pb-12">
                <div className="grid justify-center gap-4 sm:grid-cols-2 md:max-w-[56rem] md:grid-cols-3">
                   <div className="flex h-[235px] flex-col justify-between rounded-md">
-                     <Image src={loginPage} height={800} width={800} className="" alt="Login page" priority />
+                     <Image
+                        src={loginPage}
+                        height={800}
+                        width={800}
+                        className="border border-black"
+                        alt="Signup page"
+                        priority
+                     />
                   </div>
                   <div className="flex h-[235px] flex-col justify-between rounded-md">
-                     <Image src={dashboardPage} height={400} width={400} className="" alt="Dashboard page" priority />
+                     <Image
+                        src={dashboardPage}
+                        height={400}
+                        width={400}
+                        className="border border-black"
+                        alt="Dashboard page"
+                        priority
+                     />
                   </div>
                   <div className="flex h-[235px] flex-col justify-between rounded-md">
-                     <Image src={diagramPage} height={400} width={400} className="" alt="Diagram page" priority />
+                     <Image
+                        src={diagramPage}
+                        height={400}
+                        width={400}
+                        className="border border-black"
+                        alt="Diagram page"
+                        priority
+                     />
                   </div>
                </div>
             </section>
