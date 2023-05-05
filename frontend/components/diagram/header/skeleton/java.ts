@@ -118,13 +118,13 @@ export default async function DownloadJavaSkeleton(diagramName: string, cells: X
          .map((variable) => {
             let string = `    ${variable.accessModifier || "public"} `;
 
-            if (variable.static) {
-               string += "static ";
-            }
+            // if (variable.static) {
+            //    string += "static ";
+            // }
 
-            if (variable.final) {
-               string += "final ";
-            }
+            // if (variable.final) {
+            //    string += "final ";
+            // }
 
             string += `${variable.type} ${variable.name}`;
 
@@ -151,13 +151,13 @@ export default async function DownloadJavaSkeleton(diagramName: string, cells: X
          .map((method) => {
             let string = `    ${method.accessModifier || "public"} `;
 
-            if (method.static) {
-               string += "static ";
-            }
+            // if (method.static) {
+            //    string += "static ";
+            // }
 
-            if (method.final) {
-               string += "final ";
-            }
+            // if (method.final) {
+            //    string += "final ";
+            // }
 
             if (method.type) {
                string += `${method.type} `;
