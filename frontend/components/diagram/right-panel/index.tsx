@@ -1,5 +1,5 @@
 import type X6Type from "@antv/x6";
-import { MutableRefObject, useCallback, useEffect, useState } from "react";
+import { MutableRefObject, useCallback, useEffect, useState, useMemo } from "react";
 import { Issue } from "types";
 import GraphPanel from "./graph";
 import EdgesPanel from "./edges";
@@ -59,17 +59,22 @@ export default function RightPanel({
       <div className="flex flex-col h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden w-60 p-2 pb-3 border-gray-400 border-l-1 select-none cursor-default">
          {/* Render different panels based on the current tab */}
          <FadeIn key={tab}>
-            {tab === "graph" ? (
-               <GraphPanel graph={graph} backgroundColor={backgroundColor} />
-            ) : tab === "nodes" ? (
-               <NodesPanel graph={graph} />
-            ) : tab === "edges" ? (
-               <EdgesPanel graph={graph} />
-            ) : tab === "nodes&edges" ? (
-               <NodesAndEdgesPanel graph={graph} />
-            ) : tab === "issue" ? (
-               <IssuePanel issue={selectedIssue} />
-            ) : null}
+            {(() => {
+               switch (tab) {
+                  case "graph":
+                     return <GraphPanel graph={graph} backgroundColor={backgroundColor} />;
+                  case "nodes":
+                     return <NodesPanel graph={graph} />;
+                  case "edges":
+                     return <EdgesPanel graph={graph} />;
+                  case "nodes&edges":
+                     return <NodesAndEdgesPanel graph={graph} />;
+                  case "issue":
+                     return <IssuePanel issue={selectedIssue} />;
+                  default:
+                     return null;
+               }
+            })()}
          </FadeIn>
       </div>
    );

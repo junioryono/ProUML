@@ -70,11 +70,11 @@ export default function TemplateItem({ template, project }: { template: DiagramT
                   fill="rgb(156 163 175 / var(--tw-text-opacity))"
                   stroke="rgb(156 163 175 / var(--tw-text-opacity))"
                >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                   <g id="SVGRepo_iconCarrier">
                      <title>file_missing [#9ca38f]</title> <desc>Created with Sketch.</desc> <defs> </defs>{" "}
-                     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                     <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fill-rule="evenodd">
                         <g
                            id="Dribbble-Light-Preview"
                            transform="translate(-140.000000, -1479.000000)"
