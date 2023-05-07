@@ -454,7 +454,11 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          <div className="font-bold mb-1 pt-1.5">Edge Styling</div>
          <div className="flex flex-col pb-1">
             <div className="w-full flex flex-col items-center">
-               <EdgeRouter router={router} setRouter={setRouter} />
+               <EdgeRouter
+                  key={selectedEdges.length === 1 ? selectedEdges[0].id : "multiple"}
+                  router={router}
+                  setRouter={setRouter}
+               />
             </div>
          </div>
 
@@ -462,7 +466,11 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          <div className="font-bold mb-1 pt-1.5">Edge Jumps</div>
          <div className="flex flex-col pb-3">
             <div className="w-full flex flex-col items-center">
-               <EdgeJumps jump={jump} setJump={setJump} />
+               <EdgeJumps
+                  key={selectedEdges.length === 1 ? selectedEdges[0].id : "multiple"}
+                  jump={jump}
+                  setJump={setJump}
+               />
             </div>
          </div>
 

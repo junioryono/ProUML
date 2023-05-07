@@ -9,9 +9,12 @@ import FadeIn from "@/components/fade-in";
 export default function IssuePanel({ issue }: { issue: Issue }) {
    const issueDate = useMemo(() => formatTime(issue.created_at), [issue.created_at]);
 
+   const [issueName, setIssueName] = useState(issue.title);
+   const [issueDescription, setIssueDescription] = useState(issue.description);
+
    return (
       // Fade in the issue if a new one is selected
-      <FadeIn key={issue?.id}>
+      <FadeIn key={issue.id}>
          {/* ---------------------- ISSUE SETTINGS SECTION ---------------------- */}
          <div className="flex flex-row justify-between">
             <label className="font-bold mb-1 text-left">Issue Name</label>
@@ -20,14 +23,16 @@ export default function IssuePanel({ issue }: { issue: Issue }) {
          <div className="pb-3">
             <input
                className="border w-full bg-slate-200 border-gray-400 p-2 rounded-lg shadow-md focus:outline-none hover:border-gray-500 focus:border-gray-500 "
-               value={issue.title}
+               value={issueName}
+               onChange={(e) => setIssueName(e.target.value)}
             />
          </div>
 
          <label className="font-bold mb-1 mt-4 text-left">Issue Description</label>
          <textarea
             className="border w-full bg-slate-200 border-gray-400 p-2 mb-2 rounded-lg shadow-md focus:outline-none hover:border-gray-500 focus:border-gray-500 h-32"
-            value={issue.description}
+            value={issueDescription}
+            onChange={(e) => setIssueDescription(e.target.value)}
          ></textarea>
 
          <div className="flex pb-3 items-center justify-center text-gray-500">

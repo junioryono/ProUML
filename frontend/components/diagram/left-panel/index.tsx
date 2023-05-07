@@ -389,6 +389,8 @@ export default function LeftPanel({
                                        height={16}
                                        className="duration-500 hover:scale-[1.2]"
                                        onClick={(e) => {
+                                          e.stopPropagation();
+
                                           // unlock the node
                                           node.setProp({ lock: false });
                                        }}
@@ -409,6 +411,8 @@ export default function LeftPanel({
                                           height={16}
                                           className="duration-500 hover:scale-[1.2]"
                                           onClick={(e) => {
+                                             e.stopPropagation();
+
                                              // lock the node
                                              node.setProp({ lock: true });
                                           }}
