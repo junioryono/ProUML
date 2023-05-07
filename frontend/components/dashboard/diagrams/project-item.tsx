@@ -85,8 +85,8 @@ export default function ProjectItem({
          {/* Add a link to the project item and open it in a new tab */}
          <div
             className={cn(
-               "m-2 border-gray-200 border rounded-md hover:border-blue-500 h-14",
-               selected && selectable && "border-blue-500",
+               "m-2 border-gray-300 border rounded-md hover:border-blue-500 hover:shadow-md h-14",
+               selected && selectable && "border-blue-500 shadow-md",
             )}
          >
             {!selectable ? (
@@ -101,7 +101,7 @@ export default function ProjectItem({
                      return false;
                   }}
                >
-                  <div className="pt-3 pb-2 pl-4 pr-2 border-gray-200 flex group">
+                  <div className="pt-3 pb-2 pl-4 pr-2 border-gray-300 flex group">
                      <div className="flex overflow-hidden whitespace-nowrap">
                         <div className="pr-4 pt-0.5">
                            <Icons.folder size={25} strokeWidth={0.4} className="group-hover:fill-black" />

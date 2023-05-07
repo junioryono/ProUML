@@ -64,7 +64,7 @@ export default function GraphPanel({
                />
                <input
                   type="range"
-                  min="1"
+                  min="5"
                   max="1600"
                   value={zoom}
                   className="ml-3 w-full bg-slate-300 rounded-full h-2 appearance-none focus:outline-none"
@@ -79,26 +79,26 @@ export default function GraphPanel({
          </div>
          <style>
             {`
-                     input[type="range"]::-webkit-slider-thumb {
-                        height: 1.2rem;
-                        width: 1.2rem;
-                        background-color: #fff;
-                        border: 1px solid #475569;
-                        border-radius: 1.5rem;
-                        cursor: pointer;
-                        -webkit-appearance: none;
+               input[type="range"]::-webkit-slider-thumb {
+                  height: 1.2rem;
+                  width: 1.2rem;
+                  background-color: #fff;
+                  border: 1px solid #475569;
+                  border-radius: 1.5rem;
+                  cursor: pointer;
+                  -webkit-appearance: none;
 
-                        transform: scale(1);
-                        transition: transform 0.2s ease-in-out;
+                  transform: scale(1);
+                  transition: transform 0.2s ease-in-out;
 
-                        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+                  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+               }
+
+               input[type="range"]:hover::-webkit-slider-thumb {
+                  transform: scale(1.5);
+                  box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
                      }
-
-                     input[type="range"]:hover::-webkit-slider-thumb {
-                        transform: scale(1.5);
-                        box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
-                     }
-                  `}
+            `}
          </style>
 
          <hr className="border-slate-400" />

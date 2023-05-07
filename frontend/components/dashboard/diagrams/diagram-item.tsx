@@ -89,8 +89,8 @@ export default function DiagramItem({
          {/* Add a link to the diagram item and open it in a new tab */}
          <div
             className={cn(
-               "m-2 border-gray-200 border rounded-md hover:border-blue-500",
-               selected && selectable && "border-blue-500",
+               "m-2 border-gray-300 border rounded-md hover:border-blue-500 hover:shadow-md",
+               selected && selectable && "border-blue-500 shadow-md",
             )}
          >
             {/* if not selectable */}
@@ -116,7 +116,7 @@ export default function DiagramItem({
                         />
                      )}
                   </div>
-                  <div className="pt-2 pb-2 pl-4 pr-2 border-t border-gray-200 flex">
+                  <div className="pt-2 pb-2 pl-4 pr-2 border-t border-gray-300 flex">
                      <div className="flex-grow overflow-hidden whitespace-nowrap">
                         <h2 className="title-font text-sm sm:text-base font-medium text-gray-900 overflow-ellipsis overflow-hidden">
                            {diagram.name}

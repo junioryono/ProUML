@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 import loginPage from "../public/images/Picture1.png";
 import dashboardPage from "../public/images/Picture2.png";
 import diagramPage from "../public/images/Picture3.png";
-import poster from "../public/images/Poster-1.png";
 import diagramEditorFeature from "../public/images/DiagramEditorFeature.png";
 import importFeature from "../public/images/ImportFeature.png";
 import issuesFeature from "../public/images/IssuesFeature.png";

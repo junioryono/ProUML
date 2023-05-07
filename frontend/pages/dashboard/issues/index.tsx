@@ -19,6 +19,11 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
 
    const [sortBy, setSortBy] = useState<"name" | "issued" | "issuer">("name");
 
+   // when the page is first loaded, sort the issues by name
+   useMemo(() => {
+      issues.sort((a, b) => a.title.localeCompare(b.title));
+   }, []);
+
    return (
       <DashboardLayout user={user}>
          <DashboardShell>
@@ -222,7 +227,10 @@ function IssueComponent({
 
    if (!open) {
       return (
-         <div className="my-2 mx-2 border-gray-200 flex flex-col cursor-pointer group" onClick={() => setOpen(true)}>
+         <div
+            className="my-2 mx-2 border-gray-200 flex flex-col cursor-pointer hover:shadow-md group"
+            onClick={() => setOpen(true)}
+         >
             <div className="flex overflow-hidden whitespace-nowrap">
                <div className="py-0.5 border-gray-200 border rounded-md hover:border-blue-500 cursor-pointer px-2 pt-0.5 bg-slate-200 w-full">
                   <div className="text-gray-600">{issue.id}</div>
@@ -249,7 +257,7 @@ function IssueComponent({
 
    return (
       <div
-         className="my-2 mx-2 border-gray-200 flex flex-col group border rounded-md hover:border-blue-500 overflow-hidden"
+         className="my-2 mx-2 border-gray-200 flex flex-col group border rounded-md hover:border-blue-500 hover:shadow-md overflow-hidden"
          onClick={() => setOpen(false)}
       >
          <div className="flex overflow-hidden">

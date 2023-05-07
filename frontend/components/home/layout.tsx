@@ -1,7 +1,7 @@
 import { User } from "types";
 
 import UserAccountNav from "@/components/dashboard/user-account-nav";
-import SiteFooter from "@/components/site-footer";
+import SiteFooter from "@/components/home/site-footer";
 import MainNav from "@/components/main-nav";
 
 export default function HomeLayout({ user, children }: { user: User; children: React.ReactNode }) {
