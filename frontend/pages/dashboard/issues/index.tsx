@@ -17,6 +17,10 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
    const [issues, setIssues] = useState<Issue[]>(issuesRequest.response || []);
    const showEmptyPlaceholder = !issuesRequest.success || !issuesRequest.response?.length;
 
+   const [sortName, setSortName] = useState<boolean>(true);
+   const [sortDate, setSortDate] = useState<boolean>(false);
+   const [sortIssuer, setSortIssuer] = useState<boolean>(false);
+
    return (
       <DashboardLayout user={user}>
          <DashboardShell>
@@ -34,14 +38,63 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                   <>
                      <div className="mb-2">
                         <div className="m-2 border-black border-[1.4px] rounded-md overflow-auto">
-                           <div className="p-2 bg-black rounded-t-sm text-white font-bold grid grid-flow-col ">
-                              <div className="flex justify-start pl-4">Name</div>
-                              <div className="flex justify-center">Issued</div>
-                              <div className="flex justify-end pr-4">Issuer</div>
+                           <div className="p-2 bg-black rounded-t-sm text-white font-bold grid grid-flow-col">
+                              <div className="flex justify-start pl-4">
+                                 <div
+                                    className="cursor-pointer hover:scale-[1.05] transition-all duration-200"
+                                    onClick={() => {
+                                       setSortName(true);
+                                       setSortDate(false);
+                                       setSortIssuer(false);
+                                    }}
+                                 >
+                                    Name
+                                 </div>
+                              </div>
+                              <div className="flex justify-center">
+                                 <div
+                                    className="cursor-pointer hover:scale-[1.05] transition-all duration-200"
+                                    onClick={() => {
+                                       setSortDate(true);
+                                       setSortName(false);
+                                       setSortIssuer(false);
+                                    }}
+                                 >
+                                    Issued
+                                 </div>
+                              </div>
+                              <div className="flex justify-end pr-4">
+                                 <div
+                                    className="cursor-pointer hover:scale-[1.05] transition-all duration-200"
+                                    onClick={() => {
+                                       setSortIssuer(true);
+                                       setSortName(false);
+                                       setSortDate(false);
+                                    }}
+                                 >
+                                    Issuer
+                                 </div>
+                              </div>
                            </div>
-                           {issues.map((issue) => (
-                              <IssueComponent key={issue.id} user={user} issue={issue} setIssues={setIssues} />
-                           ))}
+                           {/* map the issues based on the chosen order */}
+                           {sortName &&
+                              issues
+                                 .sort((a, b) => a.title.localeCompare(b.title))
+                                 .map((issue) => (
+                                    <IssueComponent key={issue.id} user={user} issue={issue} setIssues={setIssues} />
+                                 ))}
+                           {sortDate &&
+                              issues
+                                 .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                                 .map((issue) => (
+                                    <IssueComponent key={issue.id} user={user} issue={issue} setIssues={setIssues} />
+                                 ))}
+                           {sortIssuer &&
+                              issues
+                                 .sort((a, b) => a.created_by.full_name.localeCompare(b.created_by.full_name))
+                                 .map((issue) => (
+                                    <IssueComponent key={issue.id} user={user} issue={issue} setIssues={setIssues} />
+                                 ))}
                         </div>
                      </div>
                   </>
