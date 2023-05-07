@@ -44,6 +44,16 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    // when selecting cells, update the selected cells
    const getSelectedNodes = () => {
       const selectedCells = graph.current?.getSelectedCells();
+
+      // if only one node is selected
+      if (selectedCells?.length === 1 && selectedCells[0].isNode()) {
+         setLoading(true);
+      }
+      // if more than one node is selected
+      else {
+         setLoading(false);
+      }
+
       const newSelectedNodes: X6Type.Node[] = [];
       const selectedBgColors = [];
       const selectedBdColors = [];
@@ -195,23 +205,19 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
    return (
       <>
-         {!loading ? (
+         {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
+         {selectedNodes.length === 1 && (
+            <NodeSettings
+               key={selectedNodes[0].id}
+               node={selectedNodes[0] as X6Type.Node}
+               graph={graph}
+               loading={loading}
+               setLoading={setLoading}
+            />
+         )}
+
+         {selectedNodes.length === 1 && !loading && (
             <>
-               <div className="flex flex-col items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-gray-900"></div>
-               </div>
-            </>
-         ) : (
-            <>
-               {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
-               {selectedNodes.length === 1 && (
-                  <NodeSettings
-                     key={selectedNodes[0].id}
-                     node={selectedNodes[0] as X6Type.Node}
-                     graph={graph}
-                     setLoading={setLoading}
-                  />
-               )}
                {/* ---------------------- BACKGROUND COLOR SECTION ---------------------- */}
                <div className="flex flex-col pb-3">
                   <div className="font-bold">Background Color</div>
@@ -259,7 +265,9 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                         <button
                            key={index}
                            className={`border rounded-md transition duration-500 hover:scale-[1.2]
-                     ${borderStyle !== style.value ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"}`}
+                           ${
+                              borderStyle !== style.value ? "border-slate-400 bg-slate-200" : "border-slate-600 bg-slate-400"
+                           }`}
                            onClick={() => setBorderStyleFunction(style.value)}
                         >
                            {/* show the component of this style */}

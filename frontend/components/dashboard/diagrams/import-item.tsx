@@ -67,13 +67,13 @@ export default function ImportItem({ project }: { project?: Project }) {
    }
 
    return (
-      <div className="w-36 mx-1 my-1  items-center justify-center">
+      <div className="w-32 mx-1 mt-1 items-center justify-center">
          <div className="w-[inherit] flex items-center justify-center m-1">
             <label
                htmlFor="dropzone-file"
                className={cn(
-                  "flex flex-col items-center justify-center w-full h-52 border-2 bg-slate-50 border-gray-300 border-dashed rounded-lg",
-                  !isLoading && "cursor-pointer hover:bg-white hover:border-gray-400",
+                  "flex flex-col items-center justify-center w-full h-52 border-2 bg-slate-50 border-gray-300 border-dashed rounded-lg shadow-md",
+                  !isLoading && "cursor-pointer hover:bg-white hover:border-gray-400 hover:shadow-lg",
                )}
             >
                <div className="flex flex-col items-center justify-center pt-5 pb-6">
