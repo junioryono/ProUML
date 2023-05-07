@@ -8,6 +8,7 @@ import { OpenArrow, OpenDiamond, SolidArrow, SolidDiamond } from "./edge-endings
 import { cn } from "@/lib/utils";
 import EdgeRouter from "./edge-router-options";
 import EdgeJumps from "./edge-jumps";
+import FadeIn from "@/components/fade-in";
 
 const leftEndingOptions = [
    {
@@ -190,7 +191,8 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    }, [graph]);
 
    return (
-      <>
+      // if a new edge is selected or if a node is first selected, fade in the new edge settings
+      <FadeIn key={selectedEdges.length === 1 ? selectedEdges[0].id : "multiple"}>
          {/* ---------------------- EDGE SETTINGS SECTION ---------------------- */}
 
          <div className="font-bold mb-1">Edge Settings</div>
@@ -490,6 +492,6 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             <div className="font-bold mb-1">Width</div>
             <LineWidth lineWidth={width} setLineWidth={setWidthFunction} />
          </div>
-      </>
+      </FadeIn>
    );
 }

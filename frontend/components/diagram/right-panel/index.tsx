@@ -6,6 +6,7 @@ import EdgesPanel from "./edges";
 import NodesPanel from "./nodes";
 import NodesAndEdgesPanel from "./nodes-and-edges";
 import IssuePanel from "./issue";
+import FadeIn from "@/components/fade-in";
 
 // RightPanel component, receives a `graph` prop of type `MutableRefObject<X6Type.Graph>`
 export default function RightPanel({
@@ -57,17 +58,19 @@ export default function RightPanel({
    return (
       <div className="flex flex-col h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden w-60 p-2 pb-3 border-gray-400 border-l-1 select-none cursor-default">
          {/* Render different panels based on the current tab */}
-         {tab === "graph" ? (
-            <GraphPanel graph={graph} backgroundColor={backgroundColor} />
-         ) : tab === "nodes" ? (
-            <NodesPanel graph={graph} />
-         ) : tab === "edges" ? (
-            <EdgesPanel graph={graph} />
-         ) : tab === "nodes&edges" ? (
-            <NodesAndEdgesPanel graph={graph} />
-         ) : tab === "issue" ? (
-            <IssuePanel issue={selectedIssue} />
-         ) : null}
+         <FadeIn key={tab}>
+            {tab === "graph" ? (
+               <GraphPanel graph={graph} backgroundColor={backgroundColor} />
+            ) : tab === "nodes" ? (
+               <NodesPanel graph={graph} />
+            ) : tab === "edges" ? (
+               <EdgesPanel graph={graph} />
+            ) : tab === "nodes&edges" ? (
+               <NodesAndEdgesPanel graph={graph} />
+            ) : tab === "issue" ? (
+               <IssuePanel issue={selectedIssue} />
+            ) : null}
+         </FadeIn>
       </div>
    );
 }

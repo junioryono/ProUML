@@ -6,6 +6,7 @@ import ColorPicker from "../styling-options/color-picker";
 import LineWidth from "../styling-options/line-widths";
 import NodeSettings from "./node-settings";
 import { SolidLine, DashedLine, DottedLine, DoubleLine } from "../styling-options/line-styles";
+import FadeIn from "@/components/fade-in";
 
 // for the border style of the selected cell
 const borderStyleOptions = [
@@ -204,7 +205,8 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
    }, [selectedNodes]);
 
    return (
-      <>
+      // if a new node is selected or if a node is first selected, fade in the new node settings
+      <FadeIn key={selectedNodes.length === 1 ? selectedNodes[0].id : "multiple"}>
          {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
          {selectedNodes.length === 1 && (
             <NodeSettings
@@ -216,7 +218,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
             />
          )}
 
-         {selectedNodes.length === 1 && !loading && (
+         {!loading && (
             <>
                {/* ---------------------- BACKGROUND COLOR SECTION ---------------------- */}
                <div className="flex flex-col pb-3">
@@ -278,6 +280,6 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                </div>
             </>
          )}
-      </>
+      </FadeIn>
    );
 }

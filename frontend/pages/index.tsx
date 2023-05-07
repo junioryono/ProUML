@@ -13,7 +13,6 @@ import issuesFeature from "../public/images/IssuesFeature.png";
 import projectFeature from "../public/images/ProjectFeature.png";
 import shareFeature from "../public/images/ShareFeature.png";
 import HomeLayout from "@/components/home/layout";
-import FadeIn from "@/components/fade-in";
 import { login } from "@/lib/auth-fetch";
 
 export default function Index({ stars }: { stars: string }) {
@@ -46,7 +45,7 @@ export default function Index({ stars }: { stars: string }) {
          {/* only show scroll down arrrow if not at the bottom */}
          {!bottom && (
             <div
-               className="fixed bottom-10 left-1/2 transform -translate-x-1/2 justify-center z-50 shadow-lg rounded-full bg-white cursor-pointer"
+               className="fixed bottom-10 left-1/2 transform -translate-x-1/2 -ml-6 flex mx-auto animate-bounce justify-center z-50 shadow-xl rounded-full bg-white cursor-pointer"
                onClick={() => {
                   // scroll to the bottom of the page
                   window.scrollTo({
@@ -136,7 +135,7 @@ export default function Index({ stars }: { stars: string }) {
          </section>
          <hr className="border-slate-200" />
 
-         <FadeIn id="features">
+         <ScrollFadeIn id="features">
             <section className="text-center container grid justify-center gap-6 py-8 md:py-12 lg:py-24">
                <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
                   <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">Features</h2>
@@ -360,10 +359,10 @@ export default function Index({ stars }: { stars: string }) {
                   </div>
                </div>
             </section>
-         </FadeIn>
+         </ScrollFadeIn>
          <hr className="border-slate-200" />
 
-         <FadeIn id="diagramFeature">
+         <ScrollFadeIn id="diagramFeature">
             <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
                <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
                   <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
@@ -385,10 +384,10 @@ export default function Index({ stars }: { stars: string }) {
                   </p>
                </div>
             </section>
-         </FadeIn>
+         </ScrollFadeIn>
 
          <hr className="border-slate-200" />
-         <FadeIn id="shareFeature">
+         <ScrollFadeIn id="shareFeature">
             <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
                <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
                   <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
@@ -407,10 +406,10 @@ export default function Index({ stars }: { stars: string }) {
                   </p>
                </div>
             </section>
-         </FadeIn>
+         </ScrollFadeIn>
          <hr className="border-slate-200" />
 
-         <FadeIn id="importFeature">
+         <ScrollFadeIn id="importFeature">
             <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
                <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
                   <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
@@ -432,10 +431,10 @@ export default function Index({ stars }: { stars: string }) {
                   </p>
                </div>
             </section>
-         </FadeIn>
+         </ScrollFadeIn>
          <hr className="border-slate-200" />
 
-         <FadeIn id="issueFeature">
+         <ScrollFadeIn id="issueFeature">
             <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
                <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
                   <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
@@ -455,10 +454,10 @@ export default function Index({ stars }: { stars: string }) {
                   </p>
                </div>
             </section>
-         </FadeIn>
+         </ScrollFadeIn>
          <hr className="border-slate-200" />
 
-         <FadeIn id="projectFeature">
+         <ScrollFadeIn id="projectFeature">
             <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
                <div className="mx-auto flex flex-col items-center gap-4 md:max-w-[52rem]">
                   <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">UML Projects</h2>
@@ -475,10 +474,10 @@ export default function Index({ stars }: { stars: string }) {
                   </p>
                </div>
             </section>
-         </FadeIn>
+         </ScrollFadeIn>
          <hr className="border-slate-200" />
 
-         <FadeIn id="openSource">
+         <ScrollFadeIn id="openSource">
             <section className="container grid justify-center gap-6 py-8 md:py-12 lg:py-24 text-center">
                <div className="mx-auto flex flex-col gap-4 md:max-w-[52rem]">
                   <h2 className="text-3xl font-bold leading-[1.1] tracking-tighter sm:text-3xl md:text-6xl">
@@ -524,7 +523,7 @@ export default function Index({ stars }: { stars: string }) {
                   </div>
                )}
             </section>
-         </FadeIn>
+         </ScrollFadeIn>
       </HomeLayout>
    );
 }
@@ -559,3 +558,47 @@ async function getGitHubStars(): Promise<string | null> {
       return null;
    }
 }
+
+const ScrollFadeIn = ({ children, id }) => {
+   const [isVisible, setIsVisible] = useState(false);
+   const [isLoaded, setIsLoaded] = useState(false);
+
+   useEffect(() => {
+      const handleScroll = () => {
+         const currentScrollPos = window.pageYOffset + 800;
+         const maxScrollPos = document.body.scrollHeight - window.innerHeight;
+         const scrollPercentage = (currentScrollPos / maxScrollPos) * 100;
+
+         const element = document.getElementById(id);
+         if (element) {
+            const elementTop = element.offsetTop;
+            const elementHeight = element.offsetHeight;
+            const elementBottom = elementTop + elementHeight;
+
+            if (currentScrollPos > elementTop && currentScrollPos < elementBottom && !isLoaded) {
+               setIsVisible(true);
+               setIsLoaded(true);
+            } else {
+               setIsVisible(false);
+            }
+         }
+      };
+
+      window.addEventListener("scroll", handleScroll);
+
+      return () => {
+         window.removeEventListener("scroll", handleScroll);
+      };
+   }, [id, isLoaded]);
+
+   return (
+      <div
+         id={id}
+         className={`transition-opacity duration-1000 ${
+            isLoaded ? (isVisible ? "opacity-100" : "opacity-100") : "opacity-0"
+         }`}
+      >
+         {children}
+      </div>
+   );
+};
