@@ -27,7 +27,7 @@ export default function RightPanel({
             return;
          }
 
-         if (graph.current?.getSelectedCells().length === 0) {
+         if (graph.current?.getSelectedCells().length === 0 && tab !== "issue") {
             setTab("graph");
          } else if (graph.current?.getSelectedCells().every((cell) => cell.isNode())) {
             setTab("nodes");
