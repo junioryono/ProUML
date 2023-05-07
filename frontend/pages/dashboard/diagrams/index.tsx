@@ -30,6 +30,7 @@ export default function DashboardDiagramsPage({
       <DashboardLayout user={user}>
          <DashboardShell>
             <DiagramsHeader
+               userId={user.user_id}
                diagramsLength={
                   !diagramsRequest.success
                      ? 0

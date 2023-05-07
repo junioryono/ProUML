@@ -13,6 +13,7 @@ import {
    createDiagram,
    getProjects,
    removeDiagramUser,
+   deleteProject,
 } from "@/lib/auth-fetch";
 import { toast } from "@/ui/toast";
 import { useForm } from "react-hook-form";
@@ -20,13 +21,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 export default function SelectedItemsOptions({
+   selectedItems,
+   userId,
    showMenu,
    setShowMenu,
-   selectedItems,
 }: {
+   selectedItems?: (Diagram | Project)[];
+   userId?: string;
    showMenu: boolean;
    setShowMenu: React.Dispatch<React.SetStateAction<boolean | undefined>>;
-   selectedItems?: (Diagram | Project)[];
 }) {
    const router = useRouter();
    const [projects, setProjects] = useState<Project[]>([]);
@@ -39,29 +42,6 @@ export default function SelectedItemsOptions({
          setShowMenu(false);
       }
    }, [assignProjectOpen]);
-
-   // useEffect(() => {
-   //    if (!project && !didFetchProjects.current && !projects.length && assignProjectOpen) {
-   //       didFetchProjects.current = true;
-
-   //       getProjects()
-   //          .then((res) => {
-   //             if (res.success === false) {
-   //                throw new Error(res.reason);
-   //             }
-
-   //             setProjects(res.response);
-   //          })
-   //          .catch((error) => {
-   //             console.error(error);
-   //             return toast({
-   //                title: "Something went wrong.",
-   //                message: error.message,
-   //                type: "error",
-   //             });
-   //          });
-   //    }
-   // }, [project, projects, assignProjectOpen]);
 
    return (
       <Menu
@@ -128,6 +108,71 @@ export default function SelectedItemsOptions({
                               active ? "bg-gray-100 text-gray-900" : "text-gray-700",
                               "px-4 py-2 text-sm flex flex-row",
                            )}
+                           onClick={() => {
+                              setShowMenu(false);
+
+                              // use a timeout to allow every selected item to be deleted
+                              const timeout = setTimeout(() => {
+                                 // selected unshared diagrams
+                                 if (selectedItems?.some((item: Diagram) => item.is_shared_with_current_user === false)) {
+                                    selectedItems
+                                       .filter((diagram: Diagram) => diagram.is_shared_with_current_user === false)
+                                       .forEach((diagram: Diagram) => {
+                                          deleteDiagram(diagram.id).then((res) => {
+                                             if (res.success === false) {
+                                                return toast({
+                                                   title: "Could not delete diagram(s).",
+                                                   message: res.reason,
+                                                   type: "error",
+                                                });
+                                             }
+                                          });
+                                       });
+                                 }
+                                 // selected shared diagrams with the current user
+                                 else if (
+                                    selectedItems?.some((item: Diagram) => item.is_shared_with_current_user === true)
+                                 ) {
+                                    selectedItems
+                                       .filter((diagram: Diagram) => diagram.is_shared_with_current_user === true)
+                                       .forEach((diagram: Diagram) => {
+                                          removeDiagramUser(diagram.id, userId).then((res) => {
+                                             if (res.success === false) {
+                                                return toast({
+                                                   title: "Could not remove yourself from shared diagram(s).",
+                                                   message: res.reason,
+                                                   type: "error",
+                                                });
+                                             }
+                                          });
+                                       });
+                                 }
+                                 // selected projects
+                                 else if (selectedItems?.some((item: Project) => item)) {
+                                    selectedItems
+                                       .filter((project: Project) => project)
+                                       .forEach((project: Project) => {
+                                          deleteProject(project.id).then((res) => {
+                                             if (res.success === false) {
+                                                return toast({
+                                                   title: "Could not delete project(s).",
+                                                   message: res.reason,
+                                                   type: "error",
+                                                });
+                                             }
+                                          });
+                                       });
+                                 }
+
+                                 router.refresh();
+
+                                 return toast({
+                                    title: "Items deleted.",
+                                    message: "The selected items have been deleted.",
+                                    type: "success",
+                                 });
+                              }, 1000);
+                           }}
                         >
                            <svg
                               width="20px"

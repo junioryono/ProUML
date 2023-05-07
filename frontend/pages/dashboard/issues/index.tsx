@@ -41,7 +41,7 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                   <>
                      <div className="mb-2">
                         <div className="m-2 border-black border-[1.4px] rounded-md overflow-auto">
-                           <div className="p-2 text-lg bg-black rounded-t-sm text-white font-bold grid grid-cols-3">
+                           <div className="p-2 text-md bg-black rounded-t-sm text-white font-bold grid grid-cols-3">
                               <div className="flex justify-start pl-6">
                                  <div
                                     className="flex items-center gap-1 cursor-pointer hover:scale-[1.05] transition-all duration-200"

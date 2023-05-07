@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Icons } from "@/components/icons";
 
 export default function DiagramsHeader({
+   userId,
    diagramsLength,
    showEmptyPlaceholder,
    project,
@@ -18,6 +19,7 @@ export default function DiagramsHeader({
    selectedItems,
    setSelectedItems,
 }: {
+   userId?: string;
    diagramsLength: number;
    showEmptyPlaceholder: boolean;
    project?: Project;
@@ -129,9 +131,10 @@ export default function DiagramsHeader({
                         <>
                            <span className="font-medium text-slate-900 text-center">{selectedItems.length} selected</span>
                            <SelectedItemsOptions
+                              selectedItems={selectedItems}
+                              userId={userId}
                               showMenu={showMenu}
                               setShowMenu={setShowMenu}
-                              selectedItems={selectedItems}
                            />
                         </>
                      ) : (

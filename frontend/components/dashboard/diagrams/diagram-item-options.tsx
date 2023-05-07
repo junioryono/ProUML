@@ -39,8 +39,6 @@ export default function DiagramItemOptions({
    const [renameOpen, setRenameOpen] = useState(false);
    const [assignProjectOpen, setAssignProjectOpen] = useState(false);
 
-   //console.log("diagram", diagram);
-
    useEffect(() => {
       if (renameOpen) {
          setShowMenu(false);
