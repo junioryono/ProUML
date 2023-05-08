@@ -63,7 +63,7 @@ type DiagramModel struct {
 	Name                   string                 `gorm:"default:'Untitled Diagram'" json:"name"`
 	Image                  string                 `json:"image,omitempty"`
 	Content                DiagramContent         `gorm:"type:jsonb;default:'[]';not null" json:"content"`
-	ProjectID              string                 `gorm:"default:'default'" json:"project_id"`
+	ProjectID              string                 `gorm:"default:'default'" json:"project_id,omitempty"`
 	Project                *ProjectModel          `gorm:"foreignKey:ProjectID;references:ID" json:"project,omitempty"`
 	BackgroundColor        string                 `gorm:"default:FFFFFF" json:"background_color"`
 	ShowGrid               bool                   `gorm:"default:true" json:"show_grid"`

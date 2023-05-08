@@ -231,6 +231,10 @@ func (d *Diagram_SDK) Get(diagramId, idToken string) (*models.DiagramModel, stri
 		diagram.Project = nil
 	}
 
+	if diagram.ProjectID == "default" {
+		diagram.ProjectID = ""
+	}
+
 	return &diagram, role, nil
 }
 

@@ -6,6 +6,7 @@ import Link from "next/link";
 import DiagramLayout from "@/components/diagram/layout";
 
 export default function DiagramPage({ user, role, diagram }: { user: User; role: string; diagram: Diagram }) {
+   console.log("DiagramPage", diagram);
    if (!diagram) {
       return (
          <div className="text-center pt-56">

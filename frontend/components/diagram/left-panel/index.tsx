@@ -41,7 +41,7 @@ export default function LeftPanel({
 }) {
    const router = useRouter();
 
-   const [projDiagrams, setProjDiagrams] = useState<Diagram[]>(diagram.project?.diagrams || []);
+   const [projDiagrams, setProjDiagrams] = useState<Diagram[] | null>(diagram.project?.diagrams || null);
    const [nodes, setNodes] = useState<X6Type.Node[]>([]);
    const [edges, setEdges] = useState<X6Type.Edge[]>([]);
    const [selectedCells, setSelectedCells] = useState<X6Type.Cell[]>([]);
