@@ -18,6 +18,7 @@ import (
 	"github.com/junioryono/ProUML/backend/router/routes/oauth"
 	"github.com/junioryono/ProUML/backend/router/routes/project"
 	projectDiagram "github.com/junioryono/ProUML/backend/router/routes/project/diagram"
+	projectUsers "github.com/junioryono/ProUML/backend/router/routes/project/users"
 	"github.com/junioryono/ProUML/backend/router/routes/projects"
 	"github.com/junioryono/ProUML/backend/sdk"
 	"github.com/junioryono/ProUML/backend/types"
@@ -91,10 +92,12 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	DiagramRouter.Delete("/", diagram.Delete(sdkP))
 	DiagramRouter.Post("/issues", diagramIssues.Post(sdkP))
 	DiagramRouter.Delete("/issues", diagramIssues.Delete(sdkP))
-	DiagramRouter.Post("/users", diagramUsers.Post(sdkP))
-	DiagramRouter.Put("/users", diagramUsers.Put(sdkP))
-	DiagramRouter.Get("/users", diagramUsers.Get(sdkP))
-	DiagramRouter.Delete("/users", diagramUsers.Delete(sdkP))
+
+	DiagramUsersRouter := DiagramRouter.Group("/users", isAuthenticated(sdkP))
+	DiagramUsersRouter.Get("/", diagramUsers.Get(sdkP))
+	DiagramUsersRouter.Delete("/", diagramUsers.Delete(sdkP))
+	DiagramUsersRouter.Post("/", diagramUsers.Post(sdkP))
+	DiagramUsersRouter.Put("/", diagramUsers.Put(sdkP))
 
 	DiagramsRouter := Router.Group("/diagrams", isAuthenticated(sdkP))
 	DiagramsRouter.Get("/", diagrams.Get(sdkP))
@@ -105,6 +108,12 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	ProjectRouter.Put("/", project.Put(sdkP))
 	ProjectRouter.Get("/", project.Get(sdkP))
 	ProjectRouter.Delete("/", project.Delete(sdkP))
+
+	ProjectUsersRouter := ProjectRouter.Group("/users", isAuthenticated(sdkP))
+	ProjectUsersRouter.Get("/", projectUsers.Get(sdkP))
+	ProjectUsersRouter.Delete("/", projectUsers.Delete(sdkP))
+	ProjectUsersRouter.Post("/", projectUsers.Post(sdkP))
+	ProjectUsersRouter.Put("/", projectUsers.Put(sdkP))
 
 	ProjectDiagramRouter := ProjectRouter.Group("/diagram", isAuthenticated(sdkP))
 	ProjectDiagramRouter.Put("/", projectDiagram.Put(sdkP))

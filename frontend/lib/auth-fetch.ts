@@ -521,3 +521,96 @@ export async function deleteIssue(diagramId: string, issueId: string, options?: 
       .then((res) => jsonResponse<null>(res))
       .catch(() => defaultError);
 }
+
+export async function getProjectUsers(
+   projectId: string,
+   options?: RequestInit,
+): Promise<
+   APIResponse<{
+      users: User[];
+      allowedToEdit?: boolean;
+      editorPermissionsEnabled?: boolean;
+   }>
+> {
+   return fetchAPI(
+      "/project/users?" +
+         new URLSearchParams({
+            id: projectId,
+         }),
+      {
+         ...options,
+      },
+   )
+      .then((res) =>
+         jsonResponse<{
+            users: User[];
+            allowedToEdit?: boolean;
+            editorPermissionsEnabled?: boolean;
+         }>(res),
+      )
+      .catch(() => defaultError);
+}
+
+export async function addProjectUser(
+   projectId: string,
+   email: string,
+   role: string,
+   options?: RequestInit,
+): Promise<APIResponse<undefined>> {
+   return fetchAPI(
+      "/project/users?" +
+         new URLSearchParams({
+            project_id: projectId,
+            email: email,
+            role: role,
+         }),
+      {
+         ...options,
+         method: "POST",
+      },
+   )
+      .then((res) => jsonResponse<undefined>(res))
+      .catch(() => defaultError);
+}
+
+export async function updateProjectUser(
+   projectId: string,
+   userId: string,
+   role: string,
+   options?: RequestInit,
+): Promise<APIResponse<undefined>> {
+   return fetchAPI(
+      "/project/users?" +
+         new URLSearchParams({
+            project_id: projectId,
+            user_id: userId,
+            role: role,
+         }),
+      {
+         ...options,
+         method: "PUT",
+      },
+   )
+      .then((res) => jsonResponse<undefined>(res))
+      .catch(() => defaultError);
+}
+
+export async function removeProjectUser(
+   projectId: string,
+   userId: string,
+   options?: RequestInit,
+): Promise<APIResponse<undefined>> {
+   return fetchAPI(
+      "/project/users?" +
+         new URLSearchParams({
+            project_id: projectId,
+            user_id: userId,
+         }),
+      {
+         ...options,
+         method: "DELETE",
+      },
+   )
+      .then((res) => jsonResponse<undefined>(res))
+      .catch(() => defaultError);
+}
