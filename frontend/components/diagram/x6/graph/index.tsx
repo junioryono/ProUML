@@ -9,6 +9,20 @@ import { ReadyState } from "react-use-websocket";
 import initializeListeners from "@/components/diagram/x6/graph/listeners";
 import useGraphWebSocket from "@/components/diagram/x6/graph/websocket";
 import { addAllPorts, addPorts } from "./shapes/ports";
+import {
+   isRegularEdge,
+   setRegularEdge,
+   setAggregationEdge,
+   isAggregationEdge,
+   setAssociationEdge,
+   isAssociationEdge,
+   setCompositionEdge,
+   isCompositionEdge,
+   setGeneralizationEdge,
+   isGeneralizationEdge,
+   setRealizationEdge,
+   isRealizationEdge,
+} from "./shapes/edges";
 
 export default function useGraph(
    X6: X6StateType,
@@ -209,6 +223,22 @@ export default function useGraph(
       console.log("diagram.content", diagram.content);
       graph.current.fromJSON({ cells: diagram.content }, { ignoreHistory: true });
       addAllPorts(graph.current);
+
+      for (const edge of graph.current.getEdges()) {
+         if (isRegularEdge(edge.prop())) {
+            setRegularEdge(edge);
+         } else if (isAggregationEdge(edge.prop())) {
+            setAggregationEdge(edge);
+         } else if (isAssociationEdge(edge.prop())) {
+            setAssociationEdge(edge);
+         } else if (isCompositionEdge(edge.prop())) {
+            setCompositionEdge(edge);
+         } else if (isGeneralizationEdge(edge.prop())) {
+            setGeneralizationEdge(edge);
+         } else if (isRealizationEdge(edge.prop())) {
+            setRealizationEdge(edge);
+         }
+      }
 
       const removeListeners = initializeListeners(graph, wsSendJson, sessionId, layoutProps, X6.Shape.Edge);
       const handleResize = () => graph.current.size.resize(getGraphWidth(), getGraphHeight());

@@ -1,26 +1,26 @@
 import { Graph, Cell, Edge } from "@antv/x6";
 
-function isRegularEdge(cell: Cell.Properties) {
+export function isRegularEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && (!cell.edgeType || cell.edgeType === "classic");
 }
 
-function isAggregationEdge(cell: Cell.Properties) {
+export function isAggregationEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && cell.edgeType === "aggregation";
 }
 
-function isAssociationEdge(cell: Cell.Properties) {
+export function isAssociationEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && cell.edgeType === "association";
 }
 
-function isCompositionEdge(cell: Cell.Properties) {
+export function isCompositionEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && cell.edgeType === "composition";
 }
 
-function isGeneralizationEdge(cell: Cell.Properties) {
+export function isGeneralizationEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && cell.edgeType === "generalization";
 }
 
-function isRealizationEdge(cell: Cell.Properties) {
+export function isRealizationEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && cell.edgeType === "realization";
 }
 
@@ -54,7 +54,7 @@ function setEdgeConnectionPoint(edge: Edge, sourceOffset = 0, targetOffset = 0) 
    });
 }
 
-function setRegularEdge(edge: Edge) {
+export function setRegularEdge(edge: Edge) {
    setEdgeConnectionPoint(edge, 0, -2);
    edge.setProp("edgeType", "classic");
    edge.setProp("attrs", {
@@ -68,7 +68,7 @@ function setRegularEdge(edge: Edge) {
    });
 }
 
-function setAggregationEdge(edge: Edge) {
+export function setAggregationEdge(edge: Edge) {
    setEdgeConnectionPoint(edge);
    edge.setProp("edgeType", "aggregation");
    edge.setProp("attrs", {
@@ -85,7 +85,7 @@ function setAggregationEdge(edge: Edge) {
    });
 }
 
-function setAssociationEdge(edge: Edge) {
+export function setAssociationEdge(edge: Edge) {
    setEdgeConnectionPoint(edge);
    edge.setProp("edgeType", "association");
    edge.setProp("attrs", {
@@ -102,7 +102,7 @@ function setAssociationEdge(edge: Edge) {
    });
 }
 
-function setCompositionEdge(edge: Edge) {
+export function setCompositionEdge(edge: Edge) {
    setEdgeConnectionPoint(edge);
    edge.setProp("edgeType", "composition");
    edge.setProp("attrs", {
@@ -125,7 +125,7 @@ function setCompositionEdge(edge: Edge) {
    });
 }
 
-function setGeneralizationEdge(edge: Edge) {
+export function setGeneralizationEdge(edge: Edge) {
    setEdgeConnectionPoint(edge);
    edge.setProp("edgeType", "generalization");
    edge.setProp("attrs", {
@@ -143,7 +143,7 @@ function setGeneralizationEdge(edge: Edge) {
    });
 }
 
-function setRealizationEdge(edge: Edge) {
+export function setRealizationEdge(edge: Edge) {
    setEdgeConnectionPoint(edge);
    edge.setProp("edgeType", "realization");
    edge.setProp("attrs", {
