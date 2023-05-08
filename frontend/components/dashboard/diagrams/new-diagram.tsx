@@ -63,6 +63,31 @@ const templates: DiagramTemplate[] = [
       image: "https://refactoring.guru/images/patterns/cards/adapter-mini-2x.png",
    },
    {
+      name: "observer",
+      label: "Observer",
+      image: "https://refactoring.guru/images/patterns/cards/observer-mini-2x.png?id=f205b0655572ac8e4636691c0e0debfd",
+   },
+   {
+      name: "strategy",
+      label: "Strategy",
+      image: "https://refactoring.guru/images/patterns/cards/strategy-mini-2x.png?id=f4e6608561f8e5d18be6927d4620ad29",
+   },
+   {
+      name: "state",
+      label: "State",
+      image: "https://refactoring.guru/images/patterns/cards/state-mini-2x.png?id=7e24398b27a43c7bd286fc0ea54d2a35",
+   },
+   {
+      name: "template_method",
+      label: "Template Method",
+      image: "https://refactoring.guru/images/patterns/cards/template-method-mini-2x.png?id=178bf56e39b3a1f548dd636076209c98",
+   },
+   {
+      name: "visitor",
+      label: "Vistor",
+      image: "https://refactoring.guru/images/patterns/cards/visitor-mini-2x.png?id=9b87f3f3b772f434b28a25876829b504",
+   },
+   {
       name: "bridge",
       label: "Bridge",
       image: "https://refactoring.guru/images/patterns/cards/bridge-mini-2x.png",
