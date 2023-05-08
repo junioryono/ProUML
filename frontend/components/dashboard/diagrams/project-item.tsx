@@ -2,18 +2,20 @@ import Link from "next/link";
 
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { Project } from "types";
+import { User, Project } from "types";
 import ProjectItemOptions from "./project-item-options";
 import { LongPressDetectEvents, useLongPress } from "use-long-press";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Icons } from "@/components/icons";
 
 export default function ProjectItem({
+   user,
    project,
    selectable,
    selectedItems,
    setSelectedItems,
 }: {
+   user: User;
    project: Project;
    selectable?: boolean;
    selectedItems?: Project[];
@@ -112,7 +114,7 @@ export default function ProjectItem({
                         {/* <p className="mt-1 text-xs sm:text-sm overflow-ellipsis overflow-hidden">{updatedAt}</p> */}
                      </div>
                      <div className="h-fit ml-auto md:mt-auto">
-                        <ProjectItemOptions project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
+                        <ProjectItemOptions user={user} project={project} showMenu={showMenu} setShowMenu={setShowMenu} />
                      </div>
                   </div>
                </Link>

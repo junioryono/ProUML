@@ -7,15 +7,19 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { toast } from "@/ui/toast";
 import { useForm } from "react-hook-form";
+import { User } from "types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { deleteProject, updateProject } from "@/lib/auth-fetch";
+import { deleteProject, updateProject, addProjectUser } from "@/lib/auth-fetch";
+import ShareProject from "./share-project";
 
 export default function ProjectItemOptions({
+   user,
    project,
    showMenu,
    setShowMenu,
 }: {
+   user: User;
    project: Project;
    showMenu: boolean;
    setShowMenu: React.Dispatch<React.SetStateAction<boolean | undefined>>;
@@ -26,6 +30,7 @@ export default function ProjectItemOptions({
 
    const [renameOpen, setRenameOpen] = useState(false);
    const [assignProjectOpen, setAssignProjectOpen] = useState(false);
+   const [sharePopupOpen, setSharePopupOpen] = useState(false);
 
    useEffect(() => {
       if (renameOpen) {
@@ -216,9 +221,87 @@ export default function ProjectItemOptions({
                      )}
                   </Menu.Item>
                </div>
+
+               <div className="py-1">
+                  <Menu.Item>
+                     {({ active }) => (
+                        <div
+                           className={cn(
+                              active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                              "px-4 py-2 text-sm flex flex-row",
+                           )}
+                           onClick={() => {
+                              // open the share dialog popup
+                              setSharePopupOpen(true);
+                           }}
+                        >
+                           <svg
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="#000000"
+                              className="w-5 h-5 mr-5"
+                           >
+                              <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                              <g id="SVGRepo_tracerCarrier" strokeLinecap="round" stroke-linejoin="round"></g>
+                              <g id="SVGRepo_iconCarrier">
+                                 <title></title>
+                                 <g id="Complete">
+                                    <g id="user-add">
+                                       <g>
+                                          <path
+                                             d="M17,21V19a4,4,0,0,0-4-4H5a4,4,0,0,0-4,4v2"
+                                             fill="none"
+                                             stroke="#000000"
+                                             strokeLinecap="round"
+                                             stroke-linejoin="round"
+                                             strokeWidth="2"
+                                          ></path>
+                                          <circle
+                                             cx="9"
+                                             cy="7"
+                                             fill="none"
+                                             r="4"
+                                             stroke="#000000"
+                                             strokeLinecap="round"
+                                             stroke-linejoin="round"
+                                             strokeWidth="2"
+                                          ></circle>
+                                          <line
+                                             fill="none"
+                                             stroke="#000000"
+                                             strokeLinecap="round"
+                                             stroke-linejoin="round"
+                                             strokeWidth="2"
+                                             x1="17"
+                                             x2="23"
+                                             y1="11"
+                                             y2="11"
+                                          ></line>
+                                          <line
+                                             fill="none"
+                                             stroke="#000000"
+                                             strokeLinecap="round"
+                                             stroke-linejoin="round"
+                                             strokeWidth="2"
+                                             x1="20"
+                                             x2="20"
+                                             y1="8"
+                                             y2="14"
+                                          ></line>
+                                       </g>
+                                    </g>
+                                 </g>
+                              </g>
+                           </svg>
+                           Share Project
+                        </div>
+                     )}
+                  </Menu.Item>
+               </div>
             </Menu.Items>
          </Transition>
 
+         <ShareProject open={sharePopupOpen} setOpen={setSharePopupOpen} user={user} role={user.role} project={project} />
          <RenameTransition projectId={project.id} projectName={project.name} show={renameOpen} setShow={setRenameOpen} />
       </Menu>
    );

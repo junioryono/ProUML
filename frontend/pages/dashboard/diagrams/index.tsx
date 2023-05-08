@@ -60,6 +60,7 @@ export default function DashboardDiagramsPage({
                         <div className="flex flex-wrap select-none">
                            {diagramsRequest.response.projects.map((project) => (
                               <ProjectItem
+                                 user={user}
                                  key={project.id}
                                  project={project}
                                  selectable={selectingItems}
