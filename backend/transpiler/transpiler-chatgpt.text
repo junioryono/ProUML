@@ -2,11 +2,16 @@ package transpiler
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/fogleman/gg"
 	"github.com/google/uuid"
@@ -14,6 +19,7 @@ import (
 	"github.com/junioryono/ProUML/backend/transpiler/java"
 	"github.com/junioryono/ProUML/backend/transpiler/types"
 	httpTypes "github.com/junioryono/ProUML/backend/types"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 var (
@@ -135,6 +141,92 @@ func generateDiagramLayout(project *types.Project) []any {
 			node.Shape = "custom-class"
 			node.Width, node.Height = getNodeSize(node.Name, node.Variables, node.Methods, nil, true)
 			project.Nodes[i] = node
+		}
+	}
+
+	chatgptPrompt := generateChatGPTPrompt(project.Nodes, project.Edges)
+
+	var content string
+	content += "\n\n I need a UML Class Diagram for this project. \n\n I need you to identify known patterns in the code and return to me the x and y coordinates for each node. You must use each node's width and height and the edge relations given to you. to determine the x and y coordinates. \n\n"
+	content += "\nAlso please make sure there is some space between each node and edge.\nIf you identify any patterns, for example, abstract factory, do not be afraid to group things together like all of the factories with the interface on top of it. Also do not be afraid to move things around to make the diagram look better. Just make sure you don't have any overlapping nodes.\n\n"
+	content += "\n\nThe return format must be a JSON object with the following format: \n\n [ \n { \n \"id\": PACKAGE.CLASSNAME, \n \"x\": X, \n \"y\": Y, \n } \n ]\n\n Please do not include anything else in the response, no other text, no other characters, just the JSON object."
+
+	// Give info to ChatGPT. Give all node names, node sizes, node types, and edges
+	c := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+	ctx := context.Background()
+	req := openai.ChatCompletionRequest{
+		Model:     openai.GPT3Dot5Turbo,
+		MaxTokens: 2000,
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleSystem,
+				Content: content,
+			},
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: chatgptPrompt,
+			},
+		},
+	}
+
+	resp, err := c.CreateChatCompletion(ctx, req)
+	if err != nil {
+		fmt.Println("Error1: ", err)
+		return nil
+	}
+
+	// Extract node position
+	if len(resp.Choices) == 0 {
+		return nil
+	}
+
+	// Parse resp.Choices[0].Message.Content
+	var nodePositions []struct {
+		ID string  `json:"id"`
+		X  float64 `json:"x"`
+		Y  float64 `json:"y"`
+	}
+
+	fmt.Printf("HERE1: `%s`", resp.Choices[0].Message.Content)
+
+	// Remove all the text before the first bracket and after the last bracket
+	resp.Choices[0].Message.Content = strings.Split(resp.Choices[0].Message.Content, "[")[1]
+	resp.Choices[0].Message.Content = strings.Split(resp.Choices[0].Message.Content, "]")[0]
+
+	// Add brackets to the beginning and end of the string
+	resp.Choices[0].Message.Content = "[" + resp.Choices[0].Message.Content + "]"
+
+	fmt.Printf("HERE2: `%s`", resp.Choices[0].Message.Content)
+
+	err = json.Unmarshal([]byte(resp.Choices[0].Message.Content), &nodePositions)
+	if err != nil {
+		fmt.Println("Error2: ", err)
+		return nil
+	}
+
+	// Add node positions to diagramContent
+	for i := 0; i < len(nodePositions); i++ {
+		for j := 0; j < len(project.Nodes); j++ {
+			if nodePositions[i].ID == string(getNodeClassId(project.Nodes[j])) {
+				switch node := project.Nodes[j].(type) {
+				case types.JavaAbstract:
+					node.X = nodePositions[i].X
+					node.Y = nodePositions[i].Y
+					project.Nodes[j] = node
+				case types.JavaClass:
+					node.X = nodePositions[i].X
+					node.Y = nodePositions[i].Y
+					project.Nodes[j] = node
+				case types.JavaEnum:
+					node.X = nodePositions[i].X
+					node.Y = nodePositions[i].Y
+					project.Nodes[j] = node
+				case types.JavaInterface:
+					node.X = nodePositions[i].X
+					node.Y = nodePositions[i].Y
+					project.Nodes[j] = node
+				}
+			}
 		}
 	}
 

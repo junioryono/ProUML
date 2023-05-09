@@ -17,6 +17,7 @@ export default function EdgeJumps({
       {
          // jump over other edges
          router: "jump",
+         jump: "jumpover",
          icon: (
             <svg fill="#000000" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" width="40" height="25">
                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>

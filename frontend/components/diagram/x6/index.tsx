@@ -67,6 +67,7 @@ export default function useX6(container: MutableRefObject<HTMLDivElement>, diagr
             await import("./plugins/export"),
             await import("./graph/shapes/nodes"),
             await import("./graph/shapes/edges"),
+            await import("./graph/shapes/register-edges"),
             await import("./graph/shapes/tools/arrowhead"),
          ]);
 

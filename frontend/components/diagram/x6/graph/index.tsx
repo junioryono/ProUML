@@ -11,16 +11,16 @@ import useGraphWebSocket from "@/components/diagram/x6/graph/websocket";
 import { addAllPorts, addPorts } from "./shapes/ports";
 import {
    isRegularEdge,
-   setRegularEdge,
-   setAggregationEdge,
+   setRegularEdgeTarget,
+   setAggregationEdgeTarget,
    isAggregationEdge,
-   setAssociationEdge,
+   setAssociationEdgeTarget,
    isAssociationEdge,
-   setCompositionEdge,
+   setCompositionEdgeTarget,
    isCompositionEdge,
-   setGeneralizationEdge,
+   setGeneralizationEdgeTarget,
    isGeneralizationEdge,
-   setRealizationEdge,
+   setRealizationEdgeTarget,
    isRealizationEdge,
 } from "./shapes/edges";
 
@@ -226,17 +226,17 @@ export default function useGraph(
 
       for (const edge of graph.current.getEdges()) {
          if (isRegularEdge(edge.prop())) {
-            setRegularEdge(edge);
+            setRegularEdgeTarget(edge);
          } else if (isAggregationEdge(edge.prop())) {
-            setAggregationEdge(edge);
+            setAggregationEdgeTarget(edge);
          } else if (isAssociationEdge(edge.prop())) {
-            setAssociationEdge(edge);
+            setAssociationEdgeTarget(edge);
          } else if (isCompositionEdge(edge.prop())) {
-            setCompositionEdge(edge);
+            setCompositionEdgeTarget(edge);
          } else if (isGeneralizationEdge(edge.prop())) {
-            setGeneralizationEdge(edge);
+            setGeneralizationEdgeTarget(edge);
          } else if (isRealizationEdge(edge.prop())) {
-            setRealizationEdge(edge);
+            setRealizationEdgeTarget(edge);
          }
       }
 

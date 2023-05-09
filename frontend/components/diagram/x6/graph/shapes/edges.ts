@@ -1,4 +1,4 @@
-import { Graph, Cell, Edge } from "@antv/x6";
+import type { Graph, Cell, Edge } from "@antv/x6";
 
 export function isRegularEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && (!cell.edgeType || cell.edgeType === "classic");
@@ -12,6 +12,8 @@ export function isAssociationEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && cell.edgeType === "association";
 }
 
+export function isAssociationSource(cell: Cell.Properties) {}
+
 export function isCompositionEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && cell.edgeType === "composition";
 }
@@ -24,13 +26,50 @@ export function isRealizationEdge(cell: Cell.Properties) {
    return cell.shape === "edge" && cell.edgeType === "realization";
 }
 
-const defaultAttrs = {
+export const defaultAttrs = {
    line: { stroke: "#000000", strokeWidth: 2, strokeDasharray: undefined },
    lines: { connection: true, strokeLinejoin: "round" },
    wrap: { strokeWidth: 10 },
 };
 
+const dashedLine = {
+   strokeDasharray: "3,3",
+};
+
+const solidLine = {
+   strokeDasharray: undefined,
+};
+
+export function setEdgeStrokeColor(edge: Edge, color: string) {
+   const edgeLine = edge.getPropByPath("attrs/line");
+   edge.setProp("attrs", {
+      ...defaultAttrs,
+      line: {
+         ...defaultAttrs.line,
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         stroke: color,
+      },
+   });
+}
+
+export function isEdgeDashed(edge: Edge) {
+   return edge.getPropByPath("attrs/line/strokeDasharray") === "3,3";
+}
+
+export function setEdgeStrokeDasharray(edge: Edge, dashed = true) {
+   const edgeLine = edge.getPropByPath("attrs/line");
+   edge.setProp("attrs", {
+      ...defaultAttrs,
+      line: {
+         ...defaultAttrs.line,
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         ...(dashed ? dashedLine : solidLine),
+      },
+   });
+}
+
 function setEdgeStrokeWidth(edge: Edge, strokeWidth: number) {
+   const edgeLine = edge.getPropByPath("attrs/line");
    edge.setProp("attrs", {
       ...defaultAttrs,
       line: {
@@ -54,140 +93,241 @@ function setEdgeConnectionPoint(edge: Edge, sourceOffset = 0, targetOffset = 0) 
    });
 }
 
-export function setRegularEdge(edge: Edge) {
+const classicMarker = {
+   type: "classic",
+   size: 0,
+};
+
+export function setRegularEdgeTarget(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
    setEdgeConnectionPoint(edge, 0, -2);
-   edge.setProp("edgeType", "classic");
    edge.setProp("attrs", {
       ...defaultAttrs,
       line: {
          ...defaultAttrs.line,
-         targetMarker: {
-            size: 0,
-         },
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         targetMarker: classicMarker,
+      },
+   });
+}
+export function setRegularEdgeSource(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
+   setEdgeConnectionPoint(edge, -2, 0);
+   edge.setProp("attrs", {
+      ...defaultAttrs,
+      line: {
+         ...defaultAttrs.line,
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         sourceMarker: classicMarker,
       },
    });
 }
 
-export function setAggregationEdge(edge: Edge) {
+const aggregationMarker = {
+   type: "aggregation",
+   name: "path",
+   d: "M 30 10 L 18 18 L 6 10 L 18 2 z",
+   fill: "black",
+   offsetX: -12,
+};
+
+export function setAggregationEdgeTarget(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
    setEdgeConnectionPoint(edge);
-   edge.setProp("edgeType", "aggregation");
    edge.setProp("attrs", {
       ...defaultAttrs,
       line: {
          ...defaultAttrs.line,
-         targetMarker: {
-            name: "path",
-            d: "M 30 10 L 18 18 L 6 10 L 18 2 z",
-            fill: "black",
-            offsetX: -12,
-         },
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         targetMarker: aggregationMarker,
       },
    });
 }
 
-export function setAssociationEdge(edge: Edge) {
+export function setAggregationEdgeSource(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
    setEdgeConnectionPoint(edge);
-   edge.setProp("edgeType", "association");
    edge.setProp("attrs", {
       ...defaultAttrs,
       line: {
          ...defaultAttrs.line,
-         targetMarker: {
-            name: "path",
-            d: "M 6 10 L 18 4 C 14.3333 6 10.6667 8 7 10 L 18 16 z",
-            fill: "black",
-            offsetX: -5,
-         },
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         sourceMarker: aggregationMarker,
       },
    });
 }
 
-export function setCompositionEdge(edge: Edge) {
+const associationMarker = {
+   type: "association",
+   name: "path",
+   d: "M 6 10 L 18 4 C 14.3333 6 10.6667 8 7 10 L 18 16 z",
+   fill: "black",
+   offsetX: -5,
+};
+
+export function setAssociationEdgeTarget(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
    setEdgeConnectionPoint(edge);
-   edge.setProp("edgeType", "composition");
    edge.setProp("attrs", {
       ...defaultAttrs,
       line: {
          ...defaultAttrs.line,
-         sourceMarker: {
-            name: "path",
-            d: "M 30 10 L 20 16 L 10 10 L 20 4 z",
-            fill: "black",
-            offsetX: -10,
-         },
-         targetMarker: {
-            name: "path",
-            d: "M 6 10 L 18 4 C 14.3333 6 10.6667 8 7 10 L 18 16 z",
-            fill: "black",
-            offsetX: -5,
-         },
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         targetMarker: associationMarker,
       },
    });
 }
 
-export function setGeneralizationEdge(edge: Edge) {
+export function setAssociationEdgeSource(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
    setEdgeConnectionPoint(edge);
-   edge.setProp("edgeType", "generalization");
    edge.setProp("attrs", {
       ...defaultAttrs,
       line: {
          ...defaultAttrs.line,
-         targetMarker: {
-            name: "path",
-            d: "M 6 10 L 18 4 L 18 5 L 8 10 L 18 15 L 18 16 z",
-            strokeWidth: 1.5,
-            fill: "black",
-            offsetX: -5,
-         },
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         sourceMarker: associationMarker,
       },
    });
 }
 
-export function setRealizationEdge(edge: Edge) {
+const compositionMarker = {
+   type: "composition",
+   name: "path",
+   d: "M 30 10 L 20 16 L 10 10 L 20 4 z",
+   fill: "black",
+   offsetX: -10,
+};
+
+export function setCompositionEdgeTarget(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
    setEdgeConnectionPoint(edge);
-   edge.setProp("edgeType", "realization");
    edge.setProp("attrs", {
       ...defaultAttrs,
       line: {
          ...defaultAttrs.line,
-         strokeDasharray: "3,3",
-         targetMarker: {
-            name: "path",
-            d: "M 20 0 L 0 10 L 20 20 z",
-            fill: "white",
-            offsetX: -10,
-         },
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         targetMarker: compositionMarker,
       },
    });
 }
 
-Graph.registerEdge(
-   "edge",
-   {
-      edgeType: "classic",
-      attrs: {
-         line: {
-            ...defaultAttrs.line,
-            targetMarker: {
-               size: 0,
-            },
-         },
+export function setCompositionEdgeSource(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
+   setEdgeConnectionPoint(edge);
+   edge.setProp("attrs", {
+      ...defaultAttrs,
+      line: {
+         ...defaultAttrs.line,
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         sourceMarker: compositionMarker,
       },
-   },
-   true,
-);
+   });
+}
+
+const generalizationMarker = {
+   type: "generalization",
+   name: "path",
+   d: "M 6 10 L 18 4 L 18 5 L 8 10 L 18 15 L 18 16 z",
+   strokeWidth: 1.5,
+   fill: "black",
+   offsetX: -5,
+};
+
+export function setGeneralizationEdgeTarget(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
+   setEdgeConnectionPoint(edge);
+   edge.setProp("attrs", {
+      ...defaultAttrs,
+      line: {
+         ...defaultAttrs.line,
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         targetMarker: generalizationMarker,
+      },
+   });
+}
+
+export function setGeneralizationEdgeSource(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
+   setEdgeConnectionPoint(edge);
+   edge.setProp("attrs", {
+      ...defaultAttrs,
+      line: {
+         ...defaultAttrs.line,
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         sourceMarker: generalizationMarker,
+      },
+   });
+}
+
+const realizationMarker = {
+   type: "realization",
+   name: "path",
+   d: "M 20 0 L 0 10 L 20 20 z",
+   fill: "white",
+   offsetX: -10,
+};
+
+export function setRealizationEdgeTarget(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
+   setEdgeConnectionPoint(edge);
+   edge.setProp("attrs", {
+      ...defaultAttrs,
+      line: {
+         ...defaultAttrs.line,
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         targetMarker: realizationMarker,
+      },
+   });
+}
+
+export function setRealizationEdgeSource(edge: Edge) {
+   const edgeLine = edge.getPropByPath("attrs/line");
+   setEdgeConnectionPoint(edge);
+   edge.setProp("attrs", {
+      ...defaultAttrs,
+      line: {
+         ...defaultAttrs.line,
+         ...(typeof edgeLine === "object" ? edgeLine : {}),
+         sourceMarker: realizationMarker,
+      },
+   });
+}
+
+export function getEdgeSourceType(edge: Edge): string | undefined {
+   const srcMarker = edge.getPropByPath("attrs/line/sourceMarker");
+   if (!srcMarker) return undefined;
+
+   const t = srcMarker["type"];
+   if (!t) return undefined;
+
+   return t;
+}
+
+export function getEdgeTargetType(edge: Edge): string | undefined {
+   const targetMarker = edge.getPropByPath("attrs/line/targetMarker");
+   if (!targetMarker) return undefined;
+
+   const t = targetMarker["type"];
+   if (!t) return undefined;
+
+   return t;
+}
 
 export default {
    isRegularEdge,
    isAggregationEdge,
-   isAssociationEdge,
    isCompositionEdge,
    isGeneralizationEdge,
    isRealizationEdge,
-   setRegularEdge,
-   setAggregationEdge,
-   setAssociationEdge,
-   setCompositionEdge,
-   setGeneralizationEdge,
-   setRealizationEdge,
+   setRegularEdgeTarget,
+   setRegularEdgeSource,
+   setAggregationEdgeTarget,
+   setAggregationEdgeSource,
+   setCompositionEdgeTarget,
+   setCompositionEdgeSource,
+   setGeneralizationEdgeTarget,
+   setGeneralizationEdgeSource,
+   setRealizationEdgeTarget,
+   setRealizationEdgeSource,
 };

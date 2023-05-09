@@ -9,6 +9,21 @@ import { cn } from "@/lib/utils";
 import EdgeRouter from "./edge-router-options";
 import EdgeJumps from "./edge-jumps";
 import FadeIn from "@/components/fade-in";
+import {
+   getEdgeSourceType,
+   getEdgeTargetType,
+   setAggregationEdgeSource,
+   setAggregationEdgeTarget,
+   setCompositionEdgeSource,
+   setCompositionEdgeTarget,
+   setEdgeStrokeDasharray,
+   setGeneralizationEdgeSource,
+   setGeneralizationEdgeTarget,
+   setRealizationEdgeSource,
+   setRealizationEdgeTarget,
+   setRegularEdgeSource,
+   setRegularEdgeTarget,
+} from "../../x6/graph/shapes/edges";
 
 const leftEndingOptions = [
    {
@@ -16,19 +31,19 @@ const leftEndingOptions = [
       icon: "None",
    },
    {
-      value: "open arrow",
+      value: "generalization",
       icon: <OpenArrow direction="left" />,
    },
    {
-      value: "solid arrow",
+      value: "realization",
       icon: <SolidArrow direction="left" />,
    },
    {
-      value: "open diamond",
+      value: "aggregation",
       icon: <OpenDiamond direction="left" />,
    },
    {
-      value: "solid diamond",
+      value: "composition",
       icon: <SolidDiamond direction="left" />,
    },
 ];
@@ -39,19 +54,19 @@ const rightEndingOptions = [
       icon: "None",
    },
    {
-      value: "open arrow",
+      value: "generalization",
       icon: <OpenArrow direction="right" />,
    },
    {
-      value: "solid arrow",
+      value: "realization",
       icon: <SolidArrow direction="right" />,
    },
    {
-      value: "open diamond",
+      value: "aggregation",
       icon: <OpenDiamond direction="right" />,
    },
    {
-      value: "solid diamond",
+      value: "composition",
       icon: <SolidDiamond direction="right" />,
    },
 ];
@@ -152,6 +167,40 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
          }
       }
       setSelectedEdges(newSelectedEdges);
+
+      // Get targetMarker and sourceMarker for all selected edges
+      const sourceMarkerTypes = [];
+      const targetMarkerTypes = [];
+
+      for (const edge of newSelectedEdges) {
+         const edgeSourceType = getEdgeSourceType(edge);
+         if (edgeSourceType) {
+            sourceMarkerTypes.push(edgeSourceType);
+         }
+
+         const edgeTargetType = getEdgeTargetType(edge);
+         if (edgeTargetType) {
+            targetMarkerTypes.push(edgeTargetType);
+         }
+      }
+
+      console.log("sourceMarkerTypes", sourceMarkerTypes);
+
+      // If all selected edges have the same sourceMarker, set the sourceMarker dropdown to that value
+      if (sourceMarkerTypes.every((val, i, arr) => val === arr[0])) {
+         setLeftEnd(sourceMarkerTypes[0]);
+      } else {
+         setLeftEnd("none");
+      }
+
+      console.log("targetMarkerTypes", targetMarkerTypes);
+
+      // If all selected edges have the same targetMarker, set the targetMarker dropdown to that value
+      if (targetMarkerTypes.every((val, i, arr) => val === arr[0])) {
+         setRightEnd(targetMarkerTypes[0]);
+      } else {
+         setRightEnd("none");
+      }
    };
 
    const setColorFunction = useCallback(
@@ -279,9 +328,27 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                  // if the leftEnd is not the same as the option value, set the left end to the option value
                                  if (leftEnd !== option.value) {
                                     setLeftEnd(option.value);
-                                    // if the right end has a val other than none, set the the right end to none
-                                    if (rightEnd !== "none") {
-                                       setRightEnd("none");
+
+                                    if (option.value === "none") {
+                                       for (const edge of selectedEdges) {
+                                          setRegularEdgeSource(edge);
+                                       }
+                                    } else if (option.value === "generalization") {
+                                       for (const edge of selectedEdges) {
+                                          setGeneralizationEdgeSource(edge);
+                                       }
+                                    } else if (option.value === "realization") {
+                                       for (const edge of selectedEdges) {
+                                          setRealizationEdgeSource(edge);
+                                       }
+                                    } else if (option.value === "aggregation") {
+                                       for (const edge of selectedEdges) {
+                                          setAggregationEdgeSource(edge);
+                                       }
+                                    } else if (option.value === "composition") {
+                                       for (const edge of selectedEdges) {
+                                          setCompositionEdgeSource(edge);
+                                       }
                                     }
                                  }
 
@@ -335,6 +402,16 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                  // if the leftEnd is not the same as the option value, set the left end to the option value
                                  if (lineStyle !== option.value) {
                                     setLineStyle(option.value);
+
+                                    if (option.value === "solid") {
+                                       for (const edge of selectedEdges) {
+                                          setEdgeStrokeDasharray(edge, false);
+                                       }
+                                    } else if (option.value === "dashed") {
+                                       for (const edge of selectedEdges) {
+                                          setEdgeStrokeDasharray(edge, true);
+                                       }
+                                    }
                                  }
 
                                  // don't show the dropdown anymore
@@ -389,9 +466,27 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                  // if the rightEnd is not the same as the option value, set the right end to the option value
                                  if (rightEnd !== option.value) {
                                     setRightEnd(option.value);
-                                    // if the right end has a val other than none, set the the right end to none
-                                    if (leftEnd !== "none") {
-                                       setLeftEnd("none");
+
+                                    if (option.value === "none") {
+                                       for (const edge of selectedEdges) {
+                                          setRegularEdgeTarget(edge);
+                                       }
+                                    } else if (option.value === "generalization") {
+                                       for (const edge of selectedEdges) {
+                                          setGeneralizationEdgeTarget(edge);
+                                       }
+                                    } else if (option.value === "realization") {
+                                       for (const edge of selectedEdges) {
+                                          setRealizationEdgeTarget(edge);
+                                       }
+                                    } else if (option.value === "aggregation") {
+                                       for (const edge of selectedEdges) {
+                                          setAggregationEdgeTarget(edge);
+                                       }
+                                    } else if (option.value === "composition") {
+                                       for (const edge of selectedEdges) {
+                                          setCompositionEdgeTarget(edge);
+                                       }
                                     }
                                  }
 

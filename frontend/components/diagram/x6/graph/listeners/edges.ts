@@ -64,23 +64,23 @@ export default function Edges(
          return;
       }
 
-      // Check if the target node is an interface
-      const targetCell = args.edge.getTargetCell();
-      if (targetCell) {
-         const targetCellType: string = targetCell.getProp().type || "";
-         if (targetCellType === "interface") {
-            console.log("edge:change:target", "interface");
-            // TODO: the source target also determines the type of arrow.
-            // Ex: if the source is an interface and the target is an interface, then the we should extend, not implement
-            edgeFunctions.setRealizationEdge(args.edge);
-         } else if (targetCellType === "abstract") {
-            console.log("edge:change:target", "abstract");
-            edgeFunctions.setGeneralizationEdge(args.edge);
-         } else {
-            console.log("edge:change:target", "regular");
-            edgeFunctions.setRegularEdge(args.edge);
-         }
-      }
+      // // Check if the target node is an interface
+      // const targetCell = args.edge.getTargetCell();
+      // if (targetCell) {
+      //    const targetCellType: string = targetCell.getProp().type || "";
+      //    if (targetCellType === "interface") {
+      //       console.log("edge:change:target", "interface");
+      //       // TODO: the source target also determines the type of arrow.
+      //       // Ex: if the source is an interface and the target is an interface, then the we should extend, not implement
+      //       edgeFunctions.setRealizationEdge(args.edge);
+      //    } else if (targetCellType === "abstract") {
+      //       console.log("edge:change:target", "abstract");
+      //       edgeFunctions.setGeneralizationEdge(args.edge);
+      //    } else {
+      //       console.log("edge:change:target", "regular");
+      //       edgeFunctions.setRegularEdge(args.edge);
+      //    }
+      // }
 
       wsLocalUpdateEdge(args.cell, wsSendJson, sessionId);
    });
