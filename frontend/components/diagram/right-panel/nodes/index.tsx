@@ -206,7 +206,7 @@ export default function NodesPanel({ graph }: { graph: MutableRefObject<X6Type.G
 
    return (
       // if a new node is selected or if a node is first selected, fade in the new node settings
-      <FadeIn fadeDelay={300} key={selectedNodes.length === 1 ? selectedNodes[0].id : "multiple"}>
+      <FadeIn key={selectedNodes.length === 1 ? selectedNodes[0].id : "multiple"}>
          {/* ---------------------- NODE SETTINGS SECTION ---------------------- */}
          {selectedNodes.length === 1 && (
             <NodeSettings

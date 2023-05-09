@@ -37,14 +37,36 @@ export default function SelectedItemsOptions({
 
    const [assignProjectOpen, setAssignProjectOpen] = useState(false);
 
+   const selectedItemsOptionsDropdownRef = useRef<HTMLDivElement>(null);
+
    useEffect(() => {
       if (assignProjectOpen) {
          setShowMenu(false);
       }
    }, [assignProjectOpen]);
 
+   useEffect(() => {
+      const handleClickOutside = (event: Event) => {
+         if (
+            selectedItemsOptionsDropdownRef.current &&
+            !selectedItemsOptionsDropdownRef.current.contains(event.target as Node)
+         ) {
+            setShowMenu(false);
+         }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+
+      return () => {
+         document.removeEventListener("mousedown", handleClickOutside);
+         document.removeEventListener("touchstart", handleClickOutside);
+      };
+   }, [selectedItemsOptionsDropdownRef]);
+
    return (
       <Menu
+         ref={selectedItemsOptionsDropdownRef}
          as="div"
          className="relative inline-block text-left"
          onClick={(e: { preventDefault: () => void }) => e.preventDefault()}

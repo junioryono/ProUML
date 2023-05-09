@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { DiagramTemplate, Project } from "types";
 import ImportItem from "@/components/dashboard/diagrams/import-item";
 import TemplateItem from "@/components/dashboard/diagrams/template-item";
+import FadeIn from "@/components/fade-in";
 
 interface NewDiagramProps extends React.HTMLAttributes<HTMLDivElement> {
    project?: Project;
@@ -12,16 +13,23 @@ export default function NewDiagram({ className, project, ...props }: NewDiagramP
    return (
       <div
          className={cn(
-            "flex justify-center flex-wrap max-w-[calc(100vw-3rem)] overflow-x-auto overflow-y-hidden pl-2 pr-4 pt-3 pb-4 bg-slate-100 rounded-md",
+            "flex justify-center flex-wrap max-w-[calc(100vw-3rem)] overflow-x-auto overflow-y-hidden  pl-2 pr-4 pt-5 pb-4 mb-4 bg-slate-100 rounded-lg",
+            //"flex justify-center flex-wrap max-w-[calc(100vw-3rem)] overflow-x-auto overflow-y-hidden pl-2 pr-4 pt-3 pb-4 mb-4 bg-slate-100 rounded-lg",
             //"flex lg:flex-nowrap no-scrollbar max-w-[calc(100vw-3rem)] overflow-x-auto overflow-y-hidden mb-4 px-3 pt-4 bg-slate-100 rounded-md rounded-t-none",
             className,
          )}
          {...props}
       >
-         <ImportItem project={project} />
-         {templates.map((template) => (
-            <TemplateItem key={template.name} template={template} project={project} />
-         ))}
+         <div className="flex flex-wrap justify-center">
+            <FadeIn fadeDelay={500}>
+               <ImportItem project={project} />
+            </FadeIn>
+            {templates.map((template, index) => (
+               <FadeIn fadeDelay={500}>
+                  <TemplateItem key={template.name} template={template} project={project} />
+               </FadeIn>
+            ))}
+         </div>
       </div>
    );
 }

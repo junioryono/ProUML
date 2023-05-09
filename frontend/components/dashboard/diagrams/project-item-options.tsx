@@ -231,6 +231,8 @@ export default function ProjectItemOptions({
                               "px-4 py-2 text-sm flex flex-row",
                            )}
                            onClick={() => {
+                              // close the menu
+                              setShowMenu(false);
                               // open the share dialog popup
                               setSharePopupOpen(true);
                            }}
@@ -239,7 +241,7 @@ export default function ProjectItemOptions({
                               viewBox="0 0 24 24"
                               xmlns="http://www.w3.org/2000/svg"
                               fill="#000000"
-                              className="w-5 h-5 mr-5"
+                              className="w-5 h-4 mr-5"
                            >
                               <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                               <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>

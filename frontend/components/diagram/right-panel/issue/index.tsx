@@ -20,7 +20,7 @@ export default function IssuePanel({ issue }: { issue: Issue }) {
 
    return (
       // Fade in the issue if a new one is selected
-      <FadeIn fadeDelay={500} key={issue.id}>
+      <FadeIn key={issue.id}>
          {/* ---------------------- ISSUE SETTINGS SECTION ---------------------- */}
          <div className="flex flex-row justify-between">
             <label className="font-bold mb-1 text-left">Issue Name</label>
