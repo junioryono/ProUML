@@ -22,7 +22,7 @@ export default function DiagramPage({ user, role, diagram }: { user: User; role:
                width="200px"
                height="200px"
                viewBox="0 0 64 64"
-               stroke-width="3"
+               strokeWidth="3"
                stroke="#000000"
                fill="none"
                className="mx-auto my-10"
@@ -33,9 +33,9 @@ export default function DiagramPage({ user, role, diagram }: { user: User; role:
                <line x1="16.21" y1="39.15" x2="31.22" y2="39.15" />
                <line x1="16.21" y1="33.05" x2="43.22" y2="33.05" />
                <line x1="16.21" y1="26.95" x2="43.22" y2="26.95" />
-               <circle cx="42.92" cy="48.24" r="10.01" stroke-linecap="round" />
-               <line x1="42.95" y1="53.52" x2="42.95" y2="53.73" stroke-linecap="round" />
-               <line x1="42.95" y1="43.19" x2="42.95" y2="49.69" stroke-linecap="round" />
+               <circle cx="42.92" cy="48.24" r="10.01" strokeLinecap="round" />
+               <line x1="42.95" y1="53.52" x2="42.95" y2="53.73" strokeLinecap="round" />
+               <line x1="42.95" y1="43.19" x2="42.95" y2="49.69" strokeLinecap="round" />
             </svg>
          </div>
       );

@@ -12,9 +12,15 @@ export default function IssuePanel({ issue }: { issue: Issue }) {
    const [issueName, setIssueName] = useState(issue.title);
    const [issueDescription, setIssueDescription] = useState(issue.description);
 
+   // update the issue name and description when the issue changes
+   useEffect(() => {
+      setIssueName(issue.title);
+      setIssueDescription(issue.description);
+   }, [issue]);
+
    return (
       // Fade in the issue if a new one is selected
-      <FadeIn key={issue.id}>
+      <FadeIn fadeDelay={500} key={issue.id}>
          {/* ---------------------- ISSUE SETTINGS SECTION ---------------------- */}
          <div className="flex flex-row justify-between">
             <label className="font-bold mb-1 text-left">Issue Name</label>

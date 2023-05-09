@@ -7,17 +7,19 @@ import EmptyPlaceholder from "@/components/dashboard/empty-placeholder";
 import DashboardLayout from "@/components/dashboard/layout";
 import DashboardHeader from "@/components/dashboard/header";
 import Image from "next/image";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { cn, formatTime } from "@/lib/utils";
 import { deleteIssue } from "@/lib/auth-fetch";
 import { toast } from "@/ui/toast";
+import FadeIn from "@/components/fade-in";
 
 export default function DashboardIssuesPage({ user, issuesRequest }: { user: User; issuesRequest: APIResponse<Issue[]> }) {
    const [issues, setIssues] = useState<Issue[]>(issuesRequest.response || []);
    const showEmptyPlaceholder = !issuesRequest.success || !issuesRequest.response?.length;
 
    const [sortBy, setSortBy] = useState<"name" | "issued" | "issuer">("name");
+   const [sortReverse, setSortReverse] = useState(false);
 
    // when the page is first loaded, sort the issues by name
    useMemo(() => {
@@ -44,15 +46,19 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                            <div className="p-2 text-md bg-black rounded-t-sm text-white font-bold grid grid-cols-3">
                               <div className="flex justify-start pl-6">
                                  <div
-                                    className="flex items-center gap-1 cursor-pointer hover:scale-[1.05] transition-all duration-200"
+                                    className="flex items-center gap-0.5 cursor-pointer hover:scale-[1.05] transition-all duration-200"
                                     onClick={() => {
                                        // if not already sorted by name, sort by name
                                        if (sortBy !== "name") {
+                                          setSortReverse(false);
                                           issues.sort((a, b) => a.title.localeCompare(b.title));
                                           setSortBy("name");
+
+                                          setIssues(issues);
                                        }
                                        // if already sorted by name, reverse the order
                                        else {
+                                          setSortReverse(!sortReverse);
                                           const reversedIssues = [...issues].reverse();
                                           setIssues(reversedIssues);
                                        }
@@ -60,25 +66,60 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                                  >
                                     Name
                                     {sortBy === "name" && (
-                                       <svg
-                                          viewBox="0 0 512 512"
-                                          version="1.1"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          fill="#000000"
-                                          width="20px"
-                                          height="20px"
-                                       >
-                                          <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                          <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                                          <g id="SVGRepo_iconCarrier">
-                                             <title>sort</title>
-                                             <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                                                <g id="Shape" fill="#ffffff" transform="translate(42.666667, 85.333333)">
-                                                   <path d="M170.666667,210.652373 L200.83328,240.818987 L100.41664,341.333333 L7.10542736e-15,240.818987 L30.1666133,210.652373 L79.0833067,259.569067 L79.0833067,21.3333333 L121.749973,21.3333333 L121.749973,259.569067 L170.666667,210.652373 Z M313.749973,1.42108547e-14 L213.332053,100.52224 L243.498667,130.688853 L292.41664,81.77088 L292.41664,320 L335.083307,320 L335.083307,81.77344 L383.99872,130.688853 L414.165333,100.52224 L313.749973,1.42108547e-14 Z"></path>
+                                       <>
+                                          {sortReverse ? (
+                                             <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="w-5"
+                                                width="20px"
+                                                height="20px"
+                                             >
+                                                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                                <g
+                                                   id="SVGRepo_tracerCarrier"
+                                                   strokeLinecap="round"
+                                                   strokeLinejoin="round"
+                                                ></g>
+                                                <g id="SVGRepo_iconCarrier">
+                                                   <path
+                                                      d="M12 4L12 20M12 20L6 14M12 20L18 14"
+                                                      stroke="#ffffff"
+                                                      strokeWidth="2"
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                   ></path>
                                                 </g>
-                                             </g>
-                                          </g>
-                                       </svg>
+                                             </svg>
+                                          ) : (
+                                             <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                transform="rotate(180)"
+                                                className="w-5"
+                                                width="20px"
+                                                height="20px"
+                                             >
+                                                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                                <g
+                                                   id="SVGRepo_tracerCarrier"
+                                                   strokeLinecap="round"
+                                                   strokeLinejoin="round"
+                                                ></g>
+                                                <g id="SVGRepo_iconCarrier">
+                                                   <path
+                                                      d="M12 4L12 20M12 20L6 14M12 20L18 14"
+                                                      stroke="#ffffff"
+                                                      strokeWidth="2"
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                   ></path>
+                                                </g>
+                                             </svg>
+                                          )}
+                                       </>
                                     )}
                                  </div>
                               </div>
@@ -88,11 +129,15 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                                     onClick={() => {
                                        // if not already sorted by issued, sort by issued
                                        if (sortBy !== "issued") {
+                                          setSortReverse(false);
                                           issues.sort((a, b) => b.created_at.localeCompare(a.created_at));
                                           setSortBy("issued");
+
+                                          setIssues(issues);
                                        }
                                        // if already sorted by issued, reverse the order
                                        else {
+                                          setSortReverse(!sortReverse);
                                           const reversedIssues = [...issues].reverse();
                                           setIssues(reversedIssues);
                                        }
@@ -101,25 +146,60 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                                     Issued
                                     <div className="w-0">
                                        {sortBy === "issued" && (
-                                          <svg
-                                             viewBox="0 0 512 512"
-                                             version="1.1"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="#000000"
-                                             width="20px"
-                                             height="20px"
-                                          >
-                                             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                             <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                                             <g id="SVGRepo_iconCarrier">
-                                                <title>sort</title>
-                                                <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                                                   <g id="Shape" fill="#ffffff" transform="translate(42.666667, 85.333333)">
-                                                      <path d="M170.666667,210.652373 L200.83328,240.818987 L100.41664,341.333333 L7.10542736e-15,240.818987 L30.1666133,210.652373 L79.0833067,259.569067 L79.0833067,21.3333333 L121.749973,21.3333333 L121.749973,259.569067 L170.666667,210.652373 Z M313.749973,1.42108547e-14 L213.332053,100.52224 L243.498667,130.688853 L292.41664,81.77088 L292.41664,320 L335.083307,320 L335.083307,81.77344 L383.99872,130.688853 L414.165333,100.52224 L313.749973,1.42108547e-14 Z"></path>
+                                          <>
+                                             {sortReverse ? (
+                                                <svg
+                                                   viewBox="0 0 24 24"
+                                                   fill="none"
+                                                   xmlns="http://www.w3.org/2000/svg"
+                                                   className="w-5"
+                                                   width="20px"
+                                                   height="20px"
+                                                >
+                                                   <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                                   <g
+                                                      id="SVGRepo_tracerCarrier"
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                   ></g>
+                                                   <g id="SVGRepo_iconCarrier">
+                                                      <path
+                                                         d="M12 4L12 20M12 20L6 14M12 20L18 14"
+                                                         stroke="#ffffff"
+                                                         strokeWidth="2"
+                                                         strokeLinecap="round"
+                                                         strokeLinejoin="round"
+                                                      ></path>
                                                    </g>
-                                                </g>
-                                             </g>
-                                          </svg>
+                                                </svg>
+                                             ) : (
+                                                <svg
+                                                   viewBox="0 0 24 24"
+                                                   fill="none"
+                                                   xmlns="http://www.w3.org/2000/svg"
+                                                   transform="rotate(180)"
+                                                   className="w-5"
+                                                   width="20px"
+                                                   height="20px"
+                                                >
+                                                   <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                                   <g
+                                                      id="SVGRepo_tracerCarrier"
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                   ></g>
+                                                   <g id="SVGRepo_iconCarrier">
+                                                      <path
+                                                         d="M12 4L12 20M12 20L6 14M12 20L18 14"
+                                                         stroke="#ffffff"
+                                                         strokeWidth="2"
+                                                         strokeLinecap="round"
+                                                         strokeLinejoin="round"
+                                                      ></path>
+                                                   </g>
+                                                </svg>
+                                             )}
+                                          </>
                                        )}
                                     </div>
                                  </div>
@@ -130,13 +210,17 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                                     onClick={() => {
                                        // if not already sorted by issuer, sort by issuer
                                        if (sortBy !== "issuer") {
+                                          setSortReverse(false);
                                           issues.sort((a, b) =>
                                              a.created_by.full_name.localeCompare(b.created_by.full_name),
                                           );
                                           setSortBy("issuer");
+
+                                          setIssues(issues);
                                        }
                                        // if already sorted by issuer, reverse the order
                                        else {
+                                          setSortReverse(!sortReverse);
                                           const reversedIssues = [...issues].reverse();
                                           setIssues(reversedIssues);
                                        }
@@ -145,34 +229,71 @@ export default function DashboardIssuesPage({ user, issuesRequest }: { user: Use
                                     Issuer
                                     <div className="w-0">
                                        {sortBy === "issuer" && (
-                                          <svg
-                                             viewBox="0 0 512 512"
-                                             version="1.1"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="#000000"
-                                             width="20px"
-                                             height="20px"
-                                          >
-                                             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                             <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                                             <g id="SVGRepo_iconCarrier">
-                                                <title>sort</title>
-                                                <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                                                   <g id="Shape" fill="#ffffff" transform="translate(42.666667, 85.333333)">
-                                                      <path d="M170.666667,210.652373 L200.83328,240.818987 L100.41664,341.333333 L7.10542736e-15,240.818987 L30.1666133,210.652373 L79.0833067,259.569067 L79.0833067,21.3333333 L121.749973,21.3333333 L121.749973,259.569067 L170.666667,210.652373 Z M313.749973,1.42108547e-14 L213.332053,100.52224 L243.498667,130.688853 L292.41664,81.77088 L292.41664,320 L335.083307,320 L335.083307,81.77344 L383.99872,130.688853 L414.165333,100.52224 L313.749973,1.42108547e-14 Z"></path>
+                                          <>
+                                             {sortReverse ? (
+                                                <svg
+                                                   viewBox="0 0 24 24"
+                                                   fill="none"
+                                                   xmlns="http://www.w3.org/2000/svg"
+                                                   className="w-5"
+                                                   width="20px"
+                                                   height="20px"
+                                                >
+                                                   <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                                   <g
+                                                      id="SVGRepo_tracerCarrier"
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                   ></g>
+                                                   <g id="SVGRepo_iconCarrier">
+                                                      <path
+                                                         d="M12 4L12 20M12 20L6 14M12 20L18 14"
+                                                         stroke="#ffffff"
+                                                         strokeWidth="2"
+                                                         strokeLinecap="round"
+                                                         strokeLinejoin="round"
+                                                      ></path>
                                                    </g>
-                                                </g>
-                                             </g>
-                                          </svg>
+                                                </svg>
+                                             ) : (
+                                                <svg
+                                                   viewBox="0 0 24 24"
+                                                   fill="none"
+                                                   xmlns="http://www.w3.org/2000/svg"
+                                                   transform="rotate(180)"
+                                                   className="w-5"
+                                                   width="20px"
+                                                   height="20px"
+                                                >
+                                                   <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                                   <g
+                                                      id="SVGRepo_tracerCarrier"
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                   ></g>
+                                                   <g id="SVGRepo_iconCarrier">
+                                                      <path
+                                                         d="M12 4L12 20M12 20L6 14M12 20L18 14"
+                                                         stroke="#ffffff"
+                                                         strokeWidth="2"
+                                                         strokeLinecap="round"
+                                                         strokeLinejoin="round"
+                                                      ></path>
+                                                   </g>
+                                                </svg>
+                                             )}
+                                          </>
                                        )}
                                     </div>
                                  </div>
                               </div>
                            </div>
 
-                           {/* map the issues */}
+                           {/* map the issues based on their order */}
                            {issues.map((issue) => (
-                              <IssueComponent key={issue.id} user={user} issue={issue} setIssues={setIssues} />
+                              <FadeIn key={issue.id} fadeDelay={500}>
+                                 <IssueComponent user={user} issue={issue} setIssues={setIssues} />
+                              </FadeIn>
                            ))}
                         </div>
                      </div>

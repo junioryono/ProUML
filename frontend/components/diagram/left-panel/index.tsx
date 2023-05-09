@@ -111,7 +111,7 @@ export default function LeftPanel({
 
    return (
       <div className="w-60 h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden p-2 flex flex-col border-gray-400 border-r-1 select-none cursor-default">
-         <FadeIn key={diagram.id}>
+         <FadeIn fadeDelay={300} key={diagram.id}>
             {/* ---------------------- DIAGRAMS SECTION ---------------------- */}
             {projDiagrams && (
                <>

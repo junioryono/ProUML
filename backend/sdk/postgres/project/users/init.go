@@ -39,7 +39,7 @@ func (u *Users_SDK) Get(projectId, idToken string) (*models.ProjectUserRolesResp
 		Preload("UserRoles", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("User")
 		}).
-		Select("project_models.id, project_models.public, project_models.allow_editor_permissions").
+		Select("project_models.id, project_models.public").
 		Where("id = ?", projectId).
 		First(&project).Error; err != nil {
 		return nil, types.Wrap(err, types.ErrProjectNotFound)
