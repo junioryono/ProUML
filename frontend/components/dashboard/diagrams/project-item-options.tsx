@@ -242,7 +242,7 @@ export default function ProjectItemOptions({
                               className="w-5 h-5 mr-5"
                            >
                               <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                              <g id="SVGRepo_tracerCarrier" strokeLinecap="round" stroke-linejoin="round"></g>
+                              <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                               <g id="SVGRepo_iconCarrier">
                                  <title></title>
                                  <g id="Complete">
@@ -253,7 +253,7 @@ export default function ProjectItemOptions({
                                              fill="none"
                                              stroke="#000000"
                                              strokeLinecap="round"
-                                             stroke-linejoin="round"
+                                             strokeLinejoin="round"
                                              strokeWidth="2"
                                           ></path>
                                           <circle
@@ -263,14 +263,14 @@ export default function ProjectItemOptions({
                                              r="4"
                                              stroke="#000000"
                                              strokeLinecap="round"
-                                             stroke-linejoin="round"
+                                             strokeLinejoin="round"
                                              strokeWidth="2"
                                           ></circle>
                                           <line
                                              fill="none"
                                              stroke="#000000"
                                              strokeLinecap="round"
-                                             stroke-linejoin="round"
+                                             strokeLinejoin="round"
                                              strokeWidth="2"
                                              x1="17"
                                              x2="23"
@@ -281,7 +281,7 @@ export default function ProjectItemOptions({
                                              fill="none"
                                              stroke="#000000"
                                              strokeLinecap="round"
-                                             stroke-linejoin="round"
+                                             strokeLinejoin="round"
                                              strokeWidth="2"
                                              x1="20"
                                              x2="20"

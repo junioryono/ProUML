@@ -58,7 +58,7 @@ export default function RightPanel({
    return (
       <div className="flex flex-col h-[calc(100vh-3rem)] overflow-y-auto no-scrollbar overflow-x-hidden w-60 p-2 pb-3 border-gray-400 border-l-1 select-none cursor-default">
          {/* Render different panels based on the current tab */}
-         <FadeIn key={tab}>
+         <FadeIn fadeDelay={300} key={tab}>
             {(() => {
                switch (tab) {
                   case "graph":

@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, Transition } from "@headlessui/react";
 import { toast } from "@/ui/toast";
 import { Project, User } from "types";
-import { getProjectUsers, addProjectUser, updateProjectUser, removeProjectUser, updateProject } from "@/lib/auth-fetch";
+import { getProjectUsers, addProjectUser, removeProjectUser, updateProject } from "@/lib/auth-fetch";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 // import { Icons } from "@/components/icons";
@@ -202,11 +202,6 @@ export default function ShareProject({
       getProjectUsers(project.id).then((res) => {
          if (res && res.response) {
             setUsers(res.response.users || []);
-            setAllowedToEdit(res.response.allowedToEdit || false);
-
-            if (res.response.editorPermissionsEnabled !== undefined) {
-               setAllowedToEditButton(res.response.editorPermissionsEnabled);
-            }
          } else {
             toast({
                title: "Failed to get users.",
@@ -590,44 +585,6 @@ function UserWithAccess({
    const roleDropdownRef = useRef<HTMLDivElement>(null);
    const [role, setRole] = useState(user.role);
 
-   useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-         if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
-            setRoleDropdown(false);
-         }
-      };
-
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-         document.removeEventListener("mousedown", handleClickOutside);
-      };
-   }, [roleDropdownRef]);
-
-   async function updateRole(role: string) {
-      if (role === user.role) {
-         return;
-      }
-
-      setIsLoading(true);
-      const res = await updateProjectUser(projectId, user.user_id, role);
-      if (res && res.success) {
-         setUsers((users) => users.map((u) => (u.user_id === user.user_id ? { ...u, role } : u)));
-         setRole(role);
-         toast({
-            title: "Role updated",
-            message: "The user's role has been updated",
-            type: "success",
-         });
-      } else {
-         toast({
-            title: "There was an error updating the user's role",
-            message: res.reason,
-            type: "error",
-         });
-      }
-      setIsLoading(false);
-   }
-
    async function removeUser() {
       setIsLoading(true);
       const res = await removeProjectUser(projectId, user.user_id);
@@ -648,7 +605,7 @@ function UserWithAccess({
       setIsLoading(false);
    }
 
-   const allowedToEditUser = (currentUserRole === "owner" && role !== "owner") || (allowedToEdit && role !== "owner");
+   // const allowedToEditUser = (currentUserRole === "owner" && role !== "owner") || (allowedToEdit && role !== "owner");
 
    return (
       <div className="bg-white flex flex-row hover:bg-slate-100 pl-3">
@@ -662,103 +619,10 @@ function UserWithAccess({
                   </span>
                   <span className="text-xs text-stone-500 pb-1">{user.email}</span>
                </div>
-
                <div className="relative ml-auto group" ref={roleDropdownRef}>
-                  <div
-                     className={cn(
-                        "flex flex-row text-gray-600 text-sm pl-2 py-1 mt-1 pl-auto mr-7 rounded cursor-default",
-                        allowedToEditUser &&
-                           role !== "owner" &&
-                           "group-hover:text-black group-hover:bg-slate-200 cursor-pointer select-none mr-6",
-                        roleDropdown && "text-black bg-slate-200",
-                     )}
-                     onClick={() => {
-                        if (allowedToEditUser) {
-                           setRoleDropdown(!roleDropdown);
-                        }
-                     }}
-                  >
-                     {capitalizeFirstLetter(role)}
-                     {allowedToEditUser && (
-                        <svg
-                           width="20"
-                           height="20"
-                           viewBox="0 0 24 24"
-                           focusable="false"
-                           className={cn("fill-slate-500 ml-0.5 mr-1 group-hover:fill-black", roleDropdown && "fill-black")}
-                        >
-                           <path d="M7 10l5 5 5-5H7z" />
-                        </svg>
-                     )}
+                  <div className="flex flex-row text-gray-600 text-sm pl-2 py-1 mt-1 pl-auto mr-7 rounded cursor-default">
+                     {user.role}
                   </div>
-                  {roleDropdown && (
-                     <div className="absolute z-10 bg-white rounded-lg shadow-lg mt-2 w-40 left-0 top-6 py-2">
-                        <ul>
-                           <li
-                              className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
-                              onClick={() => {
-                                 setRoleDropdown(false);
-                                 updateRole("editor");
-                              }}
-                           >
-                              <div className="w-10 flex justify-center">
-                                 {role === "editor" && (
-                                    <svg
-                                       width="16"
-                                       height="16"
-                                       viewBox="0 0 24 24"
-                                       focusable="false"
-                                       className="inline-block mr-2 text-black"
-                                    >
-                                       <path
-                                          fill="currentColor"
-                                          d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
-                                       />
-                                    </svg>
-                                 )}
-                              </div>
-                              Editor
-                           </li>
-                           <li
-                              className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
-                              onClick={() => {
-                                 setRoleDropdown(false);
-                                 updateRole("viewer");
-                              }}
-                           >
-                              <div className="w-10 flex justify-center">
-                                 {role === "viewer" && (
-                                    <svg
-                                       width="16"
-                                       height="16"
-                                       viewBox="0 0 24 24"
-                                       focusable="false"
-                                       className="inline-block mr-2 text-black"
-                                    >
-                                       <path
-                                          fill="currentColor"
-                                          d="M9.428 18.01L4.175 12.82l1.296-1.288 3.957 3.94L18.441 6.804l1.288 1.288L9.428 18.01z"
-                                       />
-                                    </svg>
-                                 )}
-                              </div>
-                              Viewer
-                           </li>
-
-                           <hr className="border-slate-400 mx-2 my-2" />
-
-                           <li
-                              className="flex px-4 py-2 hover:bg-gray-100 cursor-pointer rounded-t items-center"
-                              onClick={() => {
-                                 setRoleDropdown(false);
-                                 removeUser();
-                              }}
-                           >
-                              Remove Access
-                           </li>
-                        </ul>
-                     </div>
-                  )}
                </div>
             </div>
          </div>
