@@ -675,10 +675,10 @@ function UserWithAccess({
                <div className="relative ml-auto group" ref={roleDropdownRef}>
                   <div
                      className={cn(
-                        "flex flex-row text-gray-600 text-sm pl-2 py-1 mt-1 pl-auto mr-7 rounded cursor-default",
+                        "flex flex-row text-gray-600 text-sm pl-2 py-1 mt-2 pl-auto mr-7 rounded cursor-default items-center",
                         allowedToEditUser &&
                            role !== "owner" &&
-                           "group-hover:text-black group-hover:bg-slate-200 cursor-pointer select-none mr-6",
+                           "group-hover:text-black group-hover:bg-slate-200 cursor-pointer select-none mr-6 mt-2",
                         roleDropdown && "text-black bg-slate-200",
                      )}
                      onClick={() => {
