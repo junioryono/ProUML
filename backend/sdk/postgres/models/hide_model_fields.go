@@ -42,3 +42,17 @@ type ProjectModelWithDiagrams struct {
 	Name      string                      `json:"name"`
 	Diagrams  []DiagramModelHiddenContent `gorm:"-" json:"diagrams"`
 }
+
+type ProjectUserRolesResponse struct {
+	Users                    []ProjectUsersRolesHiddenContent `json:"users"`
+	EditorPermissionsEnabled *bool                            `json:"editorPermissionsEnabled,omitempty"`
+	AllowEditorPermissions   bool                             `json:"allowedToEdit,omitempty"`
+}
+
+type ProjectUsersRolesHiddenContent struct {
+	UserId   string `json:"user_id"`
+	Email    string `json:"email"`
+	Owner    bool   `json:"owner"`
+	FullName string `json:"full_name"`
+	Picture  string `json:"picture"`
+}

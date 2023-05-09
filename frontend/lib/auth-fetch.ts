@@ -573,28 +573,6 @@ export async function addProjectUser(
       .catch(() => defaultError);
 }
 
-export async function updateProjectUser(
-   projectId: string,
-   userId: string,
-   role: string,
-   options?: RequestInit,
-): Promise<APIResponse<undefined>> {
-   return fetchAPI(
-      "/project/users?" +
-         new URLSearchParams({
-            project_id: projectId,
-            user_id: userId,
-            role: role,
-         }),
-      {
-         ...options,
-         method: "PUT",
-      },
-   )
-      .then((res) => jsonResponse<undefined>(res))
-      .catch(() => defaultError);
-}
-
 export async function removeProjectUser(
    projectId: string,
    userId: string,

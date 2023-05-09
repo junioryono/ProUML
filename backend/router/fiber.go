@@ -113,7 +113,6 @@ func handleRoutes(Router fiber.Router, sdkP *sdk.SDK) {
 	ProjectUsersRouter.Get("/", projectUsers.Get(sdkP))
 	ProjectUsersRouter.Delete("/", projectUsers.Delete(sdkP))
 	ProjectUsersRouter.Post("/", projectUsers.Post(sdkP))
-	ProjectUsersRouter.Put("/", projectUsers.Put(sdkP))
 
 	ProjectDiagramRouter := ProjectRouter.Group("/diagram", isAuthenticated(sdkP))
 	ProjectDiagramRouter.Put("/", projectDiagram.Put(sdkP))

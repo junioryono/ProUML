@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/auth"
-	"github.com/junioryono/ProUML/backend/sdk/postgres/diagram/users"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/models"
 	"github.com/junioryono/ProUML/backend/sdk/postgres/project/diagram"
+	"github.com/junioryono/ProUML/backend/sdk/postgres/project/users"
 	"github.com/junioryono/ProUML/backend/types"
 	"gorm.io/gorm"
 )

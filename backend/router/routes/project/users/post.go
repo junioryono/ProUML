@@ -10,7 +10,6 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 	return func(fbCtx *fiber.Ctx) error {
 		projectId := fbCtx.Query("project_id")
 		addUserEmail := fbCtx.Query("email")
-		role := fbCtx.Query("role")
 
 		if projectId == "" {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
@@ -26,14 +25,7 @@ func Post(sdkP *sdk.SDK) fiber.Handler {
 			})
 		}
 
-		if role == "" {
-			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
-				Success: false,
-				Reason:  types.ErrInvalidRequest,
-			})
-		}
-
-		if err := sdkP.Postgres.Project.Users.Add(projectId, fbCtx.Locals("idToken").(string), addUserEmail, role); err != nil {
+		if err := sdkP.Postgres.Project.Users.Add(projectId, fbCtx.Locals("idToken").(string), addUserEmail); err != nil {
 			return fbCtx.Status(fiber.StatusBadRequest).JSON(types.Status{
 				Success: false,
 				Reason:  err.Error(),
