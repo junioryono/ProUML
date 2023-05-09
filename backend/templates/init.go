@@ -14,6 +14,8 @@ func GetTemplate(name string) (*[]any, *types.WrappedError) {
 		return getAdapter(), nil
 	case "bridge":
 		return getBridge(), nil
+	case "builder":
+		return getBuilder(), nil
 	case "chain_of_responsibility":
 		return getChainOfResponsibility(), nil
 	case "command":
