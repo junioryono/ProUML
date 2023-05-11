@@ -197,6 +197,73 @@ export default function Menu({
                   </SubDropdownMenu.Content>
                </SubDropdownMenu>
 
+               <SubDropdownMenu>
+                  <SubDropdownMenu.Trigger>
+                     <div className="pr-2">Download Image</div>
+                     <SubDropdownMenu.Arrow />
+                  </SubDropdownMenu.Trigger>
+
+                  <SubDropdownMenu.Content>
+                     <DropdownMenu.Item
+                        className="text-white text-xs px-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
+                        onSelect={() => {
+                           graph.current?.toJPEG(
+                              (dataURI) => {
+                                 const downloadAnchorNode = document.createElement("a");
+                                 downloadAnchorNode.setAttribute("href", dataURI);
+                                 downloadAnchorNode.setAttribute("download", `${diagramName}.jpeg`);
+                                 document.body.appendChild(downloadAnchorNode);
+                                 downloadAnchorNode.click();
+                                 downloadAnchorNode.remove();
+                              },
+                              {
+                                 quality: 1,
+                              },
+                           );
+                        }}
+                     >
+                        JPEG
+                     </DropdownMenu.Item>
+
+                     <DropdownMenu.Item
+                        className="text-white text-xs px-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
+                        onSelect={() => {
+                           graph.current?.toPNG(
+                              (dataURI) => {
+                                 const downloadAnchorNode = document.createElement("a");
+                                 downloadAnchorNode.setAttribute("href", dataURI);
+                                 downloadAnchorNode.setAttribute("download", `${diagramName}.png`);
+                                 document.body.appendChild(downloadAnchorNode);
+                                 downloadAnchorNode.click();
+                                 downloadAnchorNode.remove();
+                              },
+                              {
+                                 quality: 1,
+                              },
+                           );
+                        }}
+                     >
+                        PNG
+                     </DropdownMenu.Item>
+
+                     <DropdownMenu.Item
+                        className="text-white text-xs px-7 h-6 focus:bg-diagram-menu-item-selected focus:text-white"
+                        onSelect={() => {
+                           graph.current?.toSVG((dataURI) => {
+                              const downloadAnchorNode = document.createElement("a");
+                              downloadAnchorNode.setAttribute("href", dataURI);
+                              downloadAnchorNode.setAttribute("download", `${diagramName}.svg`);
+                              document.body.appendChild(downloadAnchorNode);
+                              downloadAnchorNode.click();
+                              downloadAnchorNode.remove();
+                           });
+                        }}
+                     >
+                        SVG
+                     </DropdownMenu.Item>
+                  </SubDropdownMenu.Content>
+               </SubDropdownMenu>
+
                <DropdownMenu.Separator className="my-1 bg-[#636363]" />
 
                <DropdownMenu.Item

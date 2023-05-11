@@ -55,6 +55,18 @@ export class Export extends Basecoat<Export.EventArgs> {
 
       const vSVG = Vector.create(rawSVG).clone();
       let clonedSVG = vSVG.node as SVGSVGElement;
+
+      // Get all the markers in the "x6-graph-svg" SVG. It is .x6-graph-svg > defs > marker(s). These markers are needed for styling the edges.
+      const markers = rawSVG.querySelectorAll(".x6-graph-svg > defs > marker");
+
+      // Append each marker to the cloned SVG
+      markers.forEach((marker) => {
+         // Clone the marker
+         const clonedMarker = marker.cloneNode(true) as SVGElement;
+         // Append the cloned marker to the cloned SVG
+         vSVG.append(clonedMarker);
+      });
+
       const vStage = vSVG.findOne(`.${this.view.prefixClassName("graph-svg-stage")}`)!;
 
       const viewBox = options.viewBox || this.graph.graphToLocal(this.graph.getContentBBox());
