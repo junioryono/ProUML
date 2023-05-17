@@ -51,7 +51,7 @@ export default function Edges(
    });
 
    graph.current?.on("edge:change:source", (args) => {
-      if ((args.previous as any).ws) {
+      if ((args.previous as any)?.ws || args.options.ws) {
          return;
       }
 
@@ -59,28 +59,10 @@ export default function Edges(
    });
 
    graph.current?.on("edge:change:target", (args) => {
-      console.log("edge:change:target", args);
-      if ((args.previous as any)?.ws) {
+      console.log("edge:change:target", args.cell.prop());
+      if ((args.previous as any)?.ws || args.options.ws) {
          return;
       }
-
-      // // Check if the target node is an interface
-      // const targetCell = args.edge.getTargetCell();
-      // if (targetCell) {
-      //    const targetCellType: string = targetCell.getProp().type || "";
-      //    if (targetCellType === "interface") {
-      //       console.log("edge:change:target", "interface");
-      //       // TODO: the source target also determines the type of arrow.
-      //       // Ex: if the source is an interface and the target is an interface, then the we should extend, not implement
-      //       edgeFunctions.setRealizationEdge(args.edge);
-      //    } else if (targetCellType === "abstract") {
-      //       console.log("edge:change:target", "abstract");
-      //       edgeFunctions.setGeneralizationEdge(args.edge);
-      //    } else {
-      //       console.log("edge:change:target", "regular");
-      //       edgeFunctions.setRegularEdge(args.edge);
-      //    }
-      // }
 
       wsLocalUpdateEdge(args.cell, wsSendJson, sessionId);
    });
@@ -117,11 +99,10 @@ export default function Edges(
    });
 
    graph.current?.on("edge:batch:stop", (args) => {
+      console.log("edge:batch:stop", args);
       if (args.name === "move-arrowhead") {
          hideAllPorts(graph.current);
-      } else if (args.name === "add-vertex") {
-         wsLocalAndDBUpdateEdge(args.cell, wsSendJson, sessionId);
-      } else if (args.name === "move-vertex") {
+      } else if (args.name === "add-vertex" || args.name === "move-vertex" || args.name === "update") {
          wsLocalAndDBUpdateEdge(args.cell, wsSendJson, sessionId);
       }
    });
@@ -132,5 +113,7 @@ export default function Edges(
       graph.current?.off("edge:change:target");
       graph.current?.off("edge:removed");
       graph.current?.off("edge:added");
+      graph.current?.off("edge:batch:start");
+      graph.current?.off("edge:batch:stop");
    };
 }

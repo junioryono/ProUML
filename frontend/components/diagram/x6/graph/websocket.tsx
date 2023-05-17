@@ -91,8 +91,9 @@ function onWebSocketMessage(
          return;
       }
 
-      edgeInGraph.setSource(cell.source, { ws: true });
-      edgeInGraph.setTarget(cell.target, { ws: true });
+      edgeInGraph.setProp("source", cell.source, { ws: true });
+      edgeInGraph.setProp("target", cell.target, { ws: true });
+      edgeInGraph.setProp("attrs", cell.attrs, { ws: true });
    } else if (events.includes("local_removeCell")) {
       const cell = message.cell;
       if (!cell) {

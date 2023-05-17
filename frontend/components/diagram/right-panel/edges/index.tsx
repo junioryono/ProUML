@@ -329,6 +329,8 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                  if (leftEnd !== option.value) {
                                     setLeftEnd(option.value);
 
+                                    graph.current?.startBatch("update");
+
                                     if (option.value === "none") {
                                        for (const edge of selectedEdges) {
                                           setRegularEdgeSource(edge);
@@ -350,6 +352,8 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                           setCompositionEdgeSource(edge);
                                        }
                                     }
+
+                                    graph.current?.stopBatch("update");
                                  }
 
                                  // don't show the dropdown anymore
@@ -403,6 +407,8 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                  if (lineStyle !== option.value) {
                                     setLineStyle(option.value);
 
+                                    graph.current?.startBatch("update");
+
                                     if (option.value === "solid") {
                                        for (const edge of selectedEdges) {
                                           setEdgeStrokeDasharray(edge, false);
@@ -412,6 +418,8 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                           setEdgeStrokeDasharray(edge, true);
                                        }
                                     }
+
+                                    graph.current?.stopBatch("update");
                                  }
 
                                  // don't show the dropdown anymore
@@ -467,6 +475,8 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                  if (rightEnd !== option.value) {
                                     setRightEnd(option.value);
 
+                                    graph.current?.startBatch("update");
+
                                     if (option.value === "none") {
                                        for (const edge of selectedEdges) {
                                           setRegularEdgeTarget(edge);
@@ -488,6 +498,8 @@ export default function EdgesPanel({ graph }: { graph: MutableRefObject<X6Type.G
                                           setCompositionEdgeTarget(edge);
                                        }
                                     }
+
+                                    graph.current?.stopBatch("update");
                                  }
 
                                  // don't show the dropdown anymore

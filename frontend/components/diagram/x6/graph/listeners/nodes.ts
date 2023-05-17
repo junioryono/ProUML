@@ -67,48 +67,7 @@ export default function Nodes(
          });
       }
 
-      // if (args.key === "type") {
-      //    const incomingEdges = graph.current?.getConnectedEdges(args.cell, { incoming: true });
-      //    for (const edge of incomingEdges) {
-      //       graph.current?.trigger("edge:change:target", {
-      //          edge,
-      //          cell: args.cell,
-      //          options: {
-      //             ...args.options,
-      //             type:
-      //          },
-      //       });
-      //    }
-      // }
-
-      // const newType: string = args.cell.getProp("type") || "";
-      // if (newType === "interface") {
-      //    edgeFunctions.setRealizationEdge(edge);
-      // } else if (newType === "abstract") {
-      //    edgeFunctions.setGeneralizationEdge(edge);
-      // } else {
-      //    edgeFunctions.setRegularEdge(edge);
-      // }
-
       wsLocalAndDBUpdateNode(args.cell, wsSendJson, sessionId);
-   });
-
-   graph.current?.on("node:change:type", (args) => {
-      const incomingEdges = graph.current?.getConnectedEdges(args.cell, { incoming: true });
-      for (const edge of incomingEdges) {
-         if (args.type === "interface") {
-            console.log("edge:change:target", "interface");
-            edgeFunctions.setRealizationEdge(edge);
-         } else if (args.type === "abstract") {
-            console.log("edge:change:target", "abstract");
-            edgeFunctions.setGeneralizationEdge(edge);
-         } else {
-            console.log("edge:change:target", "regular");
-            edgeFunctions.setRegularEdge(edge);
-         }
-
-         wsLocalAndDBUpdateEdge(edge, wsSendJson, sessionId);
-      }
    });
 
    // When a node just starts to be moved. Triggers on mouse down and first move
